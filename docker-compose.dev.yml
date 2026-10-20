@@ -1,0 +1,112 @@
+# =============================================================================
+# docker-compose.dev.yml  —  DrGame E-Commerce Platform | Development Environment
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build -d
+#   docker compose -f docker-compose.dev.yml logs -f
+# =============================================================================
+
+networks:
+  drgame-internal:
+    driver: bridge
+  drgame-app:
+    driver: bridge
+
+volumes:
+  drgame_pgdata_dev:
+  drgame_redisdata_dev:
+
+services:
+
+  # ── PostgreSQL Database ────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: drgame-db-dev
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-drgame_db}
+      POSTGRES_USER: ${POSTGRES_USER:-drgame_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-drgame_secure_pass_2026}
+    volumes:
+      - drgame_pgdata_dev:/var/lib/postgresql/data
+    ports:
+      - "${DB_HOST_PORT:-8020}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-drgame_user} -d ${POSTGRES_DB:-drgame_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - drgame-internal
+    restart: unless-stopped
+
+  # ── Redis Cache ────────────────────────────────────────────────────────────
+  cache:
+    image: redis:7-alpine
+    container_name: drgame-cache-dev
+    ports:
+      - "${REDIS_HOST_PORT:-8021}:6379"
+    volumes:
+      - drgame_redisdata_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+    networks:
+      - drgame-internal
+    restart: unless-stopped
+
+  # ── FastAPI Backend ────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: drgame-backend-dev
+    volumes:
+      - ./backend:/app
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME:-DrGame E-Commerce Platform}
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-drgame_user}:${POSTGRES_PASSWORD:-drgame_secure_pass_2026}@db:5432/${POSTGRES_DB:-drgame_db}
+      - REDIS_URL=redis://cache:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-drgame_super_secret_jwt_key_development_only_2026_cosmic_purple}
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - RAWG_API_KEY=${RAWG_API_KEY:-mock_key}
+    ports:
+      - "${BACKEND_HOST_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - drgame-internal
+      - drgame-app
+    restart: unless-stopped
+
+  # ── Next.js 14 Frontend ────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: drgame-frontend-dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
+    depends_on:
+      - backend
+    networks:
+      - drgame-app
+    restart: unless-stopped

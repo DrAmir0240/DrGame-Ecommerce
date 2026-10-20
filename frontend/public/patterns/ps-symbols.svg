@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none">
+  <!-- Triangle -->
+  <polygon points="30,18 42,38 18,38" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none" />
+  
+  <!-- Circle -->
+  <circle cx="90" cy="28" r="11" stroke="currentColor" stroke-width="1.8" fill="none" />
+  
+  <!-- Cross (X) -->
+  <line x1="20" y1="78" x2="38" y2="96" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <line x1="38" y1="78" x2="20" y2="96" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Square -->
+  <rect x="80" y="78" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" />
+  
+  <!-- Tiny Stars/Sparkles -->
+  <circle cx="60" cy="58" r="1.5" fill="currentColor" opacity="0.6" />
+  <circle cx="10" cy="110" r="1" fill="currentColor" opacity="0.4" />
+  <circle cx="110" cy="10" r="1" fill="currentColor" opacity="0.4" />
+</svg>

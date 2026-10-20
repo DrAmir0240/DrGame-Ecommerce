@@ -1,0 +1,89 @@
+# =============================================================================
+# docker-compose.prod.yml  —  DrGame E-Commerce Platform | Production Environment
+# =============================================================================
+
+networks:
+  drgame-internal-prod:
+    driver: bridge
+  drgame-app-prod:
+    driver: bridge
+
+volumes:
+  drgame_pgdata_prod:
+  drgame_redisdata_prod:
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: drgame-db-prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - drgame_pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - drgame-internal-prod
+    restart: always
+
+  cache:
+    image: redis:7-alpine
+    container_name: drgame-cache-prod
+    volumes:
+      - drgame_redisdata_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - drgame-internal-prod
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: drgame-backend-prod
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - RAWG_API_KEY=${RAWG_API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - drgame-internal-prod
+      - drgame-app-prod
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: drgame-frontend-prod
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - drgame-app-prod
+    restart: always
