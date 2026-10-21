@@ -60,7 +60,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - RAWG_API_KEY=${RAWG_API_KEY}
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -81,7 +81,7 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
     networks:
