@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "device": "desktop",
+  "root": { "route": "/" },
+  "sections": [
+    { "id": "store", "name": "Store" },
+    { "id": "game", "name": "Game detail" },
+    { "id": "account", "name": "Plans & account" },
+    { "id": "tv", "name": "TV mode" }
+  ],
+  "screens": {
+    "scr_home": { "name": "Store home", "route": "/", "section": "store", "state": {} },
+    "scr_game_owned": { "name": "Game — owned", "route": "/games/god-of-war", "section": "game", "state": {} },
+    "scr_game_sent": { "name": "Game — sent to PS5", "route": "/games/god-of-war", "section": "game", "state": { "sent": true } },
+    "scr_game_not_owned": { "name": "Game — not owned", "route": "/games/god-of-war", "section": "game", "state": { "ownership": "not-owned" } },
+    "scr_game_low_quota": { "name": "Game — quota too low", "route": "/games/god-of-war", "section": "game", "state": { "quota": "low" } },
+    "scr_plans": { "name": "Plans", "route": "/plans", "section": "account", "state": {} },
+    "scr_profile": { "name": "Profile / dashboard", "route": "/profile", "section": "account", "state": {} },
+    "scr_signin": { "name": "Sign in with PSN", "route": "/signin", "section": "account", "state": {} },
+    "scr_tv": { "name": "TV mode — controller focus", "route": "/tv", "section": "tv", "state": {} }
+  },
+  "edges": [],
+  "layers": []
+}
