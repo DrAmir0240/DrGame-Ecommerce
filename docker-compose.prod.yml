@@ -87,3 +87,19 @@ services:
     networks:
       - drgame-app-prod
     restart: always
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: drgame-ecommerce-nginx-prod
+    restart: always
+    ports:
+      - "${ECOMMERCE_NGINX_PORT:-8080}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - drgame-app-prod
