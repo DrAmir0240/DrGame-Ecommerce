@@ -1,0 +1,32 @@
+{
+  "name": "gamedr-website",
+  "version": "1.0.0",
+  "description": "GameDr storefront, account portal, and administration backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "fetch-covers": "node scripts/fetch-covers.js",
+    "fetch-covers:rawg": "node scripts/fetch-covers-rawg.js",
+    "fix-covers": "node scripts/fix-cover-mismatches.js",
+    "build:css": "node scripts/build-styles.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "dotenv": "^18.0.4",
+    "express": "^4.19.2",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "nodemailer": "^10.0.14",
+    "pg": "^8.23.1",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.35.5"
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.3.0": true
+  },
+  "devDependencies": {
+    "cssnano": "^9.6.0",
+    "postcss": "^8.5.29"
+  }
+}

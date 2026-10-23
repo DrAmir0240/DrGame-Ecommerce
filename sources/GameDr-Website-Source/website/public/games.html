@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="/runtime.js?v=site-recheck-20261020"></script>
+<script src="/theme.js?v=site-recheck-20261020"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Games — Dr Game</title>
+<link rel="stylesheet" href="/fonts/fonts.css?v=site-recheck-20261020">
+<link rel="stylesheet" href="/style.css?v=header-white-polish-20261020">
+</head>
+<body>
+
+<div class="topbar">
+  <button class="hamburger" id="hamburger" aria-label="Open categories"><span></span><span></span><span></span></button>
+  <a class="brand" href="/"><img src="/logo.png" alt="Dr Game" class="brand-logo"></a>
+  <div class="nav-links">
+    <a href="/games.html" data-i18n="nav_all_games">All Games</a>
+    <a href="/subscription.html" data-i18n="nav_subscription">Subscription</a>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Search 300+ games..." data-i18n-placeholder="search_placeholder">
+  </div>
+  <button class="lang-toggle" id="lang-toggle">فارسی</button>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <a class="brand" href="/"><img src="/logo.png" alt="Dr Game" class="brand-logo"></a>
+    <button class="drawer-close" id="drawer-close" aria-label="Close">&times;</button>
+  </div>
+  <a class="drawer-link" href="/subscription.html">
+    <img class="drawer-link-logo" src="/logo.png" alt="">
+    <span class="drawer-link-text"><strong data-i18n="nav_subscription">Subscription</strong><small data-i18n="sub_tagline">Bronze, Silver &amp; Gold plans</small></span>
+    <span class="drawer-link-arrow">&rarr;</span>
+  </a>
+  <a class="drawer-link drawer-gamepad" href="/gamepad-tester.html">
+    <span class="drawer-link-icon"><svg class="drawer-link-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.5 6h9A5.5 5.5 0 0 1 22 11.5v1.6c0 2.7-1.3 4.9-3.1 4.9-1.2 0-2.1-.8-2.9-2l-.9-1.3a1.6 1.6 0 0 0-1.3-.7h-3.6a1.6 1.6 0 0 0-1.3.7L8 16c-.8 1.2-1.7 2-2.9 2C3.3 18 2 15.800 2 13.100v-1.600A5.500 5.500 0 0 1 7.500 6Zm.250 3.250v1.250H6.500v1.500h1.250v1.250h1.500V12h1.250v-1.500H9.250V9.250h-1.500ZM16 9.500a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm2.500 1.500a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg></span>
+    <span class="drawer-link-text"><strong data-i18n="nav_gamepad">Gamepad Tester</strong><small data-i18n="gp_sub_tagline">Check every button &amp; stick</small></span>
+    <span class="drawer-link-arrow">&rarr;</span>
+  </a>
+  <ul class="drawer-list" id="category-list"></ul>
+  <div class="drawer-divider"></div>
+  <div class="drawer-section-label" data-i18n="drawer_platform_label">Platform</div>
+  <ul class="drawer-list" id="platform-list"></ul>
+  <div class="drawer-divider"></div>
+  <a class="drawer-contact" href="/contact.html"><span class="drawer-contact-icon">&#9993;</span><span data-i18n="nav_contact">Contact Us</span><span class="drawer-link-arrow">&rarr;</span></a>
+</div>
+
+<div class="hero">
+  <h1 id="hero-title" data-i18n="hero_title_default">Gameplay clips from 300+ games, ready to watch or download</h1>
+  <div class="pill-row" id="pills" role="group" aria-label="Quick filters">
+    <button class="active" aria-pressed="true" data-filter="all" data-i18n="pill_all">All games</button>
+    <button aria-pressed="false" data-filter="with-subtitle" data-i18n="pill_with_subtitle">With subtitle</button>
+  </div>
+</div>
+
+<div class="game-grid" id="grid"></div>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="brand-line"><img src="/logo.png" alt="Dr Game" class="brand-logo"></div>
+      <p data-i18n="footer_tagline">Your place to discover PlayStation games and manage your downloads.</p>
+      <a class="footer-link footer-sub" href="/subscription.html"><span class="footer-icon"><img src="/logo.png" alt=""></span><span data-i18n="nav_subscription">Subscription</span><span class="footer-sub-tag" data-i18n="sub_tag_new">Plans</span></a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_follow_us">Follow Us</h4>
+      <a class="footer-link" href="#" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128247;</span>Instagram — @drgame.demo
+      </a>
+      <a class="footer-link" href="https://wa.me/15551234567" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128172;</span>WhatsApp
+      </a>
+      <a class="footer-link" href="https://t.me/drgame_demo" target="_blank" rel="noopener">
+        <span class="footer-icon">&#9992;&#65039;</span>Telegram
+      </a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_contact">Contact</h4>
+      <a class="footer-link" href="tel:+15551234567">
+        <span class="footer-icon">&#128222;</span>+1 (555) 123-4567
+      </a>
+      <a class="footer-link" href="tel:+15559876543">
+        <span class="footer-icon">&#128222;</span>+1 (555) 987-6543
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-legal"><a href="/terms.html" data-i18n="legal_terms">Terms of Service</a><a href="/privacy.html" data-i18n="legal_privacy">Privacy Policy</a><a href="/refund.html" data-i18n="legal_refund">Refund Policy</a></div>
+    <div class="footer-badges" id="footer-badges"></div>
+    <p data-i18n="footer_copyright">&copy; 2026 Dr Game. Demo contact details — not a real business.</p>
+  </div>
+</footer>
+
+<script src="/i18n.js?v=header-white-polish-b-20261020"></script>
+<script src="/menu.js?v=site-recheck-20261020"></script>
+<script src="/wallet.js?v=site-recheck-20261020"></script>
+<script src="/pages/games.js?v=site-recheck-20261020"></script>
+
+<script src="/storefront.js?v=site-recheck-20261020"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.git
+.gitignore
+.dockerignore
+.branch-ledger-api
+branch-ledger.json
+node_modules
+npm-debug.log*
+*.log
+.env
+.env.*
+!.env.example
+*.zip

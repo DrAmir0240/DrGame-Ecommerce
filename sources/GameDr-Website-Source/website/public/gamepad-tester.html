@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="/runtime.js?v=site-recheck-20261020"></script>
+<script src="/theme.js?v=site-recheck-20261020"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gamepad Tester — Dr Game</title>
+<link rel="stylesheet" href="/fonts/fonts.css?v=site-recheck-20261020">
+<link rel="stylesheet" href="/style.css?v=header-white-polish-20261020">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/"><img src="/logo.png" alt="Dr Game" class="brand-logo"></a>
+  <div class="nav-links">
+    <a href="/games.html" data-i18n="nav_all_games">All Games</a>
+    <a href="/subscription.html" data-i18n="nav_subscription">Subscription</a>
+  </div>
+  <button class="lang-toggle" id="lang-toggle">فارسی</button>
+</div>
+
+<div class="game-header gp-header">
+  <a class="back-link" href="/" data-i18n="back_home">&larr; Back to home</a>
+  <h1 data-i18n="gp_heading">Gamepad Tester</h1>
+</div>
+
+<section class="site-intro" style="padding-top: 0;"><p id="gp-intro"></p></section>
+
+<section class="sp-wrap">
+
+  <!-- shown until a controller is detected -->
+  <div class="sp-card sp-empty" id="sp-empty">
+    <div class="sp-empty-icon" aria-hidden="true">&#127918;</div>
+    <h2 id="sp-empty-title"></h2>
+    <p id="sp-empty-text"></p>
+  </div>
+
+  <!-- shown once a controller is detected -->
+  <div id="sp-app" style="display:none">
+    <div class="sp-bar">
+      <div>
+        <div class="sp-name" id="sp-name"></div>
+        <div class="sp-sub" id="sp-sub"></div>
+      </div>
+      <div class="sp-bar-actions">
+        <select id="sp-pick" class="sp-select" style="display:none" aria-label="Controller"></select>
+        <button type="button" class="sp-btn" id="sp-vibe"></button>
+        <button type="button" class="sp-btn" id="sp-reset"></button>
+      </div>
+    </div>
+
+    <div class="sp-result" id="sp-result"></div>
+
+    <div class="sp-card sp-pad">
+      <svg id="sp-svg" viewBox="0 0 640 380" role="img" aria-label="Controller">
+        <!-- triggers (fill with pressure) -->
+        <g id="p-lt"><rect class="sp-trig-bg" x="120" y="14" width="96" height="20" rx="8"/><rect class="sp-trig-fill" x="120" y="14" width="0" height="20" rx="8"/><text class="sp-lbl" x="168" y="29" data-lbl="lt"></text></g>
+        <g id="p-rt"><rect class="sp-trig-bg" x="424" y="14" width="96" height="20" rx="8"/><rect class="sp-trig-fill" x="424" y="14" width="0" height="20" rx="8"/><text class="sp-lbl" x="472" y="29" data-lbl="rt"></text></g>
+        <!-- shoulders -->
+        <rect class="sp-btn-shape" id="b4" x="110" y="44" width="116" height="22" rx="10"/><text class="sp-lbl" x="168" y="60" data-lbl="lb"></text>
+        <rect class="sp-btn-shape" id="b5" x="414" y="44" width="116" height="22" rx="10"/><text class="sp-lbl" x="472" y="60" data-lbl="rb"></text>
+        <!-- body -->
+        <path class="sp-body" d="M150 84 C200 70 440 70 490 84 C548 102 596 222 566 300 C546 350 492 346 462 300 L432 262 H208 L178 300 C148 346 94 350 74 300 C44 222 92 102 150 84 Z"/>
+        <!-- left stick -->
+        <circle class="sp-ring" cx="180" cy="140" r="40"/>
+        <circle class="sp-stick" id="b10" cx="180" cy="140" r="17"/>
+        <!-- d-pad -->
+        <g class="sp-dpad"><rect class="sp-btn-shape" id="b12" x="233" y="190" width="24" height="26" rx="5"/><rect class="sp-btn-shape" id="b13" x="233" y="240" width="24" height="26" rx="5"/><rect class="sp-btn-shape" id="b14" x="206" y="216" width="26" height="24" rx="5"/><rect class="sp-btn-shape" id="b15" x="258" y="216" width="26" height="24" rx="5"/></g>
+        <!-- centre buttons -->
+        <circle class="sp-btn-shape" id="b8" cx="285" cy="130" r="11"/><text class="sp-lbl sp-small" x="285" y="156" data-lbl="back"></text>
+        <circle class="sp-btn-shape" id="b16" cx="320" cy="106" r="14"/><text class="sp-lbl sp-small" x="320" y="136" data-lbl="home"></text>
+        <circle class="sp-btn-shape" id="b9" cx="355" cy="130" r="11"/><text class="sp-lbl sp-small" x="355" y="156" data-lbl="start"></text>
+        <!-- face buttons -->
+        <circle class="sp-btn-shape" id="b3" cx="460" cy="102" r="19"/><text class="sp-lbl" x="460" y="108" data-lbl="y"></text>
+        <circle class="sp-btn-shape" id="b2" cx="424" cy="138" r="19"/><text class="sp-lbl" x="424" y="144" data-lbl="x"></text>
+        <circle class="sp-btn-shape" id="b1" cx="496" cy="138" r="19"/><text class="sp-lbl" x="496" y="144" data-lbl="b"></text>
+        <circle class="sp-btn-shape" id="b0" cx="460" cy="174" r="19"/><text class="sp-lbl" x="460" y="180" data-lbl="a"></text>
+        <!-- right stick -->
+        <circle class="sp-ring" cx="390" cy="236" r="40"/>
+        <circle class="sp-stick" id="b11" cx="390" cy="236" r="17"/>
+      </svg>
+      <div class="sp-sticks">
+        <div><span id="sp-ls-label"></span> <b id="sp-ls-val">0.00, 0.00</b> <span class="sp-drift" id="sp-ls-drift"></span></div>
+        <div><span id="sp-rs-label"></span> <b id="sp-rs-val">0.00, 0.00</b> <span class="sp-drift" id="sp-rs-drift"></span></div>
+      </div>
+    </div>
+
+    <div class="sp-card">
+      <h3 id="sp-list-title"></h3>
+      <div class="sp-chips" id="sp-chips"></div>
+    </div>
+  </div>
+
+  <div class="sp-advanced">
+    <button type="button" class="sp-btn" id="sp-adv-btn"></button>
+    <p class="sp-hint" id="sp-adv-hint"></p>
+    <div class="gp-frame-box" id="sp-adv-box" style="display:none">
+      <iframe id="pad-frame" title="Advanced Gamepad Tester" allow="hid; gamepad; usb; serial; bluetooth; fullscreen"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="brand-line"><img src="/logo.png" alt="Dr Game" class="brand-logo"></div>
+      <p data-i18n="footer_tagline">Your place to discover PlayStation games and manage your downloads.</p>
+      <a class="footer-link footer-sub" href="/subscription.html"><span class="footer-icon"><img src="/logo.png" alt=""></span><span data-i18n="nav_subscription">Subscription</span><span class="footer-sub-tag" data-i18n="sub_tag_new">Plans</span></a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_follow_us">Follow Us</h4>
+      <a class="footer-link" href="#" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128247;</span>Instagram — @drgame.demo
+      </a>
+      <a class="footer-link" href="https://wa.me/15551234567" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128172;</span>WhatsApp
+      </a>
+      <a class="footer-link" href="https://t.me/drgame_demo" target="_blank" rel="noopener">
+        <span class="footer-icon">&#9992;&#65039;</span>Telegram
+      </a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_contact">Contact</h4>
+      <a class="footer-link" href="tel:+15551234567">
+        <span class="footer-icon">&#128222;</span>+1 (555) 123-4567
+      </a>
+      <a class="footer-link" href="tel:+15559876543">
+        <span class="footer-icon">&#128222;</span>+1 (555) 987-6543
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-legal"><a href="/terms.html" data-i18n="legal_terms">Terms of Service</a><a href="/privacy.html" data-i18n="legal_privacy">Privacy Policy</a><a href="/refund.html" data-i18n="legal_refund">Refund Policy</a></div>
+    <div class="footer-badges" id="footer-badges"></div>
+    <p data-i18n="footer_copyright">&copy; 2026 Dr Game. Demo contact details — not a real business.</p>
+  </div>
+</footer>
+
+<script src="/i18n.js?v=header-white-polish-b-20261020"></script>
+<script src="/menu.js?v=site-recheck-20261020"></script>
+<script src="/wallet.js?v=site-recheck-20261020"></script>
+<script src="/pages/gamepad-tester.js?v=site-recheck-20261020"></script>
+
+</body>
+</html>

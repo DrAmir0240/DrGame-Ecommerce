@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="/runtime.js?v=site-recheck-20261020"></script>
+<script src="/theme.js?v=site-recheck-20261020"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr Game</title>
+<link rel="stylesheet" href="/fonts/fonts.css?v=site-recheck-20261020">
+<link rel="stylesheet" href="/style.css?v=header-white-polish-20261020">
+</head>
+<body class="home-page">
+
+<div class="topbar">
+  <button class="hamburger" id="hamburger" aria-label="Open navigation" aria-controls="drawer" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a class="brand" href="/"><img src="/logo.png" alt="Dr Game" class="brand-logo"></a>
+  <div class="nav-links">
+    <a href="/games.html" data-i18n="nav_all_games">All Games</a>
+    <a href="/subscription.html" data-i18n="nav_subscription">Subscription</a>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Search 300+ games..." data-i18n-placeholder="search_placeholder">
+  </div>
+  <a class="profile-icon" href="/profile.html" aria-label="My profile" title="My profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21v-2a7.5 7.5 0 0 1 15 0v2"/></svg></a>
+  <button class="lang-toggle" id="lang-toggle">فارسی</button>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Navigation" inert>
+  <div class="drawer-header">
+    <a class="brand" href="/"><img src="/logo.png" alt="Dr Game" class="brand-logo"></a>
+    <button class="drawer-close" id="drawer-close" aria-label="Close">&times;</button>
+  </div>
+  <a class="drawer-link" href="/subscription.html">
+    <img class="drawer-link-logo" src="/logo.png" alt="">
+    <span class="drawer-link-text"><strong data-i18n="nav_subscription">Subscription</strong><small data-i18n="sub_tagline">Bronze, Silver &amp; Gold plans</small></span>
+    <span class="drawer-link-arrow">&rarr;</span>
+  </a>
+  <a class="drawer-link drawer-gamepad" href="/gamepad-tester.html">
+    <span class="drawer-link-icon"><svg class="drawer-link-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.5 6h9A5.5 5.5 0 0 1 22 11.5v1.6c0 2.7-1.3 4.9-3.1 4.9-1.2 0-2.1-.8-2.9-2l-.9-1.3a1.6 1.6 0 0 0-1.3-.7h-3.6a1.6 1.6 0 0 0-1.3.7L8 16c-.8 1.2-1.7 2-2.9 2C3.3 18 2 15.800 2 13.100v-1.600A5.500 5.500 0 0 1 7.500 6Zm.250 3.250v1.250H6.500v1.500h1.250v1.250h1.500V12h1.250v-1.500H9.250V9.250h-1.500ZM16 9.500a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm2.500 1.500a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg></span>
+    <span class="drawer-link-text"><strong data-i18n="nav_gamepad">Gamepad Tester</strong><small data-i18n="gp_sub_tagline">Check every button &amp; stick</small></span>
+    <span class="drawer-link-arrow">&rarr;</span>
+  </a>
+  <details class="drawer-tools-group">
+    <summary class="drawer-section-label drawer-tools-toggle" data-i18n="drawer_tools">Tools</summary>
+    <a class="drawer-link drawer-tool-link" href="/payload.html">
+      <span class="drawer-link-icon" aria-hidden="true"><svg class="drawer-link-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 4.5 5 5M13 6l5 5M4 20l6.5-6.5M3 21l4.5-1.5L19 8a2.8 2.8 0 0 0-4-4L3.5 15.5 2 20Z"/><path d="m12 12 2 2"/></svg></span>
+      <span class="drawer-link-text"><strong data-i18n="payload_heading">Payload</strong><small data-i18n="drawer_payload_hint">PlayStation digital tools</small></span>
+      <span class="drawer-link-arrow">&rarr;</span>
+    </a>
+  </details>
+  <div class="drawer-quick-links">
+    <a href="/profile.html" data-i18n="account_heading">Account</a>
+    <a href="/request.html" data-i18n="profile_request">Request a game</a>
+  </div>
+  <div class="drawer-section-label" data-i18n="all_categories_btn">All categories</div>
+  <ul class="drawer-list" id="category-list"></ul>
+  <div class="drawer-divider"></div>
+  <div class="drawer-section-label drawer-platform-label" data-i18n="drawer_platform_label">Platform</div>
+  <ul class="drawer-list" id="platform-list"></ul>
+  <div class="drawer-divider"></div>
+  <a class="drawer-contact" href="/contact.html"><span class="drawer-contact-icon">&#9993;</span><span data-i18n="nav_contact">Contact Us</span><span class="drawer-link-arrow">&rarr;</span></a>
+</div>
+
+<div class="category-rail-shell is-open">
+  <nav class="category-rail" id="category-rail" aria-label="Game categories"></nav>
+</div>
+<div class="home-hero">
+<div class="hero-collage" id="hero-collage" aria-hidden="true"></div>
+<section class="site-intro">
+  <h1 class="home-title" data-i18n="hero_title_default">Gameplay clips from 300+ games, ready to watch or download</h1>
+  <p data-i18n="site_intro">GameDr ir makes it easier to explore PS4 and PS5 digital content, including games for modified consoles and account-based games. Find the details you need and choose with confidence.</p>
+</section>
+</div>
+
+<section class="feature-grid">
+  <a class="feature-box feature-link-box fb-learn" href="/learn.html">
+    <span class="fb-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.3 5.2 8 4.8 4 5v13c4-.2 6.3.2 8 1.5 1.7-1.3 4-1.7 8-1.5V5c-4-.2-6.3.2-8 1.5Z"/><path d="M12 6.5v13"/></svg></span>
+    <h3 data-i18n="learn_heading">Learn</h3>
+    <p class="feature-blurb" data-blurb="learn" style="display:none"></p>
+    <span class="feature-arrow">&rarr;</span>
+  </a>
+
+  <a class="feature-box feature-link-box fb-copy" href="/copy.html">
+    <span class="fb-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></svg></span>
+    <h3 data-i18n="copy_heading">Jailbreak</h3>
+    <p class="feature-blurb" data-blurb="copy" style="display:none"></p>
+    <span class="feature-arrow">&rarr;</span>
+  </a>
+
+</section>
+
+<section class="featured-section foryou-section" id="foryou-section">
+  <h2 class="featured-heading" data-i18n="foryou_heading">Your taste</h2>
+  <p class="foryou-sub" id="foryou-sub"></p>
+  <div class="featured-row featured-grid" id="foryou-row"></div>
+</section>
+
+<section class="featured-section home-scrollbar-section" id="featured-section">
+  <h2 class="featured-heading" data-i18n="latest_heading">Lately Released</h2>
+  <div class="featured-row" id="featured-row" tabindex="0" role="region" aria-label="Latest games"></div>
+  <div class="view-all-wrap"><a class="view-all-btn" href="/games.html?category=Lately%20Released" data-i18n="view_all_btn">View All Games →</a></div>
+</section>
+
+<div id="two-player-shelf" aria-live="polite"></div>
+<div id="category-shelves" aria-live="polite"></div>
+
+<section class="featured-section" id="bestsellers-section">
+  <h2 class="featured-heading" data-i18n="bestsellers_heading">Best Sellers</h2>
+  <div class="featured-row" id="bestsellers-row" tabindex="0" role="region" aria-label="Best-selling games"></div>
+  <p class="bestsellers-empty" id="bestsellers-empty" data-i18n="bestsellers_empty" hidden>No sales yet. Best-selling games will appear here.</p>
+</section>
+
+<div id="home-feature-shelves" aria-live="polite"></div>
+
+<aside class="game-preview" id="game-preview" aria-label="Game preview" aria-hidden="true" inert>
+  <button class="preview-close" id="preview-close" aria-label="Close game preview" type="button">×</button>
+  <img class="preview-cover" id="preview-cover" alt="" hidden>
+  <div class="preview-content">
+    <p class="preview-kicker" id="preview-category"></p>
+    <h2 id="preview-title"></h2>
+    <p class="preview-meta" id="preview-meta"></p>
+    <div class="preview-reactions" id="preview-reactions" role="group" aria-label="Reactions for this game">
+      <span class="preview-reaction preview-reaction-like">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.95-1.57l1.3-6A2 2 0 0 0 17.5 10H14l.7-3.6A2 2 0 0 0 12.75 4L7 10v10Z"/></svg>
+        <span id="preview-like-count">0 likes</span>
+      </span>
+      <span class="preview-reaction preview-reaction-dislike">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V4h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-3Zm0-10H7.8a2 2 0 0 0-1.95 1.57l-1.3 6A2 2 0 0 0 6.5 14H10l-.7 3.6A2 2 0 0 0 11.25 20L17 14V4Z"/></svg>
+        <span id="preview-dislike-count">0 dislikes</span>
+      </span>
+    </div>
+    <p class="preview-description" id="preview-description"></p>
+    <a class="plan-btn" id="preview-link" href="/games.html">View game →</a>
+  </div>
+</aside>
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-social-qr">
+      <a href="https://t.me/gamedr8ir" target="_blank" rel="noopener"><img src="/telegram-qr.svg" width="120" height="120" alt="Scan to open Telegram @gamedr8ir" loading="lazy"><strong>Telegram</strong><small dir="ltr">@gamedr8ir</small></a>
+      <a href="https://www.instagram.com/gamedr.ir/" target="_blank" rel="noopener"><img src="/instagram-qr.svg" width="120" height="120" alt="Scan to open Instagram @gamedr.ir" loading="lazy"><strong>Instagram</strong><small dir="ltr">@gamedr.ir</small></a>
+    </div>
+    <div class="footer-brand">
+      <div class="brand-line"><img src="/logo.png" alt="Dr Game" class="brand-logo"></div>
+      <p data-i18n="footer_tagline">Your place to discover PlayStation games and manage your downloads.</p>
+      <a class="footer-link footer-sub" href="/subscription.html"><span class="footer-icon"><img src="/logo.png" alt=""></span><span data-i18n="nav_subscription">Subscription</span><span class="footer-sub-tag" data-i18n="sub_tag_new">Plans</span></a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_follow_us">Follow Us</h4>
+      <a class="footer-link" href="#" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128247;</span>Instagram — @drgame.demo
+      </a>
+      <a class="footer-link" href="https://wa.me/15551234567" target="_blank" rel="noopener">
+        <span class="footer-icon">&#128172;</span>WhatsApp
+      </a>
+      <a class="footer-link" href="https://t.me/drgame_demo" target="_blank" rel="noopener">
+        <span class="footer-icon">&#9992;&#65039;</span>Telegram
+      </a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footer_contact">Contact</h4>
+      <a class="footer-link" href="tel:+15551234567">
+        <span class="footer-icon">&#128222;</span>+1 (555) 123-4567
+      </a>
+      <a class="footer-link" href="tel:+15559876543">
+        <span class="footer-icon">&#128222;</span>+1 (555) 987-6543
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-legal"><a href="/terms.html" data-i18n="legal_terms">Terms of Service</a><a href="/privacy.html" data-i18n="legal_privacy">Privacy Policy</a><a href="/refund.html" data-i18n="legal_refund">Refund Policy</a></div>
+    <div class="footer-badges" id="footer-badges"></div>
+    <p data-i18n="footer_copyright">&copy; 2026 Dr Game. Demo contact details — not a real business.</p>
+  </div>
+</footer>
+
+<script src="/i18n.js?v=header-white-polish-b-20261020"></script>
+<script src="/menu.js?v=site-recheck-20261020"></script>
+<script src="/wallet.js?v=site-recheck-20261020"></script>
+<script src="/downloads.js?v=site-recheck-20261020"></script>
+<script src="/pages/index.js?v=site-recheck-20261020"></script>
+
+<script src="/storefront.js?v=site-recheck-20261020"></script>
+</body>
+</html>
+
+

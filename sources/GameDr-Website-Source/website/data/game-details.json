@@ -1,0 +1,205 @@
+{
+  "grand-theft-auto-v": {
+    "companyAwards": [
+      "Red Dead Redemption 2 — Best Narrative (2018)",
+      "Red Dead Redemption 2 — Best Score and Music (2018)",
+      "Red Dead Redemption 2 — Best Audio Design (2018)",
+      "Red Dead Redemption 2 — Best Performance (2018)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2018",
+    "playtime": "32 hours main story",
+    "playtimeSource": "https://howlongtobeat.com/?q=Grand%20Theft%20Auto%20V",
+    "metacritic": 97,
+    "ageRating": "ESRB Mature 17+",
+    "ageRatingUrl": "https://www.esrb.org/ratings/36493/grand-theft-auto-v/",
+    "contentDescriptors": [
+      "Blood and Gore",
+      "Intense Violence",
+      "Mature Humor",
+      "Nudity",
+      "Strong Language",
+      "Strong Sexual Content",
+      "Use of Drugs and Alcohol",
+      "Users Interact",
+      "In-Game Purchases"
+    ],
+    "players": "1 story · up to 30 online",
+    "dualSense": true,
+    "vr": false,
+    "online": true
+  },
+  "red-dead-redemption-2": {
+    "metacritic": 97,
+    "ageRating": "ESRB Mature 17+",
+    "contentDescriptors": [
+      "Blood and Gore",
+      "Intense Violence",
+      "Nudity",
+      "Sexual Content",
+      "Strong Language",
+      "Use of Drugs and Alcohol"
+    ],
+    "players": "1 local · 32 online",
+    "dualSense": false,
+    "vr": false,
+    "online": true,
+    "playtime": "50 hours main story",
+    "playtimeSource": "https://howlongtobeat.com/?q=Red%20Dead%20Redemption%202"
+  },
+  "red-dead-redemption": {
+    "metacritic": 95,
+    "ageRating": "ESRB Mature 17+",
+    "contentDescriptors": [
+      "Blood and Gore",
+      "Intense Violence",
+      "Nudity",
+      "Strong Language",
+      "Strong Sexual Content",
+      "Use of Drugs"
+    ],
+    "players": "1",
+    "dualSense": true,
+    "vr": false,
+    "online": false,
+    "playtime": "18 hours main story",
+    "playtimeSource": "https://howlongtobeat.com/?q=Red%20Dead%20Redemption"
+  },
+  "the-last-of-us": {
+    "ageRating": "ESRB Mature 17+",
+    "players": "1",
+    "dualSense": true,
+    "vr": false,
+    "online": false
+  },
+  "the-last-of-us-part-ii": {
+    "ageRating": "ESRB Mature 17+",
+    "players": "1",
+    "dualSense": true,
+    "vr": false,
+    "online": false
+  },
+  "it-takes-two": {
+    "players": "2",
+    "vr": false
+  },
+  "a-way-out": {
+    "players": "2",
+    "vr": false
+  },
+  "gran-turismo-7": {
+    "players": "2 local · 20 online",
+    "vr": true,
+    "vrSource": "https://blog.playstation.com/2023/01/19/playstation-vr2-13-new-titles-and-launch-lineup-revealed/"
+  },
+  "mortal-kombat-1": {
+    "players": "2 local · 8 online",
+    "vr": false
+  },
+  "tekken-8": {
+    "players": "2 local · 16 online",
+    "vr": false
+  },
+  "overcooked-2": {
+    "players": "4",
+    "vr": false
+  },
+  "no-man-s-sky": {
+    "players": "1 local · 4 online",
+    "vr": true,
+    "vrSource": "https://blog.playstation.com/2023/02/22/no-mans-sky-fractal-update-brings-ps-vr2-support-new-expedition-starship/"
+  },
+  "resident-evil-4": {
+    "players": "1",
+    "vr": true,
+    "vrSource": "https://blog.playstation.com/2023/11/30/resident-evil-4-vr-mode-out-dec-8-standalone-ps-vr2-gameplay-demo-available-same-day/"
+  },
+  "resident-evil-village": {
+    "vr": true,
+    "vrSource": "https://blog.playstation.com/2022/12/14/resident-evil-village-vr-mode-launches-february-22-for-ps-vr2-as-free-dlc/"
+  },
+  "resident-evil-7-biohazard": {
+    "vr": true,
+    "vrSource": "https://blog.playstation.com/2017/01/24/resident-evil-vii-out-today-on-ps4-first-dlc-launches-january-31/"
+  },
+  "rocket-league": {
+    "company": "Psyonix",
+    "metacritic": 85,
+    "ageRating": "ESRB Everyone",
+    "ageRatingUrl": "https://www.esrb.org/ratings/10018866/rocket-league/",
+    "contentDescriptors": [
+      "Mild Lyrics",
+      "Users Interact"
+    ],
+    "players": "1–4 local · 8 online",
+    "dualSense": false,
+    "vr": false,
+    "online": true,
+    "pspricesSource": "https://psprices.com/region-us/game/102033/rocket-league"
+  },
+  "uncharted-drake-s-fortune": {
+    "companyAwards": [
+      "The Last of Us Part II — 7 wins (2020)",
+      "Uncharted 4: A Thief's End — Best Narrative (2016)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "uncharted-2-among-thieves": {
+    "companyAwards": [
+      "The Last of Us Part II — 7 wins (2020)",
+      "Uncharted 4: A Thief's End — Best Narrative (2016)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "uncharted-3-drake-s-deception": {
+    "companyAwards": [
+      "The Last of Us Part II — 7 wins (2020)",
+      "Uncharted 4: A Thief's End — Best Narrative (2016)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "grand-theft-auto-san-andreas": {
+    "companyAwards": [
+      "Red Dead Redemption 2 — Best Narrative (2018)",
+      "Red Dead Redemption 2 — Best Score and Music (2018)",
+      "Red Dead Redemption 2 — Best Audio Design (2018)",
+      "Red Dead Redemption 2 — Best Performance (2018)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2018"
+  },
+  "kingdom-hearts-ii": {
+    "companyAwards": [
+      "Final Fantasy VII Remake — Best RPG (2020)",
+      "Final Fantasy VII Remake — Best Score and Music (2020)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "dark-souls-ii": {
+    "companyAwards": [
+      "Elden Ring — 3 wins (2022)",
+      "Sekiro: Shadows Die Twice — 2 wins (2019)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2022"
+  },
+  "nier-automata": {
+    "companyAwards": [
+      "Final Fantasy VII Remake — Best RPG (2020)",
+      "Final Fantasy VII Remake — Best Score and Music (2020)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "deus-ex-human-revolution": {
+    "companyAwards": [
+      "Final Fantasy VII Remake — Best RPG (2020)",
+      "Final Fantasy VII Remake — Best Score and Music (2020)"
+    ],
+    "companyAwardsSource": "https://thegameawards.com/rewind/year-2020"
+  },
+  "brawlhalla": {
+    "ageRating": "ESRB Everyone 10+",
+    "contentDescriptors": [],
+    "players": "Up to 8 players online or locally",
+    "dualSense": false,
+    "vr": false,
+    "online": true
+  }
+}

@@ -1,0 +1,80 @@
+﻿DR GAME - FULL SOURCE CODE
+==========================
+
+Requirements: Node.js 18 or newer.
+
+1. Install:        npm install
+2. Create a file named .env next to server.js (copy .env.example) with at least:
+                   ADMIN_PASSWORD=choose-a-password
+                   (if you leave it out, a random one is generated and saved to .env)
+3. EMAIL (needed for sign-up verification codes):
+                   Gmail API is supported with OAuth2. Put GMAIL_CLIENT_ID,
+                   GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN and GMAIL_FROM in .env.
+                   The refresh token must be created for the Gmail account that will send
+                   verification messages and must include the Gmail send scope.
+                   SMTP remains supported as a fallback: fill in SMTP_HOST, SMTP_PORT,
+                   SMTP_USER, SMTP_PASS and MAIL_FROM with any SMTP provider.
+                   If neither provider is configured NO email is sent: messages are saved to
+                   data/outbox.json and shown in the admin dashboard (development only).
+4. Start:          npm start
+                   The site listens on port 80 by default. To use another port:
+                   PowerShell:  $env:PORT=3500; npm start
+                   Bash:        PORT=3500 npm start
+5. Open:           http://localhost:3500/            (the site)
+                   http://localhost:3500/admin.html  (administration panel)
+
+What is inside
+--------------
+server.js            web server, game catalog API, protected downloads
+admin.js             admin login + admin API (games, plans, customers, content, reports)
+wallet.js            customer accounts (email-verified sign-up), DRT token wallet, orders, paid files
+lookup.js            admin "type the game name" lookup (PSPrices + PlayStation Store)
+promo.js             discount / gift codes and the invite-your-friends rewards
+legal.js            Terms / Privacy / Refund pages (starter texts, editable in Admin > Legal) + E-Namad badge
+requests.js         "Request a game / subtitle" from customers (Admin > Requests)
+telegram.js         announces new games / files to your Telegram channel (Admin > Telegram)
+recommend.js         the "For you" suggestions (series, same company, same category) + view tracking
+company-rules.js     which studio made which game (run scripts/set-companies.js after adding games)
+mailer.js            sends email through SMTP (or the development outbox)
+sms.js               SMS (sms.ir) for phone verification; saves to data/sms-outbox.json until fully set up
+public/              the website (pages, styles, scripts, coin, background patterns)
+public/gamepad/      the full DualSense tester (MIT licence, see public/gamepad/LICENSE)
+data/                games.json, descriptions, screenshots, cover images (data/covers)
+scripts/             helpers (cover fetching, store details, coin + pattern generators)
+media/               game files for download (empty)
+
+Notes
+-----
+* Payments: DRT purchases run in TEST mode by default (free and instant). Switch to
+  MANUAL in Admin > DRT Tokens & Wallets before going live, or connect a payment gateway.
+* PHONE VERIFICATION (sms.ir): put SMS_API_KEY in .env, set SMS_PROVIDER=smsir, create a VERIFICATION
+  template in the sms.ir panel and put its numeric id in SMS_TEMPLATE_ID (variable name in SMS_TEMPLATE_PARAM,
+  default "Code"). Until all three are set no SMS is sent; codes are saved in data/sms-outbox.json and
+  shown in the admin dashboard. sms.ir delivers to Iranian mobile numbers only (+98 9xx).
+* LEGAL PAGES: the texts are generic starter templates, NOT legal advice. Have a lawyer read and edit them
+  (Admin > Legal & Trust). Enter your E-Namad id + code there to show the trust badge in the footer.
+* TELEGRAM: create a bot with @BotFather, make it ADMIN of your channel, then put TELEGRAM_BOT_TOKEN and
+  TELEGRAM_CHAT_ID (for example @gamedr8ir) in .env and restart. Never share the token. Until then posts are
+  only saved in data/telegram-outbox.json. Admin > Telegram sets language, text and your site address.
+* DOWNLOAD LINKS: files can no longer be opened from /media. Each Download button asks the server for a
+  signed link (/dl/<token>) that works for 5 minutes (DOWNLOAD_LINK_MINUTES in .env), then answers "expired".
+  The signing key is created automatically in data/.download-secret (or set DOWNLOAD_SECRET). Keep it private;
+  changing it kills all links that are currently open.
+* CLOUDFLARE (free plan is enough to start): 1) add your domain to Cloudflare and switch its nameservers,
+  2) DNS record for the site with the orange cloud ON, 3) SSL/TLS mode "Full (strict)" (put a certificate on
+  the server or use a Cloudflare Origin Certificate), 4) put TRUSTED_PROXY=cloudflare in .env so the rate
+  limits see the real visitor, 5) Security > WAF > Rate limiting rule: path starts with /api/download-link
+  or /dl/ , 30 requests per minute per IP -> block, 6) Security > Bots: turn on Bot Fight Mode, 7) Caching >
+  Cache Rules: bypass cache for /dl/*, /api/* and /media/*, 8) firewall the server so it only accepts
+  connections from Cloudflare's IP ranges (cloudflare.com/ips). NOTE: Cloudflare's free plan limits uploads
+  to 100 MB and its terms restrict serving large video/file traffic through the proxy; for multi-GB downloads
+  ask Cloudflare about a paid plan or serve files from a separate grey-cloud hostname.
+* POSTGRESQL (recommended once you have many visitors): install PostgreSQL 15+ (postgresql.org/download),
+  then in psql:   CREATE USER drgame WITH PASSWORD 'choose-a-password';
+                  CREATE DATABASE drgame OWNER drgame ENCODING 'UTF8' TEMPLATE template0;
+  put DATABASE_URL=postgres://drgame:choose-a-password@localhost:5432/drgame in .env and restart. The first start
+  imports all data/*.json files (they stay as a backup); from then on the database is the master copy, and
+  the scripts in scripts/ that edit data/*.json directly no longer change the live site. Check /healthz.
+  Run ONE copy of the site per database. See BENCHMARK.md for what this changed and what the limits are.
+* Private data (accounts, orders, messages, reports, pending sign-ups, outbox) is created
+  at runtime in data/ and is NOT part of this package.

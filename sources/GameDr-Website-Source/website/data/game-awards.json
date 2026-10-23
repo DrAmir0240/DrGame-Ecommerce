@@ -1,0 +1,111 @@
+{
+  "god-of-war-2018": {
+    "awards": [
+      "Game of the Year (2018)",
+      "Best Game Direction (2018)",
+      "Best Action/Adventure (2018)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2018"
+  },
+  "god-of-war-ragnar-k": {
+    "awards": [
+      "Best Narrative (2022)",
+      "Best Action/Adventure (2022)",
+      "Best Score and Music (2022)",
+      "Best Performance — Christopher Judge (2022)",
+      "Best Audio Design (2022)",
+      "Innovation in Accessibility (2022)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2022"
+  },
+  "the-last-of-us-part-ii": {
+    "awards": [
+      "Game of the Year (2020)",
+      "Best Game Direction (2020)",
+      "Best Narrative (2020)",
+      "Best Action/Adventure (2020)",
+      "Best Audio Design (2020)",
+      "Best Performance — Laura Bailey (2020)",
+      "Innovation in Accessibility (2020)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2020"
+  },
+  "uncharted-4-a-thief-s-end": {
+    "awards": ["Best Narrative (2016)"],
+    "source": "https://thegameawards.com/rewind/year-2016"
+  },
+  "ghost-of-tsushima": {
+    "awards": ["Best Art Direction (2020)", "Players' Voice (2020)"],
+    "source": "https://thegameawards.com/rewind/year-2020"
+  },
+  "death-stranding": {
+    "awards": ["Best Game Direction (2019)"],
+    "source": "https://thegameawards.com/rewind/year-2019"
+  },
+  "final-fantasy-vii-remake": {
+    "awards": ["Best RPG (2020)", "Best Score and Music (2020)"],
+    "source": "https://thegameawards.com/rewind/year-2020"
+  },
+  "elden-ring": {
+    "awards": ["Game of the Year (2022)", "Best Game Direction (2022)", "Best RPG (2022)"],
+    "source": "https://thegameawards.com/rewind/year-2022"
+  },
+  "sekiro-shadows-die-twice": {
+    "awards": ["Game of the Year (2019)", "Best Action Game (2019)"],
+    "source": "https://thegameawards.com/rewind/year-2019"
+  },
+  "the-witcher-3-wild-hunt": {
+    "awards": ["Game of the Year (2015)", "Best RPG (2015)"],
+    "source": "https://thegameawards.com/rewind/year-2015"
+  },
+  "hades": {
+    "awards": ["Best Action (2020)", "Best Independent Game (2020)"],
+    "source": "https://thegameawards.com/rewind/year-2020"
+  },
+  "control": {
+    "awards": ["Best Art Direction (2019)"],
+    "source": "https://thegameawards.com/rewind/year-2019"
+  },
+  "red-dead-redemption-2": {
+    "awards": [
+      "Best Narrative (2018)",
+      "Best Score and Music (2018)",
+      "Best Audio Design (2018)",
+      "Best Performance — Roger Clark (2018)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2018"
+  },
+  "astro-bot": {
+    "awards": [
+      "Game of the Year (2024)",
+      "Best Game Direction (2024)",
+      "Best Action/Adventure (2024)",
+      "Best Family Game (2024)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2024"
+  },
+  "balatro": {
+    "awards": [
+      "Best Independent Game (2024)",
+      "Best Debut Indie Game (2024)",
+      "Best Mobile Game (2024)"
+    ],
+    "source": "https://thegameawards.com/rewind/year-2024"
+  },
+  "black-myth-wukong": {
+    "awards": ["Best Action Game (2024)"],
+    "source": "https://thegameawards.com/rewind/year-2024"
+  },
+  "devil-may-cry-5": {
+    "awards": ["Best Action Game (2019)"],
+    "source": "https://thegameawards.com/rewind/year-2019"
+  },
+  "crash-team-racing-nitro-fueled": {
+    "awards": ["Best Sports/Racing Game (2019)"],
+    "source": "https://thegameawards.com/rewind/year-2019"
+  },
+  "resident-evil-7-biohazard": {
+    "awards": ["Best VR/AR Game (2017)"],
+    "source": "https://thegameawards.com/rewind/year-2017"
+  }
+}
