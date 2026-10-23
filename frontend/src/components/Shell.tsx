@@ -24,7 +24,9 @@ import { useApp, Lang, LanguageInfo } from "@/lib/app";
 import { GAMES, USER } from "@/lib/data";
 import { GameArt, OwnershipTag } from "./GameTile";
 import { ShapePattern } from "./ui";
-import { DnsBanner } from "./DnsBanner";
+import { TopBanner } from "./TopBanner";
+import { Header } from "./Header";
+import { Footer } from "./Footer";
 
 export function Logo() {
   const { t } = useApp();
@@ -210,106 +212,6 @@ export function LanguageDropdown() {
   );
 }
 
-export function Header() {
-  const pathname = usePathname();
-  const { t, theme, setTheme } = useApp();
-
-  const nav = [
-    { to: "/", fa: "خانه", en: "Home" },
-    { to: "/games", fa: "فروشگاه", en: "Store" },
-    { to: "/tutorials", fa: "آموزش‌ها", en: "Tutorials" },
-    { to: "/blog", fa: "بلاگ", en: "Blog" },
-    { to: "/storage", fa: "مدیریت حافظه", en: "Storage" },
-    { to: "/plans", fa: "اشتراک‌ها", en: "Plans" },
-    { to: "/gamepad-test", fa: "تست دسته", en: "Gamepad" },
-  ];
-
-  return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-5 px-6">
-        <Logo />
-
-        <nav className="hidden xl:flex items-center gap-0.5">
-          {nav.map((i) => {
-            const isActive = pathname === i.to;
-            return (
-              <Link
-                key={i.to}
-                href={i.to}
-                className={`rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors duration-150 ${
-                  isActive ? "bg-surface-2 text-fg" : "text-fg-2 hover:text-fg"
-                }`}
-              >
-                {t(i.fa, i.en)}
-              </Link>
-            );
-          })}
-          <Link
-            href="/tv"
-            className={`flex items-center gap-1 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors duration-150 ${
-              pathname === "/tv" ? "bg-surface-2 text-fg" : "text-fg-2 hover:text-fg"
-            }`}
-          >
-            <Tv size={14} />
-            {t("تلویزیون", "TV")}
-          </Link>
-        </nav>
-
-        <div className="flex flex-1 justify-center">
-          <LiveSearch />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Quick links for Wallet and Referral */}
-          <Link
-            href="/wallet"
-            title={t("کیف پول کاربری", "User Wallet")}
-            className="flex size-9 items-center justify-center rounded-full border border-line bg-surface-2 text-fg-2 hover:border-accent-2 hover:text-fg transition-colors"
-          >
-            <Wallet size={16} />
-          </Link>
-
-          <Link
-            href="/referral"
-            title={t("سیستم درآمدزایی و رفرال", "Affiliate & Referral")}
-            className="flex size-9 items-center justify-center rounded-full border border-line bg-surface-2 text-fg-2 hover:border-accent-2 hover:text-fg transition-colors"
-          >
-            <Users size={16} />
-          </Link>
-
-          <QuotaPill />
-
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="grid size-9 place-items-center rounded-full text-fg-2 hover:bg-surface-2 hover:text-fg transition-colors duration-150 cursor-pointer"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-
-          <LanguageDropdown />
-
-          <Link
-            href="/profile"
-            className="flex items-center gap-2 rounded-full py-1 ps-1 pe-2.5 hover:bg-surface-2 transition-colors duration-150"
-          >
-            <span className="grid size-8 place-items-center rounded-full bg-surface-3 font-latin text-xs font-bold ring-2 ring-accent-2">
-              {USER.avatar}
-            </span>
-            <span className="hidden md:block leading-tight">
-              <span className="block font-latin text-xs font-bold">{USER.name}</span>
-              <span className="flex items-center gap-1 text-[10px] font-medium text-psn">
-                <span className="size-1.5 rounded-full bg-psn" />
-                {t("PSN متصل", "PSN linked")}
-              </span>
-            </span>
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 export function Page({
   children,
   pattern = true,
@@ -317,40 +219,18 @@ export function Page({
   children: ReactNode;
   pattern?: boolean;
 }) {
-  const { t } = useApp();
   return (
     <div className="relative min-h-screen bg-bg text-fg">
-      {/* Top DNS Warning Banner */}
-      <DnsBanner />
+      {/* Top Neon Yellow DNS Warning Banner */}
+      <TopBanner />
 
-      {pattern && <ShapePattern />}
+      {/* GameDr SVG Background Pattern */}
+      {pattern && <div className="home-gamedr-pattern" />}
       <Header />
       <main className="relative">{children}</main>
 
-      <footer className="relative mt-20 border-t border-line">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 sm:flex-row items-center justify-between px-6 py-6 text-xs text-muted">
-          <span>
-            {t(
-              "پلتفرم دکتر گیم (DrGame) — شبکه دانلود مستقیم و تحویل سریع دیتای کنسول‌های پلی‌استیشن ۴ و ۵.",
-              "DrGame Platform — High-speed download & delivery network for PlayStation 4 & 5 console data."
-            )}
-          </span>
-          <div className="flex items-center gap-4">
-            <Link href="/tutorials" className="hover:text-fg">
-              {t("آموزش‌ها", "Tutorials")}
-            </Link>
-            <Link href="/blog" className="hover:text-fg">
-              {t("بلاگ", "Blog")}
-            </Link>
-            <Link href="/referral" className="hover:text-fg">
-              {t("سیستم رفرال", "Referral")}
-            </Link>
-            <Link href="/gamepad-test" className="hover:text-fg">
-              {t("تست دسته DualSense", "Gamepad Test")}
-            </Link>
-          </div>
-        </div>
-      </footer>
+      {/* GeoIP-Driven Dual Footer */}
+      <Footer />
     </div>
   );
 }

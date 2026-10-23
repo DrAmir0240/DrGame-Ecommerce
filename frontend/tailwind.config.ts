@@ -10,6 +10,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Design System Tokens */
+        "bg-primary": "var(--bg-primary)",
+        "bg-secondary": "var(--bg-secondary)",
+        "bg-tertiary": "var(--bg-tertiary)",
+        "bg-card": "var(--bg-card)",
+        "bg-card-hover": "var(--bg-card-hover)",
+        "bg-input": "var(--bg-input)",
+
+        "accent-orange": "var(--accent-orange)",
+        "accent-orange-light": "var(--accent-orange-light)",
+        "accent-orange-glow": "var(--accent-orange-glow)",
+        "accent-blue": "var(--accent-blue)",
+        "accent-green": "var(--accent-green)",
+        "accent-yellow": "var(--accent-yellow)",
+        "accent-purple": "var(--accent-purple)",
+        "accent-red": "var(--accent-red)",
+        "accent-cyan": "var(--accent-cyan)",
+
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "text-muted": "var(--text-muted)",
+
+        "border-color": "var(--border-color)",
+        "border-light": "var(--border-light)",
+
+        /* Compatibility variables */
         bg: "var(--color-bg)",
         surface: "var(--color-surface)",
         "surface-2": "var(--color-surface-2)",
@@ -50,14 +76,23 @@ const config: Config = {
         latin: ["Inter", "Vazirmatn", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        "2xl": "var(--radius-2xl)",
         tile: "12px",
         card: "16px",
         panel: "20px",
       },
       boxShadow: {
-        glow: "0 0 20px rgba(139, 92, 246, 0.45)",
-        "glow-sm": "0 0 12px rgba(139, 92, 246, 0.35)",
-        focus: "0 0 0 2px #a855f7, 0 0 28px rgba(168, 85, 247, 0.55)",
+        "sm-dark": "var(--shadow-sm)",
+        "md-dark": "var(--shadow-md)",
+        "lg-dark": "var(--shadow-lg)",
+        "neon-orange": "var(--shadow-orange)",
+        glow: "0 0 20px rgba(255, 87, 34, 0.45)",
+        "glow-sm": "0 0 12px rgba(255, 87, 34, 0.35)",
+        focus: "0 0 0 2px #ff5722, 0 0 28px rgba(255, 87, 34, 0.55)",
         card: "0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.35)",
       },
       backgroundImage: {
