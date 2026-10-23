@@ -1,2 +1,0 @@
-applyLanguage();
-initLangToggle();
