@@ -13,7 +13,7 @@ export default function ToolsIndexPage() {
     <Page>
       <div className="max-w-[1440px] mx-auto px-4 md:px-6 py-10 space-y-10">
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-bold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 text-xs font-bold">
             <Wrench className="w-4 h-4" />
             <span>{t("جعبه ابزار تخصصی کنسول دکتر گیم", "Console Engineering Tools")}</span>
           </div>
@@ -32,13 +32,13 @@ export default function ToolsIndexPage() {
           {/* Tool 1: Gamepad Diagnostics */}
           <Link
             href="/tools/gamepad"
-            className="group rounded-3xl border border-white/10 bg-[#151722] p-8 shadow-xl hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/20 transition-all flex flex-col justify-between space-y-6"
+            className="group rounded-3xl border border-white/10 bg-[#151722] p-8 shadow-xl hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 transition-all flex flex-col justify-between space-y-6"
           >
             <div className="space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-orange-600/20 text-orange-400 flex items-center justify-center font-bold shadow-lg">
+              <div className="w-14 h-14 rounded-2xl bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold shadow-lg">
                 <Gamepad2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-extrabold text-white group-hover:text-orange-400 transition-colors">
+              <h3 className="text-xl font-extrabold text-white group-hover:text-purple-400 transition-colors">
                 {t("تستر دوگانه گیم‌پد و DualSense", "Dual Gamepad & DualSense Tester")}
               </h3>
               <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
@@ -49,7 +49,7 @@ export default function ToolsIndexPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-bold text-orange-400">
+            <div className="flex items-center gap-2 text-xs font-bold text-purple-400">
               <span>{t("ورود به تستر دسته", "Launch Gamepad Tester")}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
             </div>

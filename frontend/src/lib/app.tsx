@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, useEffect, type ReactNode } from "react";
 
-export type Lang = "fa" | "en" | "ar" | "tr" | "ru" | "de" | "es" | "fr";
+export type Lang = "fa" | "en";
 export type Theme = "dark" | "light";
 
 export interface LanguageInfo {
@@ -13,15 +13,23 @@ export interface LanguageInfo {
   dir: "rtl" | "ltr";
 }
 
+/**
+ * Normalizes any language code:
+ * Right-to-Left languages (Persian, Arabic, etc.) map to 'fa'.
+ * Left-to-Right languages (English, Turkish, German, etc.) map to 'en'.
+ */
+export function normalizeLanguage(code: string | null | undefined): Lang {
+  if (!code) return "fa";
+  const c = code.toLowerCase();
+  if (c === "fa" || c === "ar" || c.startsWith("fa-") || c.startsWith("ar-")) {
+    return "fa";
+  }
+  return "en";
+}
+
 export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
   { code: "fa", name: "Persian", nativeName: "فارسی", flag: "🇮🇷", dir: "rtl" },
   { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", dir: "ltr" },
-  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" },
-  { code: "tr", name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷", dir: "ltr" },
-  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", dir: "ltr" },
-  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", dir: "ltr" },
-  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", dir: "ltr" },
-  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", dir: "ltr" },
 ];
 
 type AppCtx = {
@@ -30,11 +38,11 @@ type AppCtx = {
   theme: Theme;
   languages: LanguageInfo[];
   currentLanguage: LanguageInfo;
-  setLang: (l: Lang) => void;
+  setLang: (l: string) => void;
   setTheme: (t: Theme) => void;
   /** Pick the string for the current language. */
   t: (fa: string, en: string) => string;
-  /** Localise digits in a number or string (Persian/Arabic digits in fa/ar). */
+  /** Localise digits in a number or string (Persian digits in fa). */
   n: (v: number | string) => string;
 };
 
@@ -44,8 +52,7 @@ const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 export function toFaDigits(v: number | string): string {
   return String(v)
     .replace(/\d/g, (d) => FA_DIGITS[Number(d)])
-    .replace(/\./g, "٫")
-    .replace(/,/g, "،");
+    .replace(/\./g, "٫");
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -57,22 +64,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [lang]);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("drgame_lang") as Lang | null;
-    if (savedLang && SUPPORTED_LANGUAGES.some((l) => l.code === savedLang)) {
-      setLangState(savedLang);
+    const savedLang = localStorage.getItem("drgame_lang");
+    if (savedLang) {
+      setLangState(normalizeLanguage(savedLang));
     }
 
     const savedTheme = localStorage.getItem("drgame_theme") as Theme | null;
     if (savedTheme) setThemeState(savedTheme);
   }, []);
 
-  const setLang = (l: Lang) => {
-    setLangState(l);
-    localStorage.setItem("drgame_lang", l);
-    const target = SUPPORTED_LANGUAGES.find((x) => x.code === l);
+  const setLang = (l: string) => {
+    const normalized = normalizeLanguage(l);
+    setLangState(normalized);
+    localStorage.setItem("drgame_lang", normalized);
+    const target = SUPPORTED_LANGUAGES.find((x) => x.code === normalized);
     const targetDir = target ? target.dir : "rtl";
     if (typeof document !== "undefined") {
-      document.documentElement.lang = l;
+      document.documentElement.lang = normalized;
       document.documentElement.dir = targetDir;
     }
   };
@@ -94,8 +102,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentLanguage,
       setLang,
       setTheme,
-      t: (fa, en) => (lang === "fa" || lang === "ar" ? fa : en),
-      n: (v) => (lang === "fa" || lang === "ar" ? toFaDigits(v) : String(v)),
+      t: (fa, en) => (lang === "fa" ? fa : en),
+      n: (v) => (lang === "fa" ? toFaDigits(v) : String(v)),
     }),
     [lang, theme, currentLanguage]
   );

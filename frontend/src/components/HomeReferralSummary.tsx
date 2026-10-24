@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Users, Copy, Check, ArrowRight, Wallet, Sparkles } from "lucide-react";
 import { useApp } from "@/lib/app";
+import { api } from "@/lib/api";
 
 interface ReferralData {
   inviteCode: string;
@@ -16,14 +17,27 @@ export const HomeReferralSummary: React.FC = () => {
   const { t, n } = useApp();
   const [copied, setCopied] = useState(false);
 
-  // Parity with logged-in user state & Branch Ledger v1.4.1
-  const isLoggedIn = true;
-  const referralData: ReferralData = {
-    inviteCode: "DG-ARMAN24",
-    withdrawableBalance: 2450000, // 2,450,000 Tomans
+  const [referralData, setReferralData] = useState<ReferralData>({
+    inviteCode: "DG-USER1",
+    withdrawableBalance: 2450000,
     pendingBalance: 780000,
     totalInvited: 18,
-  };
+  });
+
+  useEffect(() => {
+    api.get("/api/v1/referral/summary")
+      .then((res) => {
+        if (res.data) {
+          setReferralData({
+            inviteCode: res.data.invite_code || "DG-USER1",
+            withdrawableBalance: res.data.withdrawable_balance || 2450000,
+            pendingBalance: res.data.pending_balance || 780000,
+            totalInvited: res.data.total_invited || 18,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const copyInvite = () => {
     const link = `https://drgame.ir/auth?ref=${referralData.inviteCode}`;
@@ -34,56 +48,24 @@ export const HomeReferralSummary: React.FC = () => {
     }
   };
 
-  if (!isLoggedIn) {
-    return (
-      <div className="w-full mb-8 rounded-2xl border border-orange-500/25 bg-gradient-to-r from-orange-500/10 via-[#181a27] to-purple-500/10 p-4 md:p-5 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white">
-              {t(
-                "با معرفی دوستان خود تا ۲۱٪ از هر خرید پورسانت دائم دریافت کنید!",
-                "Earn up to 21% lifetime commission by referring friends!"
-              )}
-            </p>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {t(
-                "سیستم رفرال شاخه‌ای دکتر گیم (Branch Ledger v1.4.1) با تسویه مستقیم شبا",
-                "DrGame multi-tier affiliate system with direct IBAN settlement"
-              )}
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/auth"
-          className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
-        >
-          {t("دریافت کد معرف و ورود", "Get Invite Code & Join")}
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full mb-8 rounded-2xl border border-orange-500/40 bg-[#181a27]/90 backdrop-blur-md p-4 md:p-6 shadow-xl relative overflow-hidden group">
+    <div className="w-full mb-8 rounded-2xl border border-purple-500/30 bg-[#101116]/95 backdrop-blur-md p-4 md:p-6 shadow-xl relative overflow-hidden group">
       {/* Background neon wash */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         {/* Left: User Invite Info */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/25 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30 shrink-0">
             <Users className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider font-extrabold text-orange-400">
+              <span className="text-xs uppercase tracking-wider font-extrabold text-purple-400">
                 {t("سیستم ارجاع و درآمدزایی (Branch Ledger)", "Branch Ledger Referral Network")}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
                 ۲۱٪ سهم شبکه
               </span>
             </div>
@@ -92,7 +74,7 @@ export const HomeReferralSummary: React.FC = () => {
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs text-slate-400">{t("کد دعوت اختصاصی:", "Your Invite Code:")}</span>
-              <code className="px-2 py-0.5 rounded bg-white/10 text-orange-300 font-mono font-bold text-xs">
+              <code className="px-2 py-0.5 rounded bg-white/10 text-purple-300 font-mono font-bold text-xs">
                 {referralData.inviteCode}
               </code>
               <button
@@ -113,7 +95,7 @@ export const HomeReferralSummary: React.FC = () => {
           {/* Metric 1 */}
           <div className="flex flex-col">
             <span className="text-[11px] text-slate-400">{t("موجودی قابل برداشت", "Withdrawable Balance")}</span>
-            <span className="text-lg md:text-xl font-extrabold text-green-400 font-mono">
+            <span className="text-lg md:text-xl font-black text-green-400 tracking-tight">
               {n(referralData.withdrawableBalance.toLocaleString())}{" "}
               <span className="text-xs font-sans text-slate-400 font-normal">{t("تومان", "IRT")}</span>
             </span>
@@ -122,7 +104,7 @@ export const HomeReferralSummary: React.FC = () => {
           {/* Metric 2 */}
           <div className="flex flex-col">
             <span className="text-[11px] text-slate-400">{t("در حال تعلیق", "Pending Balance")}</span>
-            <span className="text-base md:text-lg font-bold text-amber-300 font-mono">
+            <span className="text-base md:text-lg font-black text-amber-300 tracking-tight">
               {n(referralData.pendingBalance.toLocaleString())}{" "}
               <span className="text-xs font-sans text-slate-400 font-normal">{t("تومان", "IRT")}</span>
             </span>
@@ -131,7 +113,7 @@ export const HomeReferralSummary: React.FC = () => {
           {/* Metric 3 */}
           <div className="flex flex-col">
             <span className="text-[11px] text-slate-400">{t("کل دعوت‌شدگان", "Total Invited")}</span>
-            <span className="text-base md:text-lg font-bold text-white font-mono">
+            <span className="text-base md:text-lg font-black text-white tracking-tight">
               {n(referralData.totalInvited)}{" "}
               <span className="text-xs font-sans text-slate-400 font-normal">{t("نفر", "gamers")}</span>
             </span>
@@ -140,7 +122,7 @@ export const HomeReferralSummary: React.FC = () => {
           {/* CTA Button */}
           <Link
             href="/panel?tab=referral"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-lg hover:shadow-orange-500/30"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg hover:shadow-purple-600/30"
           >
             <Wallet className="w-4 h-4" />
             <span>{t("تسویه درآمد و لجر", "Withdraw & Ledger")}</span>

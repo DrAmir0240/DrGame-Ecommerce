@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "@/lib/app";
 import { PlayStationModeProvider } from "@/components/PlayStationModeProvider";
+import { DevModeToolbar } from "@/components/DevModeToolbar";
 
 export const metadata: Metadata = {
   title: "DrGame — پلتفرم تخصصی دانلود سریع دیتای بازی‌های پلی‌استیشن",
@@ -21,7 +22,10 @@ export default function RootLayout({
     <html lang="fa" dir="rtl" data-theme="dark">
       <body className="antialiased min-h-screen bg-bg text-fg font-sans">
         <AppProvider>
-          <PlayStationModeProvider>{children}</PlayStationModeProvider>
+          <PlayStationModeProvider>
+            {children}
+            <DevModeToolbar />
+          </PlayStationModeProvider>
         </AppProvider>
       </body>
     </html>

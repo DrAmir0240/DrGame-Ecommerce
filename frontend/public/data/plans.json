@@ -1,0 +1,120 @@
+[
+  {
+    "id": "free",
+    "color": "free",
+    "featured": false,
+    "quotaGB": 0,
+    "name_en": "Free",
+    "name_fa": "رایگان",
+    "price_en": "Free",
+    "price_fa": "رایگان",
+    "period_en": "One-time · no expiry",
+    "period_fa": "یک‌بار برای همیشه",
+    "features_en": [
+      "Access to Watch Dogs 2, GTA V, Rocket League, Mortal Kombat 11 & Brawlhalla",
+      "Unlimited download size for these five games",
+      "Other games are not included in the free plan"
+    ],
+    "features_fa": [
+      "دسترسی به Watch Dogs 2، GTA V، Rocket League، Mortal Kombat 11 و Brawlhalla",
+      "حجم دانلود این پنج بازی نامحدود است",
+      "بازی‌های دیگر در پلن رایگان قرار ندارند"
+    ],
+    "button_en": "Get the free games",
+    "button_fa": "دریافت بازی‌های رایگان",
+    "link": "#"
+  },
+  {
+    "id": "bronze",
+    "color": "bronze",
+    "featured": false,
+    "quotaGB": 500,
+    "name_en": "Bronze",
+    "name_fa": "برنز",
+    "price_en": "698,000 toman",
+    "price_fa": "۶۹۸٬۰۰۰ تومان",
+    "period_en": "/ 30 days",
+    "period_fa": "/ ۳۰ روز",
+    "features_en": [
+      "Maximum download speed: 20 Mbps",
+      "Game download quota: 500 GB",
+      "PS4 and PS5 games",
+      "PS1, PS2, PS3, Xbox and Nintendo games are not available",
+      "Subtitle purchases are not available",
+      "DLC purchases are not available"
+    ],
+    "features_fa": [
+      "حداکثر سرعت دانلود: ۲۰ مگابیت‌برثانیه",
+      "سهمیه دانلود بازی: ۵۰۰ گیگابایت",
+      "بازی‌های PS4 و PS5",
+      "بازی‌های PS1، PS2، PS3، Xbox و Nintendo در دسترس نیستند",
+      "خرید زیرنویس در این پلن در دسترس نیست",
+      "خرید DLC در این پلن در دسترس نیست"
+    ],
+    "button_en": "Choose Bronze",
+    "button_fa": "انتخاب برنز",
+    "link": "#"
+  },
+  {
+    "id": "silver",
+    "color": "silver",
+    "featured": false,
+    "quotaGB": 1024,
+    "name_en": "Silver",
+    "name_fa": "نقره‌ای",
+    "price_en": "1,198,000 toman",
+    "price_fa": "۱٬۱۹۸٬۰۰۰ تومان",
+    "period_en": "/ 30 days",
+    "period_fa": "/ ۳۰ روز",
+    "features_en": [
+      "Maximum download speed: 20 Mbps",
+      "Game download quota: 1 TB",
+      "PS2, PS3, PS4 and PS5 games",
+      "Buy subtitles and DLC",
+      "Themes are not included",
+      "PS1, Xbox and Nintendo games are not included"
+    ],
+    "features_fa": [
+      "حداکثر سرعت دانلود: ۲۰ مگابیت‌برثانیه",
+      "سهمیه دانلود بازی: ۱ ترابایت",
+      "بازی‌های PS2، PS3، PS4 و PS5",
+      "امکان خرید زیرنویس و DLC",
+      "تم‌ها شامل پلن نقره‌ای نیستند",
+      "بازی‌های PS1، Xbox و Nintendo شامل پلن نیستند"
+    ],
+    "button_en": "Choose Silver",
+    "button_fa": "انتخاب نقره‌ای",
+    "link": "#"
+  },
+  {
+    "id": "gold",
+    "color": "gold",
+    "featured": true,
+    "quotaGB": 2252.8,
+    "name_en": "Gold",
+    "name_fa": "طلایی",
+    "price_en": "2,098,000 toman",
+    "price_fa": "۲٬۹۸۸٬۰۰۰ تومان",
+    "period_en": "/ 30 days",
+    "period_fa": "/ ۳۰ روز",
+    "features_en": [
+      "Maximum download speed: 40 Mbps",
+      "Game download quota: 2.2 TB",
+      "Xbox 360, PS1, PS2, PS3, PS4, PS5 and Nintendo games",
+      "Access to every game category",
+      "Buy subtitles and DLC",
+      "Themes included"
+    ],
+    "features_fa": [
+      "حداکثر سرعت دانلود: ۴۰ مگابیت‌برثانیه",
+      "سهمیه دانلود بازی: ۲٫۲ ترابایت",
+      "بازی‌های Xbox 360، PS1، PS2، PS3، PS4، PS5 و Nintendo",
+      "دسترسی به همه دسته‌بندی‌های بازی",
+      "امکان خرید زیرنویس و DLC",
+      "تم‌ها همراه پلن طلایی"
+    ],
+    "button_en": "Choose Gold",
+    "button_fa": "انتخاب طلایی",
+    "link": "#"
+  }
+]

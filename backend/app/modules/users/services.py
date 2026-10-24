@@ -70,3 +70,63 @@ class UserService:
         if profile:
             user_out.profile = profile
         return user_out
+
+    @staticmethod
+    async def update_profile(db: AsyncSession, user_id: int, full_name: Optional[str] = None, psn_id: Optional[str] = None) -> UserProfile:
+        prof_res = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+        profile = prof_res.scalar_one_or_none()
+        if not profile:
+            profile = UserProfile(user_id=user_id)
+            db.add(profile)
+        if full_name:
+            profile.display_name = full_name
+        if psn_id:
+            profile.gamer_tag = psn_id
+        await db.commit()
+        await db.refresh(profile)
+        return profile
+
+    @staticmethod
+    async def update_avatar(db: AsyncSession, user_id: int, avatar_id: str) -> UserProfile:
+        prof_res = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+        profile = prof_res.scalar_one_or_none()
+        if not profile:
+            profile = UserProfile(user_id=user_id)
+            db.add(profile)
+        profile.avatar_url = avatar_id
+        await db.commit()
+        await db.refresh(profile)
+        return profile
+
+    @staticmethod
+    async def dev_login_or_create_superuser(db: AsyncSession) -> TokenResponse:
+        query = select(User).where(User.username == "admin")
+        result = await db.execute(query)
+        user = result.scalar_one_or_none()
+        if not user:
+            user = User(
+                email="admin@drgame.ir",
+                username="admin",
+                hashed_password=get_password_hash("admin123"),
+                is_active=True,
+                is_superuser=True,
+            )
+            db.add(user)
+            await db.flush()
+            profile = UserProfile(
+                user_id=user.id,
+                display_name="مدیر ارشد دکتر گیم",
+                gamer_tag="DrGameAdmin",
+                avatar_url="avatar-20",
+            )
+            db.add(profile)
+            await db.commit()
+            await db.refresh(user)
+        else:
+            if not user.is_superuser:
+                user.is_superuser = True
+                await db.commit()
+                await db.refresh(user)
+
+        token = create_access_token(subject=user.id, extra_claims={"username": user.username, "is_superuser": True})
+        return TokenResponse(access_token=token, expires_in=1440 * 60)

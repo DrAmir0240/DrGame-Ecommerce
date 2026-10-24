@@ -65,7 +65,7 @@ export const GameCard: React.FC<GameCardProps> = ({
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`group relative rounded-[16px] bg-[#181a27] border border-white/[0.08] overflow-hidden transition-all duration-300 hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/15 ${
+      className={`group relative rounded-[16px] bg-[#181a27] border border-white/[0.08] overflow-hidden transition-all duration-300 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/15 ${
         isHovered ? "scale-[1.03] z-20" : "scale-100 z-10"
       }`}
     >
@@ -105,13 +105,13 @@ export const GameCard: React.FC<GameCardProps> = ({
             <span className="text-[10px] text-slate-400 uppercase font-semibold block">
               {t(game.genreFa, game.genreEn)}
             </span>
-            <h4 className="text-sm font-extrabold text-white line-clamp-1 group-hover:text-orange-400 transition-colors">
+            <h4 className="text-sm font-extrabold text-white line-clamp-1 group-hover:text-purple-400 transition-colors">
               {game.title}
             </h4>
           </div>
 
           <div className="text-right">
-            <span className="text-xs font-mono font-bold text-orange-400 block" dir="ltr">
+            <span className="text-xs font-mono font-bold text-purple-400 block" dir="ltr">
               {n(game.sizeGb)} GB
             </span>
           </div>
@@ -128,7 +128,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
         <Link
           href={`/shop/${game.slug}`}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md hover:shadow-orange-500/30 shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md hover:shadow-purple-500/30 shrink-0"
         >
           {isOwned ? (
             <>

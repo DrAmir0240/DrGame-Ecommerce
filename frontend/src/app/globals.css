@@ -1,35 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("/fonts/fonts.css");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   :root {
-    /* Design Tokens from figr-source & 01-design-system-and-layout-policy.md */
-    --bg-primary: #0f1016;
-    --bg-secondary: #151722;
-    --bg-tertiary: #1c1e2d;
-    --bg-card: #181a27;
-    --bg-card-hover: #1f2233;
-    --bg-input: #141622;
+    /* Design Tokens aligned with GameDr-Website-Source (#1a1b1f background) */
+    --bg-primary: #1a1b1f;
+    --bg-secondary: #232529;
+    --bg-tertiary: #2d3036;
+    --bg-card: #232529;
+    --bg-card-hover: #2d3036;
+    --bg-input: #232529;
 
-    --accent-orange: #ff5722;
-    --accent-orange-light: #ff7043;
-    --accent-orange-glow: rgba(255, 87, 34, 0.25);
-    --accent-blue: #3b82f6;
-    --accent-green: #22c55e;
+    /* Replaced orange overrides with authentic Cosmic Violet & Neon Accents */
+    --accent-orange: #7c3aed;
+    --accent-orange-light: #a855f7;
+    --accent-orange-glow: rgba(124, 58, 237, 0.35);
+    --accent-purple: #7c3aed;
+    --accent-purple-light: #a855f7;
+    --accent-purple-glow: rgba(124, 58, 237, 0.35);
+    --accent-blue: #0070d1;
+    --accent-green: #10b981;
     --accent-yellow: #eab308;
-    --accent-purple: #a855f7;
     --accent-red: #ef4444;
     --accent-cyan: #06b6d4;
 
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #ffffff;
+    --text-secondary: #9496a1;
+    --text-muted: #5a5d6a;
 
-    --border-color: rgba(255, 255, 255, 0.06);
-    --border-light: rgba(255, 255, 255, 0.1);
+    --border-color: rgba(255, 255, 255, 0.07);
+    --border-light: rgba(255, 255, 255, 0.14);
 
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -37,41 +41,43 @@
     --radius-xl: 20px;
     --radius-2xl: 24px;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
-    --shadow-orange: 0 4px 20px rgba(255, 87, 34, 0.3);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-orange: 0 0 20px rgba(124, 58, 237, 0.45);
+    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.45);
+    --shadow-focus: 0 0 0 2px #a855f7, 0 0 28px rgba(168, 85, 247, 0.55);
 
     --topbar-height: 70px;
 
-    /* Legacy surface & accent mappings for backward compatibility */
-    --color-bg: #0f1016;
-    --color-surface: #151722;
-    --color-surface-2: #181a27;
-    --color-surface-3: #1c1e2d;
-    --color-fg: #f1f5f9;
-    --color-fg-2: #94a3b8;
-    --color-muted: #64748b;
+    /* Canonical Figr surfaces & accents */
+    --color-bg: #1a1b1f;
+    --color-surface: #232529;
+    --color-surface-2: #2d3036;
+    --color-surface-3: #34363d;
+    --color-fg: #ffffff;
+    --color-fg-2: #9496a1;
+    --color-muted: #5a5d6a;
     --color-line: rgba(255, 255, 255, 0.07);
     --color-line-strong: rgba(255, 255, 255, 0.14);
-    --color-scrim: rgba(15, 16, 22, 0.75);
+    --color-scrim: rgba(7, 7, 9, 0.72);
 
-    --color-accent: #ff5722;
-    --color-accent-2: #ff7043;
-    --color-accent-deep: #c43e12;
-    --color-accent-soft: rgba(255, 87, 34, 0.14);
+    --color-accent: #7c3aed;
+    --color-accent-2: #a855f7;
+    --color-accent-deep: #4c1d95;
+    --color-accent-soft: rgba(124, 58, 237, 0.14);
     --color-pink: #ec4899;
     --color-on-accent: #ffffff;
 
     --color-psn: #0070d1;
     --color-psn-soft: rgba(0, 112, 209, 0.14);
 
-    --color-success: #22c55e;
-    --color-success-soft: rgba(34, 197, 94, 0.14);
-    --color-warning: #eab308;
-    --color-warning-soft: rgba(234, 179, 8, 0.14);
+    --color-success: #10b981;
+    --color-success-soft: rgba(16, 185, 129, 0.14);
+    --color-warning: #f59e0b;
+    --color-warning-soft: rgba(245, 158, 11, 0.14);
     --color-danger: #ef4444;
-    --color-danger-soft: rgba(239, 68, 68, 0.14);
+    --color-danger-soft: rgba(239, 68, 68, 0.12);
 
     --color-bronze: #d97706;
     --color-bronze-2: #cd7f32;
@@ -107,21 +113,56 @@
     --color-line: rgba(0, 0, 0, 0.08);
     --color-line-strong: rgba(0, 0, 0, 0.16);
     --color-scrim: rgba(248, 249, 250, 0.8);
-    --color-accent-soft: rgba(255, 87, 34, 0.1);
+    --color-accent-soft: rgba(124, 58, 237, 0.1);
   }
 
   html,
   body {
+    position: relative;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: var(--font-sans);
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     min-height: 100vh;
+  }
+
+  body:before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+    background: radial-gradient(900px 520px at 50% -120px, rgba(88, 101, 242, 0.12), transparent 70%),
+                radial-gradient(700px 480px at 100% 100%, rgba(88, 101, 242, 0.06), transparent 70%);
+  }
+
+  body:after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: url("/bg-pattern-dark.svg") 0 0/560px 560px repeat;
+    -webkit-mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0.9));
+    mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0.9));
+    opacity: 0.075;
+  }
+
+  [data-theme="light"] body:before {
+    background: radial-gradient(900px 520px at 50% -120px, rgba(88, 101, 242, 0.16), transparent 70%),
+                radial-gradient(700px 480px at 100% 100%, rgba(88, 101, 242, 0.09), transparent 70%);
+  }
+
+  [data-theme="light"] body:after {
+    background-image: url("/bg-pattern-light.svg");
+    opacity: 0.12;
   }
 
   /* Controller / keyboard focus — the 10-foot UI rule */
   :focus-visible {
-    outline: 2px solid var(--accent-orange);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
 
@@ -135,9 +176,9 @@
   }
   html.playstation-mode *:focus-visible,
   html.playstation-mode .ps-focus-active {
-    outline: 3px solid #ff5722 !important;
+    outline: 3px solid #a855f7 !important;
     outline-offset: 3px !important;
-    box-shadow: 0 0 20px rgba(255, 87, 34, 0.6) !important;
+    box-shadow: 0 0 28px rgba(168, 85, 247, 0.65) !important;
   }
   html.playstation-mode * {
     transition-duration: 120ms !important;
@@ -160,7 +201,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-orange);
+  background: var(--color-accent);
 }
 
 /* GameDr Iconic SVG Background Pattern (Lines 76-134 & 527-589) */
@@ -183,7 +224,7 @@
   transform: translateX(-50%);
   width: 900px;
   height: 420px;
-  background: radial-gradient(ellipse at center, rgba(255, 87, 34, 0.15) 0%, rgba(15, 16, 22, 0) 70%);
+  background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.22) 0%, rgba(7, 7, 9, 0) 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -211,3 +252,29 @@
     animation: none;
   }
 }
+
+/* Authentic GameDr soft purple ambient glow behind page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 50% -120px, rgba(124, 58, 237, 0.14), transparent 70%),
+    radial-gradient(700px 480px at 100% 100%, rgba(168, 85, 247, 0.08), transparent 70%);
+}
+
+/* Authentic GameDr repeating console-icon pattern with gradient mask */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/bg-pattern-dark.svg") 0 0 / 560px 560px repeat;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.85) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.85) 100%);
+  opacity: 0.08;
+}
+

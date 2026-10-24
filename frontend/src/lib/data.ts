@@ -14,6 +14,9 @@ export type Game = {
   year: number;
   image: string;
   ownership: Ownership;
+  description?: string;
+  mode?: string;
+  backdrop?: string;
 };
 
 export const GAMES: Game[] = [

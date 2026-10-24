@@ -13,9 +13,11 @@ export const IntlFooter: React.FC = () => {
           {/* Col 1: Global Brand */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center font-bold text-orange-500 text-lg">
-                DG
-              </div>
+              <img
+                src="/logo.png"
+                alt="DrGame"
+                className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+              />
               <div>
                 <h3 className="text-white font-extrabold text-lg">DrGame Global Network</h3>
                 <p className="text-xs text-slate-400">High-Performance PlayStation Content & Data Delivery</p>
@@ -54,22 +56,28 @@ export const IntlFooter: React.FC = () => {
 
           {/* Col 2: Navigation */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm border-s-2 border-orange-500 ps-2.5">Catalog & Hubs</h4>
+            <h4 className="text-white font-bold text-sm border-s-2 border-purple-500 ps-2.5">Catalog & Hubs</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link href="/shop" className="hover:text-orange-400 transition-colors">Games Catalog</Link>
+                <Link href="/shop" className="hover:text-purple-400 transition-colors">Games Catalog</Link>
               </li>
               <li>
-                <Link href="/subscriptions" className="hover:text-orange-400 transition-colors">Membership Tiers</Link>
+                <Link href="/subscriptions" className="hover:text-purple-400 transition-colors">Membership Tiers</Link>
               </li>
               <li>
-                <Link href="/jailbreak" className="hover:text-orange-400 transition-colors">Jailbreak & Exploits</Link>
+                <Link href="/jailbreak" className="hover:text-purple-400 transition-colors">Jailbreak & Exploits</Link>
               </li>
               <li>
-                <Link href="/tools/gamepad" className="hover:text-orange-400 transition-colors">DualSense WebHID Tester</Link>
+                <Link href="/tools/gamepad" className="hover:text-purple-400 transition-colors">DualSense WebHID Tester</Link>
               </li>
               <li>
-                <Link href="/articles" className="hover:text-orange-400 transition-colors">Engineering & Guides</Link>
+                <Link href="/articles" className="hover:text-purple-400 transition-colors">Engineering & Guides</Link>
+              </li>
+              <li>
+                <Link href="/auth" className="hover:text-purple-400 transition-colors">Sign In / Dev Pass</Link>
+              </li>
+              <li>
+                <Link href="/admin" className="text-purple-400 font-bold hover:text-purple-300 transition-colors">Admin Console ↗</Link>
               </li>
             </ul>
           </div>

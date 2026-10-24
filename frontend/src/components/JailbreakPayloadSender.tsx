@@ -103,7 +103,7 @@ export const JailbreakPayloadSender: React.FC = () => {
       {/* 2. WebSocket Sender Form */}
       <div className="rounded-3xl border border-white/10 bg-[#151722] p-6 shadow-2xl space-y-5">
         <div className="flex items-center gap-2.5 pb-3 border-b border-white/10">
-          <Zap className="w-5 h-5 text-orange-500" />
+          <Zap className="w-5 h-5 text-purple-500" />
           <h3 className="font-extrabold text-base text-white">
             {t("ارسال‌کننده پی‌لود به کنسول (WebSocket Payload Sender)", "WebSocket Payload Injector")}
           </h3>
@@ -119,7 +119,7 @@ export const JailbreakPayloadSender: React.FC = () => {
               value={consoleIp}
               onChange={(e) => setConsoleIp(e.target.value)}
               placeholder="192.168.1.xxx"
-              className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-orange-500 focus:outline-none"
+              className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-purple-500 focus:outline-none"
             />
           </div>
 
@@ -128,7 +128,7 @@ export const JailbreakPayloadSender: React.FC = () => {
             <select
               value={port}
               onChange={(e) => setPort(e.target.value)}
-              className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3 text-xs text-white font-mono focus:border-orange-500 focus:outline-none"
+              className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3 text-xs text-white font-mono focus:border-purple-500 focus:outline-none"
             >
               <option value="9020">9020 (GoldHEN Server)</option>
               <option value="9021">9021 (Kstuff Server)</option>
@@ -151,7 +151,7 @@ export const JailbreakPayloadSender: React.FC = () => {
                   onClick={() => setSelectedPayload(p.id)}
                   className={`p-3 rounded-xl border text-right transition-all flex items-center justify-between ${
                     active
-                      ? "bg-orange-500/15 border-orange-500 text-white shadow-md shadow-orange-500/20"
+                      ? "bg-purple-500/15 border-purple-500 text-white shadow-md shadow-purple-500/20"
                       : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
                   }`}
                 >
@@ -167,7 +167,7 @@ export const JailbreakPayloadSender: React.FC = () => {
           type="button"
           disabled={isSending}
           onClick={handleSend}
-          className="w-full py-3.5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 shadow-xl shadow-orange-500/25 transition-all disabled:opacity-50"
+          className="w-full py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 shadow-xl shadow-purple-500/25 transition-all disabled:opacity-50"
         >
           <Play className="w-4 h-4 fill-white" />
           <span>{isSending ? t("در حال ارسال پی‌لود...", "Injecting...") : t("ارسال پی‌لود به کنسول", "Inject Payload Now")}</span>
@@ -176,7 +176,7 @@ export const JailbreakPayloadSender: React.FC = () => {
         {/* Live Terminal Output */}
         <div className="rounded-2xl bg-[#0a0c12] border border-white/10 p-4 font-mono text-xs space-y-1.5">
           <div className="flex items-center gap-2 text-slate-400 pb-2 border-b border-white/5 text-[11px]">
-            <Terminal className="w-3.5 h-3.5 text-orange-400" />
+            <Terminal className="w-3.5 h-3.5 text-purple-400" />
             <span>لاگ اتصال سوکت زنده (Terminal Log)</span>
           </div>
           <div className="max-h-36 overflow-y-auto space-y-1 text-slate-300">

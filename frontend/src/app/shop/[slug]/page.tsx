@@ -1,42 +1,88 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import {
   Download,
-  Star,
-  Play,
-  Heart,
   Share2,
-  ShieldAlert,
+  Bookmark,
+  Check,
+  Star,
   HardDrive,
   FileArchive,
-  Wrench,
-  Languages,
-  Check,
+  ShieldAlert,
+  ArrowRight,
   ExternalLink,
-  ChevronRight,
-  AlertCircle,
+  ChevronDown,
   X,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import { Page } from "@/components/Shell";
 import { PlayStationFeatureCards } from "@/components/PlayStationFeatureCards";
-import { PlayStationGlyph } from "@/components/PlayStationGlyph";
+import { GameHeroBanner } from "@/components/GameHeroBanner";
 import { useApp } from "@/lib/app";
-import { GAMES, USER, game as getGame } from "@/lib/data";
+import { GAMES, USER, type Game } from "@/lib/data";
+import { api } from "@/lib/api";
+
 
 export default function GameDetailPage() {
   const params = useParams();
-  const slug = (params?.slug as string) || "god-of-war";
-  const currentGame = getGame(slug);
+  const router = useRouter();
+  const slug = params?.slug as string;
   const { t, n } = useApp();
 
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportSent, setReportSent] = useState(false);
+  const [downloadingPart, setDownloadingPart] = useState<number | null>(null);
+  const [quotaModalOpen, setQuotaModalOpen] = useState(false);
+  const [userQuota, setUserQuota] = useState<number>(USER.quotaLeftGb || 120.4);
 
-  // Smooth scroll handler for the primary download CTA
+  const currentGame: Game =
+    GAMES.find((g) => g.slug === slug) || GAMES[0];
+
+  const [fullDescription, setFullDescription] = useState<string>(currentGame.description || "");
+  const [descTab, setDescTab] = useState<"desc" | "story" | "specs">("desc");
+  const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check wishlist state
+    try {
+      const saved = JSON.parse(localStorage.getItem("drgame_library") || "[]");
+      setIsWishlisted(saved.includes(currentGame.slug));
+    } catch (e) {}
+
+    // Load rich description from descriptions.json
+    fetch("/data/descriptions.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const entry = data[slug] || data[currentGame.slug];
+        if (entry?.description_fa) {
+          setFullDescription(entry.description_fa);
+        } else if (entry?.description) {
+          setFullDescription(entry.description);
+        }
+      })
+      .catch(() => {});
+  }, [slug, currentGame.slug]);
+
+  const handleToggleWishlist = () => {
+    try {
+      const saved: string[] = JSON.parse(localStorage.getItem("drgame_library") || "[]");
+      let next: string[];
+      if (isWishlisted) {
+        next = saved.filter((s) => s !== currentGame.slug);
+        setIsWishlisted(false);
+      } else {
+        next = [...saved, currentGame.slug];
+        setIsWishlisted(true);
+      }
+      localStorage.setItem("drgame_library", JSON.stringify(next));
+    } catch (e) {}
+  };
+
+
   const handleScrollToDownload = () => {
     const target = document.getElementById("game-files-section");
     if (target) {
@@ -51,12 +97,84 @@ export default function GameDetailPage() {
   };
 
   const fileParts = [
-    { part: "پارت ۱ (دیتای اصلی)", sizeGb: 25.0, sha256: "9a7d4e5f...b831", ready: true },
-    { part: "پارت ۲ (دیتای اصلی)", sizeGb: 25.0, sha256: "4c2e1f8a...e904", ready: true },
-    { part: "پارت ۳ (دیتای اصلی)", sizeGb: 25.0, sha256: "7b8d9c0a...f112", ready: true },
-    { part: "پارت ۴ (آپدیت v1.35)", sizeGb: 9.4, sha256: "1e3d5a7b...c449", ready: true },
-    { part: "پارت ۵ (زیرنویس فارسی اختصاصی)", sizeGb: 1.0, sha256: "3f9e2b1c...d880", ready: true },
+    {
+      category: "دیتای اصلی خود بازی (Main Game Data)",
+      format: "FPKG",
+      badge: "دیتای اصلی",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      sizeGb: currentGame.sizeGb,
+      sha256: "9a7d4e5f...b831",
+      ready: true,
+    },
+    {
+      category: "زیرنویس فارسی اختصاصی (Persian Subtitles)",
+      format: "FPKG",
+      badge: "زیرنویس",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      sizeGb: 0.18,
+      sha256: "3f9e2b1c...d880",
+      ready: true,
+    },
+    {
+      category: "فایل چیت و سیو ۱۰۰٪ (Cheat & Trainer)",
+      format: "ZIP",
+      badge: "چیت و سیو",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      sizeGb: 0.03,
+      sha256: "8e7c1a2d...f502",
+      ready: true,
+    },
+    {
+      category: "دی‌ال‌سی و آپدیت‌ها (DLC & Updates)",
+      format: "FPKG",
+      badge: "الحاقی و پچ",
+      badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+      sizeGb: Math.round(currentGame.sizeGb * 0.22 * 10) / 10 || 12.4,
+      sha256: "1e3d5a7b...c449",
+      ready: true,
+    },
+    {
+      category: "دوبله فارسی اختصاصی (Persian Dubbing)",
+      format: "FPKG",
+      badge: "دوبله فارسی",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      sizeGb: 2.4,
+      sha256: "7b8d9c0a...f112",
+      ready: true,
+    },
   ];
+
+  const handleDownloadPart = async (item: typeof fileParts[0], idx: number) => {
+    // 1. Quota Check
+    if (userQuota < item.sizeGb) {
+      setQuotaModalOpen(true);
+      return;
+    }
+
+    setDownloadingPart(idx);
+    try {
+      // 2. Request download token from backend
+      const res = await api.post(`/api/v1/games/${slug}/download/${idx + 1}`);
+      const downloadUrl = res.data?.download_url || `https://cdn.drgame.ir/dl/${slug}/${encodeURIComponent(item.category)}.${item.format.toLowerCase()}`;
+
+      // 3. Deduct quota
+      setUserQuota((prev) => Math.max(0, Math.round((prev - item.sizeGb) * 10) / 10));
+
+      // 4. Trigger download in browser
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = `${slug}-file${idx + 1}.${item.format.toLowerCase()}`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    } catch (err) {
+      // Fallback direct download simulation if API network unreachable
+      setUserQuota((prev) => Math.max(0, Math.round((prev - item.sizeGb) * 10) / 10));
+      window.open(`https://cdn.drgame.ir/dl/${slug}/file${idx + 1}.${item.format.toLowerCase()}`, "_blank");
+    } finally {
+      setTimeout(() => setDownloadingPart(null), 1000);
+    }
+  };
 
   return (
     <Page>
@@ -65,7 +183,7 @@ export default function GameDetailPage() {
         className="fixed inset-0 pointer-events-none opacity-20 -z-10"
         style={{
           background:
-            "radial-gradient(circle at 50% 10%, rgba(255, 87, 34, 0.25) 0%, rgba(15, 16, 22, 0) 75%)",
+            "radial-gradient(circle at 50% 10%, rgba(124, 58, 237, 0.25) 0%, rgba(7, 7, 9, 0) 75%)",
         }}
       />
 
@@ -80,178 +198,85 @@ export default function GameDetailPage() {
             {t("فروشگاه بازی‌ها", "Shop")}
           </Link>
           <span>/</span>
-          <span className="text-orange-400 font-bold">{currentGame.title}</span>
+          <span className="text-purple-400 font-bold">{currentGame.title}</span>
         </nav>
 
-        {/* 1. Hero Showcase Banner & Card */}
-        <div className="relative rounded-3xl border border-white/10 bg-[#151722] overflow-hidden shadow-2xl p-6 md:p-8">
-          {/* Blurred Background Hero Art */}
-          <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none">
-            <img
-              src={currentGame.image}
-              alt=""
-              className="w-full h-full object-cover filter blur-3xl scale-125"
-            />
-          </div>
+        {/* 1. Cinematic Hero Showcase Banner (Separate Cover Poster + Like/Dislike) */}
+        <GameHeroBanner
+          game={currentGame}
+          isWishlisted={isWishlisted}
+          onWishlistToggle={handleToggleWishlist}
+        />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-start gap-8">
-            {/* Left Physical: Vertical Cover 240px */}
-            <div className="w-full md:w-[240px] shrink-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-black/50">
-              <img
-                src={currentGame.image}
-                alt={currentGame.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+        {/* 2. PlayStation 3-Card Feature Overview (Aligned with GameDr-Website-Source) */}
+        <PlayStationFeatureCards game={currentGame} gameTitle={currentGame.title} />
 
-            {/* Right Physical: Game Metadata & Primary CTAs */}
-            <div className="flex-1 min-w-0 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                {currentGame.platforms.map((p) => (
-                  <span
-                    key={p}
-                    className="px-2.5 py-0.5 rounded-md bg-blue-500/20 border border-blue-500/40 text-blue-300 font-extrabold text-xs"
-                  >
-                    {p}
-                  </span>
-                ))}
-                <span className="px-2.5 py-0.5 rounded-md bg-white/10 text-slate-300 text-xs font-semibold">
-                  CUSA-31459 · Region 1
-                </span>
-                <span className="px-2.5 py-0.5 rounded-md bg-green-500/20 text-green-400 text-xs font-semibold border border-green-500/30">
-                  {t("دیتای رسمی سالم و تست‌شده", "Verified Sony Package")}
-                </span>
-              </div>
-
-              <div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-                  {currentGame.title}
-                </h1>
-                <p className="text-sm font-semibold text-slate-400 mt-1">
-                  {t(currentGame.genreFa, currentGame.genreEn)} • {currentGame.studio} • {currentGame.year}
-                </p>
-              </div>
-
-              {/* Metacritic & Ratings */}
-              <div className="flex items-center gap-4 pt-1">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-400">
-                  <Star className="w-4 h-4 fill-yellow-400" />
-                  <span className="font-extrabold font-mono text-sm">
-                    {(currentGame.metacritic / 10).toFixed(1)} / 10
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-sans">
-                    ({currentGame.metacritic} Metascore)
-                  </span>
-                </div>
-
-                <div className="text-xs text-slate-400">
-                  <span>حجم کل پکیج: </span>
-                  <strong className="text-white font-mono">{n(currentGame.sizeGb)} GB</strong>
-                </div>
-              </div>
-
-              {/* Primary Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-3">
-                {/* Download CTA with Smooth Scroll */}
-                <button
-                  type="button"
-                  onClick={handleScrollToDownload}
-                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>{t("دانلود دیتای بازی", "Download Game Data")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all text-xs font-bold ${
-                    isWishlisted
-                      ? "bg-red-500/20 border-red-500/40 text-red-400"
-                      : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 ${isWishlisted ? "fill-red-400" : ""}`} />
-                  <span>{isWishlisted ? t("نشان شده", "Wishlisted") : t("علاقه‌مندی", "Wishlist")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setReportModalOpen(true)}
-                  className="flex items-center gap-1.5 px-4 py-3 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-all"
-                >
-                  <ShieldAlert className="w-4 h-4 text-amber-400" />
-                  <span>{t("گزارش خرابی", "Report Issue")}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Three PlayStation Profile Cards (TSK-04-14) */}
-        <PlayStationFeatureCards game={currentGame} />
-
-        {/* 3. Download Files Section (#game-files-section for TSK-04-13) */}
+        {/* 3. Compact Download Files Box: 5 Categorized Files */}
         <section
           id="game-files-section"
-          className="rounded-3xl border border-white/10 bg-[#151722] p-6 md:p-8 shadow-2xl space-y-6 scroll-mt-24"
+          className="max-w-4xl mx-auto rounded-2xl border border-white/10 bg-[#151722]/90 backdrop-blur-md p-5 sm:p-6 shadow-2xl space-y-4 scroll-mt-24"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-600/20 text-orange-400 flex items-center justify-center">
-                <FileArchive className="w-5 h-5" />
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0">
+                <FileArchive className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-white">
-                  {t("فایل‌ها و پارت‌های دانلود مستقیم", "Direct Download Files & Parts")}
+                <h3 className="text-sm sm:text-base font-black text-white">
+                  {t("باکس دانلود فایل‌های رسمی بازی", "Official Game Download Files")}
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  {t(
-                    "سرور مستقیم لبه تهران ۱ با پهنای باند اختصاصی و پشتیبانی از Resume و ابزارهای دانلود منجیر",
-                    "Tehran-1 edge node with unmetered bandwidth, resume capability, and IDM support"
-                  )}
-                </p>
+                <span className="text-[11px] text-slate-400">
+                  {t("سرور اختصاصی لبه تهران · پهنای باند حداکثری و پشتیبانی از Resume", "Tehran Edge Node · Uncapped Max Speed")}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-              <HardDrive className="w-4 h-4" />
-              <span>
-                {t("سهمیه حساب:", "Quota:")} {n(USER.quotaLeftGb)} GB
-              </span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold font-mono">
+              <HardDrive className="w-3.5 h-3.5 text-purple-400" />
+              <span>{n(userQuota)} GB {t("سهمیه", "Quota")}</span>
             </div>
           </div>
 
-          {/* Files List */}
-          <div className="space-y-3">
+          {/* Compact 5 Files List */}
+          <div className="divide-y divide-white/5 border border-white/5 rounded-xl overflow-hidden bg-black/20">
             {fileParts.map((item, idx) => (
               <div
                 key={idx}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-colors gap-3"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:px-4 hover:bg-white/[0.03] transition-colors gap-2.5 text-xs"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-white">{item.part}</span>
-                    <span className="px-2 py-0.5 rounded bg-white/10 text-[10px] text-slate-300 font-mono">
-                      {n(item.sizeGb)} GB
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border shrink-0 ${item.badgeColor}`}>
+                    {item.badge}
+                  </span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-white text-xs sm:text-sm block truncate">
+                      {item.category}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
-                    <span>SHA256: {item.sha256}</span>
-                    <span className="text-green-400 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> سالم
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      فرمت: {item.format} · SHA256: {item.sha256}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-1 sm:pt-0">
+                  <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-slate-200 font-mono text-xs font-bold">
+                    {n(item.sizeGb)} GB
+                  </span>
+
                   <button
                     type="button"
                     data-action={idx === 0 ? "download-primary" : undefined}
-                    className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 transition-all focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    disabled={downloadingPart === idx}
+                    onClick={() => handleDownloadPart(item, idx)}
+                    className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-purple-600/20 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-60"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{t("دانلود مستقیم", "Download")}</span>
+                    <Download className={`w-3.5 h-3.5 ${downloadingPart === idx ? "animate-bounce" : ""}`} />
+                    <span>
+                      {downloadingPart === idx
+                        ? t("در حال دریافت...", "Preparing...")
+                        : t("دانلود", "Download")}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -259,10 +284,47 @@ export default function GameDetailPage() {
           </div>
         </section>
 
-        {/* 4. Report Broken Link Modal */}
+        {/* 4. Quota Exceeded Modal */}
+        {quotaModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div className="w-full max-w-md rounded-3xl border border-purple-500/40 bg-[#101116] p-6 shadow-2xl space-y-5 text-center">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center border border-amber-500/30">
+                <HardDrive className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold text-white">
+                  {t("سهمیه دانلود حساب شما کافی نیست", "Insufficient Download Quota")}
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {t(
+                    `سهمیه باقیمانده شما ${n(userQuota)} گیگابایت است که برای دانلود این پارت ۲۵ گیگابایتی کافی نمی‌باشد. جهت افزایش سهمیه، اشتراک خود را ارتقا دهید.`,
+                    `Your quota is ${userQuota} GB, which is insufficient for this 25 GB part. Please upgrade your subscription.`
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <Link
+                  href="/subscriptions"
+                  className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"
+                >
+                  {t("ارتقای پلن اشتراک", "Upgrade Subscription")}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setQuotaModalOpen(false)}
+                  className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-bold text-xs"
+                >
+                  {t("بستن", "Dismiss")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. Report Broken Link Modal */}
         {reportModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#181a27] p-6 shadow-2xl space-y-4">
+            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#181920] p-6 shadow-2xl space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
                 <h4 className="font-extrabold text-sm text-white flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-amber-400" />
@@ -278,55 +340,41 @@ export default function GameDetailPage() {
               </div>
 
               {reportSent ? (
-                <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-300 text-xs text-center space-y-1">
-                  <p className="font-bold">گزارش شما با موفقیت ثبت گردید.</p>
-                  <p className="text-[11px] text-slate-400">تیم فنی ظرف حداکثر ۲ ساعت فایل را بازبینی خواهد کرد.</p>
+                <div className="text-center py-6 space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 mx-auto flex items-center justify-center">
+                    <Check className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs text-white font-bold">
+                    {t("گزارش شما با موفقیت به تیم فنی ارسال شد.", "Report submitted successfully.")}
+                  </p>
                 </div>
               ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setReportSent(true);
-                    setTimeout(() => {
-                      setReportSent(false);
-                      setReportModalOpen(false);
-                    }, 2000);
-                  }}
-                  className="space-y-3"
-                >
-                  <div>
-                    <label className="text-xs text-slate-300 block mb-1">نوع مشکل:</label>
-                    <select className="w-full h-10 rounded-xl bg-[#0f1016] border border-white/10 px-3 text-xs text-white">
-                      <option>لینک دانلود پاسخ نمی‌دهد (Timeout)</option>
-                      <option>خطای چک‌سام / اکسترکت نشدن فایل ZIP</option>
-                      <option>عدم شناسایی پکیج روی کنسول PS5/PS4</option>
-                      <option>سایر موارد</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-300 block mb-1">توضیحات تکمیلی:</label>
-                    <textarea
-                      rows={3}
-                      placeholder="شماره پارت معیوب یا کد خطای کنسول را شرح دهید..."
-                      className="w-full rounded-xl bg-[#0f1016] border border-white/10 p-3 text-xs text-white placeholder-slate-500"
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setReportModalOpen(false)}
-                      className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-semibold hover:bg-white/10"
-                    >
-                      انصراف
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold"
-                    >
-                      ارسال گزارش
-                    </button>
-                  </div>
-                </form>
+                <div className="space-y-4 text-xs">
+                  <p className="text-slate-300 leading-relaxed">
+                    {t(
+                      "در صورت خرابی پارت‌ها یا خطای هش SHA256، گزارش خود را ثبت نمایید تا لینک جدید جایگزین گردد.",
+                      "If any part or SHA256 checksum fails, report it here."
+                    )}
+                  </p>
+                  <textarea
+                    rows={3}
+                    placeholder={t("توضیحات خطا...", "Describe the error...")}
+                    className="w-full bg-[#101116] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReportSent(true);
+                      setTimeout(() => {
+                        setReportModalOpen(false);
+                        setReportSent(false);
+                      }, 2000);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition-colors"
+                  >
+                    {t("ارسال گزارش به پشتیبانی", "Submit Report")}
+                  </button>
+                </div>
               )}
             </div>
           </div>

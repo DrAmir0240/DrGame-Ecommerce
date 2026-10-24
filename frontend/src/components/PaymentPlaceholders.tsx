@@ -38,7 +38,7 @@ export const ShetabGatewaySelector: React.FC<{
   return (
     <div className="space-y-3">
       <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-        <CreditCard className="w-4 h-4 text-orange-400" />
+        <CreditCard className="w-4 h-4 text-purple-400" />
         <span>{t("انتخاب درگاه پرداخت الکترونیک:", "Choose Payment Method:")}</span>
       </label>
 
@@ -52,14 +52,14 @@ export const ShetabGatewaySelector: React.FC<{
               onClick={() => onSelect(gw.id)}
               className={`p-3.5 rounded-xl border text-right transition-all flex items-center justify-between ${
                 isSelected
-                  ? "bg-orange-500/15 border-orange-500 shadow-md shadow-orange-500/20 text-white"
+                  ? "bg-purple-500/15 border-purple-500 shadow-md shadow-purple-500/20 text-white"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs ${
-                    isSelected ? "bg-orange-600 text-white" : "bg-white/10 text-slate-400"
+                    isSelected ? "bg-purple-600 text-white" : "bg-white/10 text-slate-400"
                   }`}
                 >
                   {gw.type === "crypto" ? <Coins className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
@@ -73,7 +73,7 @@ export const ShetabGatewaySelector: React.FC<{
               </div>
 
               {gw.badge && (
-                <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-extrabold border border-orange-500/30">
+                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-extrabold border border-purple-500/30">
                   {gw.badge}
                 </span>
               )}
@@ -186,7 +186,7 @@ export const EnamadPlaceholderSlot: React.FC = () => {
   return (
     <div
       id="enamad-verification-slot"
-      className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-orange-500/40 transition-colors"
+      className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-purple-500/40 transition-colors"
     >
       <ShieldCheck className="w-8 h-8 text-blue-400 mb-1" />
       <span className="text-[11px] font-bold text-white">ای‌نماد ۵ ستاره</span>

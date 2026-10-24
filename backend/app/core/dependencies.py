@@ -41,3 +41,18 @@ async def get_current_user(
     if not user.is_active:
         raise UnauthorizedException("User account is inactive")
     return user
+
+
+async def get_current_active_user(
+    current_user = Depends(get_current_user),
+):
+    return current_user
+
+
+async def get_current_superuser(
+    current_user = Depends(get_current_user),
+):
+    if not current_user.is_superuser:
+        raise UnauthorizedException("Superuser privileges required")
+    return current_user
+

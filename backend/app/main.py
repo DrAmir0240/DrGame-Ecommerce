@@ -7,7 +7,11 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.exceptions import AppException
 from app.core.redis_client import RedisService
+from app.modules.games.router import router as games_router
+from app.modules.orders.router import router as orders_router
 from app.modules.quota.router import router as quota_router
+from app.modules.referral.router import router as referral_router
+from app.modules.settings.router import router as settings_router
 from app.modules.subscriptions.router import router as subscriptions_router
 from app.modules.users.router import router as auth_router
 
@@ -107,7 +111,20 @@ async def get_system_settings():
     }
 
 
+# Startup Event: Ensure DB tables exist
+@app.on_event("startup")
+async def on_startup():
+    from app.core.database import engine, Base
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
 # Include Routers
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(subscriptions_router, prefix="/api/v1")
 app.include_router(quota_router, prefix="/api/v1")
+app.include_router(games_router, prefix="/api/v1")
+app.include_router(orders_router, prefix="/api/v1")
+app.include_router(settings_router, prefix="/api/v1")
+app.include_router(referral_router, prefix="/api/v1")
+

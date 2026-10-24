@@ -27,7 +27,9 @@ import {
 import { Page } from "@/components/Shell";
 import { HomeReferralSummary } from "@/components/HomeReferralSummary";
 import { HomeBannerSlots } from "@/components/HomeBannerSlots";
+import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
 import { GameCard } from "@/components/GameCard";
+
 import { PlayStationGlyph } from "@/components/PlayStationGlyph";
 import { Button, PlatformBadge, SectionTitle } from "@/components/ui";
 import { useApp } from "@/lib/app";
@@ -65,8 +67,8 @@ function Hero() {
       {/* Hero Content */}
       <div className="relative z-10 p-6 md:p-12 lg:p-14 max-w-3xl flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-extrabold uppercase shadow-sm">
-            <Flame className="w-3.5 h-3.5 fill-orange-400" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 text-xs font-extrabold uppercase shadow-sm">
+            <Flame className="w-3.5 h-3.5 fill-purple-400" />
             {t("ویترین برگزیده هفته", "Featured Spotlight")}
           </span>
           <PlatformBadge p="PS5" solid />
@@ -90,7 +92,7 @@ function Hero() {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Link
             href={`/shop/${g.slug}`}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all"
           >
             <Download className="w-4 h-4" />
             <span>{t("دانلود مستقیم بازی", "Direct Download")}</span>
@@ -109,7 +111,7 @@ function Hero() {
         </div>
 
         <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
-          <Gauge className="w-4 h-4 text-orange-400" />
+          <Gauge className="w-4 h-4 text-purple-400" />
           <span>
             {t(
               `زمان تخمینی دانلود: ${n(fast.toFixed(1))} ساعت روی سرور لبه دکتر گیم (در برابر ${n(
@@ -129,7 +131,7 @@ function EdgeStatus() {
   return (
     <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08] rounded-2xl border border-white/10 bg-[#181a27] rtl:divide-x-reverse shadow-lg">
       <div className="flex items-center gap-3.5 px-5 py-4">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-orange-500/10 text-orange-400">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
           <Server size={18} />
         </span>
         <div className="min-w-0">
@@ -213,7 +215,7 @@ function RailSection({
         </div>
         <Link
           href={actionLink}
-          className="flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors"
+          className="flex items-center gap-1 text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors"
         >
           <span>{t("مشاهده همه", "View all")}</span>
           <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -262,7 +264,11 @@ export default function Home() {
         {/* 4. Two Configurable Banner Slots (TSK-04-09) */}
         <HomeBannerSlots />
 
+        {/* 17 Official Categories Grid (TSK-06-04) */}
+        <HomeCategoriesGrid />
+
         {/* 5. Rail: Top 10 Games Rank (TSK-04-10) */}
+
         <div id="top-games-grid">
           <RailSection
             title={t("جدول برترین بازی‌های تاریخ پلی‌استیشن (Top 10)", "Top 10 Rated PlayStation Games")}
@@ -316,7 +322,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
-                <Wrench className="w-5 h-5 text-orange-500" />
+                <Wrench className="w-5 h-5 text-purple-500" />
                 <span>{t("هاب سخت‌افزار و ابزارهای عیب‌یابی کنسول", "Hardware Diagnostics & Tools")}</span>
               </h3>
               <p className="text-xs text-slate-400 mt-1">
@@ -328,7 +334,7 @@ export default function Home() {
             </div>
             <Link
               href="/tools"
-              className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1"
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1"
             >
               <span>{t("همه ابزارها", "All Tools")}</span>
               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -338,13 +344,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               href="/tools/gamepad"
-              className="group p-5 rounded-xl border border-white/10 bg-white/5 hover:border-orange-500/40 hover:bg-white/10 transition-all flex items-start gap-4"
+              className="group p-5 rounded-xl border border-white/10 bg-white/5 hover:border-purple-500/40 hover:bg-white/10 transition-all flex items-start gap-4"
             >
-              <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
                 <PlayStationGlyph type="dpad" size={24} />
               </div>
               <div>
-                <h4 className="font-bold text-white group-hover:text-orange-400 transition-colors">
+                <h4 className="font-bold text-white group-hover:text-purple-400 transition-colors">
                   {t("تستر پیشرفته دسته بازی (DualSense / Gamepad)", "DualSense & Gamepad Hardware Tester")}
                 </h4>
                 <p className="text-xs text-slate-400 mt-1 leading-relaxed">
@@ -396,7 +402,7 @@ export default function Home() {
           <div className="pt-2">
             <Link
               href="/subscriptions"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg hover:shadow-orange-500/30 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg hover:shadow-purple-500/30 transition-all"
             >
               <span>{t("مشاهده جدول مقایسه کامل پلن‌ها", "Compare All 4 Membership Tiers")}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />

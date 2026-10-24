@@ -74,6 +74,7 @@ const config: Config = {
       fontFamily: {
         sans: ["Vazirmatn", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         latin: ["Inter", "Vazirmatn", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["Vazirmatn", "Oxanium", "ui-monospace", "monospace"],
       },
       borderRadius: {
         sm: "var(--radius-sm)",

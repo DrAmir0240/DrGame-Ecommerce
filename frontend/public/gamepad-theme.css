@@ -1,0 +1,60 @@
+/* gamepad-theme.css — هماهنگ‌کردنِ ظاهرِ «تست دسته» با پنل GameDr.
+   داخلِ iframe لود می‌شود (آخرین استایل‌شیتِ gamepad/index.html) و رنگ‌های بیلدِ تستر
+   را که با gamepad-repatch.py به --gd-* وصل شده‌اند، مقدار می‌دهد.
+
+   ⚠ این مقادیر آینه‌ی پالتِ styles.css هستند — iframe متغیرهای صفحه‌ی والد را نمی‌بیند.
+     اگر پالتِ پنل عوض شد، همین‌جا هم عوض شود. تمِ روشن/تیره را repair.js با گذاشتنِ
+     کلاسِ light/dark روی <html> همین سند ست می‌کند. */
+
+/* روشن = پیش‌فرض (تمِ پیش‌فرضِ پنل هم روشن است؛ برعکسِ styles.css که تیره را :root گرفته،
+   اینجا روشن پیش‌فرض است تا اگر کلاسِ تم دیر برسد صفحه پرشِ رنگ نداشته باشد) */
+:root {
+  --gd-bg: #dfe3ec;
+  --gd-surface: #eef1f7;
+  --gd-text: #1b2236;
+  --gd-accent: #3f6fe0;
+  --gd-accent2: #7a5cf0;
+  --gd-bg-rgb: 223 227 236;
+  --gd-surface-rgb: 238 241 247;
+  --gd-border-rgb: 211 217 230;
+  --gd-text-rgb: 27 34 54;
+  --gd-dim-rgb: 90 101 132;
+  --gd-accent-rgb: 63 111 224;
+}
+html.dark {
+  --gd-bg: #0a0d15;
+  --gd-surface: #161b2b;
+  --gd-text: #eaeef8;
+  --gd-accent: #5b8cff;
+  --gd-accent2: #8b6cff;
+  --gd-bg-rgb: 10 13 21;
+  --gd-surface-rgb: 22 27 43;
+  --gd-border-rgb: 37 45 67;
+  --gd-text-rgb: 234 238 248;
+  --gd-dim-rgb: 154 165 192;
+  --gd-accent-rgb: 91 140 255;
+}
+
+/* پس‌زمینه و متنِ پایه: تستر خودش از این دو متغیر استفاده می‌کند */
+html.light, html.dark {
+  --bg-color: var(--gd-bg-rgb);
+  --text-color: var(--gd-text-rgb);
+}
+html { color: var(--gd-text); }
+/* فونتِ پنل (Vazirmatn توی خودِ بیلد هست) */
+:root { --default-fonts: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif; }
+body { scrollbar-color: rgb(var(--gd-border-rgb)) transparent; }
+
+/* کارت‌ها: در تستر شفاف‌اند؛ اینجا مثل کارت‌های پنل سطح می‌گیرند */
+.dou-sc-container { background: var(--gd-surface); }
+
+/* سوییچِ روشن/تیره‌ی خودِ تستر پنهان — تمِ اینجا را دکمه‌ی «تغییر تم»ِ پنل می‌چرخاند */
+.tools-wrapper .switch[role="switch"] { display: none; }
+
+/* کادرِ پایینِ تستر (کپی‌رایت + نسخه) داخلِ پنل پنهان است.
+   حقِ مؤلف پاک نشده — متنِ لایسنسِ MIT در gamepad/LICENSE کنارِ همین بیلد می‌ماند. */
+footer { display: none; }
+
+/* آیکن‌های گیت‌هاب و اسپانسر از هدر — لینکِ بیرونی داخلِ پنلِ فروشگاه جایی ندارد.
+   (هر کدام داخلِ یک wrapperِ تولتیپ‌اند؛ خودِ wrapper پنهان می‌شود تا فاصله‌ی خالی نماند) */
+.tools-wrapper .v-popper:has(a[href*="github.com"]) { display: none; }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Copy,
@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useApp } from "@/lib/app";
+import { api } from "@/lib/api";
 
 export const ReferralTab: React.FC = () => {
   const { t, n } = useApp();
@@ -26,9 +27,32 @@ export const ReferralTab: React.FC = () => {
   const [amount, setAmount] = useState("2000000");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const [availableBalance, setAvailableBalance] = useState(2450000);
+  const [pendingBalance, setPendingBalance] = useState(780000);
+  const [lifetimeEarnings, setLifetimeEarnings] = useState(5230000);
 
   const inviteCode = "DR-84920";
   const inviteLink = `https://drgame.ir/auth?ref=${inviteCode}`;
+
+  useEffect(() => {
+    let isMounted = true;
+    api.get<any>("/api/v1/referral/summary")
+      .then((res) => {
+        if (isMounted && res.data) {
+          if (res.data.available_balance_irr !== undefined) setAvailableBalance(res.data.available_balance_irr);
+          if (res.data.pending_balance_irr !== undefined) setPendingBalance(res.data.pending_balance_irr);
+          if (res.data.lifetime_earnings_irr !== undefined) setLifetimeEarnings(res.data.lifetime_earnings_irr);
+        }
+      })
+      .catch(() => {
+        // Retain initial fallback
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const copyLink = () => {
     if (navigator?.clipboard) {
@@ -38,14 +62,45 @@ export const ReferralTab: React.FC = () => {
     }
   };
 
-  const handleWithdrawalSubmit = (e: React.FormEvent) => {
+  const [settlements, setSettlements] = useState([
+    { id: "STL-9041", date: "۱۵ مهر ۱۴۰۵", amount: 1500000, iban: "IR82...7890", status: "واریز شده با پایا", tracking: "PAYA-892341", badge: "text-green-400 bg-green-500/10" },
+    { id: "STL-8812", date: "۲ شهریور ۱۴۰۵", amount: 2000000, iban: "IR82...7890", status: "واریز شده با پایا", tracking: "PAYA-773120", badge: "text-green-400 bg-green-500/10" },
+  ]);
+
+  const handleWithdrawalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => {
+    setErrorMsg("");
+    try {
+      const parsedAmount = parseInt(amount.replace(/[^0-9]/g, ""), 10) || 0;
+      const res = await api.post<any>("/api/v1/referral/payout-request", {
+        amount_irr: parsedAmount,
+        iban,
+        account_holder: accountHolder,
+      });
+
+      const payload = res.data;
+      if (payload && payload.tracking_code) {
+        setSettlements((prev) => [
+          {
+            id: payload.tracking_code,
+            date: "امروز (لحظاتی پیش)",
+            amount: payload.amount_irr || parsedAmount,
+            iban: iban.substring(0, 4) + "..." + iban.substring(iban.length - 4),
+            status: "در حال بررسی پایا",
+            tracking: payload.tracking_code,
+            badge: "text-amber-400 bg-amber-500/10",
+          },
+          ...prev,
+        ]);
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 4500);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "خطا در ثبت درخواست تسویه");
+    } finally {
       setSubmitting(false);
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3500);
-    }, 1000);
+    }
   };
 
   const levels = [
@@ -55,18 +110,13 @@ export const ReferralTab: React.FC = () => {
     { level: 4, percent: "۱.۳۱۲۵٪", count: 110, earnings: 236250 },
   ];
 
-  const settlements = [
-    { id: "STL-9041", date: "۱۵ مهر ۱۴۰۵", amount: 1500000, iban: "IR82...7890", status: "واریز شده با پایا", tracking: "PAYA-892341", badge: "text-green-400 bg-green-500/10" },
-    { id: "STL-8812", date: "۲ شهریور ۱۴۰۵", amount: 2000000, iban: "IR82...7890", status: "واریز شده با پایا", tracking: "PAYA-773120", badge: "text-green-400 bg-green-500/10" },
-  ];
-
   return (
     <div className="space-y-8">
       {/* 1. Header Banner & Identity */}
-      <div className="rounded-3xl border border-orange-500/40 bg-gradient-to-r from-orange-500/10 via-[#181a27] to-purple-500/10 p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div className="rounded-3xl border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-[#181a27] to-pink-500/10 p-6 md:p-8 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-extrabold uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-extrabold uppercase">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Branch Ledger v1.4.1 (مدل پورسانت ارجاع تصاعدی)</span>
             </div>
@@ -84,12 +134,12 @@ export const ReferralTab: React.FC = () => {
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#0f1016] border border-white/10 shrink-0">
             <div className="space-y-1">
               <span className="text-[10px] text-slate-400 block">{t("کد معرف اختصاصی شما:", "Your Invite Code:")}</span>
-              <code className="text-base font-extrabold text-orange-400 font-mono tracking-wider">{inviteCode}</code>
+              <code className="text-base font-extrabold text-purple-400 font-mono tracking-wider">{inviteCode}</code>
             </div>
             <button
               type="button"
               onClick={copyLink}
-              className="p-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white transition-colors"
+              className="p-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition-colors"
               title="کپی لینک دعوت"
             >
               {copied ? <Check className="w-4 h-4 text-green-200" /> : <Copy className="w-4 h-4" />}
@@ -105,8 +155,8 @@ export const ReferralTab: React.FC = () => {
             <span>{t("موجودی قابل برداشت", "Available Balance")}</span>
             <Wallet className="w-4 h-4 text-green-400" />
           </div>
-          <span className="text-2xl font-extrabold text-green-400 font-mono block">
-            {n("۲,۴۵۰,۰۰۰")} <span className="text-xs font-sans text-slate-400 font-normal">تومان</span>
+          <span className="text-2xl font-black text-green-400 block tracking-tight">
+            {n(availableBalance.toLocaleString())} <span className="text-xs text-slate-400 font-normal">تومان</span>
           </span>
           <span className="text-[11px] text-slate-500 block">آماده تسویه مستقیم به شماره شبا</span>
         </div>
@@ -116,8 +166,8 @@ export const ReferralTab: React.FC = () => {
             <span>{t("در حال تعلیق (دوره ۷ روزه)", "Pending Escrow (7 Days)")}</span>
             <Clock className="w-4 h-4 text-amber-400" />
           </div>
-          <span className="text-2xl font-extrabold text-amber-400 font-mono block">
-            {n("۷۸۰,۰۰۰")} <span className="text-xs font-sans text-slate-400 font-normal">تومان</span>
+          <span className="text-2xl font-black text-amber-400 block tracking-tight">
+            {n(pendingBalance.toLocaleString())} <span className="text-xs text-slate-400 font-normal">تومان</span>
           </span>
           <span className="text-[11px] text-slate-500 block">تراکنش‌های اخیر شبکه در انتظار تایید</span>
         </div>
@@ -125,10 +175,10 @@ export const ReferralTab: React.FC = () => {
         <div className="rounded-2xl border border-white/10 bg-[#151722] p-5 shadow-xl space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span>{t("مجموع درآمد کل (Lifetime)", "Lifetime Total Earnings")}</span>
-            <Sparkles className="w-4 h-4 text-orange-400" />
+            <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
-          <span className="text-2xl font-extrabold text-white font-mono block">
-            {n("۵,۲۳۰,۰۰۰")} <span className="text-xs font-sans text-slate-400 font-normal">تومان</span>
+          <span className="text-2xl font-black text-white block tracking-tight">
+            {n(lifetimeEarnings.toLocaleString())} <span className="text-xs text-slate-400 font-normal">تومان</span>
           </span>
           <span className="text-[11px] text-slate-500 block">واریز شده از ابتدای عضویت</span>
         </div>
@@ -161,7 +211,7 @@ export const ReferralTab: React.FC = () => {
               {levels.map((l) => (
                 <tr key={l.level} className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-3.5 px-4 font-bold text-white text-start">سطح {n(l.level)}</td>
-                  <td className="py-3.5 px-4 text-center text-orange-400 font-mono font-bold">{l.percent}</td>
+                  <td className="py-3.5 px-4 text-center text-purple-400 font-mono font-bold">{l.percent}</td>
                   <td className="py-3.5 px-4 text-center font-mono text-slate-300">{n(l.count)} نفر</td>
                   <td className="py-3.5 px-4 text-end font-mono font-bold text-white">
                     {n(l.earnings.toLocaleString())} تومان
@@ -176,7 +226,7 @@ export const ReferralTab: React.FC = () => {
       {/* 4. IBAN Settlement Request Form */}
       <div className="rounded-3xl border border-white/10 bg-[#151722] p-6 md:p-8 shadow-2xl space-y-5">
         <div className="flex items-center gap-2.5 pb-3 border-b border-white/10">
-          <Building className="w-5 h-5 text-orange-500" />
+          <Building className="w-5 h-5 text-purple-500" />
           <div>
             <h3 className="text-base font-extrabold text-white">
               {t("درخواست تسویه حساب به شماره شبا", "IBAN Bank Settlement Request")}
@@ -187,9 +237,16 @@ export const ReferralTab: React.FC = () => {
           </div>
         </div>
 
+        {errorMsg && (
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         {submitted ? (
           <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-300 text-xs text-center space-y-1">
-            <p className="font-bold">درخواست تسویه با موفقیت ثبت شد.</p>
+            <p className="font-bold">درخواست تسویه با موفقیت در دیتابیس ثبت شد.</p>
             <p className="text-[11px] text-slate-400">کد پیگیری در جدول سوابق ثبت گردید و پس از بازبینی ادمین واریز می‌شود.</p>
           </div>
         ) : (
@@ -201,7 +258,7 @@ export const ReferralTab: React.FC = () => {
                   type="text"
                   value={iban}
                   onChange={(e) => setIban(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-orange-500 focus:outline-none"
+                  className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-purple-500 focus:outline-none"
                   placeholder="IR..."
                 />
               </div>
@@ -212,7 +269,7 @@ export const ReferralTab: React.FC = () => {
                   type="text"
                   value={accountHolder}
                   onChange={(e) => setAccountHolder(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white focus:border-orange-500 focus:outline-none"
+                  className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white focus:border-purple-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -223,14 +280,14 @@ export const ReferralTab: React.FC = () => {
                 type="text"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-orange-500 focus:outline-none"
+                className="w-full h-11 rounded-xl bg-[#0f1016] border border-white/10 px-3.5 text-xs text-white font-mono focus:border-purple-500 focus:outline-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="py-3 px-6 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs shadow-lg shadow-orange-500/25 transition-all disabled:opacity-50"
+              className="py-3 px-6 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
             >
               {submitting ? "در حال ثبت درخواست..." : "ثبت درخواست تسویه پایا"}
             </button>

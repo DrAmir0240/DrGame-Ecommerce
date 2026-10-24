@@ -3,8 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { ShieldCheck, PhoneCall, Mail, MapPin, ExternalLink, HelpCircle } from "lucide-react";
+import { useContactInfo } from "@/lib/contact";
 
 export const IranFooter: React.FC = () => {
+  const [contact] = useContactInfo();
+
   return (
     <footer className="w-full bg-[#151722] border-t border-white/10 text-slate-300 pt-12 pb-8 mt-20">
       <div className="max-w-[1440px] mx-auto px-6">
@@ -12,9 +15,11 @@ export const IranFooter: React.FC = () => {
           {/* Col 1: Brand & Bio */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center font-bold text-orange-500 text-lg">
-                DG
-              </div>
+              <img
+                src="/logo.png"
+                alt="DrGame"
+                className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+              />
               <div>
                 <h3 className="text-white font-extrabold text-lg">دکتر گیم (DrGame)</h3>
                 <p className="text-xs text-slate-400">مرکز تخصصی دانلود دیتای بازی و سرویس‌های پلی‌استیشن</p>
@@ -25,72 +30,72 @@ export const IranFooter: React.FC = () => {
             </p>
             <div className="flex flex-col gap-2 text-xs text-slate-400 pt-2">
               <div className="flex items-center gap-2">
-                <PhoneCall className="w-4 h-4 text-orange-400 shrink-0" />
-                <span>پشتیبانی تلفنی: ۰۲۱-۸۸۸۸۹۹۹۹ (شنبه تا پنجشنبه ۹ الی ۲۱)</span>
+                <PhoneCall className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>پشتیبانی تلفنی: {contact.phone1} ({contact.workingHours})</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-orange-400 shrink-0" />
-                <span>پست الکترونیکی: support@drgame.ir</span>
+                <Mail className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>پست الکترونیکی: {contact.email}</span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-orange-400 shrink-0" />
-                <span>نشانی: تهران، خیابان مطهری، تقاطع میرزای شیرازی، ساختمان فناوری</span>
+                <MapPin className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>نشانی: {contact.address}</span>
               </div>
             </div>
           </div>
 
           {/* Col 2: Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm border-s-2 border-orange-500 ps-2.5">دسترسی سریع</h4>
+            <h4 className="text-white font-bold text-sm border-s-2 border-purple-500 ps-2.5">دسترسی سریع</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link href="/shop" className="hover:text-orange-400 transition-colors">فروشگاه دیتای بازی‌ها</Link>
+                <Link href="/shop" className="hover:text-purple-400 transition-colors">فروشگاه دیتای بازی‌ها</Link>
               </li>
               <li>
-                <Link href="/subscriptions" className="hover:text-orange-400 transition-colors">طرح‌ها و پلن‌های اشتراک</Link>
+                <Link href="/subscriptions" className="hover:text-purple-400 transition-colors">طرح‌ها و پلن‌های اشتراک</Link>
               </li>
               <li>
-                <Link href="/jailbreak" className="hover:text-orange-400 transition-colors">مرجع جیلبریک و ابزارها</Link>
+                <Link href="/jailbreak" className="hover:text-purple-400 transition-colors">مرجع جیلبریک و ابزارها</Link>
               </li>
               <li>
-                <Link href="/tools/gamepad" className="hover:text-orange-400 transition-colors">تستر پیشرفته دسته بازی</Link>
+                <Link href="/tools/gamepad" className="hover:text-purple-400 transition-colors">تستر پیشرفته دسته بازی</Link>
               </li>
               <li>
-                <Link href="/articles" className="hover:text-orange-400 transition-colors">اخبار و مقالات تخصصی</Link>
+                <Link href="/articles" className="hover:text-purple-400 transition-colors">اخبار و مقالات تخصصی</Link>
               </li>
             </ul>
           </div>
 
           {/* Col 3: Support & Rules */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm border-s-2 border-orange-500 ps-2.5">راهنما و پشتیبانی</h4>
+            <h4 className="text-white font-bold text-sm border-s-2 border-purple-500 ps-2.5">راهنما و پشتیبانی</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link href="/panel?tab=tickets" className="hover:text-orange-400 transition-colors">ارسال تیکت پشتیبانی</Link>
+                <Link href="/panel?tab=tickets" className="hover:text-purple-400 transition-colors">ارسال تیکت پشتیبانی</Link>
               </li>
               <li>
-                <Link href="/articles/dns-setup" className="hover:text-orange-400 transition-colors">راهنمای تصویری تنظیم DNS</Link>
+                <Link href="/articles/dns-setup" className="hover:text-purple-400 transition-colors">راهنمای تصویری تنظیم DNS</Link>
               </li>
               <li>
-                <Link href="/articles/terms" className="hover:text-orange-400 transition-colors">قوانین و شرایط استفاده</Link>
+                <Link href="/articles/terms" className="hover:text-purple-400 transition-colors">قوانین و شرایط استفاده</Link>
               </li>
               <li>
-                <Link href="/articles/privacy" className="hover:text-orange-400 transition-colors">حریم خصوصی کاربران</Link>
+                <Link href="/articles/privacy" className="hover:text-purple-400 transition-colors">حریم خصوصی کاربران</Link>
               </li>
               <li>
-                <Link href="/panel?tab=referral" className="hover:text-orange-400 transition-colors">کسب درآمد و رفرال لجر</Link>
+                <Link href="/panel?tab=referral" className="hover:text-purple-400 transition-colors">کسب درآمد و رفرال لجر</Link>
               </li>
             </ul>
           </div>
 
           {/* Col 4: Trust & Payment Badges */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm border-s-2 border-orange-500 ps-2.5">نمادهای اعتماد و درگاه‌ها</h4>
+            <h4 className="text-white font-bold text-sm border-s-2 border-purple-500 ps-2.5">نمادهای اعتماد و درگاه‌ها</h4>
             <div className="flex flex-wrap gap-2.5 items-center">
               {/* Enamad slot */}
               <div
                 title="نماد اعتماد الکترونیکی (Enamad)"
-                className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-orange-500/40 transition-colors"
+                className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-purple-500/40 transition-colors"
               >
                 <ShieldCheck className="w-8 h-8 text-blue-400 mb-1" />
                 <span className="text-[11px] font-bold text-white">ای‌نماد ۵ ستاره</span>
@@ -100,7 +105,7 @@ export const IranFooter: React.FC = () => {
               {/* Samandehi slot */}
               <div
                 title="نشان ملی ثبت رسانه‌های دیجیتال"
-                className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-orange-500/40 transition-colors"
+                className="w-[120px] h-[120px] rounded-xl border border-white/10 bg-white/5 flex flex-col items-center justify-center p-2 text-center hover:border-purple-500/40 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs mb-1">
                   ساماندهی

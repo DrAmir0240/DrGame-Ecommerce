@@ -334,7 +334,7 @@ export default function PlansPage() {
             quotaValue={gb(500)}
             head="bg-linear-135 from-bronze to-bronze-2 text-on-accent"
             features={[
-              ["حداکثر ۲۰ Mbps", "Up to 20 Mbps"],
+              ["حداکثر سرعت بدون محدودیت پهنای باند", "Maximum uncapped speed"],
               ["بازی‌های PS4 و PS5 که مالکشان هستید", "PS4 & PS5 games you own"],
               ["۱ کنسول", "1 console"],
             ]}
@@ -350,13 +350,13 @@ export default function PlansPage() {
           />
           <PlanCard
             name={["نقره‌ای", "Silver"]}
-            desc={["سرعت متعادل با حجم کافی برای کل کتابخانه.", "Balanced speed with room for your whole library."]}
+            desc={["سرعت فوق‌العاده با حجم کافی برای کل کتابخانه.", "Balanced speed with room for your whole library."]}
             price={priceRow(1198000)}
             quotaLabel={["حجم ماهانه", "Monthly quota"]}
             quotaValue={gb(1000)}
-            head="bg-linear-135 from-silver-2 to-silver text-bg"
+            head="bg-linear-135 from-slate-200 to-slate-400 text-slate-950 font-bold"
             features={[
-              ["حداکثر ۲۰ Mbps", "Up to 20 Mbps"],
+              ["حداکثر سرعت بدون محدودیت پهنای باند", "Maximum uncapped speed"],
               ["PS4 و PS5", "PS4 & PS5"],
               ["بسته‌های زیرنویس فارسی", "Persian subtitle packs"],
               ["DLC و آپدیت‌ها در سهمیه", "DLC & updates included in quota"],
@@ -372,26 +372,26 @@ export default function PlansPage() {
           />
           <PlanCard
             highlight
-            name={["طلایی", "Gold"]}
-            desc={["بیشترین سرعت و حجم برای کل خانواده و همه کنسول‌ها.", "Maximum speed and quota for the whole household."]}
+            name={["طلایی VIP", "Gold VIP"]}
+            desc={["نهایت سرعت و بیشترین حجم برای خانواده و تمام کنسول‌ها.", "Maximum speed and quota for the whole household."]}
             price={priceRow(2988000)}
             quotaLabel={["حجم ماهانه", "Monthly quota"]}
-            quotaValue={gb(2200)}
-            head="bg-linear-135 from-gold to-gold-2 text-bg"
+            quotaValue={gb(2250)}
+            head="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-lg"
             features={[
-              ["حداکثر ۴۰ Mbps", "Up to 40 Mbps"],
-              ["PS4 و PS5", "PS4 & PS5"],
-              ["بسته‌های زیرنویس فارسی", "Persian subtitle packs"],
+              ["حداکثر سرعت بدون محدودیت پهنای باند", "Maximum uncapped speed"],
+              ["PS4 و PS5 و تمامی عناوین FPKG", "PS4 & PS5 and all FPKG titles"],
+              ["بسته‌های زیرنویس و دوبله فارسی اختصاصی", "Persian subtitle & dubbing packs"],
               ["DLC و آپدیت‌ها در سهمیه", "DLC & updates included in quota"],
               ["پیش‌بارگیری بازی‌های جدید در روز انتشار", "Pre-load upcoming releases on release day"],
-              ["تم‌های اپلیکیشن تلویزیون", "TV app themes"],
-              ["۴ کنسول", "4 consoles"],
+              ["پشتیبانی تلفنی و تلگرامی ۲۴ ساعته", "24/7 Phone & Telegram VIP support"],
+              ["۴ کنسول همزمان", "4 consoles"],
             ]}
             note={[
               "با تمام شدن سهمیه، دانلودها با سرعت عادی PSN ادامه پیدا می‌کنند. چیزی قفل نمی‌شود.",
               "When quota runs out, downloads continue at standard PSN speed. Nothing gets locked.",
             ]}
-            cta={["ارتقا به طلایی", "Upgrade to Gold"]}
+            cta={["ارتقا به طلایی VIP", "Upgrade to Gold VIP"]}
             ctaVariant="primary"
           />
         </section>

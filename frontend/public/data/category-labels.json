@@ -1,0 +1,70 @@
+{
+  "Action-Adventure": {
+    "en": "Action-Adventure",
+    "fa": "اکشن-ماجراجویی"
+  },
+  "Fighting": {
+    "en": "Fighting",
+    "fa": "مبارزه‌ای"
+  },
+  "Horror": {
+    "en": "Horror",
+    "fa": "ترسناک"
+  },
+  "Indie & Roguelike": {
+    "en": "Indie & Roguelike",
+    "fa": "ایندی"
+  },
+  "Party & Rhythm": {
+    "en": "Party & Rhythm",
+    "fa": "مهمانی و موزیکال"
+  },
+  "Platformer & Puzzle": {
+    "en": "Platformer & Puzzle",
+    "fa": "پلتفرمر و پازل"
+  },
+  "RPG": {
+    "en": "RPG",
+    "fa": "نقش‌آفرینی"
+  },
+  "Shooter": {
+    "en": "Shooter",
+    "fa": "شوتر"
+  },
+  "Sports & Racing": {
+    "en": "Sports & Racing",
+    "fa": "ورزشی و مسابقه‌ای"
+  },
+  "Strategy & Simulation": {
+    "en": "Strategy & Simulation",
+    "fa": "استراتژی و شبیه‌سازی"
+  },
+  "Survival & Open-World": {
+    "en": "Survival & Open-World",
+    "fa": "بقا و دنیای باز"
+  },
+  "Most Famous": {
+    "en": "Most Famous",
+    "fa": "معروف‌ترین‌ها"
+  },
+  "Lately Released": {
+    "en": "Latest games",
+    "fa": "تازه‌ترین ها"
+  },
+  "Your taste": {
+    "en": "Your taste",
+    "fa": "سلیقه شما"
+  },
+  "Best Sellers": {
+    "en": "Best Sellers",
+    "fa": "پرفروش‌ترین‌ها"
+  },
+  "2 Player Games": {
+    "en": "2 Player Games",
+    "fa": "بازی‌های دو نفره"
+  },
+  "VR Supported Games": {
+    "en": "VR Supported Games",
+    "fa": "بازی های VR"
+  }
+}

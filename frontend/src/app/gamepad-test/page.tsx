@@ -1,410 +1,370 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Gamepad2,
-  BatteryCharging,
-  Wifi,
-  Sparkles,
-  RefreshCw,
-  Sliders,
-  CheckCircle2,
-  AlertTriangle,
-  Zap,
-} from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import { ArrowLeft, RefreshCw, Vibrate, Cpu, CheckCircle2, AlertTriangle, Gamepad2 } from "lucide-react";
 import { Page } from "@/components/Shell";
-import { Button, Pill, SectionTitle, Card } from "@/components/ui";
 import { useApp } from "@/lib/app";
 
-export default function GamepadTestPage() {
-  const { t, n } = useApp();
+const PARTS_LIST = [
+  { id: "cross", label: "✕ ضربدر (Cross)" },
+  { id: "circle", label: "○ دایره (Circle)" },
+  { id: "square", label: "□ مربع (Square)" },
+  { id: "triangle", label: "△ مثلث (Triangle)" },
+  { id: "l1", label: "L1 بامپر چپ" },
+  { id: "r1", label: "R1 بامپر راست" },
+  { id: "l2", label: "L2 ماشه چپ" },
+  { id: "r2", label: "R2 ماشه راست" },
+  { id: "dpad_up", label: "جهت بالا (D-Pad Up)" },
+  { id: "dpad_down", label: "جهت پایین (D-Pad Down)" },
+  { id: "dpad_left", label: "جهت چپ (D-Pad Left)" },
+  { id: "dpad_right", label: "جهت راست (D-Pad Right)" },
+  { id: "share", label: "Share / Create" },
+  { id: "options", label: "Options / Menu" },
+  { id: "ps", label: "دکمه PS Home" },
+  { id: "l3", label: "L3 کلیک شوک چپ" },
+  { id: "r3", label: "R3 کلیک شوک راست" },
+];
 
-  // Interactive UI state for testing buttons
-  const [activeButtons, setActiveButtons] = useState<Record<string, boolean>>({});
-  const [leftTrigger, setLeftTrigger] = useState<number>(0);
-  const [rightTrigger, setRightTrigger] = useState<number>(0);
-  const [isVibrating, setIsVibrating] = useState<boolean>(false);
+export default function GamepadTestStandalonePage() {
+  const { t } = useApp();
+  const [activePad, setActivePad] = useState<Gamepad | null>(null);
+  const [testedParts, setTestedParts] = useState<Set<string>>(new Set());
+  const [vibrating, setVibrating] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const toggleButton = (name: string) => {
-    setActiveButtons((prev) => ({ ...prev, [name]: !prev[name] }));
+  // Live Controller Sensor States
+  const [leftStick, setLeftStick] = useState({ x: 0, y: 0, drift: false });
+  const [rightStick, setRightStick] = useState({ x: 0, y: 0, drift: false });
+  const [l2Pressure, setL2Pressure] = useState(0);
+  const [r2Pressure, setR2Pressure] = useState(0);
+
+  const requestRef = useRef<number>();
+
+  useEffect(() => {
+    const scanGamepads = () => {
+      const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      let found: Gamepad | null = null;
+
+      for (let i = 0; i < pads.length; i++) {
+        if (pads[i]) {
+          found = pads[i];
+          break;
+        }
+      }
+
+      setActivePad(found);
+
+      if (found) {
+        // Read analog triggers
+        const l2 = found.buttons[6]?.value || (found.buttons[6]?.pressed ? 1 : 0);
+        const r2 = found.buttons[7]?.value || (found.buttons[7]?.pressed ? 1 : 0);
+        setL2Pressure(l2);
+        setR2Pressure(r2);
+
+        // Read sticks axes
+        const lx = found.axes[0] || 0;
+        const ly = found.axes[1] || 0;
+        const rx = found.axes[2] || 0;
+        const ry = found.axes[3] || 0;
+
+        setLeftStick({
+          x: parseFloat(lx.toFixed(2)),
+          y: parseFloat(ly.toFixed(2)),
+          drift: Math.abs(lx) > 0.15 || Math.abs(ly) > 0.15,
+        });
+
+        setRightStick({
+          x: parseFloat(rx.toFixed(2)),
+          y: parseFloat(ry.toFixed(2)),
+          drift: Math.abs(rx) > 0.15 || Math.abs(ry) > 0.15,
+        });
+
+        const mark = (partId: string) => {
+          setTestedParts((prev) => {
+            if (prev.has(partId)) return prev;
+            const next = new Set(prev);
+            next.add(partId);
+            return next;
+          });
+        };
+
+        if (found.buttons[0]?.pressed) mark("cross");
+        if (found.buttons[1]?.pressed) mark("circle");
+        if (found.buttons[2]?.pressed) mark("square");
+        if (found.buttons[3]?.pressed) mark("triangle");
+        if (found.buttons[4]?.pressed) mark("l1");
+        if (found.buttons[5]?.pressed) mark("r1");
+        if (l2 > 0.2) mark("l2");
+        if (r2 > 0.2) mark("r2");
+        if (found.buttons[8]?.pressed) mark("share");
+        if (found.buttons[9]?.pressed) mark("options");
+        if (found.buttons[10]?.pressed) mark("l3");
+        if (found.buttons[11]?.pressed) mark("r3");
+        if (found.buttons[12]?.pressed) mark("dpad_up");
+        if (found.buttons[13]?.pressed) mark("dpad_down");
+        if (found.buttons[14]?.pressed) mark("dpad_left");
+        if (found.buttons[15]?.pressed) mark("dpad_right");
+        if (found.buttons[16]?.pressed) mark("ps");
+      }
+
+      requestRef.current = requestAnimationFrame(scanGamepads);
+    };
+
+    requestRef.current = requestAnimationFrame(scanGamepads);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, []);
+
+  const handleVibrate = () => {
+    if (activePad && (activePad as any).vibrationActuator) {
+      setVibrating(true);
+      (activePad as any).vibrationActuator.playEffect("dual-rumble", {
+        startDelay: 0,
+        duration: 1000,
+        weakMagnitude: 1.0,
+        strongMagnitude: 1.0,
+      }).finally(() => setVibrating(false));
+    }
   };
 
-  const pressTrigger = (side: "left" | "right", val: number) => {
-    if (side === "left") setLeftTrigger(val);
-    else setRightTrigger(val);
-  };
-
-  const triggerVibrationTest = () => {
-    setIsVibrating(true);
-    setTimeout(() => setIsVibrating(false), 1200);
+  const handleReset = () => {
+    setTestedParts(new Set());
   };
 
   return (
     <Page>
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-6 pb-12 pt-6">
-        {/* Header Section */}
-        <section className="relative overflow-hidden rounded-card border border-line bg-surface p-6 shadow-card md:p-8">
-          <div className="absolute -end-24 -top-24 size-80 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
-          <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex size-8 items-center justify-center rounded-lg bg-psn/15 text-psn">
-                  <Gamepad2 size={18} />
-                </span>
-                <span className="font-latin text-xs font-bold uppercase tracking-wider text-accent-2">
-                  DualSense Controller Diagnostic Studio
-                </span>
-              </div>
-              <h1 className="mt-2 text-2xl font-black tracking-tight text-fg md:text-3xl">
-                {t("تست و کالیبراسیون دسته بازی PS5 (DualSense)", "DualSense Gamepad Tester & Diagnostic")}
-              </h1>
-              <p className="mt-1 max-w-2xl text-sm font-medium text-fg-2">
-                {t(
-                  "رابط کاربری پیشرفته سنجش عملکرد دکمه‌ها، تست دریفت آنالوگ استیک‌ها، تریگرهای تطبیق‌پذیر L2/R2 و هپتیک فیدبک دسته پلی‌استیشن ۵.",
-                  "Interactive diagnostic interface for checking button responsiveness, analog stick deadzones/drift, adaptive triggers and haptic feedback."
-                )}
-              </p>
-            </div>
-
-            {/* Controller Specs Pill */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3.5 py-2">
-                <BatteryCharging size={16} className="text-success" />
-                <span className="text-xs font-bold text-fg">
-                  {t("باتری:", "Battery:")} <span dir="ltr" className="font-latin text-success">88%</span>
-                </span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3.5 py-2">
-                <Wifi size={16} className="text-psn" />
-                <span className="text-xs font-bold text-fg">
-                  {t("تاخیر:", "Latency:")} <span dir="ltr" className="font-latin text-psn">1.2 ms</span>
-                </span>
-              </div>
-              <Button variant="primary" size="md" onClick={triggerVibrationTest}>
-                <Zap size={15} />
-                {isVibrating ? t("در حال لرزش...", "Vibrating...") : t("تست ویبره هپتیک", "Test Haptics")}
-              </Button>
-            </div>
+      <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-8 space-y-6">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div>
+            <Link href="/" className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 mb-1">
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <span>{t("بازگشت به صفحه اصلی", "Back to Home")}</span>
+            </Link>
+            <h1 className="text-2xl md:text-3xl font-black text-white flex items-center gap-2.5">
+              <span>{t("تست و عیب‌یابی دسته بازی", "Gamepad Tester")}</span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono border border-purple-500/30">
+                DualSense & DualShock
+              </span>
+            </h1>
           </div>
-        </section>
+        </div>
 
-        {/* Main Interactive Controller Visualization */}
-        <section className="flex flex-col items-center justify-center rounded-card border border-line bg-surface p-8 shadow-card">
-          <div className="w-full max-w-3xl">
-            {/* Controller Top Bumpers & Triggers */}
-            <div className="grid grid-cols-2 gap-8 mb-6">
-              {/* Left Bumper & Trigger */}
-              <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface-2 p-4">
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => toggleButton("L1")}
-                    className={`rounded-lg px-4 py-2 font-latin font-black text-xs transition-all cursor-pointer ${
-                      activeButtons["L1"]
-                        ? "bg-accent-2 text-white shadow-glow"
-                        : "bg-surface-3 text-fg-2 hover:text-fg"
-                    }`}
-                  >
-                    L1 BUMPER
-                  </button>
-                  <span className="font-mono text-xs font-bold text-accent-2">
-                    L2: {n(leftTrigger)}%
-                  </span>
-                </div>
-                <div className="mt-1">
-                  <div className="flex justify-between text-[10px] text-muted mb-1">
-                    <span>{t("تریگر آنالوگ L2", "L2 Trigger Pressure")}</span>
-                    <span>{leftTrigger > 0 ? t("فشرده شده", "Active") : t("رها", "Released")}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={leftTrigger}
-                    onChange={(e) => pressTrigger("left", Number(e.target.value))}
-                    className="h-2 w-full accent-accent-2 cursor-pointer"
-                  />
-                </div>
-              </div>
+        <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          {t(
+            "دسته را با کابل USB یا بلوتوث وصل کنید و دکمه‌های آن را فشار دهید. هر بخشی که تست شود به رنگ سبز درمی‌آید تا از سلامت کامل آن اطمینان حاصل کنید.",
+            "Connect your controller via USB or Bluetooth, then press buttons and move analog sticks. Tested parts highlight in green."
+          )}
+        </p>
 
-              {/* Right Bumper & Trigger */}
-              <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface-2 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-psn">
-                    R2: {n(rightTrigger)}%
-                  </span>
-                  <button
-                    onClick={() => toggleButton("R1")}
-                    className={`rounded-lg px-4 py-2 font-latin font-black text-xs transition-all cursor-pointer ${
-                      activeButtons["R1"]
-                        ? "bg-psn text-white shadow-glow"
-                        : "bg-surface-3 text-fg-2 hover:text-fg"
-                    }`}
-                  >
-                    R1 BUMPER
-                  </button>
-                </div>
-                <div className="mt-1">
-                  <div className="flex justify-between text-[10px] text-muted mb-1">
-                    <span>{t("تریگر آنالوگ R2", "R2 Trigger Pressure")}</span>
-                    <span>{rightTrigger > 0 ? t("فشرده شده", "Active") : t("رها", "Released")}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={rightTrigger}
-                    onChange={(e) => pressTrigger("right", Number(e.target.value))}
-                    className="h-2 w-full accent-psn cursor-pointer"
-                  />
-                </div>
-              </div>
+        {!activePad && (
+          <div className="rounded-3xl border border-white/10 bg-[#101116] p-12 text-center space-y-4 shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-purple-600/15 border border-purple-500/30 text-purple-400 flex items-center justify-center mx-auto text-3xl shadow-inner">
+              🎮
             </div>
+            <h2 className="text-lg font-bold text-white">
+              {t("دسته‌ات را وصل کن", "Connect your controller")}
+            </h2>
+            <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+              {t(
+                "با کابل USB وصل کن یا با بلوتوث جفت کن و بعد یک دکمه‌اش را بزن. مرورگر فقط بعد از زدن یک دکمه دسته را نشان می‌دهد.",
+                "Plug it in with a USB cable or pair with Bluetooth, then press any button on it. Browsers only show a controller after a button is pressed."
+              )}
+            </p>
+          </div>
+        )}
 
-            {/* Controller Body Shell */}
-            <div
-              className={`relative rounded-3xl border-2 border-line-strong bg-linear-135 from-surface-2 via-surface to-surface-3 p-8 shadow-2xl transition-all duration-300 ${
-                isVibrating ? "animate-pulse ring-4 ring-accent-2" : ""
-              }`}
-            >
-              {/* Touchpad Area */}
-              <div className="mx-auto mb-8 w-64 rounded-2xl border border-line-strong bg-surface-3 p-4 text-center shadow-inner">
+        {activePad && (
+          <div className="space-y-6">
+            <div className="p-4 rounded-2xl bg-[#101116] border border-white/10 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+              <div>
+                <div className="font-bold text-white text-sm flex items-center gap-2">
+                  <Gamepad2 className="w-4 h-4 text-purple-400" />
+                  <span>{activePad.id}</span>
+                </div>
+                <div className="text-xs text-slate-400 font-mono mt-0.5">
+                  {activePad.buttons.length} دکمه · {activePad.axes.length} محور آنالوگ · شاخص #{activePad.index}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => toggleButton("touchpad")}
-                  className={`w-full py-4 rounded-xl font-latin text-xs font-bold transition-all cursor-pointer ${
-                    activeButtons["touchpad"]
-                      ? "bg-accent-2 text-white shadow-glow"
-                      : "bg-surface-2 text-muted hover:text-fg"
-                  }`}
+                  type="button"
+                  onClick={handleVibrate}
+                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-purple-500/20 active:scale-95"
                 >
-                  DUALSENSE TOUCHPAD
+                  <Vibrate className="w-4 h-4" />
+                  <span>{vibrating ? "در حال لرزش..." : "تست لرزش"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold border border-white/10 flex items-center gap-1.5 transition-all active:scale-95"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>شروع دوباره</span>
                 </button>
               </div>
+            </div>
 
-              <div className="grid grid-cols-3 items-center gap-6">
-                {/* Left Side: D-Pad */}
-                <div className="flex flex-col items-center">
-                  <p className="text-[11px] font-bold text-muted mb-3 uppercase">D-Pad Directional</p>
-                  <div className="relative size-32">
-                    {/* Up */}
-                    <button
-                      onClick={() => toggleButton("up")}
-                      className={`absolute top-0 start-11 size-10 rounded-t-lg font-bold transition-all cursor-pointer ${
-                        activeButtons["up"]
-                          ? "bg-accent-2 text-white shadow-glow"
-                          : "bg-surface-2 text-fg hover:bg-surface-3 border border-line"
-                      }`}
-                    >
-                      ▲
-                    </button>
-                    {/* Down */}
-                    <button
-                      onClick={() => toggleButton("down")}
-                      className={`absolute bottom-0 start-11 size-10 rounded-b-lg font-bold transition-all cursor-pointer ${
-                        activeButtons["down"]
-                          ? "bg-accent-2 text-white shadow-glow"
-                          : "bg-surface-2 text-fg hover:bg-surface-3 border border-line"
-                      }`}
-                    >
-                      ▼
-                    </button>
-                    {/* Left */}
-                    <button
-                      onClick={() => toggleButton("left")}
-                      className={`absolute top-11 start-0 size-10 rounded-s-lg font-bold transition-all cursor-pointer ${
-                        activeButtons["left"]
-                          ? "bg-accent-2 text-white shadow-glow"
-                          : "bg-surface-2 text-fg hover:bg-surface-3 border border-line"
-                      }`}
-                    >
-                      ◀
-                    </button>
-                    {/* Right */}
-                    <button
-                      onClick={() => toggleButton("right")}
-                      className={`absolute top-11 end-0 size-10 rounded-e-lg font-bold transition-all cursor-pointer ${
-                        activeButtons["right"]
-                          ? "bg-accent-2 text-white shadow-glow"
-                          : "bg-surface-2 text-fg hover:bg-surface-3 border border-line"
-                      }`}
-                    >
-                      ▶
-                    </button>
-                  </div>
+            <div className="p-6 md:p-8 rounded-3xl bg-[#101116] border border-white/10 shadow-2xl flex flex-col items-center">
+              <svg viewBox="0 0 640 380" className="w-full max-w-[620px] filter drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+                <g id="p-lt">
+                  <rect x="120" y="14" width="96" height="20" rx="8" fill="#181920" stroke="rgba(255,255,255,0.1)" />
+                  <rect x="120" y="14" width={96 * l2Pressure} height="20" rx="8" fill="#7c3aed" />
+                  <text x="168" y="28" fill="#fff" fontSize="11" textAnchor="middle" fontWeight="bold">
+                    L2 ({Math.round(l2Pressure * 100)}%)
+                  </text>
+                </g>
+                <g id="p-rt">
+                  <rect x="424" y="14" width="96" height="20" rx="8" fill="#181920" stroke="rgba(255,255,255,0.1)" />
+                  <rect x="424" y="14" width={96 * r2Pressure} height="20" rx="8" fill="#7c3aed" />
+                  <text x="472" y="28" fill="#fff" fontSize="11" textAnchor="middle" fontWeight="bold">
+                    R2 ({Math.round(r2Pressure * 100)}%)
+                  </text>
+                </g>
+
+                <rect
+                  x="110"
+                  y="44"
+                  width="116"
+                  height="22"
+                  rx="10"
+                  fill={activePad.buttons[4]?.pressed ? "#10b981" : "#20212a"}
+                  stroke="rgba(255,255,255,0.1)"
+                />
+                <text x="168" y="59" fill="#fff" fontSize="11" textAnchor="middle" fontWeight="bold">L1</text>
+                <rect
+                  x="414"
+                  y="44"
+                  width="116"
+                  height="22"
+                  rx="10"
+                  fill={activePad.buttons[5]?.pressed ? "#10b981" : "#20212a"}
+                  stroke="rgba(255,255,255,0.1)"
+                />
+                <text x="472" y="59" fill="#fff" fontSize="11" textAnchor="middle" fontWeight="bold">R1</text>
+
+                <path
+                  d="M150 84 C200 70 440 70 490 84 C548 102 596 222 566 300 C546 350 492 346 462 300 L432 262 H208 L178 300 C148 346 94 350 74 300 C44 222 92 102 150 84 Z"
+                  fill="#151722"
+                  stroke="rgba(124,58,237,0.4)"
+                  strokeWidth="2"
+                />
+
+                <circle cx="180" cy="140" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeDasharray="4 2" />
+                <circle
+                  cx={180 + leftStick.x * 25}
+                  cy={140 + leftStick.y * 25}
+                  r="18"
+                  fill={activePad.buttons[10]?.pressed ? "#10b981" : "#7c3aed"}
+                  stroke="#fff"
+                  strokeWidth="1.5"
+                />
+
+                <rect x="233" y="190" width="24" height="26" rx="5" fill={activePad.buttons[12]?.pressed ? "#10b981" : "#20212a"} />
+                <rect x="233" y="240" width="24" height="26" rx="5" fill={activePad.buttons[13]?.pressed ? "#10b981" : "#20212a"} />
+                <rect x="206" y="216" width="26" height="24" rx="5" fill={activePad.buttons[14]?.pressed ? "#10b981" : "#20212a"} />
+                <rect x="258" y="216" width="26" height="24" rx="5" fill={activePad.buttons[15]?.pressed ? "#10b981" : "#20212a"} />
+
+                <circle cx="285" cy="130" r="11" fill={activePad.buttons[8]?.pressed ? "#10b981" : "#20212a"} />
+                <circle cx="320" cy="106" r="14" fill={activePad.buttons[16]?.pressed ? "#10b981" : "#7c3aed"} />
+                <circle cx="355" cy="130" r="11" fill={activePad.buttons[9]?.pressed ? "#10b981" : "#20212a"} />
+
+                <circle cx="460" cy="102" r="19" fill={activePad.buttons[3]?.pressed ? "#10b981" : "#20212a"} />
+                <text x="460" y="107" fill="#10b981" fontSize="14" textAnchor="middle" fontWeight="bold">△</text>
+                <circle cx="424" cy="138" r="19" fill={activePad.buttons[2]?.pressed ? "#10b981" : "#20212a"} />
+                <text x="424" y="143" fill="#ec4899" fontSize="14" textAnchor="middle" fontWeight="bold">□</text>
+                <circle cx="496" cy="138" r="19" fill={activePad.buttons[1]?.pressed ? "#10b981" : "#20212a"} />
+                <text x="496" y="143" fill="#ef4444" fontSize="14" textAnchor="middle" fontWeight="bold">○</text>
+                <circle cx="460" cy="174" r="19" fill={activePad.buttons[0]?.pressed ? "#10b981" : "#20212a"} />
+                <text x="460" y="179" fill="#0070d1" fontSize="14" textAnchor="middle" fontWeight="bold">✕</text>
+
+                <circle cx="390" cy="236" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeDasharray="4 2" />
+                <circle
+                  cx={390 + rightStick.x * 25}
+                  cy={236 + rightStick.y * 25}
+                  r="18"
+                  fill={activePad.buttons[11]?.pressed ? "#10b981" : "#7c3aed"}
+                  stroke="#fff"
+                  strokeWidth="1.5"
+                />
+              </svg>
+
+              <div className="w-full flex flex-wrap items-center justify-around gap-4 pt-6 border-t border-white/10 text-xs font-mono">
+                <div>
+                  <span className="text-slate-400">آنالوگ چپ: </span>
+                  <b className="text-white font-bold">{leftStick.x}, {leftStick.y}</b>
+                  {leftStick.drift ? (
+                    <span className="ms-2 text-rose-400 font-bold">⚠️ احتمال دریفت</span>
+                  ) : (
+                    <span className="ms-2 text-emerald-400 font-bold">✓ مرکز سالم</span>
+                  )}
                 </div>
-
-                {/* Center: PS Button & Share/Options */}
-                <div className="flex flex-col items-center gap-5">
-                  <div className="flex items-center gap-6">
-                    <button
-                      onClick={() => toggleButton("create")}
-                      className={`px-3 py-1 rounded text-[10px] font-bold font-latin border transition-all cursor-pointer ${
-                        activeButtons["create"]
-                          ? "bg-accent-2 text-white border-accent-2"
-                          : "bg-surface-2 text-muted border-line hover:text-fg"
-                      }`}
-                    >
-                      CREATE
-                    </button>
-                    <button
-                      onClick={() => toggleButton("options")}
-                      className={`px-3 py-1 rounded text-[10px] font-bold font-latin border transition-all cursor-pointer ${
-                        activeButtons["options"]
-                          ? "bg-accent-2 text-white border-accent-2"
-                          : "bg-surface-2 text-muted border-line hover:text-fg"
-                      }`}
-                    >
-                      OPTIONS
-                    </button>
-                  </div>
-
-                  {/* PS Home Button */}
-                  <button
-                    onClick={() => toggleButton("ps")}
-                    className={`size-12 rounded-full border-2 grid place-items-center font-bold text-sm transition-all cursor-pointer ${
-                      activeButtons["ps"]
-                        ? "bg-psn text-white border-psn shadow-glow"
-                        : "bg-surface-2 text-fg border-line hover:border-psn"
-                    }`}
-                  >
-                    PS
-                  </button>
-                </div>
-
-                {/* Right Side: Action Buttons */}
-                <div className="flex flex-col items-center">
-                  <p className="text-[11px] font-bold text-muted mb-3 uppercase">Action Buttons</p>
-                  <div className="relative size-32">
-                    {/* Triangle */}
-                    <button
-                      onClick={() => toggleButton("triangle")}
-                      className={`absolute top-0 start-11 size-10 rounded-full font-bold transition-all cursor-pointer border ${
-                        activeButtons["triangle"]
-                          ? "bg-success text-black border-success shadow-glow"
-                          : "bg-surface-2 text-success border-line hover:bg-surface-3"
-                      }`}
-                    >
-                      ▲
-                    </button>
-                    {/* Cross (X) */}
-                    <button
-                      onClick={() => toggleButton("cross")}
-                      className={`absolute bottom-0 start-11 size-10 rounded-full font-bold transition-all cursor-pointer border ${
-                        activeButtons["cross"]
-                          ? "bg-psn text-white border-psn shadow-glow"
-                          : "bg-surface-2 text-psn border-line hover:bg-surface-3"
-                      }`}
-                    >
-                      ✕
-                    </button>
-                    {/* Square */}
-                    <button
-                      onClick={() => toggleButton("square")}
-                      className={`absolute top-11 start-0 size-10 rounded-full font-bold transition-all cursor-pointer border ${
-                        activeButtons["square"]
-                          ? "bg-pink text-white border-pink shadow-glow"
-                          : "bg-surface-2 text-pink border-line hover:bg-surface-3"
-                      }`}
-                    >
-                      ■
-                    </button>
-                    {/* Circle */}
-                    <button
-                      onClick={() => toggleButton("circle")}
-                      className={`absolute top-11 end-0 size-10 rounded-full font-bold transition-all cursor-pointer border ${
-                        activeButtons["circle"]
-                          ? "bg-danger text-white border-danger shadow-glow"
-                          : "bg-surface-2 text-danger border-line hover:bg-surface-3"
-                      }`}
-                    >
-                      ●
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Analog Sticks */}
-              <div className="mt-8 flex justify-around">
-                {/* Left Analog (L3) */}
-                <div className="flex flex-col items-center gap-2">
-                  <button
-                    onClick={() => toggleButton("L3")}
-                    className={`size-20 rounded-full border-4 flex flex-col items-center justify-center transition-all cursor-pointer ${
-                      activeButtons["L3"]
-                        ? "border-accent-2 bg-accent-soft text-accent-2 shadow-glow"
-                        : "border-line bg-surface-2 text-fg-2 hover:border-accent-2"
-                    }`}
-                  >
-                    <span className="font-mono text-xs font-bold">L3</span>
-                    <span className="text-[9px] text-muted">X: 0 | Y: 0</span>
-                  </button>
-                  <span className="text-[11px] font-bold text-fg-2">
-                    {t("استیک چپ (Left Stick)", "Left Analog")}
-                  </span>
-                </div>
-
-                {/* Right Analog (R3) */}
-                <div className="flex flex-col items-center gap-2">
-                  <button
-                    onClick={() => toggleButton("R3")}
-                    className={`size-20 rounded-full border-4 flex flex-col items-center justify-center transition-all cursor-pointer ${
-                      activeButtons["R3"]
-                        ? "border-psn bg-psn/20 text-psn shadow-glow"
-                        : "border-line bg-surface-2 text-fg-2 hover:border-psn"
-                    }`}
-                  >
-                    <span className="font-mono text-xs font-bold">R3</span>
-                    <span className="text-[9px] text-muted">X: 0 | Y: 0</span>
-                  </button>
-                  <span className="text-[11px] font-bold text-fg-2">
-                    {t("استیک راست (Right Stick)", "Right Analog")}
-                  </span>
+                <div>
+                  <span className="text-slate-400">آنالوگ راست: </span>
+                  <b className="text-white font-bold">{rightStick.x}, {rightStick.y}</b>
+                  {rightStick.drift ? (
+                    <span className="ms-2 text-rose-400 font-bold">⚠️ احتمال دریفت</span>
+                  ) : (
+                    <span className="ms-2 text-emerald-400 font-bold">✓ مرکز سالم</span>
+                  )}
                 </div>
               </div>
             </div>
+
+            <div className="p-6 rounded-3xl bg-[#101116] border border-white/10 shadow-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white">فهرست قطعات و دکمه‌های تست‌شده</h3>
+                <span className="text-xs text-purple-300 font-mono">
+                  {testedParts.size} از {PARTS_LIST.length} تست شد
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {PARTS_LIST.map((part) => {
+                  const isDone = testedParts.has(part.id);
+                  return (
+                    <span
+                      key={part.id}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        isDone
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm"
+                          : "bg-white/5 text-slate-500 border border-white/5"
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${isDone ? "bg-emerald-400" : "bg-slate-600"}`} />
+                      <span>{part.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="px-5 py-2.5 rounded-2xl bg-white/5 border border-purple-500/30 hover:border-purple-500/60 text-purple-300 text-xs font-bold inline-flex items-center gap-2 transition-all shadow-lg active:scale-95"
+              >
+                <Cpu className="w-4 h-4" />
+                <span>{showAdvanced ? "بستن تستر پیشرفته DualSense" : "نمایش تستر پیشرفته سه‌بعدی DualSense"}</span>
+              </button>
+
+              {showAdvanced && (
+                <div className="mt-4 rounded-3xl overflow-hidden border border-purple-500/30 bg-[#070709] h-[640px] shadow-2xl">
+                  <iframe
+                    src="/gamepad/index.html"
+                    title="DualSense Advanced Tester"
+                    className="w-full h-full border-0"
+                    allow="hid; gamepad; usb; bluetooth"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </section>
-
-        {/* Diagnostic Tools Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-5">
-            <h4 className="flex items-center gap-2 font-bold text-fg text-sm">
-              <CheckCircle2 size={16} className="text-success" />
-              {t("بررسی دریفت استیک‌ها (Stick Drift)", "Stick Drift Analyzer")}
-            </h4>
-            <p className="mt-2 text-xs text-fg-2 leading-relaxed">
-              {t(
-                "نقطه مرکز و محدوده ددزون (Deadzone) آنالوگ‌ها کاملاً کالیبره است و هیچ انحراف حرکتی ثبت نشد.",
-                "Zero center deadzone jitter detected. Potentiometers calibrated perfectly."
-              )}
-            </p>
-          </Card>
-
-          <Card className="p-5">
-            <h4 className="flex items-center gap-2 font-bold text-fg text-sm">
-              <Sliders size={16} className="text-accent-2" />
-              {t("موتورهای تریگر تطبیق‌پذیر", "Adaptive Trigger Resistance")}
-            </h4>
-            <p className="mt-2 text-xs text-fg-2 leading-relaxed">
-              {t(
-                "تست مقاومت مکانیکی دنده‌های L2 و R2 برای بازی‌های شوتر و رانندگی نسل نهم با موفقیت تایید شد.",
-                "Gear tension test passed for realistic weapon tension and vehicle braking resistance."
-              )}
-            </p>
-          </Card>
-
-          <Card className="p-5">
-            <h4 className="flex items-center gap-2 font-bold text-fg text-sm">
-              <Sparkles size={16} className="text-warning" />
-              {t("موتورهای لرزشی صوتی (Haptics)", "Dual Voice-Coil Actuators")}
-            </h4>
-            <p className="mt-2 text-xs text-fg-2 leading-relaxed">
-              {t(
-                "فرکانس لرزش بین ۵۰ تا ۴۰۰ هرتز آزمایش شد و دقت بازخورد لمسی در سطح استاندارد طلایی است.",
-                "Broadband 50-400Hz haptic rumble actuators responding within nominal parameters."
-              )}
-            </p>
-          </Card>
-        </section>
+        )}
       </div>
     </Page>
   );

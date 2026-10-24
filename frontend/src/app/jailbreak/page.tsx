@@ -1,150 +1,120 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { Cpu, ShieldCheck, Download, Check, AlertTriangle, ExternalLink, HardDrive } from "lucide-react";
+import { Cpu, Terminal, ArrowRight, ExternalLink, ShieldCheck, Sparkles, Wifi } from "lucide-react";
 import { Page } from "@/components/Shell";
-import { JailbreakPayloadSender } from "@/components/JailbreakPayloadSender";
 import { useApp } from "@/lib/app";
 
 export default function JailbreakPage() {
   const { t } = useApp();
-  const [platformFilter, setPlatformFilter] = useState<"ALL" | "PS4" | "PS5">("ALL");
 
-  const matrix = [
-    { platform: "PS4", fw: "5.05 / 6.72", status: "پایدار و بدون فلش", tool: "GoldHEN v2.3", stability: "۱۰۰٪", method: "مرورگر وب‌کیت آفلاین", safe: true },
-    { platform: "PS4", fw: "9.00", status: "محبوب‌ترین نگارش", tool: "GoldHEN v2.4b16", stability: "۹۸٪", method: "وب‌کیت + فلش مموری exfathax", safe: true },
-    { platform: "PS4", fw: "11.00", status: "نگارش جدید", tool: "PPPwn C++", stability: "۹۰٪", method: "اتصال کابل شبکه LAN با PPPoE", safe: true },
-    { platform: "PS5", fw: "3.00 تا 4.51", status: "اکسپلویت کامل", tool: "etaHEN + Kstuff", stability: "۹۵٪", method: "اکسپلویت IPv6 UMTX کِرنل", safe: true },
-    { platform: "PS5", fw: "5.00 به بالا", status: "غیرقابل جیلبریک", tool: "در دست توسعه", stability: "۰٪", method: "تحت بررسی تیم‌های هک", safe: false },
-  ];
-
-  const filteredMatrix = matrix.filter((item) =>
-    platformFilter === "ALL" ? true : item.platform === platformFilter
-  );
+  const handleJailbreakClick = () => {
+    // Redirects directly to google.com as instructed (user will configure target payload URL later)
+    window.location.href = "https://google.com";
+  };
 
   return (
     <Page>
-      <div className="max-w-[1440px] mx-auto px-4 md:px-6 py-10 space-y-10">
-        {/* Header Title */}
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-400 text-xs font-bold">
-            <Cpu className="w-4 h-4" />
-            <span>{t("پایگاه تخصصی هک و جیلبریک کنسول‌ها", "Jailbreak & Homebrew Hub")}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
-            {t("مرجع سازگاری فریم‌ورک و ارسال مستقیم پی‌لود", "Firmware Compatibility Matrix & Payload Delivery")}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-            {t(
-              "بررسی دقیق وضعیت جیلبریک تمام نگارش‌های نرم‌افزاری PS4 و PS5، ارسال پی‌لود به پورت‌های کنسول و دانلود ایمیج‌های استاندارد فلش USB.",
-              "Detailed jailbreak firmware matrix, WebSocket payload injector, and verified USB exploit images."
-            )}
-          </p>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-12 md:py-20 space-y-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-xs text-slate-400">
+          <Link href="/" className="hover:text-white transition-colors">
+            {t("خانه", "Home")}
+          </Link>
+          <span>/</span>
+          <span className="text-purple-400 font-bold">{t("جیلبریک کنسول", "Console Jailbreak")}</span>
+        </nav>
 
-        {/* 1. Interactive Compatibility Matrix */}
-        <div className="rounded-3xl border border-white/10 bg-[#151722] p-6 md:p-8 shadow-2xl space-y-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-            <h3 className="text-base font-extrabold text-white">
-              {t("ماتریس سازگاری نسخه‌های فریم‌ورک سونی", "Sony Firmware Compatibility Matrix")}
-            </h3>
+        {/* Central Jailbreak Hub Card */}
+        <div className="relative rounded-3xl border border-white/10 bg-[#151722]/95 backdrop-blur-xl p-8 md:p-12 shadow-2xl space-y-8 text-center overflow-hidden">
+          {/* Ambient Lighting */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0f1016] border border-white/10 text-xs">
-              {(["ALL", "PS4", "PS5"] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlatformFilter(p)}
-                  className={`px-3 py-1 rounded-lg font-bold transition-colors ${
-                    platformFilter === p ? "bg-orange-600 text-white" : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {p === "ALL" ? t("همه", "All") : p}
-                </button>
-              ))}
+          {/* Badge & Title */}
+          <div className="space-y-3 relative z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold">
+              <Cpu className="w-4 h-4 text-purple-400" />
+              <span>{t("سامانه اجرای مستقیم جیلبریک کنسول", "Console WebKit Exploit Runner")}</span>
             </div>
+
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              {t("راهنمای اجرای جیلبریک پلی‌استیشن", "PlayStation Jailbreak Guide")}
+            </h1>
+
+            <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+              {t(
+                "برای فعال‌سازی و بارگذاری کِرنل هک، مراحل ۳ گانه زیر را در کنسول خود طی کنید و روی دکمه اجرای جیلبریک بزنید.",
+                "Follow the 3 simple steps below on your PlayStation console to trigger the jailbreak payload."
+              )}
+            </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
-              <thead>
-                <tr className="border-b border-white/10 text-slate-400 font-bold">
-                  <th className="py-3 px-4 text-start">کنسول</th>
-                  <th className="py-3 px-4 text-start">نسخه فریم‌ورک (Firmware)</th>
-                  <th className="py-3 px-4 text-start">وضعیت هک</th>
-                  <th className="py-3 px-4 text-start">ابزار اکسپلویت</th>
-                  <th className="py-3 px-4 text-center">ضریب پایداری</th>
-                  <th className="py-3 px-4 text-start">روش فعال‌سازی</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredMatrix.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="py-3.5 px-4 font-extrabold text-white text-start">
-                      <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[11px]">
-                        {row.platform}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-orange-400 text-start">{row.fw}</td>
-                    <td className="py-3.5 px-4 text-start">
-                      <span className={`inline-flex items-center gap-1 font-semibold ${row.safe ? "text-green-400" : "text-red-400"}`}>
-                        {row.safe ? <Check className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-slate-300 text-start">{row.tool}</td>
-                    <td className="py-3.5 px-4 font-mono text-center text-slate-200">{row.stability}</td>
-                    <td className="py-3.5 px-4 text-slate-400 text-start">{row.method}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* 2. Payload Sender & DNS Setup Component (TSK-04-19) */}
-        <JailbreakPayloadSender />
-
-        {/* 3. USB Flashing Tutorial Guide */}
-        <div className="rounded-3xl border border-white/10 bg-[#151722] p-6 md:p-8 shadow-2xl space-y-4">
-          <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
-            <HardDrive className="w-5 h-5 text-orange-500" />
-            <h3 className="text-base font-extrabold text-white">
-              {t("راهنمای گام‌به‌گام آماده‌سازی فلش مموری اکسپلویت (exFAT)", "USB Exploit Drive Setup Guide")}
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-              <span className="w-6 h-6 rounded-full bg-orange-600 text-white font-bold text-xs flex items-center justify-center">
+          {/* 3 Clear Ordered Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-start relative z-10">
+            {/* Step 1 */}
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3 relative">
+              <div className="w-8 h-8 rounded-xl bg-purple-600/30 text-purple-300 font-mono font-black text-sm flex items-center justify-center border border-purple-500/30">
                 ۱
-              </span>
-              <h4 className="text-sm font-bold text-white">فرمت با ساختار exFAT</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                یک فلش مموری استاندارد USB 3.0 یا 2.0 را به کامپیوتر متصل کرده و با فایل‌سیستم exFAT به صورت کامل فرمت کنید.
+              </div>
+              <h3 className="font-extrabold text-sm text-white">
+                {t("تنظیم دی‌ان‌اس (DNS)", "Setup DNS")}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {t(
+                  "در تنظیمات شبکه کنسول، دی‌ان‌اس اختصاصی دکتر گیم را به عنوان Primary DNS وارد کنید.",
+                  "Enter the DrGame custom DNS in your console network settings."
+                )}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-              <span className="w-6 h-6 rounded-full bg-orange-600 text-white font-bold text-xs flex items-center justify-center">
+            {/* Step 2 */}
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3 relative">
+              <div className="w-8 h-8 rounded-xl bg-blue-600/30 text-blue-300 font-mono font-black text-sm flex items-center justify-center border border-blue-500/30">
                 ۲
-              </span>
-              <h4 className="text-sm font-bold text-white">رایت فایل ایمیج exfathax.img</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                ایمیج مخصوص را دانلود کرده و با نرم‌افزار Rufus یا Win32DiskImager روی درایو فلش رایت نمایید.
+              </div>
+              <h3 className="font-extrabold text-sm text-white">
+                {t("باز کردن مرورگر کنسول", "Open Console Browser")}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {t(
+                  "از طریق کنسول، وب‌سایت دکتر گیم را باز کنید و وارد بخش جیلبریک شوید.",
+                  "Launch the web browser on your console and navigate to the Jailbreak section."
+                )}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-              <span className="w-6 h-6 rounded-full bg-orange-600 text-white font-bold text-xs flex items-center justify-center">
+            {/* Step 3 */}
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3 relative">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600/30 text-emerald-300 font-mono font-black text-sm flex items-center justify-center border border-emerald-500/30">
                 ۳
-              </span>
-              <h4 className="text-sm font-bold text-white">اتصال به کنسول هنگام پیام</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                مرورگر کنسول را باز کرده و پس از نمایش پیام "Insert USB now"، فلش را به پورت کنسول متصل نمایید.
+              </div>
+              <h3 className="font-extrabold text-sm text-white">
+                {t("کلیک روی دکمه جیلبریک", "Click Jailbreak Button")}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {t(
+                  "بر روی دکمه زیر کلیک کنید تا عملیات بارگذاری پی‌لود و جیلبریک آغاز گردد.",
+                  "Click the button below to start injecting the payload and jailbreaking."
+                )}
               </p>
             </div>
+          </div>
+
+          {/* The Single Jailbreak Button (Redirects to Google.com) */}
+          <div className="pt-4 relative z-10">
+            <button
+              type="button"
+              onClick={handleJailbreakClick}
+              className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-base md:text-lg shadow-2xl shadow-purple-600/40 hover:scale-105 active:scale-95 transition-all border border-purple-400/40 cursor-pointer"
+            >
+              <Terminal className="w-5 h-5 text-purple-200" />
+              <span>{t("اجرای جیلبریک کنسول", "Start Console Jailbreak")}</span>
+              <ExternalLink className="w-5 h-5 text-purple-200" />
+            </button>
+            <span className="block text-[11px] text-slate-500 font-mono mt-3">
+              Redirect Target: https://google.com (Configurable in settings)
+            </span>
           </div>
         </div>
       </div>

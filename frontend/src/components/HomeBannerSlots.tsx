@@ -1,19 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Sparkles, ArrowRight, ShieldAlert, Cpu } from "lucide-react";
+import { Sparkles, ArrowRight, Cpu } from "lucide-react";
 import { useApp } from "@/lib/app";
+import { api } from "@/lib/api";
 
 export const HomeBannerSlots: React.FC = () => {
   const { t } = useApp();
+
+  const [banner2, setBanner2] = useState({
+    title: "اشتراک طلایی با ترافیک نامحدود و ۳۵٪ تخفیف ولکام",
+    badge: "جشنواره ویژه اشتراک‌ها",
+    link: "/subscriptions",
+    description: "دسترسی مستقیم و نامحدود به کاتالوگ ۵ ترابایتی بازی‌های کپی‌خور PS4 و PS5.",
+  });
+
+  useEffect(() => {
+    api.get("/api/v1/settings/public")
+      .then((res) => {
+        if (res.data?.banner_slot_2) {
+          const b = res.data.banner_slot_2;
+          setBanner2({
+            title: b.title_fa || banner2.title,
+            badge: b.badge_fa || banner2.badge,
+            link: b.target_url || banner2.link,
+            description: b.description_fa || banner2.description,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="w-full my-8 grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* Banner Slot 1: Static Jailbreak & Exploits */}
       <Link
         href="/jailbreak"
-        className="group relative overflow-hidden rounded-2xl border border-blue-500/30 bg-gradient-to-r from-[#10192e] via-[#141b30] to-[#181a27] p-6 shadow-xl transition-all duration-300 hover:border-blue-500/60 hover:shadow-blue-500/20"
+        className="group relative overflow-hidden rounded-2xl border border-blue-500/30 bg-gradient-to-r from-[#10192e] via-[#141b30] to-[#101116] p-6 shadow-xl transition-all duration-300 hover:border-blue-500/60 hover:shadow-blue-500/20"
       >
         <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500 pointer-events-none" />
 
@@ -44,35 +68,29 @@ export const HomeBannerSlots: React.FC = () => {
         </div>
       </Link>
 
-      {/* Banner Slot 2: Configurable Admin Banner (Featured Festival / Promotion) */}
+      {/* Banner Slot 2: Configurable Admin Banner (Dynamic from API) */}
       <Link
-        href="/subscriptions"
-        className="group relative overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-r from-[#2a130e] via-[#20151f] to-[#181a27] p-6 shadow-xl transition-all duration-300 hover:border-orange-500/60 hover:shadow-orange-500/20"
+        href={banner2.link}
+        className="group relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-[#1c1428] to-[#101116] p-6 shadow-xl transition-all duration-300 hover:border-purple-500/60 hover:shadow-purple-500/20"
       >
-        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col justify-between h-full gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-300 text-[10px] font-extrabold uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-              <span>{t("جشنواره ویژه اشتراک‌ها", "Special Season Promotion")}</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold uppercase">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>{t(banner2.badge, "Special Promotion")}</span>
             </div>
-            <h3 className="text-lg md:text-xl font-extrabold text-white group-hover:text-orange-300 transition-colors">
-              {t(
-                "اشتراک طلایی با ترافیک نامحدود و ۳۵٪ تخفیف ولکام",
-                "Gold Subscription with Unlimited Edge Traffic & 35% Welcome Discount"
-              )}
+            <h3 className="text-lg md:text-xl font-extrabold text-white group-hover:text-purple-300 transition-colors">
+              {t(banner2.title, banner2.title)}
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed max-w-md">
-              {t(
-                "دسترسی نامحدود به کاتالوگ بیش از ۳۰۰ بازی، بدون محدودیت زمانی، همراه با سرور دانلود مستقیم نود تهران ۱ و پشتیبانی ۲۴ ساعته.",
-                "Unlimited access to 300+ games catalog on low-latency Tehran-1 edge node with 24/7 dedicated engineering support."
-              )}
+              {t(banner2.description, banner2.description)}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-bold text-orange-400 group-hover:text-orange-300">
-            <span>{t("مشاهده پلن‌ها و فعال‌سازی تخفیف", "View Plans & Activate Discount")}</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:text-purple-300">
+            <span>{t("مشاهده پلن‌ها و ارتقای سهمیه", "Upgrade to Gold")}</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
           </div>
         </div>
