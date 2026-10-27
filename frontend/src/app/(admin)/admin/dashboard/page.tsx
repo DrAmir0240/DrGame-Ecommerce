@@ -13,8 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
@@ -24,15 +23,12 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("drgame_admin_token");
-        const res = await fetch(`${API_BASE}/api/admin/stats`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("خطا در دریافت آمار داشبورد");
-        const data = await res.json();
+        setLoading(true);
+        setError(null);
+        const data = await apiRequest<AdminDashboardStats>("/admin/stats");
         setStats(data);
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || "خطا در دریافت آمار داشبورد");
       } finally {
         setLoading(false);
       }

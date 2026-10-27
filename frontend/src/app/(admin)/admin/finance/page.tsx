@@ -10,8 +10,7 @@ import {
   Clock,
 } from "lucide-react";
 import { FinanceOverview } from "@/types/admin";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 export default function AdminFinancePage() {
   const [finance, setFinance] = useState<FinanceOverview | null>(null);
@@ -20,12 +19,8 @@ export default function AdminFinancePage() {
   useEffect(() => {
     const fetchFinance = async () => {
       try {
-        const token = localStorage.getItem("drgame_admin_token");
-        const res = await fetch(`${API_BASE}/api/admin/finance/overview`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("خطا در پایش مالی");
-        const data = await res.json();
+        setLoading(true);
+        const data = await apiRequest<FinanceOverview>("/admin/finance/overview");
         setFinance(data);
       } catch (err) {
         console.error(err);

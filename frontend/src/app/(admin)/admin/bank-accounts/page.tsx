@@ -10,7 +10,7 @@ import {
   Check,
 } from "lucide-react";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 interface SettlementAcc {
   id: number;
@@ -34,28 +34,21 @@ export default function AdminBankAccountsPage() {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("drgame_admin_token");
-      // Use payouts query to get accounts or direct query
-      const res = await fetch(`${API_BASE}/api/admin/payouts`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const payouts = await res.json();
-        const accs: SettlementAcc[] = payouts.map((p: any) => ({
-          id: p.id,
-          user_id: p.user_id,
-          account_type: p.account_type,
-          sheba_number: p.sheba_number,
-          card_number: p.card_number,
-          bank_name: "سامانه بانکی",
-          crypto_wallet_address: p.crypto_wallet_address,
-          crypto_network: p.crypto_network,
-          is_verified: p.status === "approved",
-          is_default: true,
-          created_at: p.created_at,
-        }));
-        setAccounts(accs);
-      }
+      const payouts = await apiRequest<any[]>("/admin/payouts");
+      const accs: SettlementAcc[] = (payouts || []).map((p: any) => ({
+        id: p.id,
+        user_id: p.user_id,
+        account_type: p.account_type,
+        sheba_number: p.sheba_number,
+        card_number: p.card_number,
+        bank_name: "سامانه بانکی",
+        crypto_wallet_address: p.crypto_wallet_address,
+        crypto_network: p.crypto_network,
+        is_verified: p.status === "approved",
+        is_default: true,
+        created_at: p.created_at,
+      }));
+      setAccounts(accs);
     } catch (err) {
       console.error(err);
     } finally {
@@ -69,20 +62,13 @@ export default function AdminBankAccountsPage() {
 
   const handleToggleVerify = async (accountId: number, currentStatus: boolean) => {
     try {
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/bank-accounts/${accountId}/verify`, {
+      await apiRequest(`/admin/bank-accounts/${accountId}/verify`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ is_verified: !currentStatus }),
       });
-      if (res.ok) {
-        setAccounts((prev) =>
-          prev.map((a) => (a.id === accountId ? { ...a, is_verified: !currentStatus } : a))
-        );
-      }
+      setAccounts((prev) =>
+        prev.map((a) => (a.id === accountId ? { ...a, is_verified: !currentStatus } : a))
+      );
     } catch (err) {
       console.error(err);
     }

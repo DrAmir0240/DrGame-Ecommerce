@@ -16,8 +16,8 @@ export default function SubscriptionBadge() {
     }
   }, [isAuthenticated]);
 
-  // If not authenticated or no quota loaded yet, show "خرید اشتراک"
-  if (!isAuthenticated || !quota || !quota.tier_code) {
+  // If not authenticated or no active subscription, show "خرید اشتراک"
+  if (!isAuthenticated || !quota || !quota.tier_code || quota.tier_code === 'free') {
     return (
       <Link
         href="/subscriptions"
@@ -31,33 +31,31 @@ export default function SubscriptionBadge() {
   }
 
   const code = (quota.tier_code || '').toLowerCase();
-  const name = quota.tier_name || 'اشتراک ویژه';
 
-  // Determine tier styling
+  // Determine dynamic tier label and styling
+  let displayName = quota.tier_name || 'اشتراک ویژه';
   let badgeStyle = {
-    container: 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]',
+    container: 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]',
     icon: <Crown className="w-3.5 h-3.5 text-amber-400" />,
   };
 
   if (code.includes('gold') || code.includes('طلا')) {
+    displayName = 'اشتراک طلایی';
     badgeStyle = {
-      container: 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]',
-      icon: <Crown className="w-3.5 h-3.5 text-amber-400" />,
+      container: 'bg-gradient-to-r from-amber-500/25 to-yellow-500/20 text-amber-300 border-amber-400/60 shadow-[0_0_15px_rgba(245,158,11,0.35)]',
+      icon: <Crown className="w-3.5 h-3.5 text-amber-400 animate-pulse" />,
     };
   } else if (code.includes('silver') || code.includes('نقره')) {
+    displayName = 'اشتراک نقره‌ای';
     badgeStyle = {
-      container: 'bg-slate-300/15 text-slate-200 border-slate-300/40 shadow-[0_0_12px_rgba(226,232,240,0.15)]',
-      icon: <ShieldCheck className="w-3.5 h-3.5 text-slate-300" />,
+      container: 'bg-slate-300/20 text-slate-100 border-slate-300/60 shadow-[0_0_15px_rgba(226,232,240,0.25)]',
+      icon: <ShieldCheck className="w-3.5 h-3.5 text-slate-200" />,
     };
   } else if (code.includes('bronze') || code.includes('برنز')) {
+    displayName = 'اشتراک برنزی';
     badgeStyle = {
-      container: 'bg-orange-500/15 text-orange-300 border-orange-500/40 shadow-[0_0_12px_rgba(249,115,22,0.15)]',
-      icon: <Sparkles className="w-3.5 h-3.5 text-orange-400" />,
-    };
-  } else if (code.includes('free') || code.includes('رایگان')) {
-    badgeStyle = {
-      container: 'bg-cosmic-purple/15 text-purple-300 border-cosmic-purple/40 shadow-[0_0_12px_rgba(168,85,247,0.15)]',
-      icon: <Sparkles className="w-3.5 h-3.5 text-purple-400" />,
+      container: 'bg-amber-800/30 text-amber-300 border-amber-600/60 shadow-[0_0_15px_rgba(217,119,6,0.3)]',
+      icon: <Sparkles className="w-3.5 h-3.5 text-amber-400" />,
     };
   }
 
@@ -65,10 +63,10 @@ export default function SubscriptionBadge() {
     <Link
       href="/subscriptions"
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 shrink-0 ${badgeStyle.container}`}
-      title={`پلن فعال: ${name} (کلیک جهت مشاهده یا ارتقا)`}
+      title={`پلن فعال شما: ${displayName} (کلیک جهت مشاهده یا ارتقا)`}
     >
       {badgeStyle.icon}
-      <span>{name}</span>
+      <span>{displayName}</span>
     </Link>
   );
 }

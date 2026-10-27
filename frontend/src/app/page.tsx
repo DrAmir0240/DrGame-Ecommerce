@@ -34,7 +34,7 @@ export default function HomePage() {
   useEffect(() => {
     async function loadCatalog() {
       try {
-        const res = await apiRequest<GameListResponse>('/games?page=1&size=100');
+        const res = await apiRequest<GameListResponse>('/games?page=1&page_size=100');
         if (res && res.items) {
           setGames(res.items);
         }
@@ -62,8 +62,17 @@ export default function HomePage() {
     return matched.length > 0 ? matched.slice(0, 10) : games.slice(0, 8);
   };
 
-  // Mock wishlisted games for logged-in users
-  const wishlistedGames = games.slice(0, 6);
+  const [wishlistedGames, setWishlistedGames] = useState<GameCardItem[]>([]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      apiRequest<GameCardItem[]>('/games/wishlist')
+        .then((data) => setWishlistedGames(data || []))
+        .catch((err) => console.error('Failed to load wishlist:', err));
+    } else {
+      setWishlistedGames([]);
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="min-h-screen pb-16">

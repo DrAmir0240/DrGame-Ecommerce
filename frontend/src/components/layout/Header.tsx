@@ -75,7 +75,7 @@ export default function Header() {
                 className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
                 dir="ltr"
               >
-                0.0.0.0
+                165.227.83.145
               </span>
               <span>دکتر گیم را وارد کنسول خود کنید</span>
             </div>
@@ -111,15 +111,15 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm transition-all duration-200 ${
                     active
-                      ? 'bg-white/10 text-white border border-white/15 shadow-[0_0_15px_rgba(168,85,247,0.2)] font-bold'
-                      : 'text-text-secondary hover:text-white hover:bg-white/5 border border-transparent'
+                      ? 'bg-white/15 text-white border border-white/25 shadow-[0_0_15px_rgba(168,85,247,0.35)] font-bold'
+                      : 'text-slate-200 hover:text-white hover:bg-white/10 border border-transparent font-medium'
                   }`}
                 >
                   <Icon
                     className={`w-4 h-4 shrink-0 ${
-                      active ? item.activeColor : 'text-text-muted group-hover:text-white transition-colors'
+                      active ? item.activeColor : 'text-slate-300 group-hover:text-white transition-colors'
                     }`}
                   />
                   <span>{item.label}</span>
@@ -144,7 +144,7 @@ export default function Header() {
                 <span className="text-base sm:text-lg font-black tracking-tight text-white block leading-tight">
                   دکتر گیم
                 </span>
-                <span className="block text-[9px] sm:text-[10px] text-text-muted font-roboto font-semibold tracking-wider">
+                <span className="block text-[9px] sm:text-[10px] text-slate-300 font-roboto font-bold tracking-wider">
                   DRGAME.IR
                 </span>
               </div>
@@ -171,10 +171,10 @@ export default function Header() {
             <div className="relative group shrink-0">
               <button
                 type="button"
-                className="p-2 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/40 text-text-secondary hover:text-white transition-all group-hover:scale-105 shrink-0 focus:outline-none"
+                className="p-2 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/40 text-slate-200 hover:text-white transition-all group-hover:scale-105 shrink-0 focus:outline-none"
                 aria-label="سبد خرید (به‌زودی)"
               >
-                <ShoppingCart className="w-4 h-4 text-text-secondary group-hover:text-amber-400 transition-colors" />
+                <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-amber-400 transition-colors" />
               </button>
 
               {/* Tooltip on hover */}
@@ -200,7 +200,7 @@ export default function Header() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                     />
                   ) : (
-                    <UserIcon className="w-4 h-4 text-text-secondary group-hover:text-cosmic-purple transition-colors" />
+                    <UserIcon className="w-4 h-4 text-slate-200 group-hover:text-cosmic-purple transition-colors" />
                   )}
                 </Link>
 
@@ -208,7 +208,7 @@ export default function Header() {
                   onClick={() => logout()}
                   title="خروج از حساب"
                   aria-label="خروج از حساب"
-                  className="hidden md:flex p-2 rounded-xl glass-card border border-white/10 hover:border-red-500/40 text-text-muted hover:text-red-400 transition-all shrink-0"
+                  className="hidden md:flex p-2 rounded-xl glass-card border border-white/10 hover:border-red-500/40 text-slate-300 hover:text-red-400 transition-all shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -250,7 +250,7 @@ export default function Header() {
                   className={`p-1 rounded-xl transition-all duration-200 ${
                     active
                       ? 'text-cosmic-purple scale-110 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]'
-                      : 'text-text-muted group-hover:text-text-secondary'
+                      : 'text-slate-400 group-hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -260,7 +260,7 @@ export default function Header() {
                   className={`text-[10px] leading-tight transition-colors duration-200 ${
                     active
                       ? 'font-bold text-white'
-                      : 'font-normal text-text-muted group-hover:text-text-secondary'
+                      : 'font-medium text-slate-300 group-hover:text-white'
                   }`}
                 >
                   {item.label}

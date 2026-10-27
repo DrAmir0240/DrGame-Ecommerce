@@ -161,3 +161,22 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.modules.tickets.router import user_tickets_router, admin_tickets_router
+    app.include_router(user_tickets_router, prefix="/api", tags=["Tickets"])
+    app.include_router(admin_tickets_router, prefix="/api", tags=["Admin Tickets"])
+except ImportError:
+    pass
+
+@app.get("/api/genres", tags=["Genres"])
+async def get_direct_genres(
+    db: AsyncSession = Depends(get_db),
+    only_active: bool = False,
+    only_top8: bool = False,
+):
+    """Direct alias for public genres list ordered by display_order."""
+    from app.modules.games.services import GamesService
+    from app.modules.games.schemas import GenreOut
+    genres = await GamesService.list_all_genres(db=db, only_active=only_active, only_top8=only_top8)
+    return [GenreOut.model_validate(g) for g in genres]
+

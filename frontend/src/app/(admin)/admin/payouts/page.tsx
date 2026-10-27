@@ -10,8 +10,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { AdminPayoutItem } from "@/types/admin";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 export default function AdminPayoutsPage() {
   const [payouts, setPayouts] = useState<AdminPayoutItem[]>([]);
@@ -29,16 +28,12 @@ export default function AdminPayoutsPage() {
   const fetchPayouts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("drgame_admin_token");
-      const url = new URL(`${API_BASE}/api/admin/payouts`);
-      if (filterStatus) url.searchParams.set("status", filterStatus);
+      const endpoint = filterStatus
+        ? `/admin/payouts?status=${encodeURIComponent(filterStatus)}`
+        : "/admin/payouts";
 
-      const res = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("خطا در دریافت لیست تسویه‌ها");
-      const data = await res.json();
-      setPayouts(data);
+      const data = await apiRequest<AdminPayoutItem[]>(endpoint);
+      setPayouts(data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -65,14 +60,9 @@ export default function AdminPayoutsPage() {
     try {
       setSubmitting(true);
       setModalMessage(null);
-      const token = localStorage.getItem("drgame_admin_token");
 
-      const res = await fetch(`${API_BASE}/api/admin/payouts/${selectedPayout.id}/process`, {
+      await apiRequest(`/admin/payouts/${selectedPayout.id}/process`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           new_status: actionType,
           admin_receipt_url: receiptUrl.trim() || null,
@@ -80,7 +70,6 @@ export default function AdminPayoutsPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("خطا در پردازش تسویه");
       setModalMessage(
         actionType === "approved"
           ? "درخواست با موفقیت تایید شد."

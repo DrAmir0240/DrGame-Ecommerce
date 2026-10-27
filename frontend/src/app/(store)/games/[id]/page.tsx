@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { apiRequest } from '@/lib/apiClient';
 import { GameDetail } from '@/types/game';
 import DownloadBox from '@/components/games/DownloadBox';
+import SimilarGamesCarousel from '@/components/games/SimilarGamesCarousel';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getMediaUrl } from '@/lib/media';
 import {
@@ -597,6 +598,9 @@ export default function GameDetailPage() {
 
         <DownloadBox links={game.download_links} gameTitle={game.title_fa || game.title_en} />
       </section>
+
+      {/* 5. SIMILAR & RECOMMENDED GAMES CAROUSEL */}
+      <SimilarGamesCarousel gameId={game.id} />
     </div>
   );
 }

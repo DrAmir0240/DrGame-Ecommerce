@@ -2,7 +2,9 @@
 import hashlib
 import json
 import logging
-from sqlalchemy import select, func, and_, or_
+from typing import List, Optional
+from datetime import datetime
+from sqlalchemy import select, func, and_, or_, cast, String
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
@@ -38,6 +40,7 @@ class GamesService:
         min_rating: float | None = None,
         is_two_player: bool | None = None,
         has_vr: bool | None = None,
+        release_status: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> PaginatedGamesResponse:
@@ -53,6 +56,8 @@ class GamesService:
             "page": page,
             "page_size": page_size,
         }
+        if release_status is not None:
+            cache_params["release_status"] = release_status
         cache_key = GamesService.compute_catalog_cache_key(cache_params)
 
         # 1. Try Redis cache
@@ -77,11 +82,34 @@ class GamesService:
         if min_rating is not None:
             conditions.append(Game.rating >= min_rating)
 
-        if is_two_player is True:
-            conditions.append(Game.is_two_player == True)
+        if is_two_player is not None:
+            conditions.append(Game.is_two_player == is_two_player)
 
         if has_vr is True:
             conditions.append(Game.has_vr == True)
+
+        if release_status:
+            clean_status = release_status.strip().lower()
+            today = datetime.now().strftime("%Y-%m-%d")
+            if clean_status in ("released", "published"):
+                conditions.append(and_(Game.released.isnot(None), Game.released != "", Game.released <= today))
+            elif clean_status in ("early", "early_access", "upcoming"):
+                conditions.append(or_(Game.released.is_(None), Game.released == "", Game.released > today))
+
+        if genre:
+            clean_genre = genre.strip().lower()
+            if "rpg" in clean_genre or "role" in clean_genre:
+                conditions.append(or_(
+                    cast(Game.genres, String).ilike("%rpg%"),
+                    cast(Game.genres, String).ilike("%role%"),
+                    cast(Game.genres, String).ilike(f"%{clean_genre}%")
+                ))
+            else:
+                conditions.append(cast(Game.genres, String).ilike(f"%{clean_genre}%"))
+
+        if platform:
+            clean_plat = platform.strip().upper()
+            conditions.append(cast(Game.platforms, String).ilike(f"%{clean_plat}%"))
 
         # Count total items
         count_stmt = select(func.count(Game.id)).where(and_(*conditions))
@@ -99,25 +127,7 @@ class GamesService:
         result = await db.execute(stmt)
         games = result.scalars().all()
 
-        # In-memory post-filter for JSON list fields if necessary
-        filtered_games = []
-        for g in games:
-            match_genre = True
-            if genre:
-                genre_slug = genre.lower()
-                genres_lower = [str(x).lower() for x in (g.genres or [])]
-                if not any(genre_slug in item for item in genres_lower):
-                    match_genre = False
-
-            match_plat = True
-            if platform:
-                plat_upper = platform.upper()
-                platforms_upper = [str(x).upper() for x in (g.platforms or [])]
-                if plat_upper not in platforms_upper:
-                    match_plat = False
-
-            if match_genre and match_plat:
-                filtered_games.append(GameCardOut.model_validate(g))
+        filtered_games = [GameCardOut.model_validate(g) for g in games]
 
         total_pages = (total + page_size - 1) // page_size if total > 0 else 1
 
@@ -360,6 +370,42 @@ class GamesService:
         )
 
     @staticmethod
+    async def get_user_wishlist(db: AsyncSession, user_id: int):
+        """Fetch games currently saved in the user's wishlist."""
+        from app.modules.games.schemas import GameCardOut
+        stmt = (
+            select(Game)
+            .join(GameInteraction, Game.id == GameInteraction.game_id)
+            .where(
+                GameInteraction.user_id == user_id,
+                GameInteraction.interaction_type == "wishlist",
+                Game.is_active == True,
+            )
+            .order_by(GameInteraction.id.desc())
+        )
+        games = (await db.execute(stmt)).scalars().all()
+        return [
+            GameCardOut(
+                id=g.id,
+                title_fa=g.title_fa,
+                title_en=g.title_en,
+                slug=g.slug,
+                cover_image_url=g.cover_image_url,
+                rating=g.rating,
+                download_size_gb=g.download_size_gb,
+                is_two_player=g.is_two_player,
+                has_vr=g.has_vr,
+                platforms=g.platforms or [],
+                genres=g.genres or [],
+                likes_count=g.likes_count,
+                dislikes_count=g.dislikes_count,
+                wishlist_count=g.wishlist_count,
+                in_wishlist=True,
+            )
+            for g in games
+        ]
+
+    @staticmethod
     async def list_game_download_files(db: AsyncSession, game_id: int) -> list:
         """Fetch all active download files (data, cheat, dlc, subtitle, dubbing) for a game."""
         from app.modules.games.download_models import GameDownloadFile
@@ -401,7 +447,8 @@ class GamesService:
         if not file:
             raise NotFoundException("فایل دانلودی مورد نظر یافت نشد یا غیرفعال است.")
 
-        # 2. Check user's active subscription tier
+        # 2. Check user's active subscription tier & feature permissions
+        from app.modules.subscriptions.models import SubscriptionTier
         now = datetime.now(timezone.utc)
         sub_stmt = (
             select(UserSubscription)
@@ -414,9 +461,28 @@ class GamesService:
             .limit(1)
         )
         active_sub = (await db.execute(sub_stmt)).scalar_one_or_none()
-        user_tier = active_sub.tier_code if active_sub else "free"
+        if not active_sub:
+            raise ForbiddenException("برای دانلود این فایل نیاز به اشتراک فعال دارید.")
 
-        # Check allowed_tiers
+        user_tier = active_sub.tier_code
+        tier_obj = (await db.execute(
+            select(SubscriptionTier).where(SubscriptionTier.code == user_tier)
+        )).scalar_one_or_none()
+
+        if tier_obj:
+            ft = file.file_type.lower()
+            if ft == "data" and not tier_obj.allow_data:
+                raise ForbiddenException(f"دیتای رسمی بازی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+            if ft == "cheat" and not tier_obj.allow_cheat:
+                raise ForbiddenException(f"چیت و ترینر در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+            if ft == "dlc" and not tier_obj.allow_dlc:
+                raise ForbiddenException(f"بسته‌های الحاقی (DLC) در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+            if ft == "subtitle" and not tier_obj.allow_subtitles:
+                raise ForbiddenException(f"زیرنویس فارسی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+            if ft == "dubbing" and not tier_obj.allow_dubbing:
+                raise ForbiddenException(f"دوبله فارسی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+
+        # Check allowed_tiers fallback
         allowed_tiers = file.allowed_tiers or ["gold", "silver", "bronze"]
         if user_tier not in allowed_tiers:
             raise ForbiddenException(
@@ -571,4 +637,108 @@ class GamesService:
         await db.delete(file)
         await db.commit()
         return {"status": "deleted", "id": file_id}
+
+    @staticmethod
+    async def get_similar_games(db: AsyncSession, game_id: int, limit: int = 5) -> List[GameCardOut]:
+        """Fetch up to 5 most-liked games that share at least one genre with game_id."""
+        target_game = await db.scalar(select(Game).where(Game.id == game_id))
+        if not target_game:
+            raise NotFoundError("بازی مورد نظر یافت نشد.")
+
+        target_genres = [str(g).lower() for g in (target_game.genres or [])]
+
+        stmt = (
+            select(Game)
+            .where(Game.id != game_id, Game.is_active == True)
+            .order_by(Game.likes_count.desc(), Game.rating.desc())
+        )
+        res = await db.execute(stmt)
+        candidates = list(res.scalars().all())
+
+        similar: List[GameCardOut] = []
+        for g in candidates:
+            c_genres = [str(x).lower() for x in (g.genres or [])]
+            if any(tg in c_genres for tg in target_genres) or not target_genres:
+                similar.append(GameCardOut.model_validate(g))
+                if len(similar) >= limit:
+                    break
+
+        if len(similar) < limit:
+            for g in candidates:
+                card = GameCardOut.model_validate(g)
+                if not any(s.id == card.id for s in similar):
+                    similar.append(card)
+                    if len(similar) >= limit:
+                        break
+
+        return similar
+
+    @staticmethod
+    async def list_all_genres(
+        db: AsyncSession,
+        only_active: bool = False,
+        only_top8: bool = False,
+    ) -> List[Genre]:
+        """Fetch genres ordered by display_order then name."""
+        stmt = select(Genre)
+        if only_active:
+            stmt = stmt.where(Genre.is_active == True)
+        if only_top8:
+            stmt = stmt.where(Genre.is_top8 == True)
+        stmt = stmt.order_by(Genre.display_order.asc(), Genre.name_fa.asc())
+        res = await db.execute(stmt)
+        return list(res.scalars().all())
+
+    @staticmethod
+    async def admin_create_genre(db: AsyncSession, data: dict) -> Genre:
+        """Create new genre."""
+        existing = await db.scalar(select(Genre).where(Genre.slug == data["slug"]))
+        if existing:
+            raise BadRequestError("اسلاگ این ژانر تکراری است.")
+
+        genre = Genre(
+            name_fa=data["name_fa"],
+            name_en=data["name_en"],
+            slug=data["slug"],
+            icon_name=data.get("icon_name"),
+            display_order=data.get("display_order", 0),
+            is_top8=data.get("is_top8", False),
+            is_active=data.get("is_active", True),
+            image_background=data.get("image_background"),
+        )
+        db.add(genre)
+        await db.commit()
+        await db.refresh(genre)
+        return genre
+
+    @staticmethod
+    async def admin_update_genre(db: AsyncSession, genre_id: int, data: dict) -> Genre:
+        """Update existing genre."""
+        genre = await db.scalar(select(Genre).where(Genre.id == genre_id))
+        if not genre:
+            raise NotFoundError("ژانر مورد نظر یافت نشد.")
+
+        if "slug" in data and data["slug"] and data["slug"] != genre.slug:
+            existing = await db.scalar(select(Genre).where(Genre.slug == data["slug"]))
+            if existing:
+                raise BadRequestError("اسلاگ وارد شده تکراری است.")
+
+        for k, v in data.items():
+            if v is not None:
+                setattr(genre, k, v)
+
+        await db.commit()
+        await db.refresh(genre)
+        return genre
+
+    @staticmethod
+    async def admin_delete_genre(db: AsyncSession, genre_id: int) -> dict:
+        """Delete genre by id."""
+        genre = await db.scalar(select(Genre).where(Genre.id == genre_id))
+        if not genre:
+            raise NotFoundError("ژانر مورد نظر یافت نشد.")
+
+        await db.delete(genre)
+        await db.commit()
+        return {"status": "deleted", "id": genre_id}
 

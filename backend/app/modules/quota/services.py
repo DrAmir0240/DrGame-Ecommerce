@@ -78,12 +78,45 @@ class QuotaService:
             await db.commit()
             await db.refresh(quota)
 
+        # Check active subscription details
+        tier_code = None
+        tier_name = None
+        expires_at = None
+        has_active_subscription = False
+
+        from app.modules.subscriptions.models import UserSubscription, SubscriptionTier
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
+        sub_stmt = (
+            select(UserSubscription, SubscriptionTier)
+            .join(SubscriptionTier, SubscriptionTier.code == UserSubscription.tier_code, isouter=True)
+            .where(
+                UserSubscription.user_id == user_id,
+                UserSubscription.status == "active",
+                UserSubscription.end_date > now
+            )
+            .order_by(UserSubscription.end_date.desc())
+        )
+        sub_res = await db.execute(sub_stmt)
+        sub_row = sub_res.first()
+        if sub_row:
+            sub, tier = sub_row
+            tier_code = sub.tier_code
+            tier_name = tier.name_fa if (tier and tier.name_fa) else sub.tier_code
+            expires_at = sub.end_date.isoformat() if sub.end_date else None
+            has_active_subscription = True
+
         data = {
             "user_id": quota.user_id,
             "total_quota_gb": round(quota.total_quota_gb, 2),
             "used_quota_gb": round(quota.used_quota_gb, 2),
             "remaining_quota_gb": round(quota.remaining_quota_gb, 2),
-            "percent_used": round((quota.used_quota_gb / quota.total_quota_gb * 100), 1) if quota.total_quota_gb > 0 else 0.0
+            "percent_used": round((quota.used_quota_gb / quota.total_quota_gb * 100), 1) if quota.total_quota_gb > 0 else 0.0,
+            "tier_code": tier_code,
+            "tier_name": tier_name,
+            "expires_at": expires_at,
+            "has_active_subscription": has_active_subscription,
         }
 
         try:

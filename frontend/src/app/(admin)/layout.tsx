@@ -21,6 +21,7 @@ import {
   Share2,
 } from "lucide-react";
 import { AdminProfile } from "@/types/admin";
+import { apiRequest } from "@/lib/apiClient";
 
 interface NavItem {
   label: string;
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { label: "مدیریت بنرهای اصلی", href: "/admin/banners", icon: <Sliders className="w-5 h-5" /> },
   { label: "مدیریت کاربران و سهمیه", href: "/admin/users", icon: <Users className="w-5 h-5" /> },
   { label: "کاتالوگ بازی‌ها", href: "/admin/games", icon: <Grid className="w-5 h-5" /> },
+  { label: "مدیریت ژانرهای بازی", href: "/admin/genres", icon: <Layers className="w-5 h-5 text-emerald-400" /> },
   { label: "پلن‌ها و بازی‌های رایگان", href: "/admin/subscriptions", icon: <Layers className="w-5 h-5" /> },
   { label: "مانیتورینگ زنجیره رفرال", href: "/admin/referrals", icon: <Share2 className="w-5 h-5" /> },
   { label: "پایش مالی (ریالی / ارزی)", href: "/admin/finance", icon: <DollarSign className="w-5 h-5" /> },
@@ -63,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    // Load admin profile
+    // Load admin profile from cache first for immediate responsiveness
     const storedAdmin = localStorage.getItem("drgame_admin_profile");
     if (storedAdmin) {
       try {
@@ -73,7 +75,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     }
 
-    setLoading(false);
+    // Verify admin token against backend to ensure active session and eliminate 403 errors
+    apiRequest<AdminProfile>('/admin/auth/me')
+      .then((profile) => {
+        setAdmin(profile);
+        localStorage.setItem("drgame_admin_profile", JSON.stringify(profile));
+      })
+      .catch((err) => {
+        console.warn("Admin session verification failed:", err);
+        localStorage.removeItem("drgame_admin_token");
+        localStorage.removeItem("drgame_admin_profile");
+        router.replace("/admin/login");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [pathname, isLoginPage, router]);
 
   const handleLogout = () => {

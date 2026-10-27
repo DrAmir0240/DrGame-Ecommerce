@@ -10,6 +10,17 @@ interface GameCardProps {
   game: GameCardItem;
 }
 
+function getPlatformBadgeText(plat: string): string {
+  const p = (plat || '').toLowerCase().trim();
+  if (p.includes('ps5') || p === 'playstation 5') return 'PS5';
+  if (p.includes('ps4') || p === 'playstation 4') return 'PS4';
+  if (p.includes('vr') || p.includes('psvr')) return 'PS VR';
+  if (p.includes('xbox')) return 'XBOX';
+  if (p.includes('switch') || p.includes('nintendo')) return 'NINTENDO';
+  if (p === 'pc' || p.includes('windows') || p.includes('microsoft')) return '';
+  return plat.toUpperCase();
+}
+
 export default function GameCard({ game }: GameCardProps) {
   const title = game.title_fa || game.title_en;
 
@@ -21,7 +32,7 @@ export default function GameCard({ game }: GameCardProps) {
   return (
     <Link
       href={`/games/${game.id}`}
-      className="group flex flex-col rounded-2xl overflow-hidden bg-[#0d121f] border border-white/10 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.25)] transition-all duration-300 hover:-translate-y-1.5"
+      className="group flex flex-col rounded-2xl overflow-hidden bg-[#0d121f] border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.3)] transition-all duration-300 hover:-translate-y-1.5"
     >
       {/* 3:4 Vertical Aspect Ratio Cover Image */}
       <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141b2d]">
@@ -50,7 +61,7 @@ export default function GameCard({ game }: GameCardProps) {
 
         {/* Download Size (top-left) */}
         {game.download_size_gb > 0 && (
-          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-cyan-300 text-[10px] font-bold font-roboto">
+          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-purple-300 text-[10px] font-bold font-roboto">
             {game.download_size_gb} GB
           </div>
         )}
@@ -59,23 +70,38 @@ export default function GameCard({ game }: GameCardProps) {
       {/* Card Info Section matching games.jpg */}
       <div className="p-3 flex flex-col justify-between flex-1 text-right gap-2">
         {/* Persian Title */}
-        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">
+        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
           {title}
         </h3>
 
-        {/* Bottom Row: Platform Icons + Status Badge ("منتشر شده") */}
+        {/* Bottom Row: Platform Text Badges + Status Badge ("منتشر شده") */}
         <div className="flex items-center justify-between gap-1 pt-1 border-t border-white/5">
-          {/* Platforms Icons */}
-          <div className="flex items-center gap-1.5">
-            {platforms.slice(0, 3).map((plat, idx) => (
-              <PlatformIcon key={idx} platform={plat} size={15} />
-            ))}
+          {/* Platforms Text Badges */}
+          <div className="flex items-center gap-1 flex-wrap">
+            {platforms
+              .map(getPlatformBadgeText)
+              .filter(Boolean)
+              .slice(0, 3)
+              .map((badge, idx) => (
+                <span
+                  key={idx}
+                  className="px-1.5 py-0.5 rounded text-[9px] font-black font-roboto tracking-wider bg-white/5 border border-white/10 text-white/80"
+                >
+                  {badge}
+                </span>
+              ))}
           </div>
 
           {/* Status Badge */}
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
-            منتشر شده
-          </span>
+          {game.released && game.released <= new Date().toISOString().split('T')[0] ? (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+              منتشر شده
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">
+              دسترسی زودهنگام
+            </span>
+          )}
         </div>
       </div>
     </Link>

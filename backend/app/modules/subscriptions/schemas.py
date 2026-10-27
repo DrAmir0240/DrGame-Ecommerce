@@ -12,12 +12,29 @@ class SubscriptionTierOut(BaseModel):
     quota_gb: int
     speed_limit_mbps: int
     allowed_platforms: List[str] = []
-    allow_dlc: bool
-    allow_subtitles: bool
-    allow_themes: bool
+    allow_data: bool = True
+    allow_cheat: bool = False
+    allow_dlc: bool = False
+    allow_subtitles: bool = False
+    allow_dubbing: bool = False
+    allow_themes: bool = False
     durations: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class SubscriptionTierUpdate(BaseModel):
+    code: str
+    price_toman: Optional[int] = None
+    quota_gb: Optional[int] = None
+    allow_data: Optional[bool] = None
+    allow_cheat: Optional[bool] = None
+    allow_dlc: Optional[bool] = None
+    allow_subtitles: Optional[bool] = None
+    allow_dubbing: Optional[bool] = None
+    durations: Optional[dict] = None
+
+class SubscriptionTiersBatchUpdate(BaseModel):
+    tiers: List[SubscriptionTierUpdate]
 
 class DiscountValidateRequest(BaseModel):
     code: str

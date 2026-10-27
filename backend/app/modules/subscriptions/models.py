@@ -18,9 +18,13 @@ class SubscriptionTier(Base):
     speed_limit_mbps: Mapped[int] = mapped_column(Integer, default=20, nullable=False)
     allowed_platforms: Mapped[list] = mapped_column(JSON, default=list)  # ["PS4", "PS5"]
     
+    allow_data: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    allow_cheat: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     allow_dlc: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     allow_subtitles: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    allow_dubbing: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     allow_themes: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    durations: Mapped[dict | None] = mapped_column(JSON, default=dict, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 class UserSubscription(Base):

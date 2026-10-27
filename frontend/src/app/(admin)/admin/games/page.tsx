@@ -27,7 +27,7 @@ import { getMediaUrl } from "@/lib/media";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
 
-const PLATFORM_OPTIONS = ["PS5", "PS4", "Xbox Series X/S", "Nintendo Switch", "PC"];
+const PLATFORM_OPTIONS = ["PS5", "PS4", "Xbox Series X/S", "Nintendo Switch"];
 
 type TabType = "basic" | "media" | "studio" | "story" | "features" | "downloads";
 
@@ -622,23 +622,27 @@ export default function AdminGamesPage() {
           <span>
             نمایش {games.length} از {total} بازی در سامانه
           </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200"
-            >
-              صفحه قبل
-            </button>
-            <span className="font-roboto text-slate-300">صفحه {page}</span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={games.length < 15}
-              className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200"
-            >
-              صفحه بعد
-            </button>
-          </div>
+          {Math.ceil(total / 15) > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 transition-colors"
+              >
+                صفحه قبل
+              </button>
+              <span className="font-roboto text-slate-300">
+                صفحه {page} از {Math.ceil(total / 15)}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(Math.ceil(total / 15), p + 1))}
+                disabled={page >= Math.ceil(total / 15)}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 transition-colors"
+              >
+                صفحه بعد
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

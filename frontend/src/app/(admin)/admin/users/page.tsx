@@ -13,8 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { AdminUserListItem, AdminUserDossier } from "@/types/admin";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUserListItem[]>([]);
@@ -39,21 +38,12 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("drgame_admin_token");
-      const url = new URL(`${API_BASE}/api/admin/users`);
-      url.searchParams.set("page", page.toString());
-      url.searchParams.set("page_size", "15");
-      if (searchTerm.trim()) {
-        url.searchParams.set("search", searchTerm.trim());
-      }
+      const searchParam = searchTerm.trim() ? `&search=${encodeURIComponent(searchTerm.trim())}` : "";
+      const endpoint = `/admin/users?page=${page}&page_size=15${searchParam}`;
 
-      const res = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("خطا در دریافت کاربران");
-      const data = await res.json();
-      setUsers(data.items);
-      setTotal(data.total);
+      const data = await apiRequest<{ items: AdminUserListItem[]; total: number }>(endpoint);
+      setUsers(data?.items || []);
+      setTotal(data?.total || 0);
     } catch (err) {
       console.error(err);
     } finally {
@@ -70,12 +60,7 @@ export default function AdminUsersPage() {
     setShowDossierModal(true);
     setDossierLoading(true);
     try {
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/users/${u.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("خطا در پرونده");
-      const data = await res.json();
+      const data = await apiRequest<AdminUserDossier>(`/admin/users/${u.id}`);
       setDossier(data);
     } catch (err) {
       console.error(err);
@@ -98,21 +83,15 @@ export default function AdminUsersPage() {
     try {
       setQuotaSubmitting(true);
       setQuotaMessage(null);
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/users/${selectedUser.id}/adjust-quota`, {
+
+      const data = await apiRequest(`/admin/users/${selectedUser.id}/adjust-quota`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           added_gb: Number(addedGb),
           reason: quotaReason.trim(),
         }),
       });
 
-      if (!res.ok) throw new Error("خطا در ویرایش سهمیه کاربر");
-      const data = await res.json();
       setQuotaMessage(`سهمیه جدید کاربر: ${data.total_quota_gb} گیگابایت ثبت شد.`);
       // Refresh list
       fetchUsers();

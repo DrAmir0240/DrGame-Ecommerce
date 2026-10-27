@@ -43,3 +43,39 @@ class UserSessionOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserNotificationOut(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    message: str
+    notification_type: str
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class NotificationListResponse(BaseModel):
+    items: list[UserNotificationOut]
+    unread_count: int
+
+
+class UserPaymentOut(BaseModel):
+    id: int
+    order_id: int
+    tier_code: str
+    tier_title: str
+    provider: str
+    currency: str
+    original_price: int
+    discount_amount: int
+    amount: int
+    status: str
+    authority: str
+    payment_id: str
+    created_at: datetime
+    created_at_jalali: str
+
+    model_config = ConfigDict(from_attributes=True)

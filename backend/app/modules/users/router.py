@@ -14,6 +14,9 @@ from app.modules.users.schemas import (
     UserProfileUpdate,
     ChangePasswordRequest,
     UserSessionOut,
+    UserNotificationOut,
+    NotificationListResponse,
+    UserPaymentOut,
 )
 from app.modules.games.schemas import UserDownloadHistoryOut
 from app.modules.users.services import UserService
@@ -76,4 +79,67 @@ async def get_my_download_history(
     """Retrieve authenticated user's download history (one-time logged records)."""
     from app.modules.games.services import GamesService
     return await GamesService.get_user_download_history(db=db, user_id=current_user.id, limit=limit)
+
+
+# ==========================================
+# In-app Notifications Endpoints
+# ==========================================
+
+@router.get("/me/notifications", response_model=NotificationListResponse, status_code=status.HTTP_200_OK)
+async def get_my_notifications(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Get list of user notifications along with unread counter."""
+    res = await UserService.get_user_notifications(db=db, user_id=current_user.id)
+    return NotificationListResponse(
+        items=[UserNotificationOut.model_validate(n) for n in res["items"]],
+        unread_count=res["unread_count"],
+    )
+
+
+@router.patch("/me/notifications/{notification_id}/read", response_model=UserNotificationOut, status_code=status.HTTP_200_OK)
+async def mark_notification_as_read(
+    notification_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Mark a specific notification as read."""
+    notif = await UserService.mark_notification_read(db=db, user_id=current_user.id, notification_id=notification_id)
+    return UserNotificationOut.model_validate(notif)
+
+
+@router.post("/me/notifications/read-all", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+async def mark_all_notifications_as_read(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Mark all notifications of the user as read."""
+    count = await UserService.mark_all_notifications_read(db=db, user_id=current_user.id)
+    return MessageResponse(message=f"تعداد {count} اعلان به عنوان خوانده شده علامت‌گذاری شد.")
+
+
+@router.delete("/me/notifications/{notification_id}", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+async def delete_user_notification(
+    notification_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Delete a notification from user dashboard."""
+    await UserService.delete_notification(db=db, user_id=current_user.id, notification_id=notification_id)
+    return MessageResponse(message="اعلان مورد نظر با موفقیت حذف شد.")
+
+
+# ==========================================
+# User Payments & Invoices Endpoints
+# ==========================================
+
+@router.get("/me/payments", response_model=List[UserPaymentOut], status_code=status.HTTP_200_OK)
+async def get_my_payments(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Retrieve all payment records and invoices of the current user."""
+    payments = await UserService.get_user_payments(db=db, user_id=current_user.id)
+    return [UserPaymentOut(**p) for p in payments]
 

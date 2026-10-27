@@ -9,10 +9,14 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    rawg_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    rawg_id: Mapped[int | None] = mapped_column(Integer, unique=True, index=True, nullable=True)
     name_fa: Mapped[str] = mapped_column(String(100), nullable=False)
     name_en: Mapped[str] = mapped_column(String(100), nullable=False)
     slug: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    icon_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_top8: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     image_background: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
 class Game(Base):

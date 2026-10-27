@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Check,
@@ -12,8 +12,10 @@ import {
   Sparkles,
   LayoutGrid,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
+import { apiRequest } from '@/lib/apiClient';
 
 interface TierCardProps {
   tier: SubscriptionTier;
@@ -21,29 +23,15 @@ interface TierCardProps {
   duration?: 1 | 3 | 6;
 }
 
-// 5 Free Tier Games matching the reference design
-const FREE_GAMES = [
-  {
-    title: 'Watch Dogs 2',
-    image: 'https://media.rawg.io/media/games/f52/f52cf6ba08089cd5f1a9c8f7fcc93d1f.jpg',
-  },
-  {
-    title: 'GTA V',
-    image: 'https://media.rawg.io/media/games/20a/20aa03a10cda45239fe22d035c0ebe64.jpg',
-  },
-  {
-    title: 'Rocket League',
-    image: 'https://media.rawg.io/media/games/8cc/8cce7c0e99dcc43d66c8efd42f9d03e3.jpg',
-  },
-  {
-    title: 'Mortal Kombat 11',
-    image: 'https://media.rawg.io/media/games/eb5/eb514db62d397c64288160d5bd8fd67a.jpg',
-  },
-  {
-    title: 'Brawlhalla',
-    image: 'https://media.rawg.io/media/games/35b/35b47c4d85cd6e08f3e2ca43ea5ce7bb.jpg',
-  },
-];
+interface FreeGameItem {
+  id: number;
+  title_fa: string;
+  title_en: string;
+  slug: string;
+  cover_image_url: string;
+  release_year?: number;
+  platforms?: string[];
+}
 
 export default function TierCard({ tier, isCurrent = false, duration = 1 }: TierCardProps) {
   const isFree = tier.code === 'free';
@@ -51,19 +39,30 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
   const isSilver = tier.code === 'silver';
   const isGold = tier.code === 'gold';
 
+  const [freeGames, setFreeGames] = useState<FreeGameItem[]>([]);
+  const [loadingFreeGames, setLoadingFreeGames] = useState(false);
+
+  useEffect(() => {
+    if (isFree) {
+      setLoadingFreeGames(true);
+      apiRequest<FreeGameItem[]>('/subscriptions/free-tier-games')
+        .then((data) => setFreeGames(data || []))
+        .catch((err) => console.error('Failed to load free tier games:', err))
+        .finally(() => setLoadingFreeGames(false));
+    }
+  }, [isFree]);
+
   // Format price cleanly with Vazir font
   const formatToman = (toman: number) => toman.toLocaleString('fa-IR');
 
   // Dynamic price calculation based on duration
   const getDynamicPrice = () => {
+    const dKey = duration === 1 ? '1_month' : `${duration}_months`;
+    if (tier.durations && tier.durations[dKey]) {
+      return tier.durations[dKey].price_toman;
+    }
     const base = tier.price_toman || 0;
-    if (duration === 3) {
-      return (tier as any).price_3m_toman || Math.round(base * 3 * 0.90);
-    }
-    if (duration === 6) {
-      return (tier as any).price_6m_toman || Math.round(base * 6 * 0.80);
-    }
-    return base;
+    return base * duration;
   };
 
   const dynamicPrice = getDynamicPrice();
@@ -73,7 +72,13 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
 
   // Dynamic quota display
   const getDynamicQuota = () => {
-    const totalGb = (tier.quota_gb || (isBronze ? 500 : isSilver ? 1000 : 2200)) * duration;
+    const dKey = duration === 1 ? '1_month' : `${duration}_months`;
+    let totalGb = 0;
+    if (tier.durations && tier.durations[dKey]) {
+      totalGb = tier.durations[dKey].quota_gb;
+    } else {
+      totalGb = (tier.quota_gb || (isBronze ? 500 : isSilver ? 1000 : 2200)) * duration;
+    }
     if (totalGb >= 1000) {
       const tb = (totalGb / 1000).toFixed(1).replace('.0', '');
       return `${tb} TB دانلود بازی`;
@@ -106,25 +111,47 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="text-xs text-slate-400 font-medium font-vazir">یک‌بار برای همیشه</div>
           </div>
 
-          {/* 5 Free Games Box */}
+          {/* Free Games Box */}
           <div className="rounded-2xl border border-slate-800/80 bg-[#12151e]/80 p-3 space-y-2.5 mb-8">
-            {FREE_GAMES.map((game) => (
-              <div
-                key={game.title}
-                className="border border-slate-700/60 bg-[#161b26] hover:bg-[#1c2230] rounded-xl p-2 flex items-center justify-between transition-all group"
-              >
-                <span className="text-xs font-bold text-slate-200 tracking-wide font-sans pl-2" dir="ltr">
-                  {game.title}
-                </span>
-                <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-white/10 shadow-sm bg-black/40">
-                  <img
-                    src={game.image}
-                    alt={game.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
+            <div className="text-[11px] font-bold text-slate-400 mb-1 px-1">
+              بازی‌های رایگان این پلن:
+            </div>
+            {loadingFreeGames ? (
+              <div className="py-6 flex items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                <span>در حال دریافت بازی‌های هدیه...</span>
               </div>
-            ))}
+            ) : freeGames.length === 0 ? (
+              <div className="py-4 text-center text-xs text-slate-500">
+                بازی رایگانی در حال حاضر تعریف نشده است.
+              </div>
+            ) : (
+              freeGames.map((game) => (
+                <Link
+                  key={game.id}
+                  href={`/games/${game.id}`}
+                  className="border border-slate-700/60 bg-[#161b26] hover:bg-[#1c2230] rounded-xl p-2 flex items-center justify-between transition-all group block"
+                >
+                  <div className="text-right pl-2">
+                    <span className="text-xs font-bold text-slate-200 tracking-wide font-vazir block">
+                      {game.title_fa || game.title_en}
+                    </span>
+                    {game.title_en && (
+                      <span className="text-[10px] text-slate-400 font-roboto" dir="ltr">
+                        {game.title_en}
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-white/10 shadow-sm bg-black/40">
+                    <img
+                      src={game.cover_image_url}
+                      alt={game.title_fa}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </div>
 

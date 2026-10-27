@@ -5,13 +5,39 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class GenreOut(BaseModel):
     id: int
-    rawg_id: int
+    rawg_id: Optional[int] = None
     name_fa: str
     name_en: str
     slug: str
+    icon_name: Optional[str] = None
+    display_order: int = 0
+    is_top8: bool = False
+    is_active: bool = True
     image_background: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class GenreCreate(BaseModel):
+    name_fa: str = Field(..., min_length=2, max_length=100)
+    name_en: str = Field(..., min_length=2, max_length=100)
+    slug: str = Field(..., min_length=2, max_length=100)
+    icon_name: Optional[str] = None
+    display_order: int = 0
+    is_top8: bool = False
+    is_active: bool = True
+    image_background: Optional[str] = None
+
+
+class GenreUpdate(BaseModel):
+    name_fa: Optional[str] = None
+    name_en: Optional[str] = None
+    slug: Optional[str] = None
+    icon_name: Optional[str] = None
+    display_order: Optional[int] = None
+    is_top8: Optional[bool] = None
+    is_active: Optional[bool] = None
+    image_background: Optional[str] = None
 
 class GameDownloadLinkOut(BaseModel):
     id: int
@@ -36,6 +62,7 @@ class GameCardOut(BaseModel):
     platforms: List[str] = []
     genres: List[str] = []
     cover_image_url: Optional[str] = None
+    released: Optional[str] = None
     likes_count: int = 0
     wishlist_count: int = 0
 

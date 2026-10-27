@@ -1,4 +1,4 @@
-"""Pydantic V2 schemas for user quota and download webhook callbacks."""
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 class UserQuotaOut(BaseModel):
@@ -7,6 +7,10 @@ class UserQuotaOut(BaseModel):
     used_quota_gb: float
     remaining_quota_gb: float
     percent_used: float
+    tier_code: Optional[str] = None
+    tier_name: Optional[str] = None
+    expires_at: Optional[str] = None
+    has_active_subscription: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

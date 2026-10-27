@@ -64,11 +64,12 @@ const HERO_SLIDES: HeroSlide[] = [
 ];
 
 const consoleIconMap: Record<string, { src: string; name: string }> = {
-  ps5: { src: '/ps5.svg', name: 'پلی‌استیشن ۵' },
-  ps4: { src: '/ps4.svg', name: 'پلی‌استیشن ۴' },
-  psvr2: { src: '/psvr2.svg', name: 'PS VR2' },
-  switch: { src: '/switch.svg', name: 'نینتندو سوییچ' },
-  xbox360: { src: '/xbox360.svg', name: 'ایکس‌باکس ۳۶۰' },
+  ps5: { src: '/platforms/ps5-white.png', name: 'پلی‌استیشن ۵' },
+  ps4: { src: '/platforms/ps4-white.png', name: 'پلی‌استیشن ۴' },
+  psvr2: { src: '/platforms/psvr-white.png', name: 'PS VR' },
+  switch: { src: '/platforms/nintendo.png', name: 'نینتندو سوییچ' },
+  xbox360: { src: '/platforms/xbox.png', name: 'ایکس‌باکس' },
+  xbox: { src: '/platforms/xbox.png', name: 'ایکس‌باکس' },
 };
 
 export default function HeroShowcase() {

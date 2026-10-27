@@ -365,11 +365,14 @@ class AdminService:
         stmt = stmt.order_by(desc(Game.id)).offset((page - 1) * page_size).limit(page_size)
         games = (await db.execute(stmt)).scalars().all()
 
+        total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+
         return {
             "items": games,
             "total": total,
             "page": page,
             "page_size": page_size,
+            "total_pages": total_pages,
         }
 
     @staticmethod
@@ -759,3 +762,28 @@ class AdminService:
                 "treasury_distributed": treasury_pool.total_distributed_toman,
             },
         }
+
+    @staticmethod
+    async def list_subscription_tiers(db: AsyncSession) -> list:
+        """List all subscription tiers with durations and permissions for admin."""
+        from app.modules.subscriptions.services import SubscriptionService
+        return await SubscriptionService.get_all_tiers(db)
+
+    @staticmethod
+    async def update_subscription_tier(db: AsyncSession, tier_code: str, data: dict):
+        """Update single subscription tier config (price, quota, features, durations)."""
+        from app.modules.subscriptions.services import SubscriptionService
+        return await SubscriptionService.update_tier(db, tier_code, data)
+
+    @staticmethod
+    async def batch_update_subscription_tiers(db: AsyncSession, tiers_data: list):
+        """Batch update subscription tiers configs."""
+        from app.modules.subscriptions.services import SubscriptionService
+        updated = []
+        for t_item in tiers_data:
+            code = t_item.get("code") if isinstance(t_item, dict) else getattr(t_item, "code", None)
+            data = t_item if isinstance(t_item, dict) else t_item.model_dump(exclude_unset=True)
+            if code:
+                res = await SubscriptionService.update_tier(db, code, data)
+                updated.append(res)
+        return updated

@@ -1,5 +1,6 @@
 """Admin router: isolated authentication, user management, manual quota adjustment,
 financial monitoring, referral payouts, games catalog, and discounts."""
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
@@ -27,6 +28,12 @@ from app.modules.admin.schemas import (
     SetFreeTierGamesRequest,
     DiscountCreateRequest,
 )
+from app.modules.subscriptions.schemas import (
+    SubscriptionTierOut,
+    SubscriptionTierUpdate,
+    SubscriptionTiersBatchUpdate,
+)
+from app.modules.games.schemas import GenreOut, GenreCreate, GenreUpdate
 
 router = APIRouter(tags=["Admin Panel"])
 
@@ -270,6 +277,41 @@ async def list_subscriptions(
     return await AdminService.list_subscriptions(db, page=page, page_size=page_size)
 
 
+@router.get("/subscription-tiers", response_model=List[SubscriptionTierOut], status_code=status.HTTP_200_OK)
+async def list_admin_subscription_tiers(
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """List subscription tiers with full configuration for admin editing."""
+    return await AdminService.list_subscription_tiers(db)
+
+
+@router.put("/subscription-tiers/{tier_code}", response_model=SubscriptionTierOut, status_code=status.HTTP_200_OK)
+async def update_subscription_tier(
+    tier_code: str,
+    payload: SubscriptionTierUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update subscription tier pricing, quota, features, and durations."""
+    return await AdminService.update_subscription_tier(
+        db,
+        tier_code=tier_code,
+        data=payload.model_dump(exclude_unset=True),
+    )
+
+
+@router.put("/subscription-tiers", status_code=status.HTTP_200_OK)
+async def batch_update_subscription_tiers(
+    payload: SubscriptionTiersBatchUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Batch update multiple subscription tiers configurations at once."""
+    updated = await AdminService.batch_update_subscription_tiers(db, payload.tiers)
+    return {"status": "success", "updated_count": len(updated)}
+
+
 # --- Discount Codes ---
 
 @router.get("/discounts", status_code=status.HTTP_200_OK)
@@ -305,6 +347,8 @@ async def delete_discount(
 # --- Referral Tree & Treasury Pool Management ---
 
 @router.post("/users/{user_id}/toggle-referral-hide", status_code=status.HTTP_200_OK)
+@router.patch("/referral/users/{user_id}/toggle-hide", status_code=status.HTTP_200_OK)
+@router.post("/referral/users/{user_id}/toggle-hide", status_code=status.HTTP_200_OK)
 async def toggle_user_referral_hide(
     user_id: int,
     current_admin: AdminUser = Depends(get_current_admin),
@@ -314,6 +358,7 @@ async def toggle_user_referral_hide(
     return await AdminService.toggle_user_referral_hide(db, user_id=user_id)
 
 
+@router.get("/referrals", status_code=status.HTTP_200_OK)
 @router.get("/referrals/overview", status_code=status.HTTP_200_OK)
 async def get_referrals_overview(
     current_admin: AdminUser = Depends(get_current_admin),
@@ -356,4 +401,53 @@ async def grant_treasury_reward(
     return await AdminService.grant_treasury_reward(
         db, user_id=user_id, amount_toman=amount_toman, description=description
     )
+
+
+# --- Genres Management ---
+
+@router.get("/genres", response_model=List[GenreOut], status_code=status.HTTP_200_OK)
+async def list_admin_genres(
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin: list all genres with ordering."""
+    from app.modules.games.services import GamesService
+    genres = await GamesService.list_all_genres(db=db)
+    return [GenreOut.model_validate(g) for g in genres]
+
+
+@router.post("/genres", response_model=GenreOut, status_code=status.HTTP_201_CREATED)
+async def create_admin_genre(
+    payload: GenreCreate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin: create a new game genre."""
+    from app.modules.games.services import GamesService
+    genre = await GamesService.admin_create_genre(db=db, data=payload.model_dump())
+    return GenreOut.model_validate(genre)
+
+
+@router.put("/genres/{genre_id}", response_model=GenreOut, status_code=status.HTTP_200_OK)
+async def update_admin_genre(
+    genre_id: int,
+    payload: GenreUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin: update an existing genre."""
+    from app.modules.games.services import GamesService
+    genre = await GamesService.admin_update_genre(db=db, genre_id=genre_id, data=payload.model_dump(exclude_unset=True))
+    return GenreOut.model_validate(genre)
+
+
+@router.delete("/genres/{genre_id}", status_code=status.HTTP_200_OK)
+async def delete_admin_genre(
+    genre_id: int,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin: delete a genre."""
+    from app.modules.games.services import GamesService
+    return await GamesService.admin_delete_genre(db=db, genre_id=genre_id)
 

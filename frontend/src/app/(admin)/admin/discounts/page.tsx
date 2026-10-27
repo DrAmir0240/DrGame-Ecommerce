@@ -11,8 +11,7 @@ import {
   Clock,
 } from "lucide-react";
 import { AdminDiscountCode } from "@/types/admin";
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+import { apiRequest } from "@/lib/apiClient";
 
 export default function AdminDiscountsPage() {
   const [discounts, setDiscounts] = useState<AdminDiscountCode[]>([]);
@@ -30,14 +29,8 @@ export default function AdminDiscountsPage() {
   const fetchDiscounts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/discounts`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDiscounts(data);
-      }
+      const data = await apiRequest<AdminDiscountCode[]>("/admin/discounts");
+      setDiscounts(data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -59,13 +52,8 @@ export default function AdminDiscountsPage() {
     try {
       setSubmitting(true);
       setMessage(null);
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/discounts`, {
+      await apiRequest("/admin/discounts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           code: code.trim().toUpperCase(),
           discount_percent: Number(percent),
@@ -74,16 +62,11 @@ export default function AdminDiscountsPage() {
         }),
       });
 
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.detail || "خطا در ایجاد کد تخفیف");
-      }
-
       setMessage("کد تخفیف با موفقیت ایجاد شد.");
       fetchDiscounts();
       setTimeout(() => setShowModal(false), 1000);
     } catch (err: any) {
-      setMessage(err.message);
+      setMessage(err.message || "خطا در ایجاد کد تخفیف");
     } finally {
       setSubmitting(false);
     }
@@ -92,12 +75,10 @@ export default function AdminDiscountsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("آیا از حذف این کد تخفیف اطمینان دارید؟")) return;
     try {
-      const token = localStorage.getItem("drgame_admin_token");
-      const res = await fetch(`${API_BASE}/api/admin/discounts/${id}`, {
+      await apiRequest(`/admin/discounts/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) fetchDiscounts();
+      fetchDiscounts();
     } catch (err) {
       console.error(err);
     }

@@ -46,7 +46,7 @@ export default function CircularQuotaWidget() {
   const percentage = Math.min(100, Math.max(0, (remaining / total) * 100));
 
   // Determine circular donut stroke color
-  let strokeColor = '#06b6d4'; // Cyan default
+  let strokeColor = '#a855f7'; // Cosmic purple default
   if (percentage < 15) {
     strokeColor = '#f43f5e'; // Rose
   } else if (percentage < 35) {
@@ -62,12 +62,12 @@ export default function CircularQuotaWidget() {
     <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-right">
       {/* 1. زمان باقی‌مانده اشتراک */}
       <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-card/80 border border-white/10 backdrop-blur-md">
-        <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
-          <Clock className="w-4 h-4 text-cyan-400" />
+        <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+          <Clock className="w-4 h-4 text-purple-400" />
         </div>
         <div className="flex flex-col">
           <span className="text-[10px] text-text-muted">زمان باقی‌مانده اشتراک:</span>
-          <span className="text-xs font-bold text-cyan-300 font-roboto" dir="rtl">
+          <span className="text-xs font-bold text-purple-300 font-roboto" dir="rtl">
             {toFarsi(daysRemaining)} روز
           </span>
         </div>
@@ -101,12 +101,12 @@ export default function CircularQuotaWidget() {
               className="transition-all duration-700 ease-out"
             />
           </svg>
-          <Database className="w-3.5 h-3.5 text-cyan-400 absolute inset-0 m-auto" />
+          <Database className="w-3.5 h-3.5 text-purple-400 absolute inset-0 m-auto" />
         </div>
 
         <div className="flex flex-col">
           <span className="text-[10px] text-text-muted">حجم باقی‌مانده اشتراک:</span>
-          <span className="text-xs font-bold text-cyan-300 font-roboto" dir="rtl">
+          <span className="text-xs font-bold text-purple-300 font-roboto" dir="rtl">
             {toFarsi(remaining)} گیگابایت
           </span>
         </div>

@@ -15,11 +15,34 @@ export interface SubscriptionTier {
   concurrent_downloads?: number;
   allowed_platforms?: string[];
   supported_consoles?: string[];
+  allow_data?: boolean;
+  allow_cheat?: boolean;
   allow_dlc?: boolean;
   allow_subtitles?: boolean;
+  allow_dubbing?: boolean;
   allow_themes?: boolean;
+  durations?: Record<string, {
+    months: number;
+    days: number;
+    price_toman: number;
+    quota_gb: number;
+    discount_percent: number;
+  }>;
   features?: string[];
   is_active?: boolean;
+}
+
+export interface MySubscriptionStatus {
+  has_active_subscription: boolean;
+  tier: SubscriptionTier | null;
+  end_date: string | null;
+  quota: {
+    total_quota_gb: number;
+    used_quota_gb: number;
+    remaining_quota_gb: number;
+    tier_code?: string;
+    tier_name?: string;
+  };
 }
 
 export interface UserQuota {

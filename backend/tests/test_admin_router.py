@@ -102,3 +102,33 @@ async def test_admin_authenticated_endpoints(client, test_db):
     fin_resp = await client.get("/api/admin/finance/overview", headers=headers)
     assert fin_resp.status_code == 200
     assert "total_domestic_volume_toman" in fin_resp.json()
+
+    # /api/admin/subscription-tiers (List)
+    tiers_resp = await client.get("/api/admin/subscription-tiers", headers=headers)
+    assert tiers_resp.status_code == 200
+    tiers_list = tiers_resp.json()
+    assert len(tiers_list) >= 4
+
+    # /api/admin/subscription-tiers/bronze (Update features & durations)
+    update_resp = await client.put(
+        "/api/admin/subscription-tiers/bronze",
+        headers=headers,
+        json={
+            "code": "bronze",
+            "price_toman": 750000,
+            "quota_gb": 550,
+            "allow_data": True,
+            "allow_cheat": False,
+            "allow_dubbing": True,
+            "durations": {
+                "1": {"price_toman": 750000, "quota_gb": 550},
+                "3": {"price_toman": 2200000, "quota_gb": 1650},
+                "6": {"price_toman": 4300000, "quota_gb": 3300},
+            }
+        }
+    )
+    assert update_resp.status_code == 200
+    bronze_updated = update_resp.json()
+    assert bronze_updated["price_toman"] == 750000
+    assert bronze_updated["allow_dubbing"] is True
+    assert bronze_updated["durations"]["3_months"]["price_toman"] == 2200000

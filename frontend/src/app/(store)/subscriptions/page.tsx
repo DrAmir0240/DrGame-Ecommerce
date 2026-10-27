@@ -63,30 +63,24 @@ export default function SubscriptionsPage() {
 
           <button
             onClick={() => setDuration(3)}
-            className={`flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs font-bold transition-all relative ${
+            className={`flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs font-bold transition-all ${
               duration === 3
                 ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]'
                 : 'text-text-secondary hover:text-white'
             }`}
           >
             <span>۳ ماهه</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-black">
-              ۱۰٪ تخفیف
-            </span>
           </button>
 
           <button
             onClick={() => setDuration(6)}
-            className={`flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs font-bold transition-all relative ${
+            className={`flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs font-bold transition-all ${
               duration === 6
                 ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]'
                 : 'text-text-secondary hover:text-white'
             }`}
           >
             <span>۶ ماهه</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-400 text-slate-950 font-black">
-              ۲۰٪ تخفیف
-            </span>
           </button>
         </div>
       </div>
@@ -127,7 +121,7 @@ export default function SubscriptionsPage() {
               <span>تفاوت پلن‌های ۳ ماهه و ۶ ماهه چیست؟</span>
             </h4>
             <p className="text-xs text-text-secondary leading-relaxed">
-              با انتخاب دوره‌های طولانی‌تر، علاوه بر دریافت تخفیف‌های ۱۰ الی ۲۰ درصدی بر روی قیمت پلن، سهمیه دانلود شما برای کل بازه تجمیع شده و دغدغه تمدید ماهانه نخواهید داشت.
+              با انتخاب دوره‌های طولانی‌تر، سهمیه دانلود شما برای کل بازه تجمیع شده و دغدغه تمدید ماهانه نخواهید داشت.
             </p>
           </div>
 

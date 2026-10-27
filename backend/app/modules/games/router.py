@@ -34,10 +34,13 @@ async def list_games(
     min_rating: Optional[float] = Query(None, description="Minimum RAWG rating (0 to 5)"),
     is_two_player: Optional[bool] = Query(None, description="Filter for 2-player / co-op games"),
     has_vr: Optional[bool] = Query(None, description="Filter for VR supported games"),
+    release_status: Optional[str] = Query(None, description="Filter by release status: 'released' or 'early'"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    size: Optional[int] = Query(None, description="Alias for page_size"),
 ):
     """Retrieve filtered games catalog with Redis caching."""
+    effective_page_size = min(max(size, 1), 100) if size is not None else page_size
     return await GamesService.get_catalog(
         db=db,
         redis=redis,
@@ -48,18 +51,39 @@ async def list_games(
         min_rating=min_rating,
         is_two_player=is_two_player,
         has_vr=has_vr,
+        release_status=release_status,
         page=page,
-        page_size=page_size,
+        page_size=effective_page_size,
     )
 
+@router.get("/genres", response_model=List[GenreOut], status_code=status.HTTP_200_OK)
 @router.get("/genres/list", response_model=List[GenreOut], status_code=status.HTTP_200_OK)
 async def list_genres(
     db: Annotated[AsyncSession, Depends(get_db)],
+    only_active: bool = False,
+    only_top8: bool = False,
 ):
-    """List all available game genres."""
-    stmt = select(Genre).order_by(Genre.name_fa.asc())
-    result = await db.execute(stmt)
-    return [GenreOut.model_validate(g) for g in result.scalars().all()]
+    """List game genres ordered by display_order with optional active/top8 filters."""
+    genres = await GamesService.list_all_genres(db=db, only_active=only_active, only_top8=only_top8)
+    return [GenreOut.model_validate(g) for g in genres]
+
+
+@router.get("/wishlist", response_model=List[GameCardOut], status_code=status.HTTP_200_OK)
+async def get_my_wishlist(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Retrieve all games saved in the authenticated user's wishlist."""
+    return await GamesService.get_user_wishlist(db=db, user_id=current_user.id)
+
+
+@router.get("/{game_id}/similar", response_model=List[GameCardOut], status_code=status.HTTP_200_OK)
+async def get_similar_games(
+    game_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Retrieve 5 most-liked games that share at least one genre with game_id."""
+    return await GamesService.get_similar_games(db=db, game_id=game_id, limit=5)
 
 @router.get("/{game_id}", response_model=GameDetailOut, status_code=status.HTTP_200_OK)
 async def get_game(
