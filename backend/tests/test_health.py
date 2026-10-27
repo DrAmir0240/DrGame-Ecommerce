@@ -1,12 +1,19 @@
 import pytest
-
+from httpx import AsyncClient
 
 @pytest.mark.asyncio
-async def test_system_settings_endpoint(client):
-    response = await client.get("/api/v1/system/settings")
+async def test_root_endpoint(client: AsyncClient):
+    response = await client.get("/")
     assert response.status_code == 200
     data = response.json()
-    assert data["project_name"] == "DrGame E-Commerce Platform"
-    assert data["default_theme"] == "dark"
-    assert "PS5" in data["allowed_platforms"]
-    assert data["ten_foot_ui_supported"] is True
+    assert "project" in data
+    assert data["health"] == "/api/health"
+
+@pytest.mark.asyncio
+async def test_health_check_healthy(client: AsyncClient):
+    response = await client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["database"] == "healthy"
+    assert data["redis"] == "healthy"

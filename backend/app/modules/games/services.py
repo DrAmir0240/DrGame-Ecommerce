@@ -1,224 +1,574 @@
+"""Games service: filtering, Redis caching, like/dislike toggle, and wishlist logic."""
+import hashlib
 import json
 import logging
-from typing import List, Optional, Tuple
-from sqlalchemy import func, select, or_, and_
+from sqlalchemy import select, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.exceptions import AppException
-from app.core.redis_client import RedisService
-from app.modules.games.models import Game, GameFile
-from app.modules.games.schemas import GameDetailOut, GameFileOut, GameOut
-from app.modules.users.models import User
+import redis.asyncio as aioredis
 
-logger = logging.getLogger("drgame.games")
+from app.core.exceptions import NotFoundError, BadRequestError
+from app.modules.games.models import Game, Genre, GameInteraction, GameDownloadLink
+from app.modules.games.schemas import (
+    GameCardOut,
+    GameDetailOut,
+    PaginatedGamesResponse,
+    InteractionResponse,
+    GameDownloadLinkOut,
+)
 
-CACHE_TTL = 300  # 5 minutes
+logger = logging.getLogger("drgame.games_service")
 
+class GamesService:
 
-class GameService:
     @staticmethod
-    async def get_games(
+    def compute_catalog_cache_key(filters: dict) -> str:
+        """Create deterministic MD5 hash of query parameters for Redis key."""
+        serialized = json.dumps(filters, sort_keys=True)
+        query_hash = hashlib.md5(serialized.encode("utf-8")).hexdigest()
+        return f"drgame:games:catalog:{query_hash}"
+
+    @staticmethod
+    async def get_catalog(
         db: AsyncSession,
-        platforms: Optional[List[str]] = None,
-        genres: Optional[List[str]] = None,
-        mode: Optional[str] = None,
-        status: Optional[str] = None,
-        min_score: Optional[float] = None,
-        search: Optional[str] = None,
-        sort: str = "popular",
+        redis: aioredis.Redis,
+        search: str | None = None,
+        genre: str | None = None,
+        platform: str | None = None,
+        max_size_gb: float | None = None,
+        min_rating: float | None = None,
+        is_two_player: bool | None = None,
+        has_vr: bool | None = None,
         page: int = 1,
-        limit: int = 24,
-    ) -> Tuple[List[Game], int]:
-        query = select(Game)
-        count_query = select(func.count(Game.id))
+        page_size: int = 20,
+    ) -> PaginatedGamesResponse:
+        """Fetch filtered games with Redis aggressive caching (TTL 1800s)."""
+        cache_params = {
+            "search": search,
+            "genre": genre,
+            "platform": platform,
+            "max_size_gb": max_size_gb,
+            "min_rating": min_rating,
+            "is_two_player": is_two_player,
+            "has_vr": has_vr,
+            "page": page,
+            "page_size": page_size,
+        }
+        cache_key = GamesService.compute_catalog_cache_key(cache_params)
 
-        filters = []
+        # 1. Try Redis cache
+        try:
+            cached_data = await redis.get(cache_key)
+            if cached_data:
+                parsed = json.loads(cached_data)
+                return PaginatedGamesResponse(**parsed)
+        except Exception as e:
+            logger.warning(f"Redis cache read error: {e}")
 
-        if search and search.strip():
-            s = f"%{search.strip()}%"
-            filters.append(
-                or_(
-                    Game.title.ilike(s),
-                    Game.studio.ilike(s),
-                    Game.genre_fa.ilike(s),
-                    Game.genre_en.ilike(s),
+        # 2. Build SQLAlchemy query
+        conditions = [Game.is_active == True]
+
+        if search:
+            clean_search = f"%{search.strip()}%"
+            conditions.append(or_(Game.title_en.ilike(clean_search), Game.title_fa.ilike(clean_search)))
+
+        if max_size_gb is not None:
+            conditions.append(Game.download_size_gb <= max_size_gb)
+
+        if min_rating is not None:
+            conditions.append(Game.rating >= min_rating)
+
+        if is_two_player is True:
+            conditions.append(Game.is_two_player == True)
+
+        if has_vr is True:
+            conditions.append(Game.has_vr == True)
+
+        # Count total items
+        count_stmt = select(func.count(Game.id)).where(and_(*conditions))
+        total = await db.scalar(count_stmt) or 0
+
+        # Fetch page items
+        offset = (page - 1) * page_size
+        stmt = (
+            select(Game)
+            .where(and_(*conditions))
+            .order_by(Game.rating.desc(), Game.id.desc())
+            .offset(offset)
+            .limit(page_size)
+        )
+        result = await db.execute(stmt)
+        games = result.scalars().all()
+
+        # In-memory post-filter for JSON list fields if necessary
+        filtered_games = []
+        for g in games:
+            match_genre = True
+            if genre:
+                genre_slug = genre.lower()
+                genres_lower = [str(x).lower() for x in (g.genres or [])]
+                if not any(genre_slug in item for item in genres_lower):
+                    match_genre = False
+
+            match_plat = True
+            if platform:
+                plat_upper = platform.upper()
+                platforms_upper = [str(x).upper() for x in (g.platforms or [])]
+                if plat_upper not in platforms_upper:
+                    match_plat = False
+
+            if match_genre and match_plat:
+                filtered_games.append(GameCardOut.model_validate(g))
+
+        total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+
+        response = PaginatedGamesResponse(
+            items=filtered_games,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages
+        )
+
+        # 3. Cache response in Redis
+        try:
+            await redis.setex(cache_key, 1800, response.model_dump_json())
+        except Exception as e:
+            logger.warning(f"Redis cache write error: {e}")
+
+        return response
+
+    @staticmethod
+    async def get_game_details(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        game_id: int,
+        user_id: int | None = None
+    ) -> GameDetailOut:
+        """Fetch full game details, download links, and current user's interaction."""
+        game = await db.scalar(select(Game).where(Game.id == game_id, Game.is_active == True))
+        if not game:
+            raise NotFoundError("بازی مورد نظر یافت نشد.")
+
+        # Download links
+        links_stmt = select(GameDownloadLink).where(GameDownloadLink.game_id == game.id, GameDownloadLink.is_active == True).order_by(GameDownloadLink.part_number.asc())
+        links_res = await db.execute(links_stmt)
+        download_links = [GameDownloadLinkOut.model_validate(l) for l in links_res.scalars().all()]
+
+        # User interaction
+        user_interaction = None
+        in_wishlist = False
+        if user_id:
+            interactions = (
+                await db.execute(
+                    select(GameInteraction).where(
+                        GameInteraction.game_id == game_id,
+                        GameInteraction.user_id == user_id
+                    )
                 )
+            ).scalars().all()
+            for inter in interactions:
+                if inter.interaction_type in ("like", "dislike"):
+                    user_interaction = inter.interaction_type
+                elif inter.interaction_type == "wishlist":
+                    in_wishlist = True
+
+        out = GameDetailOut.model_validate(game)
+        out.download_links = download_links
+        out.user_interaction = user_interaction
+        out.in_wishlist = in_wishlist
+        return out
+
+    @staticmethod
+    async def toggle_like(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        game_id: int,
+        user_id: int
+    ) -> InteractionResponse:
+        """Toggle like vote. Authenticated users only. Removes like if re-clicked, replaces dislike."""
+        game = await db.scalar(select(Game).where(Game.id == game_id))
+        if not game:
+            raise NotFoundError("بازی یافت نشد.")
+
+        stmt = select(GameInteraction).where(
+            GameInteraction.game_id == game_id,
+            GameInteraction.user_id == user_id,
+            GameInteraction.interaction_type.in_(["like", "dislike"])
+        )
+        existing = await db.scalar(stmt)
+
+        if existing:
+            if existing.interaction_type == "like":
+                # User already liked: un-like (toggle off)
+                await db.delete(existing)
+                game.likes_count = max(0, game.likes_count - 1)
+                current_vote = None
+            else:
+                # Was dislike, switch to like
+                existing.interaction_type = "like"
+                game.dislikes_count = max(0, game.dislikes_count - 1)
+                game.likes_count += 1
+                current_vote = "like"
+        else:
+            # New like
+            new_inter = GameInteraction(game_id=game_id, user_id=user_id, interaction_type="like")
+            db.add(new_inter)
+            game.likes_count += 1
+            current_vote = "like"
+
+        await db.commit()
+        await db.refresh(game)
+
+        # Invalidate cache
+        await redis.delete(f"drgame:game:{game_id}")
+        keys = await redis.keys("drgame:games:catalog:*")
+        if keys:
+            await redis.delete(*keys)
+
+        # Check wishlist status
+        wishlist_record = await db.scalar(
+            select(GameInteraction).where(
+                GameInteraction.game_id == game_id,
+                GameInteraction.user_id == user_id,
+                GameInteraction.interaction_type == "wishlist"
+            )
+        )
+
+        return InteractionResponse(
+            game_id=game_id,
+            likes_count=game.likes_count,
+            dislikes_count=game.dislikes_count,
+            wishlist_count=game.wishlist_count,
+            user_interaction=current_vote,
+            in_wishlist=bool(wishlist_record)
+        )
+
+    @staticmethod
+    async def toggle_dislike(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        game_id: int,
+        user_id: int
+    ) -> InteractionResponse:
+        """Toggle dislike vote. Authenticated users only. Removes dislike if re-clicked, replaces like."""
+        game = await db.scalar(select(Game).where(Game.id == game_id))
+        if not game:
+            raise NotFoundError("بازی یافت نشد.")
+
+        stmt = select(GameInteraction).where(
+            GameInteraction.game_id == game_id,
+            GameInteraction.user_id == user_id,
+            GameInteraction.interaction_type.in_(["like", "dislike"])
+        )
+        existing = await db.scalar(stmt)
+
+        if existing:
+            if existing.interaction_type == "dislike":
+                # Toggle off dislike
+                await db.delete(existing)
+                game.dislikes_count = max(0, game.dislikes_count - 1)
+                current_vote = None
+            else:
+                # Switch from like to dislike
+                existing.interaction_type = "dislike"
+                game.likes_count = max(0, game.likes_count - 1)
+                game.dislikes_count += 1
+                current_vote = "dislike"
+        else:
+            new_inter = GameInteraction(game_id=game_id, user_id=user_id, interaction_type="dislike")
+            db.add(new_inter)
+            game.dislikes_count += 1
+            current_vote = "dislike"
+
+        await db.commit()
+        await db.refresh(game)
+
+        # Invalidate cache
+        await redis.delete(f"drgame:game:{game_id}")
+        keys = await redis.keys("drgame:games:catalog:*")
+        if keys:
+            await redis.delete(*keys)
+
+        wishlist_record = await db.scalar(
+            select(GameInteraction).where(
+                GameInteraction.game_id == game_id,
+                GameInteraction.user_id == user_id,
+                GameInteraction.interaction_type == "wishlist"
+            )
+        )
+
+        return InteractionResponse(
+            game_id=game_id,
+            likes_count=game.likes_count,
+            dislikes_count=game.dislikes_count,
+            wishlist_count=game.wishlist_count,
+            user_interaction=current_vote,
+            in_wishlist=bool(wishlist_record)
+        )
+
+    @staticmethod
+    async def toggle_wishlist(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        game_id: int,
+        user_id: int
+    ) -> InteractionResponse:
+        """Toggle game in user wishlist."""
+        game = await db.scalar(select(Game).where(Game.id == game_id))
+        if not game:
+            raise NotFoundError("بازی یافت نشد.")
+
+        stmt = select(GameInteraction).where(
+            GameInteraction.game_id == game_id,
+            GameInteraction.user_id == user_id,
+            GameInteraction.interaction_type == "wishlist"
+        )
+        existing = await db.scalar(stmt)
+
+        if existing:
+            await db.delete(existing)
+            game.wishlist_count = max(0, game.wishlist_count - 1)
+            in_wishlist = False
+        else:
+            new_inter = GameInteraction(game_id=game_id, user_id=user_id, interaction_type="wishlist")
+            db.add(new_inter)
+            game.wishlist_count += 1
+            in_wishlist = True
+
+        await db.commit()
+        await db.refresh(game)
+
+        # Invalidate cache
+        await redis.delete(f"drgame:game:{game_id}")
+
+        # Check vote
+        vote_record = await db.scalar(
+            select(GameInteraction).where(
+                GameInteraction.game_id == game_id,
+                GameInteraction.user_id == user_id,
+                GameInteraction.interaction_type.in_(["like", "dislike"])
+            )
+        )
+
+        return InteractionResponse(
+            game_id=game_id,
+            likes_count=game.likes_count,
+            dislikes_count=game.dislikes_count,
+            wishlist_count=game.wishlist_count,
+            user_interaction=vote_record.interaction_type if vote_record else None,
+            in_wishlist=in_wishlist
+        )
+
+    @staticmethod
+    async def list_game_download_files(db: AsyncSession, game_id: int) -> list:
+        """Fetch all active download files (data, cheat, dlc, subtitle, dubbing) for a game."""
+        from app.modules.games.download_models import GameDownloadFile
+        stmt = (
+            select(GameDownloadFile)
+            .where(GameDownloadFile.game_id == game_id, GameDownloadFile.is_active == True)
+            .order_by(GameDownloadFile.id.asc())
+        )
+        return list((await db.execute(stmt)).scalars().all())
+
+    @staticmethod
+    async def generate_download_file_link(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        user_id: int,
+        game_id: int,
+        file_id: int,
+    ) -> dict:
+        """
+        Generate a secure one-time download link for a 5-part game file.
+        Enforces allowed subscription tier, deducts file_size_gb from UserQuota instantly,
+        and logs the transaction in UserDownloadHistory.
+        Strict mandate: NO free re-download capability.
+        """
+        from datetime import datetime, timezone
+        from app.core.config import settings
+        from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+        from app.modules.games.download_models import GameDownloadFile, UserDownloadHistory
+        from app.modules.subscriptions.models import UserSubscription
+        from app.modules.quota.models import UserQuota, QuotaConsumptionLog
+
+        # 1. Fetch file
+        stmt = select(GameDownloadFile).where(
+            GameDownloadFile.id == file_id,
+            GameDownloadFile.game_id == game_id,
+            GameDownloadFile.is_active == True,
+        )
+        file = (await db.execute(stmt)).scalar_one_or_none()
+        if not file:
+            raise NotFoundException("فایل دانلودی مورد نظر یافت نشد یا غیرفعال است.")
+
+        # 2. Check user's active subscription tier
+        now = datetime.now(timezone.utc)
+        sub_stmt = (
+            select(UserSubscription)
+            .where(
+                UserSubscription.user_id == user_id,
+                UserSubscription.status == "active",
+                UserSubscription.end_date > now,
+            )
+            .order_by(UserSubscription.end_date.desc())
+            .limit(1)
+        )
+        active_sub = (await db.execute(sub_stmt)).scalar_one_or_none()
+        user_tier = active_sub.tier_code if active_sub else "free"
+
+        # Check allowed_tiers
+        allowed_tiers = file.allowed_tiers or ["gold", "silver", "bronze"]
+        if user_tier not in allowed_tiers:
+            raise ForbiddenException(
+                f"سطح اشتراک فعلی شما ({user_tier}) مجاز به دریافت این فایل ({file.file_type}) نمی‌باشد."
             )
 
-        if min_score is not None and min_score > 0:
-            filters.append(Game.metacritic >= int(min_score * 10))
+        # 3. Check and deduct user quota
+        quota_stmt = select(UserQuota).where(UserQuota.user_id == user_id)
+        quota = (await db.execute(quota_stmt)).scalar_one_or_none()
+        if not quota:
+            quota = UserQuota(
+                user_id=user_id,
+                total_quota_gb=0.0,
+                used_quota_gb=0.0,
+                remaining_quota_gb=0.0,
+            )
+            db.add(quota)
+            await db.commit()
+            await db.refresh(quota)
 
-        if mode and mode.strip():
-            filters.append(Game.mode == mode.strip())
+        if quota.remaining_quota_gb < file.file_size_gb:
+            raise BadRequestException(
+                f"حجم سهمیه دانلودی باقیمانده شما ({quota.remaining_quota_gb:.2f} گیگابایت) برای دریافت این فایل ({file.file_size_gb:.2f} گیگابایت) کافی نیست."
+            )
 
-        if status and status.strip():
-            filters.append(Game.status == status.strip())
+        quota.used_quota_gb += file.file_size_gb
+        quota.remaining_quota_gb = max(0.0, quota.total_quota_gb - quota.used_quota_gb)
 
-        if filters:
-            query = query.where(and_(*filters))
-            count_query = count_query.where(and_(*filters))
-
-        # Count total
-        count_res = await db.execute(count_query)
-        total = count_res.scalar() or 0
-
-        # Sort
-        if sort == "newest":
-            query = query.order_by(Game.year.desc(), Game.id.desc())
-        elif sort == "rating":
-            query = query.order_by(Game.metacritic.desc())
-        elif sort == "size":
-            query = query.order_by(Game.size_gb.asc())
-        else:
-            query = query.order_by(Game.is_featured.desc(), Game.id.desc())
-
-        # Pagination
-        offset = (page - 1) * limit
-        query = query.offset(offset).limit(limit)
-
-        result = await db.execute(query)
-        items = list(result.scalars().all())
-
-        # Post-filter platforms and genres if stored in JSON
-        if platforms:
-            items = [item for item in items if any(p in (item.platforms or []) for p in platforms)]
-        if genres:
-            items = [item for item in items if item.genre_fa in genres or item.genre_en in genres]
-
-        return items, total
-
-    @staticmethod
-    async def get_game_by_slug(db: AsyncSession, slug: str) -> Optional[Tuple[Game, List[GameFile]]]:
-        res = await db.execute(select(Game).where(Game.slug == slug))
-        game = res.scalar_one_or_none()
-        if not game:
-            return None
-
-        files_res = await db.execute(
-            select(GameFile).where(GameFile.game_id == game.id, GameFile.is_active == True).order_by(GameFile.part_number.asc())
+        # 4. Log QuotaConsumptionLog
+        bytes_transferred = int(file.file_size_gb * (1024**3))
+        log = QuotaConsumptionLog(
+            user_id=user_id,
+            game_id=game_id,
+            bytes_downloaded=bytes_transferred,
+            gb_deducted=file.file_size_gb,
+            download_server_id="drgame-cdn-main",
         )
-        files = list(files_res.scalars().all())
-        return game, files
+        db.add(log)
 
-    @staticmethod
-    async def generate_download_token(
-        db: AsyncSession,
-        user: Optional[User],
-        game_slug: str,
-        part_id: int,
-    ) -> dict:
-        if not user:
-            raise AppException(status_code=401, code="AUTH_REQUIRED", message="برای دانلود فایل باید وارد حساب کاربری شوید.")
+        # 5. Log UserDownloadHistory (strictly NO re-download)
+        history = UserDownloadHistory(
+            user_id=user_id,
+            game_id=game_id,
+            file_id=file.id,
+            file_type=file.file_type,
+            file_title=file.title,
+            file_size_gb=file.file_size_gb,
+            downloaded_at=now,
+        )
+        db.add(history)
 
-        res = await db.execute(select(GameFile).where(GameFile.id == part_id))
-        game_file = res.scalar_one_or_none()
-        if not game_file:
-            raise AppException(status_code=404, code="FILE_NOT_FOUND", message="پارت دانلود درخواستی یافت نشد.")
+        # 6. Generate signed download link (expires in 1 hour)
+        timestamp = int(now.timestamp())
+        sig = hashlib.sha256(
+            f"{user_id}:{file.id}:{settings.WEBHOOK_SECRET_KEY}:{timestamp}".encode("utf-8")
+        ).hexdigest()[:24]
+        delimiter = "&" if "?" in file.download_url else "?"
+        signed_url = f"{file.download_url}{delimiter}token={sig}&uid={user_id}&exp={timestamp + 3600}"
 
-        # Check quota
-        required_bytes = int(game_file.size_gb * 1024 * 1024 * 1024)
-        
-        # In a real environment, query user subscription quota
-        # For seamless UX, generate direct edge download token
-        token = f"dl_token_{user.id}_{game_file.id}_{int(game_file.size_gb)}"
-        download_url = f"https://cdn.drgame.ir/dl/{game_slug}/{game_file.part_name}?token={token}"
+        await db.commit()
+        await db.refresh(quota)
+
+        # Bust Redis quota cache
+        await redis.delete(f"drgame:user:{user_id}:quota")
 
         return {
-            "download_url": download_url,
-            "part_id": game_file.id,
-            "part_name": game_file.part_name,
-            "size_gb": game_file.size_gb,
-            "expires_in_seconds": 86400,
-            "remaining_quota_gb": 120.0,
+            "status": "success",
+            "file_id": file.id,
+            "game_id": file.game_id,
+            "file_type": file.file_type,
+            "file_title": file.title,
+            "file_size_gb": file.file_size_gb,
+            "download_url": signed_url,
+            "remaining_quota_gb": round(quota.remaining_quota_gb, 2),
+            "message": "لینک دانلود با موفقیت صادر شد و حجم فایل از سهمیه کسر گردید.",
         }
 
     @staticmethod
-    async def seed_defaults_if_empty(db: AsyncSession) -> None:
-        count = await db.execute(select(func.count(Game.id)))
-        if (count.scalar() or 0) > 0:
-            return
+    async def get_user_download_history(
+        db: AsyncSession,
+        user_id: int,
+        limit: int = 50,
+    ) -> list[dict]:
+        """Fetch user download history for dashboard."""
+        from app.modules.games.download_models import UserDownloadHistory
+        from app.modules.games.models import Game
 
-        sample_games = [
-            {
-                "slug": "god-of-war-ragnarok",
-                "title": "God of War Ragnarök",
-                "studio": "Santa Monica Studio",
-                "genre_fa": "اکشن ماجراجویی",
-                "genre_en": "Action-Adventure",
-                "platforms": ["PS5", "PS4"],
-                "size_gb": 84.5,
-                "metacritic": 94,
-                "year": 2022,
-                "image": "https://media.rawg.io/media/games/4be/4be6a6ad0364751a96229c56bf69be59.jpg",
-                "description": "سفر حماسی کرایتوس و آترئوس در سراسر نه قلمرو با گرافیک 4K و قابلیت‌های فیدبک هپتیک DualSense.",
-                "is_featured": True,
-            },
-            {
-                "slug": "spider-man-2",
-                "title": "Marvel's Spider-Man 2",
-                "studio": "Insomniac Games",
-                "genre_fa": "اکشن",
-                "genre_en": "Action",
-                "platforms": ["PS5"],
-                "size_gb": 89.2,
-                "metacritic": 90,
-                "year": 2023,
-                "image": "https://media.rawg.io/media/games/b7d/b7d3f1715fa8381a4e780173a197a615.jpg",
-                "description": "تجربه پرواز در شهر نیویورک با دو مرد عنکبوتی، پیتر پارکر و مایلز مورالز.",
-                "is_featured": True,
-            },
-            {
-                "slug": "red-dead-redemption-2",
-                "title": "Red Dead Redemption 2",
-                "studio": "Rockstar Games",
-                "genre_fa": "جهان باز",
-                "genre_en": "Open World",
-                "platforms": ["PS4"],
-                "size_gb": 105.0,
-                "metacritic": 97,
-                "year": 2018,
-                "image": "https://media.rawg.io/media/games/511/5118aff5091cb3efec399c808f8c598f.jpg",
-                "description": "شاهکار حماسی وسترن راکستار در سال ۱۸۹۹ آمریکا.",
-                "is_featured": True,
-            },
-            {
-                "slug": "the-last-of-us-part-1",
-                "title": "The Last of Us Part I",
-                "studio": "Naughty Dog",
-                "genre_fa": "ماجراجویی",
-                "genre_en": "Adventure",
-                "platforms": ["PS5"],
-                "size_gb": 68.0,
-                "metacritic": 89,
-                "year": 2022,
-                "image": "https://media.rawg.io/media/games/709/709bf81f3f89fa709f6374b341d59b83.jpg",
-                "description": "بازسازی کامل نسخه نخست با موتور نسل نهمی پلی‌استیشن ۵.",
-                "is_featured": False,
-            },
-        ]
+        stmt = (
+            select(UserDownloadHistory, Game.title_fa, Game.title_en, Game.cover_image_url)
+            .outerjoin(Game, UserDownloadHistory.game_id == Game.id)
+            .where(UserDownloadHistory.user_id == user_id)
+            .order_by(UserDownloadHistory.downloaded_at.desc())
+            .limit(limit)
+        )
+        results = (await db.execute(stmt)).all()
 
-        for g in sample_games:
-            game = Game(**g)
-            db.add(game)
-            await db.flush()
+        history_items = []
+        for hist, title_fa, title_en, cover_url in results:
+            history_items.append({
+                "id": hist.id,
+                "user_id": hist.user_id,
+                "game_id": hist.game_id,
+                "game_title": title_fa or hist.file_title,
+                "game_title_en": title_en or hist.file_title,
+                "cover_url": cover_url,
+                "file_id": hist.file_id,
+                "file_type": hist.file_type,
+                "part_name": hist.file_title,
+                "file_title": hist.file_title,
+                "file_size_gb": hist.file_size_gb,
+                "downloaded_at": hist.downloaded_at,
+                "status": "completed",
+            })
+        return history_items
 
-            # Add sample parts for download
-            part1 = GameFile(
-                game_id=game.id,
-                part_name="پارت ۱ (دیتای اصلی FPKG)",
-                part_number=1,
-                size_gb=round(game.size_gb / 2, 1),
-                sha256="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                download_url=f"https://cdn.drgame.ir/files/{game.slug}-part1.pkg",
-            )
-            part2 = GameFile(
-                game_id=game.id,
-                part_name="پارت ۲ (آپدیت و پچ فارسی)",
-                part_number=2,
-                size_gb=round(game.size_gb / 2, 1),
-                sha256="a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0",
-                download_url=f"https://cdn.drgame.ir/files/{game.slug}-part2.pkg",
-            )
-            db.add(part1)
-            db.add(part2)
+    @staticmethod
+    async def admin_create_download_file(
+        db: AsyncSession,
+        game_id: int,
+        data: dict,
+    ):
+        """Admin endpoint to attach a 5-part file to a game."""
+        from app.modules.games.download_models import GameDownloadFile
 
+        game = await db.scalar(select(Game).where(Game.id == game_id))
+        if not game:
+            raise NotFoundError("بازی یافت نشد.")
+
+        file = GameDownloadFile(
+            game_id=game_id,
+            file_type=data["file_type"],
+            title=data["title"],
+            file_size_gb=data["file_size_gb"],
+            download_url=data["download_url"],
+            allowed_tiers=data.get("allowed_tiers", ["gold", "silver", "bronze"]),
+            version=data.get("version"),
+            is_active=data.get("is_active", True),
+        )
+        db.add(file)
         await db.commit()
+        await db.refresh(file)
+        return file
+
+    @staticmethod
+    async def admin_delete_download_file(db: AsyncSession, file_id: int) -> dict:
+        """Admin endpoint to remove a download file."""
+        from app.modules.games.download_models import GameDownloadFile
+
+        file = (await db.execute(select(GameDownloadFile).where(GameDownloadFile.id == file_id))).scalar_one_or_none()
+        if not file:
+            raise NotFoundError("فایل یافت نشد.")
+        await db.delete(file)
+        await db.commit()
+        return {"status": "deleted", "id": file_id}
+

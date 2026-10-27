@@ -1,0 +1,1 @@
+"""DrGame modular monolith modules."""

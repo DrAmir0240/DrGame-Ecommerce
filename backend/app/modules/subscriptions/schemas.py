@@ -1,38 +1,52 @@
-from datetime import datetime
-from decimal import Decimal
+"""Pydantic V2 schemas for subscription tiers, checkout and discount codes."""
 from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
-
+from pydantic import BaseModel, ConfigDict, Field
 
 class SubscriptionTierOut(BaseModel):
     id: int
-    name: str
-    slug: str
-    description: Optional[str] = None
-    price: Decimal
-    duration_days: int
-    quota_bytes: int
-    quota_gb: float
-    max_download_speed_mbps: int
-    allowed_platforms: List[str]
-    features: List[str]
-    limitations: List[str]
-    is_active: bool
+    code: str
+    name_fa: str
+    name_en: str
+    price_toman: int
+    price_usd: float
+    quota_gb: int
+    speed_limit_mbps: int
+    allowed_platforms: List[str] = []
+    allow_dlc: bool
+    allow_subtitles: bool
+    allow_themes: bool
+    durations: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
 
+class DiscountValidateRequest(BaseModel):
+    code: str
+    original_price: int
 
-class UserSubscriptionOut(BaseModel):
-    id: int
-    user_id: int
-    tier_id: int
-    tier_name: Optional[str] = None
-    starts_at: datetime
-    expires_at: datetime
-    total_quota_bytes: int
-    used_quota_bytes: int
-    remaining_quota_bytes: int
-    used_percentage: float
-    is_active: bool
+class DiscountValidateResponse(BaseModel):
+    valid: bool
+    code: str
+    discount_amount: int
+    final_price: int
 
-    model_config = ConfigDict(from_attributes=True)
+class CheckoutRequest(BaseModel):
+    tier_code: str
+    duration_months: int = Field(default=1, description="مدت زمان اشتراک (۱، ۳ یا ۶ ماه)")
+    discount_code: Optional[str] = None
+    payment_method: str = "simulation"
+
+class CheckoutResponse(BaseModel):
+    status: str
+    transaction_ref: str
+    tier_code: str
+    tier_name: str
+    duration_months: int = 1
+    end_date: str
+    quota: dict
+
+
+class MySubscriptionStatus(BaseModel):
+    has_active_subscription: bool
+    tier: Optional[SubscriptionTierOut] = None
+    end_date: Optional[str] = None
+    quota: dict

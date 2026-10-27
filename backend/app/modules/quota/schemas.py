@@ -1,18 +1,23 @@
-from typing import Optional
-from pydantic import BaseModel
+"""Pydantic V2 schemas for user quota and download webhook callbacks."""
+from pydantic import BaseModel, ConfigDict, Field
 
+class UserQuotaOut(BaseModel):
+    user_id: int
+    total_quota_gb: float
+    used_quota_gb: float
+    remaining_quota_gb: float
+    percent_used: float
 
-class QuotaStatusOut(BaseModel):
-    user_id: Optional[int] = None
-    has_active_subscription: bool = False
-    tier_name: Optional[str] = "No Active Plan"
-    tier_slug: Optional[str] = "none"
-    total_quota_bytes: int = 0
-    used_quota_bytes: int = 0
-    remaining_quota_bytes: int = 0
-    total_quota_gb: float = 0.0
-    used_quota_gb: float = 0.0
-    remaining_quota_gb: float = 0.0
-    used_percentage: float = 0.0
-    formatted_pill_text: str = "GB 0"
-    is_exhausted: bool = False
+    model_config = ConfigDict(from_attributes=True)
+
+class QuotaCallbackRequest(BaseModel):
+    user_id: int = Field(..., description="ID of the downloading user")
+    game_id: int = Field(..., description="ID of the game downloaded")
+    bytes_downloaded: int = Field(..., description="Total actual bytes transferred")
+    download_server_id: str = Field(..., description="Identifier of the download node / CDN")
+    signature: str = Field(..., description="HMAC-SHA256 signature calculated with WEBHOOK_SECRET_KEY")
+
+class QuotaCallbackResponse(BaseModel):
+    status: str
+    gb_deducted: float
+    remaining_quota_gb: float

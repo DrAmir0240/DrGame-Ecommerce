@@ -2,11 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["media.rawg.io", "localhost"],
-    unoptimized: true,
-  },
-  webpack: (config) => {
-    return config;
+    domains: ["media.rawg.io", "images.unsplash.com", "via.placeholder.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
 };
 

@@ -1,15 +1,9 @@
 # =============================================================================
-# docker-compose.dev.yml  —  DrGame E-Commerce Platform | Development Environment
-# =============================================================================
-# Usage:
-#   docker compose -f docker-compose.dev.yml up --build -d
-#   docker compose -f docker-compose.dev.yml logs -f
+# docker-compose.dev.yml — DrGame E-Commerce Platform | Development
 # =============================================================================
 
 networks:
-  drgame-internal:
-    driver: bridge
-  drgame-app:
+  drgame_network:
     driver: bridge
 
 volumes:
@@ -18,10 +12,10 @@ volumes:
 
 services:
 
-  # ── PostgreSQL Database ────────────────────────────────────────────────────
+  # ── PostgreSQL 16 Database ──────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
-    container_name: drgame-db-dev
+    container_name: drgame-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-drgame_db}
       POSTGRES_USER: ${POSTGRES_USER:-drgame_user}
@@ -37,13 +31,13 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - drgame-internal
+      - drgame_network
     restart: unless-stopped
 
-  # ── Redis Cache ────────────────────────────────────────────────────────────
+  # ── Redis 7 In-Memory Cache ────────────────────────────────────────────────
   cache:
     image: redis:7-alpine
-    container_name: drgame-cache-dev
+    container_name: drgame-cache
     ports:
       - "${REDIS_HOST_PORT:-8021}:6379"
     volumes:
@@ -55,7 +49,7 @@ services:
       retries: 5
       start_period: 3s
     networks:
-      - drgame-internal
+      - drgame_network
     restart: unless-stopped
 
   # ── FastAPI Backend ────────────────────────────────────────────────────────
@@ -64,7 +58,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: dev
-    container_name: drgame-backend-dev
+    container_name: drgame-backend
     volumes:
       - ./backend:/app
     environment:
@@ -76,7 +70,9 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-drgame_super_secret_jwt_key_development_only_2026_cosmic_purple}
       - JWT_ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
-      - RAWG_API_KEY=${RAWG_API_KEY:-mock_key}
+      - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
+      - RAWG_BASE_URL=https://api.rawg.io/api
+      - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:-drgame_webhook_hmac_secret_key_2026}
     ports:
       - "${BACKEND_HOST_PORT:-8000}:8000"
     depends_on:
@@ -85,8 +81,7 @@ services:
       cache:
         condition: service_healthy
     networks:
-      - drgame-internal
-      - drgame-app
+      - drgame_network
     restart: unless-stopped
 
   # ── Next.js 14 Frontend ────────────────────────────────────────────────────
@@ -95,18 +90,18 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: dev
-    container_name: drgame-frontend-dev
+    container_name: drgame-frontend
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
     ports:
       - "${FRONTEND_HOST_PORT:-3000}:3000"
     depends_on:
       - backend
     networks:
-      - drgame-app
+      - drgame_network
     restart: unless-stopped

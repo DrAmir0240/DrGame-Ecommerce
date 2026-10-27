@@ -1,56 +1,58 @@
-import json
-from typing import Any, Optional
 import redis.asyncio as aioredis
+from typing import Any
+import json
 from app.core.config import settings
 
-redis_pool = aioredis.ConnectionPool.from_url(
-    settings.REDIS_URL,
-    decode_responses=True,
-    max_connections=20,
-)
+class RedisManager:
+    def __init__(self):
+        self.redis: aioredis.Redis | None = None
 
-redis_client = aioredis.Redis(connection_pool=redis_pool)
+    async def connect(self) -> aioredis.Redis:
+        if self.redis is None:
+            self.redis = aioredis.from_url(
+                settings.REDIS_CONNECTION_URL,
+                decode_responses=True,
+                socket_timeout=5.0
+            )
+        return self.redis
 
+    async def close(self):
+        if self.redis:
+            await self.redis.aclose()
+            self.redis = None
 
-class RedisService:
-    @staticmethod
-    async def get(key: str) -> Optional[Any]:
-        try:
-            val = await redis_client.get(key)
-            if val is not None:
-                try:
-                    return json.loads(val)
-                except (json.JSONDecodeError, TypeError):
-                    return val
-            return None
-        except Exception:
-            return None
+    async def ping(self) -> bool:
+        client = await self.connect()
+        res = await client.ping()
+        return bool(res)
 
-    @staticmethod
-    async def set(key: str, value: Any, ttl: Optional[int] = None) -> bool:
-        try:
-            val = json.dumps(value) if isinstance(value, (dict, list)) else str(value)
-            await redis_client.set(key, val, ex=ttl)
-            return True
-        except Exception:
-            return False
+    async def get_json(self, key: str) -> Any | None:
+        client = await self.connect()
+        data = await client.get(key)
+        if data:
+            try:
+                return json.loads(data)
+            except Exception:
+                return data
+        return None
 
-    @staticmethod
-    async def delete(key: str) -> bool:
-        try:
-            await redis_client.delete(key)
-            return True
-        except Exception:
-            return False
+    async def set_json(self, key: str, value: Any, ex: int | None = None):
+        client = await self.connect()
+        serialized = json.dumps(value, ensure_ascii=False)
+        await client.set(key, serialized, ex=ex)
 
-    @staticmethod
-    async def ping() -> bool:
-        try:
-            res = await redis_client.ping()
-            return bool(res)
-        except Exception:
-            return False
+    async def delete(self, *keys: str):
+        if not keys:
+            return
+        client = await self.connect()
+        await client.delete(*keys)
 
+    async def delete_pattern(self, pattern: str):
+        client = await self.connect()
+        async for key in client.scan_iter(match=pattern):
+            await client.delete(key)
+
+redis_manager = RedisManager()
 
 async def get_redis() -> aioredis.Redis:
-    return redis_client
+    return await redis_manager.connect()

@@ -1,5 +1,5 @@
 # =============================================================================
-# Stage 1: Base image with Python dependencies
+# Backend Dockerfile — FastAPI on Python 3.12-slim
 # =============================================================================
 FROM python:3.12-slim AS base
 
@@ -18,9 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# =============================================================================
-# Stage 2: Development target (with auto-reload)
-# =============================================================================
+# Development target (with auto-reload)
 FROM base AS dev
 
 COPY . .
@@ -29,9 +27,7 @@ EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-# =============================================================================
-# Stage 3: Production target
-# =============================================================================
+# Production target
 FROM base AS prod
 
 RUN addgroup --system --gid 1001 appgroup && \

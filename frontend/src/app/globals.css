@@ -1,280 +1,107 @@
-@import url("/fonts/fonts.css");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-oled: #070709;
+  --card-dark: #101116;
+  --cosmic-purple: #7C3AED;
+  --nebula-violet: #A855F7;
+  --galaxy-indigo: #4C1D95;
+}
 
-@layer base {
-  :root {
-    /* Design Tokens aligned with GameDr-Website-Source (#1a1b1f background) */
-    --bg-primary: #1a1b1f;
-    --bg-secondary: #232529;
-    --bg-tertiary: #2d3036;
-    --bg-card: #232529;
-    --bg-card-hover: #2d3036;
-    --bg-input: #232529;
+* {
+  font-family: 'Roboto', 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
-    /* Replaced orange overrides with authentic Cosmic Violet & Neon Accents */
-    --accent-orange: #7c3aed;
-    --accent-orange-light: #a855f7;
-    --accent-orange-glow: rgba(124, 58, 237, 0.35);
-    --accent-purple: #7c3aed;
-    --accent-purple-light: #a855f7;
-    --accent-purple-glow: rgba(124, 58, 237, 0.35);
-    --accent-blue: #0070d1;
-    --accent-green: #10b981;
-    --accent-yellow: #eab308;
-    --accent-red: #ef4444;
-    --accent-cyan: #06b6d4;
+body {
+  background-color: var(--bg-oled);
+  color: #FFFFFF;
+  font-family: 'Roboto', 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
 
-    --text-primary: #ffffff;
-    --text-secondary: #9496a1;
-    --text-muted: #5a5d6a;
+/* Ensure no monospace fonts are used anywhere */
+code, kbd, samp, pre, .font-mono {
+  font-family: 'Roboto', 'Vazirmatn', sans-serif !important;
+}
 
-    --border-color: rgba(255, 255, 255, 0.07);
-    --border-light: rgba(255, 255, 255, 0.14);
+.font-vazir {
+  font-family: 'Vazirmatn', sans-serif !important;
+}
 
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
-    --radius-2xl: 24px;
+.font-roboto {
+  font-family: 'Roboto', sans-serif !important;
+}
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-orange: 0 0 20px rgba(124, 58, 237, 0.45);
-    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.45);
-    --shadow-focus: 0 0 0 2px #a855f7, 0 0 28px rgba(168, 85, 247, 0.55);
+.vazir-num {
+  font-family: 'Vazirmatn', sans-serif !important;
+  font-feature-settings: 'ss01';
+}
 
-    --topbar-height: 70px;
+/* Force dark style on HTML select & option elements */
+select {
+  background-color: #12151e !important;
+  color: #ffffff !important;
+}
 
-    /* Canonical Figr surfaces & accents */
-    --color-bg: #1a1b1f;
-    --color-surface: #232529;
-    --color-surface-2: #2d3036;
-    --color-surface-3: #34363d;
-    --color-fg: #ffffff;
-    --color-fg-2: #9496a1;
-    --color-muted: #5a5d6a;
-    --color-line: rgba(255, 255, 255, 0.07);
-    --color-line-strong: rgba(255, 255, 255, 0.14);
-    --color-scrim: rgba(7, 7, 9, 0.72);
+select option {
+  background-color: #12151e !important;
+  color: #e2e8f0 !important;
+  padding: 8px 12px;
+}
 
-    --color-accent: #7c3aed;
-    --color-accent-2: #a855f7;
-    --color-accent-deep: #4c1d95;
-    --color-accent-soft: rgba(124, 58, 237, 0.14);
-    --color-pink: #ec4899;
-    --color-on-accent: #ffffff;
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(16, 17, 22, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
 
-    --color-psn: #0070d1;
-    --color-psn-soft: rgba(0, 112, 209, 0.14);
+.glass-card {
+  background: rgba(16, 17, 22, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-    --color-success: #10b981;
-    --color-success-soft: rgba(16, 185, 129, 0.14);
-    --color-warning: #f59e0b;
-    --color-warning-soft: rgba(245, 158, 11, 0.14);
-    --color-danger: #ef4444;
-    --color-danger-soft: rgba(239, 68, 68, 0.12);
+.glass-card:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.3);
+  transform: translateY(-2px);
+}
 
-    --color-bronze: #d97706;
-    --color-bronze-2: #cd7f32;
-    --color-silver: #94a3b8;
-    --color-silver-2: #e2e8f0;
-    --color-gold: #fbbf24;
-    --color-gold-2: #f59e0b;
-
-    --font-sans: "Vazirmatn", "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-latin: "Inter", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
-  }
-
-  [data-theme="light"] {
-    --bg-primary: #f8f9fa;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f1f3f5;
-    --bg-card: #ffffff;
-    --bg-card-hover: #f1f3f5;
-    --bg-input: #e9ecef;
-    --text-primary: #0f1016;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-light: rgba(0, 0, 0, 0.14);
-
-    --color-bg: #f8f9fa;
-    --color-surface: #ffffff;
-    --color-surface-2: #f1f3f5;
-    --color-surface-3: #e9ecef;
-    --color-fg: #0b0c10;
-    --color-fg-2: #495057;
-    --color-muted: #868e96;
-    --color-line: rgba(0, 0, 0, 0.08);
-    --color-line-strong: rgba(0, 0, 0, 0.16);
-    --color-scrim: rgba(248, 249, 250, 0.8);
-    --color-accent-soft: rgba(124, 58, 237, 0.1);
-  }
-
-  html,
-  body {
-    position: relative;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    min-height: 100vh;
-  }
-
-  body:before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -2;
-    background: radial-gradient(900px 520px at 50% -120px, rgba(88, 101, 242, 0.12), transparent 70%),
-                radial-gradient(700px 480px at 100% 100%, rgba(88, 101, 242, 0.06), transparent 70%);
-  }
-
-  body:after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    background: url("/bg-pattern-dark.svg") 0 0/560px 560px repeat;
-    -webkit-mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0.9));
-    mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0.9));
-    opacity: 0.075;
-  }
-
-  [data-theme="light"] body:before {
-    background: radial-gradient(900px 520px at 50% -120px, rgba(88, 101, 242, 0.16), transparent 70%),
-                radial-gradient(700px 480px at 100% 100%, rgba(88, 101, 242, 0.09), transparent 70%);
-  }
-
-  [data-theme="light"] body:after {
-    background-image: url("/bg-pattern-light.svg");
-    opacity: 0.12;
-  }
-
-  /* Controller / keyboard focus — the 10-foot UI rule */
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* PlayStation 10-Foot Mode Variables & Overrides */
-  html.playstation-mode {
-    font-size: 20px;
-  }
-  html.playstation-mode body {
-    padding: 4.5vh 5vw;
-    cursor: none !important;
-  }
-  html.playstation-mode *:focus-visible,
-  html.playstation-mode .ps-focus-active {
-    outline: 3px solid #a855f7 !important;
-    outline-offset: 3px !important;
-    box-shadow: 0 0 28px rgba(168, 85, 247, 0.65) !important;
-  }
-  html.playstation-mode * {
-    transition-duration: 120ms !important;
-  }
+/* 10-Foot UI & Gamepad Focus Styling */
+:focus-visible {
+  outline: none !important;
+  transform: scale(1.04);
+  border-color: #A855F7 !important;
+  box-shadow: 0 0 0 2px #A855F7, 0 0 25px rgba(168, 85, 247, 0.6) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  z-index: 40;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: #070709;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: 4px;
+  background: #2D2F39;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: #7C3AED;
 }
-
-/* GameDr Iconic SVG Background Pattern (Lines 76-134 & 527-589) */
-.home-gamedr-pattern {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.44;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='260' viewBox='0 0 360 260'%3E%3Cg fill='%23ffffff' fill-opacity='0.035' transform='rotate(-26 180 130)'%3E%3Ctext x='20' y='60' font-family='sans-serif' font-weight='900' font-size='22'%3EGAMEDR.%3C/text%3E%3Cpath d='M210 50 h30 v6 h-30 z M222 38 v30 h6 v-30 z'/%3E%3Ccircle cx='80' cy='180' r='14' stroke='%23ffffff' stroke-width='4' fill='none'/%3E%3Cpolygon points='160,165 175,195 145,195' stroke='%23ffffff' stroke-width='4' fill='none'/%3E%3Crect x='270' y='165' width='24' height='24' rx='4' stroke='%23ffffff' stroke-width='4' fill='none'/%3E%3Cline x1='40' y1='100' x2='60' y2='120' stroke='%23ffffff' stroke-width='4'/%3E%3Cline x1='60' y1='100' x2='40' y2='120' stroke='%23ffffff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E");
-  mask-image: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.45));
-  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.45));
-}
-
-/* Home Ambient Glow */
-.home-bg-glow {
-  position: fixed;
-  top: -120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 420px;
-  background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.22) 0%, rgba(7, 7, 9, 0) 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Hero Poster Backdrop Marquee */
-@keyframes heroPosterFloat {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.hero-poster-track {
-  display: flex;
-  gap: 1.5rem;
-  width: max-content;
-  animation: heroPosterFloat 72s linear infinite;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-poster-track {
-    animation: none;
-  }
-}
-
-/* Authentic GameDr soft purple ambient glow behind page */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background:
-    radial-gradient(900px 520px at 50% -120px, rgba(124, 58, 237, 0.14), transparent 70%),
-    radial-gradient(700px 480px at 100% 100%, rgba(168, 85, 247, 0.08), transparent 70%);
-}
-
-/* Authentic GameDr repeating console-icon pattern with gradient mask */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url("/bg-pattern-dark.svg") 0 0 / 560px 560px repeat;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.85) 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.85) 100%);
-  opacity: 0.08;
-}
-

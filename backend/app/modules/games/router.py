@@ -1,82 +1,138 @@
-from typing import List, Optional
+"""Game catalog router: list, filters, details, likes, and wishlist."""
+from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as aioredis
+
 from app.core.database import get_db
-from app.core.dependencies import get_current_user_optional, get_current_active_user
-from app.core.exceptions import AppException
-from app.modules.games.schemas import DownloadTokenOut, GameDetailOut, GameFileOut, GameListResponse, GameOut
-from app.modules.games.services import GameService
+from app.core.redis_client import get_redis
+from app.core.dependencies import get_current_user, get_optional_current_user
 from app.modules.users.models import User
+from app.modules.games.models import Genre
+from app.modules.games.schemas import (
+    GameCardOut,
+    GameDetailOut,
+    PaginatedGamesResponse,
+    InteractionResponse,
+    GenreOut,
+    GameDownloadFileOut,
+    GenerateDownloadResponse,
+)
+from app.modules.games.services import GamesService
 
-router = APIRouter(prefix="/games", tags=["Games Catalog & Downloads"])
+router = APIRouter(tags=["Games Catalog"])
 
-
-@router.get("", response_model=GameListResponse)
+@router.get("", response_model=PaginatedGamesResponse, status_code=status.HTTP_200_OK)
 async def list_games(
-    platforms: Optional[str] = Query(None, description="Comma-separated platforms e.g. PS5,PS4"),
-    genres: Optional[str] = Query(None, description="Comma-separated genres"),
-    mode: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    min_score: Optional[float] = Query(None),
-    search: Optional[str] = Query(None),
-    sort: str = Query("popular", regex="^(popular|newest|rating|size)$"),
-    page: int = Query(1, ge=1),
-    limit: int = Query(24, ge=1, le=100),
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+    search: Optional[str] = Query(None, description="Search by title"),
+    genre: Optional[str] = Query(None, description="Filter by genre slug"),
+    platform: Optional[str] = Query(None, description="Filter by platform (PS5, PS4, Xbox, Switch)"),
+    max_size: Optional[float] = Query(None, description="Maximum download size in GB"),
+    min_rating: Optional[float] = Query(None, description="Minimum RAWG rating (0 to 5)"),
+    is_two_player: Optional[bool] = Query(None, description="Filter for 2-player / co-op games"),
+    has_vr: Optional[bool] = Query(None, description="Filter for VR supported games"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
 ):
-    # Auto-seed sample catalog if DB is empty
-    await GameService.seed_defaults_if_empty(db)
-
-    plat_list = [p.strip() for p in platforms.split(",")] if platforms else None
-    genre_list = [g.strip() for g in genres.split(",")] if genres else None
-
-    items, total = await GameService.get_games(
+    """Retrieve filtered games catalog with Redis caching."""
+    return await GamesService.get_catalog(
         db=db,
-        platforms=plat_list,
-        genres=genre_list,
-        mode=mode,
-        status=status,
-        min_score=min_score,
+        redis=redis,
         search=search,
-        sort=sort,
+        genre=genre,
+        platform=platform,
+        max_size_gb=max_size,
+        min_rating=min_rating,
+        is_two_player=is_two_player,
+        has_vr=has_vr,
         page=page,
-        limit=limit,
+        page_size=page_size,
     )
 
-    pages = (total + limit - 1) // limit if total > 0 else 1
+@router.get("/genres/list", response_model=List[GenreOut], status_code=status.HTTP_200_OK)
+async def list_genres(
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """List all available game genres."""
+    stmt = select(Genre).order_by(Genre.name_fa.asc())
+    result = await db.execute(stmt)
+    return [GenreOut.model_validate(g) for g in result.scalars().all()]
 
-    return GameListResponse(
-        items=[GameOut.model_validate(i) for i in items],
-        total=total,
-        page=page,
-        limit=limit,
-        pages=pages,
+@router.get("/{game_id}", response_model=GameDetailOut, status_code=status.HTTP_200_OK)
+async def get_game(
+    game_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+):
+    """Retrieve full game details, download links, and optional user interaction."""
+    user_id = current_user.id if current_user else None
+    return await GamesService.get_game_details(db, redis, game_id, user_id=user_id)
+
+@router.post("/{game_id}/like", response_model=InteractionResponse, status_code=status.HTTP_200_OK)
+async def toggle_like(
+    game_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """Toggle like on game (Authenticated users only)."""
+    return await GamesService.toggle_like(db, redis, game_id, current_user.id)
+
+@router.post("/{game_id}/dislike", response_model=InteractionResponse, status_code=status.HTTP_200_OK)
+async def toggle_dislike(
+    game_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """Toggle dislike on game (Authenticated users only)."""
+    return await GamesService.toggle_dislike(db, redis, game_id, current_user.id)
+
+@router.post("/{game_id}/wishlist", response_model=InteractionResponse, status_code=status.HTTP_200_OK)
+async def toggle_wishlist(
+    game_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """Toggle game in user wishlist (Authenticated users only)."""
+    return await GamesService.toggle_wishlist(db, redis, game_id, current_user.id)
+
+
+# --- 5-Part Game Downloads & Instant Quota Deduction ---
+
+@router.get("/{game_id}/downloads", response_model=List[GameDownloadFileOut], status_code=status.HTTP_200_OK)
+async def list_game_download_files(
+    game_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """List all available download files (data, cheat, dlc, subtitle, dubbing) for a game."""
+    return await GamesService.list_game_download_files(db=db, game_id=game_id)
+
+
+@router.post("/{game_id}/downloads/{file_id}/generate", response_model=GenerateDownloadResponse, status_code=status.HTTP_200_OK)
+async def generate_game_download_link(
+    game_id: int,
+    file_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """
+    Generate secure one-time download link for specific file part.
+    Checks subscription tier, deducts file size instantly from quota,
+    and logs the transaction in UserDownloadHistory.
+    Strict rule: NO free re-download.
+    """
+    return await GamesService.generate_download_file_link(
+        db=db,
+        redis=redis,
+        user_id=current_user.id,
+        game_id=game_id,
+        file_id=file_id,
     )
 
-
-@router.get("/{slug}", response_model=GameDetailOut)
-async def get_game_detail(
-    slug: str,
-    db: AsyncSession = Depends(get_db),
-):
-    await GameService.seed_defaults_if_empty(db)
-    result = await GameService.get_game_by_slug(db, slug)
-    if not result:
-        raise AppException(status_code=404, code="GAME_NOT_FOUND", message="بازی درخواستی یافت نشد.")
-
-    game, files = result
-    out = GameDetailOut.model_validate(game)
-    out.files = [GameFileOut.model_validate(f) for f in files]
-    return out
-
-
-@router.post("/{slug}/download/{part_id}", response_model=DownloadTokenOut)
-async def download_game_part(
-    slug: str,
-    part_id: int,
-    user: Optional[User] = Depends(get_current_user_optional),
-    db: AsyncSession = Depends(get_db),
-):
-    # If user is none, allow mock user for testing or raise auth
-    mock_user = user or User(id=1, username="gamer_test", email="test@drgame.ir")
-    return await GameService.generate_download_token(db, mock_user, slug, part_id)

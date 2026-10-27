@@ -1,121 +1,124 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 export function useGamepadNavigation() {
-  const lastButtonPress = useRef<number>(0);
+  const lastPressRef = useRef<number>(0);
 
   useEffect(() => {
     let animationFrameId: number;
 
-    const getNavElements = (): HTMLElement[] => {
-      const elements = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          '[data-nav-item="true"], a[href], button:not([disabled]), input:not([disabled])'
-        )
-      );
-      return elements.filter((el) => {
-        const style = window.getComputedStyle(el);
-        return style.display !== "none" && style.visibility !== "hidden" && el.offsetParent !== null;
+    const handleSpatialMove = (up: boolean, down: boolean, left: boolean, right: boolean) => {
+      const focusables = Array.from(
+        document.querySelectorAll<HTMLElement>('a, button, input, select, textarea, [tabindex="0"], [data-nav]')
+      ).filter((el) => {
+        // Must be visible and enabled
+        return (
+          el.offsetParent !== null &&
+          !el.hasAttribute('disabled') &&
+          window.getComputedStyle(el).visibility !== 'hidden' &&
+          window.getComputedStyle(el).display !== 'none'
+        );
       });
-    };
 
-    const navigate = (direction: "up" | "down" | "left" | "right") => {
-      const elements = getNavElements();
-      if (!elements.length) return;
+      if (focusables.length === 0) return;
 
-      const current = (document.activeElement as HTMLElement) || elements[0];
-      const currentIndex = elements.indexOf(current);
-
-      if (currentIndex === -1) {
-        elements[0].focus();
-        elements[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      const current = document.activeElement as HTMLElement;
+      if (!current || !focusables.includes(current)) {
+        focusables[0]?.focus();
+        focusables[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
       const currentRect = current.getBoundingClientRect();
-      let bestCandidate: HTMLElement | null = null;
+      let bestTarget: HTMLElement | null = null;
       let minDistance = Infinity;
 
-      elements.forEach((el) => {
-        if (el === current) return;
-        const rect = el.getBoundingClientRect();
+      focusables.forEach((target) => {
+        if (target === current) return;
+        const targetRect = target.getBoundingClientRect();
 
-        let isValid = false;
-        if (direction === "down" && rect.top >= currentRect.bottom - 10) isValid = true;
-        if (direction === "up" && rect.bottom <= currentRect.top + 10) isValid = true;
-        if (direction === "right" && rect.left >= currentRect.right - 10) isValid = true;
-        if (direction === "left" && rect.right <= currentRect.left + 10) isValid = true;
+        let isValidDirection = false;
+        if (down && targetRect.top >= currentRect.bottom - 15) isValidDirection = true;
+        if (up && targetRect.bottom <= currentRect.top + 15) isValidDirection = true;
+        if (right && targetRect.left >= currentRect.right - 15) isValidDirection = true;
+        if (left && targetRect.right <= currentRect.left + 15) isValidDirection = true;
 
-        if (isValid) {
-          const dx = rect.left + rect.width / 2 - (currentRect.left + currentRect.width / 2);
-          const dy = rect.top + rect.height / 2 - (currentRect.top + currentRect.height / 2);
+        if (isValidDirection) {
+          const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
+          const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
           const distance = Math.hypot(dx, dy);
 
           if (distance < minDistance) {
             minDistance = distance;
-            bestCandidate = el;
+            bestTarget = target;
           }
         }
       });
 
-      if (bestCandidate) {
-        (bestCandidate as HTMLElement).focus();
-        (bestCandidate as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+      if (bestTarget) {
+        (bestTarget as HTMLElement).focus();
+        (bestTarget as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     };
 
-    // Keyboard Arrow Keys
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
-        if (document.activeElement?.tagName === "INPUT") return;
-        e.preventDefault();
-        if (e.key === "ArrowUp") navigate("up");
-        if (e.key === "ArrowDown") navigate("down");
-        if (e.key === "ArrowLeft") navigate("left");
-        if (e.key === "ArrowRight") navigate("right");
-      }
-    };
+    const scanGamepad = () => {
+      const gamepads = typeof navigator !== 'undefined' && navigator.getGamepads ? navigator.getGamepads() : [];
+      const gp = gamepads ? gamepads[0] : null;
 
-    window.addEventListener("keydown", handleKeyDown);
+      if (gp) {
+        const now = Date.now();
+        // 180ms debounce for comfortable navigation
+        if (now - lastPressRef.current > 180) {
+          const dpadUp = gp.buttons[12]?.pressed || (gp.axes[1] && gp.axes[1] < -0.5);
+          const dpadDown = gp.buttons[13]?.pressed || (gp.axes[1] && gp.axes[1] > 0.5);
+          const dpadLeft = gp.buttons[14]?.pressed || (gp.axes[0] && gp.axes[0] < -0.5);
+          const dpadRight = gp.buttons[15]?.pressed || (gp.axes[0] && gp.axes[0] > 0.5);
+          const buttonX = gp.buttons[0]?.pressed; // PlayStation Cross (or Xbox A)
+          const buttonCircle = gp.buttons[1]?.pressed; // PlayStation Circle (Back)
 
-    // Gamepad Polling Loop
-    const pollGamepad = () => {
-      const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-      const gp = gamepads[0];
-      const now = Date.now();
-
-      if (gp && now - lastButtonPress.current > 200) {
-        // D-Pad buttons
-        if (gp.buttons[12]?.pressed) {
-          navigate("up");
-          lastButtonPress.current = now;
-        } else if (gp.buttons[13]?.pressed) {
-          navigate("down");
-          lastButtonPress.current = now;
-        } else if (gp.buttons[14]?.pressed) {
-          navigate("left");
-          lastButtonPress.current = now;
-        } else if (gp.buttons[15]?.pressed) {
-          navigate("right");
-          lastButtonPress.current = now;
-        } else if (gp.buttons[0]?.pressed) {
-          // X / A button (Select/Click)
-          const active = document.activeElement as HTMLElement;
-          if (active && typeof active.click === "function") {
-            active.click();
-            lastButtonPress.current = now;
+          if (dpadUp || dpadDown || dpadLeft || dpadRight) {
+            handleSpatialMove(!!dpadUp, !!dpadDown, !!dpadLeft, !!dpadRight);
+            lastPressRef.current = now;
+          } else if (buttonX) {
+            const activeEl = document.activeElement as HTMLElement;
+            if (activeEl) {
+              activeEl.click();
+            }
+            lastPressRef.current = now;
+          } else if (buttonCircle) {
+            // Back action
+            window.history.back();
+            lastPressRef.current = now;
           }
         }
       }
 
-      animationFrameId = requestAnimationFrame(pollGamepad);
+      animationFrameId = requestAnimationFrame(scanGamepad);
     };
 
-    animationFrameId = requestAnimationFrame(pollGamepad);
+    // Keyboard Arrow Keys Spatial Navigation for 10-foot testing
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        // If user is typing in an input field, do not hijack arrows
+        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+
+        e.preventDefault();
+        handleSpatialMove(
+          e.key === 'ArrowUp',
+          e.key === 'ArrowDown',
+          e.key === 'ArrowLeft',
+          e.key === 'ArrowRight'
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    animationFrameId = requestAnimationFrame(scanGamepad);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);

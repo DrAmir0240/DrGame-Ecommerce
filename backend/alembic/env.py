@@ -6,8 +6,52 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.config import settings
 from app.core.database import Base
-from app.modules.subscriptions.models import SubscriptionTier, UserSubscription
-from app.modules.users.models import User, UserProfile
+
+# Import all models for autogenerate detection
+try:
+    from app.modules.auth.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.auth.admin_models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.users.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.games.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.subscriptions.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.quota.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.wallet.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.news.models import *
+except ImportError:
+    pass
+
+try:
+    from app.modules.home.banner_models import *
+except ImportError:
+    pass
 
 config = context.config
 
@@ -18,7 +62,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    url = settings.DATABASE_URL
+    url = settings.SQLALCHEMY_DATABASE_URI
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -39,7 +83,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = settings.DATABASE_URL
+    configuration["sqlalchemy.url"] = settings.SQLALCHEMY_DATABASE_URI
 
     connectable = async_engine_from_config(
         configuration,
