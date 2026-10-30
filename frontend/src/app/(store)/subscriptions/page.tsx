@@ -33,7 +33,7 @@ export default function SubscriptionsPage() {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-vazir text-right">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 2xl:px-12 max-w-[1700px] 2xl:max-w-[1850px] mx-auto font-vazir text-right">
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold mb-4 shadow-[0_0_15px_rgba(6,182,212,0.15)]">

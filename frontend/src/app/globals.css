@@ -105,3 +105,13 @@ select option {
 ::-webkit-scrollbar-thumb:hover {
   background: #7C3AED;
 }
+
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -31,7 +31,7 @@ export default function TutorialBlogsSection() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 my-4">
+      <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 my-4">
         <div className="h-80 rounded-3xl bg-[#0c1017] border border-white/5 flex items-center justify-center animate-pulse">
           <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
         </div>
@@ -59,7 +59,7 @@ export default function TutorialBlogsSection() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 my-4 font-vazir text-right">
+    <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 my-4 font-vazir text-right">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2.5">

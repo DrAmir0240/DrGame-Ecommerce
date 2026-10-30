@@ -35,7 +35,7 @@ export default function GameCarousel({
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-5 sm:py-6">
       {/* Header with Title, View All, and Arrows */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
@@ -86,7 +86,7 @@ export default function GameCarousel({
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {games.map((game) => (
-          <div key={game.id} className="w-[180px] sm:w-[220px] shrink-0" data-nav>
+          <div key={game.id} className="w-[150px] xs:w-[170px] sm:w-[200px] md:w-[220px] 2xl:w-[245px] shrink-0" data-nav>
             <GameCard game={game} />
           </div>
         ))}

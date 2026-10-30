@@ -55,7 +55,7 @@ export default function BlogCatalogPage() {
   }, [selectedCategory, search, sort, page]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-10">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-12 space-y-10">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cosmic-purple/10 border border-cosmic-purple/30 text-cosmic-purple text-xs font-bold">
@@ -97,7 +97,7 @@ export default function BlogCatalogPage() {
         {/* Posts Grid */}
         <div className="lg:col-span-3 space-y-8">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="aspect-[5/6] rounded-3xl glass-card animate-pulse border border-white/5" />
               ))}
@@ -107,7 +107,7 @@ export default function BlogCatalogPage() {
               مقاله‌ای با این مشخصات یافت نشد.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
               {posts.map((post) => (
                 <BlogCard key={post.id} post={post} />
               ))}

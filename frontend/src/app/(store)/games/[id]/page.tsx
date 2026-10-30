@@ -158,7 +158,7 @@ export default function GameDetailPage() {
         </div>
 
         {/* Main Title Card directly superimposed inside the Hero */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-14 sm:pb-16">
+        <div className="relative z-10 max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-10 sm:pt-14 pb-14 sm:pb-16">
           <div className="flex flex-col md:flex-row gap-8 lg:gap-10 items-center md:items-start">
             {/* 3:4 Poster Cover */}
             <div className="w-56 sm:w-64 lg:w-72 shrink-0 rounded-3xl overflow-hidden glass-card border-2 border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.8)] aspect-[3/4] group">
@@ -325,7 +325,7 @@ export default function GameDetailPage() {
       {/* ========================================================================= */}
       {/* 2. GAME DETAILS (3-CARD GRID: جوایز و استودیو | ویژگی‌های بازی | داستان) */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+      <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 space-y-6">
         {/* Section Header with Cyan Indicator */}
         <div>
           <div className="flex items-center gap-3">
@@ -564,12 +564,12 @@ export default function GameDetailPage() {
       {/* 3. GAMEPLAY SCREENSHOTS GALLERY                                           */}
       {/* ========================================================================= */}
       {game.screenshots && game.screenshots.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-4">
+        <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 rounded-full bg-purple-500 shadow-[0_0_12px_#a855f7]" />
             <h2 className="text-xl sm:text-2xl font-black text-white">تصاویر گیم‌پلی (Gameplay Screenshots)</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
             {game.screenshots.map((src, index) => (
               <div
                 key={index}
@@ -590,7 +590,7 @@ export default function GameDetailPage() {
       {/* ========================================================================= */}
       {/* 4. DOWNLOAD FILES SECTION (5-Part Packages & Console Download Guide)      */}
       {/* ========================================================================= */}
-      <section id="download-section" className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 space-y-6 scroll-mt-24">
+      <section id="download-section" className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-4 space-y-6 scroll-mt-24">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
           <h2 className="text-xl sm:text-2xl font-black text-white">فایل‌ها</h2>

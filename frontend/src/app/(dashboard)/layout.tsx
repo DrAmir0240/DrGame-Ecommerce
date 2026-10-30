@@ -238,7 +238,7 @@ export default function UserDashboardLayout({
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-vazir text-right" dir="rtl">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 w-full font-vazir text-right" dir="rtl">
       {/* Mobile Top Navigation Bar (Triggers Slide-over Drawer) */}
       <div className="lg:hidden mb-6 p-3 sm:p-4 rounded-2xl bg-[#0c1017]/95 border border-white/10 flex items-center justify-between shadow-2xl backdrop-blur-xl">
         <div className="flex items-center gap-3">

@@ -144,7 +144,7 @@ export default function GamesCatalogPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6 text-right font-vazir">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-3 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6 text-right font-vazir">
       {/* Layout Grid: In RTL, 1st child (Sidebar) is on the RIGHT, 2nd child (Content) is on the LEFT. Mirrored in LTR */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         
@@ -205,7 +205,7 @@ export default function GamesCatalogPage() {
 
           {/* Games Grid (5 Columns on Desktop matching games.jpg) */}
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
               {Array.from({ length: 15 }).map((_, idx) => (
                 <div
                   key={idx}
@@ -228,7 +228,7 @@ export default function GamesCatalogPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
               {games.map((game) => (
                 <GameCard key={game.id} game={game} />
               ))}

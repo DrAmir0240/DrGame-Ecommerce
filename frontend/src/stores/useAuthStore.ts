@@ -2,7 +2,13 @@
 
 import { create } from 'zustand';
 import { User, TokenResponse } from '@/types/auth';
-import { apiRequest } from '@/lib/apiClient';
+import { apiRequest, ApiError } from '@/lib/apiClient';
+import {
+  getAccessToken,
+  getRefreshToken,
+  setAuthTokens,
+  clearAuthTokens,
+} from '@/lib/authTokens';
 
 interface AuthState {
   user: User | null;
@@ -23,9 +29,9 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('drgame_access_token') : null,
-  refreshToken: typeof window !== 'undefined' ? localStorage.getItem('drgame_refresh_token') : null,
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('drgame_access_token') : false,
+  token: typeof window !== 'undefined' ? getAccessToken() : null,
+  refreshToken: typeof window !== 'undefined' ? getRefreshToken() : null,
+  isAuthenticated: typeof window !== 'undefined' ? !!getAccessToken() : false,
   isLoading: false,
   isAuthModalOpen: false,
   authModalInitialTab: 'otp',
@@ -35,11 +41,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setAuth: (data: TokenResponse) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('drgame_access_token', data.access_token);
-      localStorage.setItem('drgame_refresh_token', data.refresh_token);
-      localStorage.setItem('drgame_user', JSON.stringify(data.user));
-    }
+    // Store tokens in-memory and Secure SameSite=Strict cookies (NEVER in localStorage)
+    setAuthTokens(data.access_token, data.refresh_token);
+
     set({
       user: data.user,
       token: data.access_token,
@@ -55,11 +59,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (e) {
       console.warn('Logout API failed or session already expired:', e);
     } finally {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('drgame_access_token');
-        localStorage.removeItem('drgame_refresh_token');
-        localStorage.removeItem('drgame_user');
-      }
+      // Clear tokens from in-memory vault and secure cookies
+      clearAuthTokens();
+
       set({
         user: null,
         token: null,
@@ -70,20 +72,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchCurrentUser: async () => {
-    const token = get().token;
-    if (!token) return;
+    const token = getAccessToken();
+    if (!token) {
+      set({ user: null, isAuthenticated: false, token: null });
+      return;
+    }
 
     set({ isLoading: true });
     try {
+      // Server is the single source of truth for user profile & role verification
       const user = await apiRequest<User>('/users/me');
-      set({ user, isAuthenticated: true });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('drgame_user', JSON.stringify(user));
-      }
-    } catch (e) {
+      set({
+        user,
+        isAuthenticated: true,
+        token: getAccessToken(),
+      });
+    } catch (e: any) {
       console.error('Failed to fetch user:', e);
-      // If unauthorized, clear auth state
-      get().logout();
+
+      // SECURITY & RELIABILITY DISTINCTION:
+      // Only log out if the backend explicitly rejects the credentials (HTTP 401 or 403).
+      // Temporary network drops, DNS issues, or 5xx server errors do NOT invalidate the local session.
+      if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
+        await get().logout();
+      } else {
+        console.warn('Temporary network disruption during fetchCurrentUser. Auth session maintained.');
+      }
     } finally {
       set({ isLoading: false });
     }
@@ -93,10 +107,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const current = get().user;
     if (current) {
       const merged = { ...current, ...updatedUser };
+      // User data is held strictly in-memory (never in localStorage)
       set({ user: merged });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('drgame_user', JSON.stringify(merged));
-      }
     }
   },
 }));

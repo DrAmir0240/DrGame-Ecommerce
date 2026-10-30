@@ -80,7 +80,7 @@ export default function ReferralDashboardPage() {
   const activeStats = stats || SAMPLE_STATS;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10">
       {!isAuthenticated && (
         <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cyan-300">
           <div className="flex items-center gap-2">

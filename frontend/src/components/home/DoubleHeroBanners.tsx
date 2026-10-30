@@ -77,7 +77,7 @@ export default function DoubleHeroBanners() {
 
   if (loading) {
     return (
-      <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-2 pb-6 space-y-5 font-vazir text-right">
+      <section className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-2 pb-6 space-y-5 font-vazir text-right">
         <div className="h-72 sm:h-80 md:h-[320px] rounded-3xl bg-[#080b12] border border-white/5 flex items-center justify-center animate-pulse">
           <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
         </div>
@@ -92,7 +92,7 @@ export default function DoubleHeroBanners() {
   const activeService = serviceBanners[serviceIdx];
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 pt-2 pb-6 space-y-5 font-vazir text-right">
+    <section className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-2 pb-6 space-y-5 font-vazir text-right">
       {/* =========================================================================
           BANNER 1 (TOP): FEATURED AAA GAMES SLIDER (2/3 Height ~320px)
          ========================================================================= */}
@@ -100,7 +100,7 @@ export default function DoubleHeroBanners() {
         <div
           onMouseEnter={() => setIsGamePaused(true)}
           onMouseLeave={() => setIsGamePaused(false)}
-          className="relative rounded-3xl overflow-hidden h-72 sm:h-80 md:h-[320px] flex items-end border border-white/10 shadow-2xl bg-[#080b12] group"
+          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#080b12] group"
         >
           {/* Background Image with Cinematic Gradient Overlays */}
           <div
@@ -215,7 +215,7 @@ export default function DoubleHeroBanners() {
         <div
           onMouseEnter={() => setIsServicePaused(true)}
           onMouseLeave={() => setIsServicePaused(false)}
-          className="relative rounded-3xl overflow-hidden h-72 sm:h-80 md:h-[320px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
+          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
         >
           {/* Background Image with Amber/Purple Tint Gradient */}
           <div

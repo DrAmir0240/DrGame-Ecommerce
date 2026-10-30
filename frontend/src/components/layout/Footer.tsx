@@ -31,7 +31,7 @@ export default function Footer() {
   return (
     <footer className="w-full border-t border-white/5 bg-surface-base/90 backdrop-blur-2xl relative z-20 mt-20">
       {/* Mode Switcher Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between border-b border-white/5 text-xs text-text-muted">
+      <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-3 flex items-center justify-between border-b border-white/5 text-xs text-text-muted">
         <div className="flex items-center gap-2">
           <Globe className="w-3.5 h-3.5 text-cosmic-purple" />
           <span>پیکربندی منطقه جغرافیایی فروشگاه:</span>
@@ -63,7 +63,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & About */}
         <div className="space-y-4 md:col-span-1">
           <div className="flex items-center gap-3">

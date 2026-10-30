@@ -25,7 +25,7 @@ import {
 import { AdminGameItem, AdminGameDownloadLink } from "@/types/admin";
 import { getMediaUrl } from "@/lib/media";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api").replace(/\/api\/?$/, "");
 
 const PLATFORM_OPTIONS = ["PS5", "PS4", "Xbox Series X/S", "Nintendo Switch"];
 
@@ -683,11 +683,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("basic")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "basic"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "basic"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <FileText className="w-4 h-4" />
                 <span>مشخصات اصلی</span>
@@ -696,11 +695,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("media")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "media"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "media"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <ImageIcon className="w-4 h-4" />
                 <span>تصاویر و بنر هیرو</span>
@@ -709,11 +707,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "studio"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "studio"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Award className="w-4 h-4" />
                 <span>استودیو و جوایز</span>
@@ -722,11 +719,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("story")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "story"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "story"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <BookOpen className="w-4 h-4" />
                 <span>قلب بازی و داستان</span>
@@ -735,11 +731,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("features")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "features"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "features"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Layers className="w-4 h-4" />
                 <span>پلتفرم و امکانات</span>
@@ -748,11 +743,10 @@ export default function AdminGamesPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("downloads")}
-                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${
-                  activeTab === "downloads"
+                className={`flex items-center gap-2 px-3.5 py-2.5 font-medium rounded-t-xl transition-colors border-b-2 ${activeTab === "downloads"
                     ? "text-purple-400 border-purple-500 bg-purple-500/10"
                     : "text-slate-400 border-transparent hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <DownloadCloud className="w-4 h-4" />
                 <span>فایل‌ها و پارت‌ها ({downloadLinks.length})</span>
@@ -1163,11 +1157,10 @@ export default function AdminGamesPage() {
                                 key={plat}
                                 type="button"
                                 onClick={() => togglePlatform(plat)}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-roboto font-semibold border flex items-center gap-2 transition-all ${
-                                  isSelected
+                                className={`px-3.5 py-2 rounded-xl text-xs font-roboto font-semibold border flex items-center gap-2 transition-all ${isSelected
                                     ? "bg-purple-600/20 text-purple-300 border-purple-500 shadow-md shadow-purple-900/30"
                                     : "bg-[#121721] text-slate-400 border-slate-700/80 hover:border-slate-600"
-                                }`}
+                                  }`}
                               >
                                 {isSelected ? (
                                   <CheckSquare className="w-3.5 h-3.5 text-purple-400" />

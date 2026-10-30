@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api\/?$/, "");
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api").replace(/\/api\/?$/, "");
 
 export default function AdminLoginPage() {
   const router = useRouter();

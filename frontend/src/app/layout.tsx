@@ -1,5 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'دکتر گیم | پلتفرم تخصصی بازی‌های پلی‌استیشن',
@@ -13,8 +19,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AuthModal from '@/components/auth/AuthModal';
 import GamepadNavigationListener from '@/components/layout/GamepadNavigationListener';
-import PlayStationControllerBar from '@/components/layout/PlayStationControllerBar';
 import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
+import TvModeHost from '@/components/layout/TvModeHost';
 
 export default function RootLayout({
   children,
@@ -30,11 +36,11 @@ export default function RootLayout({
           {/* Vector dark gaming pattern */}
           <div className="pointer-events-none fixed inset-0 z-0 bg-[url('/bg-pattern-dark.svg')] bg-repeat opacity-[0.04]" />
           <Header />
-          <main className="relative z-10 flex-1 pb-20 md:pb-0">{children}</main>
+          <main className="relative z-10 flex-1 pb-16 md:pb-6">{children}</main>
           <Footer />
           <AuthModal />
           <GamepadNavigationListener />
-          <PlayStationControllerBar />
+          <TvModeHost />
           <GeoLanguageModal />
         </div>
       </body>

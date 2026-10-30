@@ -37,7 +37,7 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
 
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12 space-y-4 font-vazir text-right">
+      <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-12 space-y-4 font-vazir text-right">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
           <h2 className="text-xl sm:text-2xl font-black text-white">بازی‌های مشابه و پیشنهادی</h2>
@@ -54,7 +54,7 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
   if (similarGames.length === 0) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-14 space-y-5 font-vazir text-right">
+    <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-14 space-y-5 font-vazir text-right">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-cyan-400 to-purple-600 shadow-[0_0_12px_#22d3ee]" />

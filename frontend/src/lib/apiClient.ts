@@ -1,8 +1,11 @@
 /**
  * Centralized API client with automated auth token headers and unified error handling.
+ * Uses secure in-memory and cookie-based authentication (NO localStorage credentials).
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+import { getAccessToken, getAdminToken, clearAdminTokens } from './authTokens';
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://62.60.191.67:8000/api';
 
 export class ApiError extends Error {
   constructor(
@@ -29,17 +32,15 @@ export async function apiRequest<T = any>(
     endpoint.startsWith('/home/admin') ||
     endpoint.startsWith('home/admin');
 
-  // Read access token from localStorage in client environment
+  // Read access token securely without touching localStorage
   let token: string | null = null;
   if (typeof window !== 'undefined') {
     const isAdminPage = window.location.pathname.startsWith('/admin');
 
     if (isAdminEndpoint || isAdminPage) {
-      // For admin operations, strictly use isolated admin JWT
-      token = localStorage.getItem('drgame_admin_token');
+      token = getAdminToken();
     } else {
-      // For standard store consumer operations, use customer access token
-      token = localStorage.getItem('drgame_access_token');
+      token = getAccessToken();
     }
   }
 
@@ -71,8 +72,7 @@ export async function apiRequest<T = any>(
     if (typeof window !== 'undefined' && (response.status === 401 || response.status === 403)) {
       const isAdminPage = window.location.pathname.startsWith('/admin');
       if ((isAdminEndpoint || isAdminPage) && window.location.pathname !== '/admin/login') {
-        localStorage.removeItem('drgame_admin_token');
-        localStorage.removeItem('drgame_admin_profile');
+        clearAdminTokens();
         window.location.href = '/admin/login';
       }
     }

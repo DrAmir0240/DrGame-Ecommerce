@@ -10,6 +10,16 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { dev }) => {
+    // Only use polling if running in Docker/WSL where filesystem events don't pass through
+    if (dev && process.env.WATCHPACK_POLLING === 'true') {
+      config.watchOptions = {
+        poll: 800,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
