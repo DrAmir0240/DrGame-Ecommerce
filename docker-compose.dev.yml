@@ -16,6 +16,8 @@ services:
   db:
     image: postgres:16-alpine
     container_name: drgame-db
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-drgame_db}
       POSTGRES_USER: ${POSTGRES_USER:-drgame_user}
@@ -61,18 +63,21 @@ services:
     container_name: drgame-backend
     volumes:
       - ./backend:/app
+    env_file:
+      - .env
     environment:
       - PROJECT_NAME=${PROJECT_NAME:-DrGame E-Commerce Platform}
-      - ENVIRONMENT=development
-      - DEBUG=true
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-drgame_user}:${POSTGRES_PASSWORD:-drgame_secure_pass_2026}@db:5432/${POSTGRES_DB:-drgame_db}
-      - REDIS_URL=redis://cache:6379/0
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-true}
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://${POSTGRES_USER:-drgame_user}:${POSTGRES_PASSWORD:-drgame_secure_pass_2026}@db:5432/${POSTGRES_DB:-drgame_db}}
+      - REDIS_URL=${REDIS_URL:-redis://cache:6379/0}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-drgame_super_secret_jwt_key_development_only_2026_cosmic_purple}
-      - JWT_ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
       - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
-      - RAWG_BASE_URL=https://api.rawg.io/api
+      - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
       - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:-drgame_webhook_hmac_secret_key_2026}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000","http://localhost:8000"]}
     ports:
       - "${BACKEND_HOST_PORT:-8000}:8000"
     depends_on:
@@ -95,9 +100,11 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NODE_ENV=${ENVIRONMENT:-development}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
     ports:
       - "${FRONTEND_HOST_PORT:-3000}:3000"
     depends_on:
