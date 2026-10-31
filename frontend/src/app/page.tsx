@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { apiRequest } from '@/lib/apiClient';
 import { GameCardItem, GameListResponse } from '@/types/game';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslation } from '@/i18n';
 import ReferralSummaryBanner from '@/components/home/ReferralSummaryBanner';
 import DoubleHeroBanners from '@/components/home/DoubleHeroBanners';
 import GameCarousel from '@/components/home/GameCarousel';
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const [games, setGames] = useState<GameCardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +87,7 @@ export default function HomePage() {
       {/* 3. Wishlisted Games (for Authenticated Users) */}
       {isAuthenticated && wishlistedGames.length > 0 && (
         <GameCarousel
-          title="علاقه‌مندی‌های شما (Wishlist)"
+          title={t('home.wishlist')}
           icon={<Bookmark className="w-4 h-4 text-pink-400" />}
           viewAllHref="/profile?tab=wishlist"
           games={wishlistedGames}
@@ -94,7 +96,7 @@ export default function HomePage() {
 
       {/* 4. Newly Released Games */}
       <GameCarousel
-        title="تازه‌ترین بازی‌های اضافه شده به دیتابیس"
+        title={t('home.newestGames')}
         icon={<Sparkles className="w-4 h-4 text-cyan-400" />}
         viewAllHref="/games?sort=newest"
         games={newReleases.length > 0 ? newReleases : games.slice(0, 8)}
@@ -105,7 +107,7 @@ export default function HomePage() {
 
       {/* 6. Local Co-op (2 Players / 2 Gamepads) */}
       <GameCarousel
-        title="بازی‌های پرطرفدار دو نفره و دونفره آفلاین (Local Co-op)"
+        title={t('home.localCoop')}
         icon={<Users className="w-4 h-4 text-cosmic-purple" />}
         viewAllHref="/games?is_two_player=true"
         games={twoPlayerGames.length > 0 ? twoPlayerGames : games.slice(0, 8)}
@@ -114,7 +116,7 @@ export default function HomePage() {
       {/* 7. Genre Carousels (11 distinct genres) */}
       {/* Action-Adventure */}
       <GameCarousel
-        title="محبوب‌ترین عناوین اکشن و ماجراجویی (Action-Adventure)"
+        title={t('home.actionAdventure')}
         icon={<Flame className="w-4 h-4 text-orange-400" />}
         viewAllHref="/games?genre=action"
         games={getGamesByGenre('action')}
@@ -122,7 +124,7 @@ export default function HomePage() {
 
       {/* Fighting */}
       <GameCarousel
-        title="بازی‌های مبارزه‌ای و رزمی (Fighting)"
+        title={t('home.fighting')}
         icon={<Swords className="w-4 h-4 text-rose-500" />}
         viewAllHref="/games?genre=fighting"
         games={getGamesByGenre('fighting')}
@@ -130,7 +132,7 @@ export default function HomePage() {
 
       {/* Horror & Survival */}
       <GameCarousel
-        title="هیجان و وحشت بقا (Horror)"
+        title={t('home.horror')}
         icon={<Ghost className="w-4 h-4 text-red-500" />}
         viewAllHref="/games?genre=horror"
         games={getGamesByGenre('horror')}
@@ -138,7 +140,7 @@ export default function HomePage() {
 
       {/* Indie & Creative */}
       <GameCarousel
-        title="بازی‌های مستقل و شاهکارهای خلاقانه (Indie)"
+        title={t('home.indie')}
         icon={<Gamepad className="w-4 h-4 text-emerald-400" />}
         viewAllHref="/games?genre=indie"
         games={getGamesByGenre('indie')}
@@ -146,7 +148,7 @@ export default function HomePage() {
 
       {/* Party & Casual */}
       <GameCarousel
-        title="بازی‌های دورهمی، مهمانی و خانوادگی (Party Games)"
+        title={t('home.party')}
         icon={<Smile className="w-4 h-4 text-yellow-400" />}
         viewAllHref="/games?genre=party"
         games={getGamesByGenre('party')}
@@ -154,7 +156,7 @@ export default function HomePage() {
 
       {/* Platformer & Puzzle */}
       <GameCarousel
-        title="سکوبازی، پلتفرمر و معمایی (Platformer & Puzzle)"
+        title={t('home.platformer')}
         icon={<Boxes className="w-4 h-4 text-cyan-400" />}
         viewAllHref="/games?genre=platformer"
         games={getGamesByGenre('platformer')}
@@ -162,7 +164,7 @@ export default function HomePage() {
 
       {/* RPG */}
       <GameCarousel
-        title="نقش‌آفرینی عمیق و حماسی (Role-Playing / RPG)"
+        title={t('home.rpg')}
         icon={<Shield className="w-4 h-4 text-purple-400" />}
         viewAllHref="/games?genre=rpg"
         games={getGamesByGenre('role-playing-games-rpg')}
@@ -170,7 +172,7 @@ export default function HomePage() {
 
       {/* Shooter */}
       <GameCarousel
-        title="شوترهای اول‌شخص و تیراندازی تاکتیکی (Shooter)"
+        title={t('home.shooter')}
         icon={<Crosshair className="w-4 h-4 text-blue-400" />}
         viewAllHref="/games?genre=shooter"
         games={getGamesByGenre('shooter')}
@@ -178,7 +180,7 @@ export default function HomePage() {
 
       {/* Sports & Racing */}
       <GameCarousel
-        title="ورزشی، فوتبال و اتومبیل‌رانی مسابقه‌ای (Sports & Racing)"
+        title={t('home.sportsRacing')}
         icon={<Trophy className="w-4 h-4 text-amber-400" />}
         viewAllHref="/games?genre=sports"
         games={getGamesByGenre('sports')}
@@ -186,7 +188,7 @@ export default function HomePage() {
 
       {/* Strategy & Tactical */}
       <GameCarousel
-        title="استراتژی، شبیه‌سازی و تاکتیکی (Strategy)"
+        title={t('home.strategy')}
         icon={<BrainCircuit className="w-4 h-4 text-indigo-400" />}
         viewAllHref="/games?genre=strategy"
         games={getGamesByGenre('strategy')}
@@ -194,7 +196,7 @@ export default function HomePage() {
 
       {/* Survival & Open World */}
       <GameCarousel
-        title="بقا و دنیاهای بی‌پایان جهان‌باز (Survival & Open World)"
+        title={t('home.openWorld')}
         icon={<Compass className="w-4 h-4 text-teal-400" />}
         viewAllHref="/games?genre=adventure"
         games={getGamesByGenre('adventure')}
@@ -202,7 +204,7 @@ export default function HomePage() {
 
       {/* 8. Virtual Reality (PSVR2 / VR) */}
       <GameCarousel
-        title="تجربه واقعیت مجازی پلی‌استیشن (PS VR2 Spotlight)"
+        title={t('home.vrSpotlight')}
         icon={<Glasses className="w-4 h-4 text-cyan-300" />}
         viewAllHref="/games?has_vr=true"
         games={vrGames.length > 0 ? vrGames : games.slice(0, 8)}

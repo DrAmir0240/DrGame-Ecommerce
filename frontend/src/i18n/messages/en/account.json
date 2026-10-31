@@ -1,0 +1,249 @@
+{
+  "dashboard": {
+    "nav": {
+      "profile": "Profile & Sony Avatar",
+      "downloads": "My Downloads",
+      "tickets": "Support Tickets",
+      "payments": "Payment History",
+      "notifications": "Notification Center",
+      "referral": "Wallet & Referral Earnings",
+      "sessions": "Active Sessions & Devices",
+      "subscriptions": "Upgrade & Renew Subscription"
+    },
+    "userAlt": "User",
+    "activeAccount": "Active account",
+    "defaultUserName": "DrGame User",
+    "consoleCodeLabel": "7-digit console sign-in code:",
+    "copyConsoleCode": "Copy console code",
+    "quotaTitle": "Traffic quota",
+    "quotaRemaining": "{{size}} left",
+    "quotaUsed": "Used: {{size}}",
+    "quotaTotal": "Total: {{size}}",
+    "logout": "Sign out of account",
+    "userMenu": "User menu",
+    "drawerTitle": "DrGame User Dashboard"
+  },
+  "downloads": {
+    "fileType": {
+      "cheat": "Cheats & Trainers",
+      "dlc": "Add-on Pack (DLC)",
+      "subtitle": "Persian Subtitles",
+      "dubbing": "Exclusive Dubbing",
+      "official": "Official Game Data"
+    },
+    "errorFetch": "Failed to load your download history from the server.",
+    "loginPrompt": "Sign in to view your personal download history and quota usage.",
+    "loginButton": "Sign in to account",
+    "eyebrow": "File delivery and traffic quota usage history",
+    "title": "My Downloads",
+    "subtitle": "A recorded archive of game data, patches and files delivered under your current subscription",
+    "catalogButton": "Game catalog",
+    "stats": {
+      "totalDownloads": "Total downloads",
+      "totalVolume": "Total volume used",
+      "remainingQuota": "Remaining subscription quota"
+    },
+    "unitFiles": "files",
+    "unitGigabyte": "GB",
+    "historyTitle": "Delivered files history",
+    "showingRecords": "Showing {{count}} records",
+    "loading": "Loading your download history...",
+    "emptyTitle": "No downloads yet",
+    "emptyDescription": "Head to the catalog page to start downloading games.",
+    "statusRecorded": "Logged in usage history"
+  },
+  "notifications": {
+    "loginPrompt": "Sign in to view notifications and personal messages for your account.",
+    "loginButton": "Sign in",
+    "eyebrow": "Messages, events and system alerts",
+    "title": "Notification Center",
+    "subtitle": "Subscription updates, referral rewards, new releases and support messages",
+    "markAllRead": "Mark all as read",
+    "tabs": {
+      "all": "All notifications",
+      "unread": "Unread",
+      "bonus": "Rewards & commission",
+      "warning": "Alerts & security"
+    },
+    "loading": "Loading notifications...",
+    "emptyTitle": "No notifications found",
+    "emptyDescription": "There are no messages in this category.",
+    "newBadge": "New",
+    "viewLink": "View related page",
+    "deleteTitle": "Delete notification"
+  },
+  "payments": {
+    "loginPrompt": "Sign in to view your payment history and official invoices.",
+    "loginButton": "Sign in",
+    "eyebrow": "Transaction history and digital invoices",
+    "title": "Payment History",
+    "subtitle": "A complete archive of payments for subscriptions, wallet top-ups and premium services",
+    "buySubscription": "Buy or renew subscription",
+    "stats": {
+      "totalPaid": "Total successful payments",
+      "successfulOrders": "Successful orders",
+      "security": "Payment security & gateway guarantee",
+      "securityValue": "Shaparak payment network with secure SSL encryption"
+    },
+    "unitToman": "Toman",
+    "unitOrders": "orders",
+    "searchPlaceholder": "Search by tracking code, plan name or gateway...",
+    "filter": {
+      "all": "All transactions",
+      "success": "Successful payments only",
+      "pending": "Awaiting confirmation",
+      "failed": "Failed payments"
+    },
+    "status": {
+      "success": "Successful",
+      "failed": "Failed",
+      "pending": "Awaiting confirmation"
+    },
+    "loading": "Loading payment history...",
+    "table": {
+      "tracking": "Tracking code",
+      "plan": "Plan / Service",
+      "amount": "Amount (Toman)",
+      "gateway": "Gateway",
+      "dateTime": "Date & time",
+      "status": "Status",
+      "invoice": "Official invoice"
+    },
+    "empty": "No transactions found.",
+    "defaultPlanName": "Premium game service subscription",
+    "defaultGateway": "Bank gateway",
+    "viewInvoice": "View invoice"
+  },
+  "dashboardTickets": {
+    "loginPrompt": "Sign in to view and follow up on your support tickets.",
+    "loginButton": "Sign in",
+    "eyebrow": "Dedicated subscriber contact & support center",
+    "title": "Support Tickets",
+    "subtitle": "Talk directly with the DrGame technical and billing team, report issues and get fast resolutions",
+    "newTicket": "Open new ticket",
+    "stats": {
+      "total": "Total tickets opened",
+      "inProgress": "In progress",
+      "answered": "Answered"
+    },
+    "unitTickets": "tickets",
+    "searchPlaceholder": "Search by subject or tracking code...",
+    "filter": {
+      "all": "All statuses",
+      "open": "Awaiting reply",
+      "inProgress": "Under review",
+      "answered": "Answered",
+      "closed": "Closed"
+    },
+    "status": {
+      "open": "Awaiting reply",
+      "inProgress": "Under review",
+      "answered": "Answered",
+      "closed": "Closed"
+    },
+    "department": {
+      "technical": "Technical support",
+      "downloads": "Game data downloads",
+      "financial": "Billing & subscriptions",
+      "general": "General"
+    },
+    "priority": {
+      "high": "Urgent",
+      "low": "Normal",
+      "medium": "Medium"
+    },
+    "loading": "Loading tickets...",
+    "emptyTitle": "No tickets found",
+    "emptyNoTickets": "You have not opened any support tickets yet. Use the button above to tell us about your issue.",
+    "emptyFiltered": "No tickets matched this filter or search term.",
+    "viewConversation": "View conversation"
+  },
+  "profile": {
+    "guestTitle": "Sign in to view your profile",
+    "guestDescription": "Please use the sign-in button at the top of the page.",
+    "avatarAlt": "Gamer",
+    "memberSince": "Member since: {{date}}",
+    "consoleCode": {
+      "title": "Permanent console quick sign-in code",
+      "badge": "PS4 / PS5 ready",
+      "description": "Enter this 7-digit code in your console browser to sign in instantly without typing a long password."
+    },
+    "referralCode": {
+      "title": "Your referral code",
+      "badge": "Earn in USD & Toman",
+      "description": "Share your personal code with friends and earn automatic commissions across 3 levels on every purchase they make."
+    },
+    "copyCode": "Copy code",
+    "copied": "Copied",
+    "form": {
+      "title": "Edit personal details",
+      "fullName": "Full name",
+      "username": "Username (cannot be changed)",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saveSuccess": "Your details were updated successfully."
+    },
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "submit": "Update password",
+      "success": "Your password was updated successfully.",
+      "error": "Failed to change password"
+    }
+  },
+  "referral": {
+    "loginPrompt": "You are viewing a sample marketing dashboard. Sign in to access your personal link and withdraw commissions.",
+    "loginButton": "Sign in",
+    "title": "Referral Marketing & Wallet Dashboard",
+    "settlementBadge": "Direct settlement",
+    "subtitle": "Earn steady income from every subscription purchase across up to 10 levels of your referral network",
+    "accountsButton": "Settlement accounts ({{count}})",
+    "withdraw": "Withdraw funds",
+    "layerFilterLabel": "Filter referral network layer:",
+    "layers": {
+      "one": "Layer 1 (direct - 10% commission) - default",
+      "two": "Layer 2 (indirect - 5% commission)",
+      "three": "Layer 3 (indirect - 2.5% commission)",
+      "all": "All network layers"
+    },
+    "formula": {
+      "title": "Tiered Halving Commission Formula",
+      "description": "In the DrGame earnings model, the system sets the base commission rate, and it is halved at every layer going up the chain:",
+      "layer1Label": "Layer 1 (direct referrer)",
+      "layer1Value": "10% of purchase amount",
+      "layer1Note": "Half of the 20% base commission",
+      "layer2Label": "Layer 2 (upline referrer 2)",
+      "layer2Value": "5% of purchase amount",
+      "layer2Note": "Half of the layer 1 commission",
+      "layer3Label": "Layer 3 (upline referrer 3)",
+      "layer3Value": "2.5% of purchase amount",
+      "layer3Note": "Half of the layer 2 commission (continues indefinitely)"
+    },
+    "terms": {
+      "title": "Terms, payout conditions and legal disclaimer:",
+      "item1": "1. Marketing commissions are calculated and added to your withdrawable balance only after the invited user completes a successful payment and activates a subscription.",
+      "item2": "2. DrGame reserves the right to continuously monitor transaction integrity, suspicious behavior and self-referral chains, and will block the account and balance if fraud is detected."
+    }
+  },
+  "sessions": {
+    "title": "Sessions & connected devices",
+    "subtitle": "Manage the devices with access to your account and your primary devices",
+    "loading": "Loading device list...",
+    "empty": "No active devices found.",
+    "currentBadge": "Current session",
+    "primaryBadge": "Primary device",
+    "consoleBadge": "Console",
+    "ip": "IP: {{ip}}",
+    "lastActive": "Last active: {{time}}",
+    "currentTitle": "You cannot sign out of the current session from here",
+    "primaryTitle": "The registered primary console is protected by the system",
+    "currentButton": "Current session",
+    "primaryButton": "Primary console",
+    "revoking": "Signing out...",
+    "revoke": "Revoke access",
+    "revokeSuccess": "Device signed out successfully.",
+    "demoDeviceDesktop": "Chrome browser (this system)",
+    "demoDeviceConsole": "PlayStation 5 console"
+  }
+}

@@ -24,14 +24,28 @@ import {
 } from "lucide-react";
 import { AdminGameItem, AdminGameDownloadLink } from "@/types/admin";
 import { getMediaUrl } from "@/lib/media";
+import { useTranslation } from "@/i18n";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api").replace(/\/api\/?$/, "");
 
 const PLATFORM_OPTIONS = ["PS5", "PS4", "Xbox Series X/S", "Nintendo Switch"];
 
+const PLATFORM_KEY: Record<string, string> = {
+  "PS5": "admin.games.platforms.ps5",
+  "PS4": "admin.games.platforms.ps4",
+  "Xbox Series X/S": "admin.games.platforms.xboxSeries",
+  "Nintendo Switch": "admin.games.platforms.nintendoSwitch",
+};
+
+const STATUS_KEY: Record<string, string> = {
+  published: "admin.games.status.published",
+  draft: "admin.games.status.draft",
+};
+
 type TabType = "basic" | "media" | "studio" | "story" | "features" | "downloads";
 
 export default function AdminGamesPage() {
+  const { t, n, size } = useTranslation();
   const [games, setGames] = useState<AdminGameItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -100,7 +114,7 @@ export default function AdminGamesPage() {
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("خطا در دریافت کاتالوگ");
+      if (!res.ok) throw new Error(t("admin.games.errors.fetch"));
       const data = await res.json();
       setGames(data.items);
       setTotal(data.total);
@@ -130,18 +144,18 @@ export default function AdminGamesPage() {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!res.ok) throw new Error("خطا در آپلود تصویر");
+      if (!res.ok) throw new Error(t("admin.games.errors.uploadImage"));
       const data = await res.json();
 
       if (type === "cover") {
         setCoverUrl(data.url);
-        setModalMessage("کاور بازی در سرور دکتر گیم ذخیره شد.");
+        setModalMessage(t("admin.games.messages.coverUploaded"));
       } else {
         setBannerUrl(data.url);
-        setModalMessage("بنر هیرو در سرور دکتر گیم ذخیره شد.");
+        setModalMessage(t("admin.games.messages.bannerUploaded"));
       }
     } catch (err: any) {
-      setModalError(err.message || "خطا در آپلود");
+      setModalError(err.message || t("admin.games.errors.upload"));
     } finally {
       setUploadingCover(false);
       setUploadingBanner(false);
@@ -166,18 +180,18 @@ export default function AdminGamesPage() {
         },
         body: JSON.stringify({ image_url: url.trim() }),
       });
-      if (!res.ok) throw new Error("خطا در دانلود و ذخیره تصویر");
+      if (!res.ok) throw new Error(t("admin.games.errors.downloadAndSave"));
       const data = await res.json();
 
       if (type === "cover") {
         setCoverUrl(data.url);
-        setModalMessage("کاور در هاست محلی ذخیره شد.");
+        setModalMessage(t("admin.games.messages.coverCached"));
       } else {
         setBannerUrl(data.url);
-        setModalMessage("بنر در هاست محلی ذخیره شد.");
+        setModalMessage(t("admin.games.messages.bannerCached"));
       }
     } catch (err: any) {
-      setModalError(err.message || "خطا در کش تصویر");
+      setModalError(err.message || t("admin.games.errors.cache"));
     } finally {
       setCachingCover(false);
       setCachingBanner(false);
@@ -207,12 +221,12 @@ export default function AdminGamesPage() {
     setDescriptionFa("");
     setDescriptionEn("");
     setPlatforms(["PS5", "PS4"]);
-    setGenresText("اکشن, ماجراجویی");
+    setGenresText(t("admin.games.defaults.genres"));
     setIsTwoPlayer(false);
     setHasVr(false);
     setDownloadLinks([
-      { part_number: 1, part_name: "پارت ۱", file_size_gb: 15, download_url: "", is_active: true },
-      { part_number: 2, part_name: "پارت ۲", file_size_gb: 15, download_url: "", is_active: true },
+      { part_number: 1, part_name: t("admin.games.defaults.partName", { number: n(1) }), file_size_gb: 15, download_url: "", is_active: true },
+      { part_number: 2, part_name: t("admin.games.defaults.partName", { number: n(2) }), file_size_gb: 15, download_url: "", is_active: true },
     ]);
     setModalMessage(null);
     setModalError(null);
@@ -286,7 +300,7 @@ export default function AdminGamesPage() {
           setDownloadLinks(full.download_links);
         } else {
           setDownloadLinks([
-            { part_number: 1, part_name: "پارت ۱", file_size_gb: full.download_size_gb || 10, download_url: "", is_active: true }
+            { part_number: 1, part_name: t("admin.games.defaults.partName", { number: n(1) }), file_size_gb: full.download_size_gb || 10, download_url: "", is_active: true }
           ]);
         }
       }
@@ -310,17 +324,17 @@ export default function AdminGamesPage() {
   const handleAddDownloadLink = (type: 'data' | 'cheat' | 'dlc' | 'subtitle' | 'dubbing' = 'data') => {
     const nextPart = downloadLinks.length + 1;
     const defaultNames: Record<string, string> = {
-      data: `دیتای رسمی (پارت ${nextPart})`,
-      cheat: 'چیت و ترینر اختصاصی',
-      dlc: 'بسته الحاقی (DLC)',
-      subtitle: 'زیرنویس فارسی رسمی',
-      dubbing: 'دوبله فارسی اختصاصی',
+      data: t('admin.games.modal.downloads.defaults.data', { number: n(nextPart) }),
+      cheat: t('admin.games.modal.downloads.defaults.cheat'),
+      dlc: t('admin.games.modal.downloads.defaults.dlc'),
+      subtitle: t('admin.games.modal.downloads.defaults.subtitle'),
+      dubbing: t('admin.games.modal.downloads.defaults.dubbing'),
     };
     setDownloadLinks([
       ...downloadLinks,
       {
         part_number: nextPart,
-        part_name: defaultNames[type] || `پارت ${nextPart}`,
+        part_name: defaultNames[type] || t('admin.games.modal.downloads.defaults.part', { number: n(nextPart) }),
         file_size_gb: type === 'data' ? 10 : type === 'subtitle' ? 0.2 : 1.5,
         download_url: "",
         is_active: true,
@@ -345,7 +359,7 @@ export default function AdminGamesPage() {
   const handleSaveGame = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titleFa.trim() || !titleEn.trim()) {
-      setModalError("لطفاً عنوان فارسی و انگلیسی بازی را وارد نمایید.");
+      setModalError(t("admin.games.errors.required"));
       setActiveTab("basic");
       return;
     }
@@ -396,7 +410,7 @@ export default function AdminGamesPage() {
         download_links: downloadLinks.map((l, idx) => ({
           id: l.id,
           part_number: idx + 1,
-          part_name: l.part_name || `پارت ${idx + 1}`,
+          part_name: l.part_name || t("admin.games.defaults.partName", { number: n(idx + 1) }),
           file_size_gb: Number(l.file_size_gb) || 0,
           download_url: l.download_url || "",
           is_active: l.is_active ?? true,
@@ -414,7 +428,7 @@ export default function AdminGamesPage() {
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.detail || "خطا در ویرایش بازی");
+          throw new Error(errData.detail || t("admin.games.errors.update"));
         }
       } else {
         const res = await fetch(`${API_BASE}/api/admin/games`, {
@@ -427,22 +441,22 @@ export default function AdminGamesPage() {
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.detail || "خطا در ایجاد بازی");
+          throw new Error(errData.detail || t("admin.games.errors.create"));
         }
       }
 
-      setModalMessage("اطلاعات بازی با موفقیت ذخیره و به‌روزرسانی شد.");
+      setModalMessage(t("admin.games.messages.saved"));
       fetchGames();
       setTimeout(() => setShowModal(false), 1200);
     } catch (err: any) {
-      setModalError(err.message || "خطا در پردازش درخواست");
+      setModalError(err.message || t("admin.games.errors.process"));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("آیا از حذف این بازی از کاتالوگ اطمینان دارید؟")) return;
+    if (!confirm(t("admin.games.confirmDelete"))) return;
     try {
       const token = localStorage.getItem("drgame_admin_token");
       const res = await fetch(`${API_BASE}/api/admin/games/${id}`, {
@@ -462,9 +476,9 @@ export default function AdminGamesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white mb-1">مدیریت جامع کاتالوگ بازی‌ها</h1>
+          <h1 className="text-xl font-bold text-white mb-1">{t("admin.games.title")}</h1>
           <p className="text-xs text-slate-400">
-            ویرایش تمامی بخش‌های بازی (کاور، بنر، داستان، جوایز، استودیو، متای منتقدین، پلتفرم‌ها و لینک‌های دانلود)
+            {t("admin.games.subtitle")}
           </p>
         </div>
 
@@ -477,7 +491,7 @@ export default function AdminGamesPage() {
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              placeholder="جستجوی عنوان بازی..."
+              placeholder={t("admin.games.searchPlaceholder")}
               className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 pr-9 transition-colors"
             />
             <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
@@ -488,7 +502,7 @@ export default function AdminGamesPage() {
             className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-purple-950/40 transition-all flex-shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>افزودن بازی جدید</span>
+            <span>{t("admin.games.addGame")}</span>
           </button>
         </div>
       </div>
@@ -496,16 +510,16 @@ export default function AdminGamesPage() {
       {/* Games Table */}
       <div className="bg-[#0c1017] border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
+          <table className="w-full text-start text-xs">
             <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
               <tr>
-                <th className="py-3.5 px-4 font-semibold">عنوان بازی</th>
-                <th className="py-3.5 px-4 font-semibold">استودیو و ناشر</th>
-                <th className="py-3.5 px-4 font-semibold">حجم دیتا</th>
-                <th className="py-3.5 px-4 font-semibold">امتیاز و متا</th>
-                <th className="py-3.5 px-4 font-semibold">پلتفرم‌ها</th>
-                <th className="py-3.5 px-4 font-semibold">وضعیت</th>
-                <th className="py-3.5 px-4 font-semibold text-center">عملیات</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.title")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.studio")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.size")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.rating")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.platforms")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.games.table.status")}</th>
+                <th className="py-3.5 px-4 font-semibold text-center">{t("admin.games.table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
@@ -513,13 +527,13 @@ export default function AdminGamesPage() {
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
                     <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    درحال دریافت کاتالوگ...
+                    {t("admin.games.loading")}
                   </td>
                 </tr>
               ) : games.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
-                    بازی یافت نشد.
+                    {t("admin.games.empty")}
                   </td>
                 </tr>
               ) : (
@@ -536,7 +550,7 @@ export default function AdminGamesPage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500">
-                              بدون کاور
+                              {t("admin.games.noCover")}
                             </div>
                           )}
                         </div>
@@ -553,17 +567,17 @@ export default function AdminGamesPage() {
                       <div className="text-[10px] text-slate-400">{g.publisher || ""}</div>
                     </td>
                     <td className="py-3.5 px-4 font-semibold text-slate-300 font-roboto">
-                      {g.download_size_gb} GB
+                      {size(g.download_size_gb)}
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
                         <span className="flex items-center gap-1 text-amber-400 font-semibold font-roboto">
                           <Star className="w-3.5 h-3.5 fill-amber-400" />
-                          {g.rating || "—"}
+                          {g.rating ? n(g.rating) : "—"}
                         </span>
                         {g.metacritic ? (
                           <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-roboto font-bold text-[10px]">
-                            {g.metacritic}
+                            {n(g.metacritic)}
                           </span>
                         ) : null}
                       </div>
@@ -583,11 +597,11 @@ export default function AdminGamesPage() {
                     <td className="py-3.5 px-4">
                       {g.is_active ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                          منتشر شده
+                          {t(STATUS_KEY.published)}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 text-[10px]">
-                          پیش‌نویس
+                          {t(STATUS_KEY.draft)}
                         </span>
                       )}
                     </td>
@@ -596,15 +610,15 @@ export default function AdminGamesPage() {
                         <button
                           onClick={() => openEditModal(g)}
                           className="px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 flex items-center gap-1 text-[11px] transition-colors"
-                          title="ویرایش کلیه جزئیات بازی"
+                          title={t("admin.games.actions.editTitle")}
                         >
                           <Edit className="w-3.5 h-3.5" />
-                          <span>ویرایش کامل</span>
+                          <span>{t("admin.games.actions.editFull")}</span>
                         </button>
                         <button
                           onClick={() => handleDelete(g.id)}
                           className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20"
-                          title="حذف بازی"
+                          title={t("admin.games.actions.delete")}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -620,7 +634,7 @@ export default function AdminGamesPage() {
         {/* Pagination Bar */}
         <div className="p-4 border-t border-slate-800/80 bg-[#090d13] flex items-center justify-between text-xs text-slate-400">
           <span>
-            نمایش {games.length} از {total} بازی در سامانه
+            {t("admin.games.pagination.showing", { shown: n(games.length), total: n(total) })}
           </span>
           {Math.ceil(total / 15) > 1 && (
             <div className="flex items-center gap-2">
@@ -629,17 +643,17 @@ export default function AdminGamesPage() {
                 disabled={page <= 1}
                 className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 transition-colors"
               >
-                صفحه قبل
+                {t("admin.games.pagination.prev")}
               </button>
               <span className="font-roboto text-slate-300">
-                صفحه {page} از {Math.ceil(total / 15)}
+                {t("admin.games.pagination.pageOf", { page: n(page), pages: n(Math.ceil(total / 15)) })}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(Math.ceil(total / 15), p + 1))}
                 disabled={page >= Math.ceil(total / 15)}
                 className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 transition-colors"
               >
-                صفحه بعد
+                {t("admin.games.pagination.next")}
               </button>
             </div>
           )}
@@ -658,15 +672,15 @@ export default function AdminGamesPage() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>{isEditing ? "ویرایش کلیه جزئیات بازی" : "ثبت عنوان بازی جدید"}</span>
+                    <span>{isEditing ? t("admin.games.modal.titleEdit") : t("admin.games.modal.titleAdd")}</span>
                     {selectedGameId && (
                       <span className="text-[10px] font-roboto px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                        ID: {selectedGameId}
+                        {t("admin.games.modal.idLabel", { id: n(selectedGameId) })}
                       </span>
                     )}
                   </h2>
                   <p className="text-xs text-slate-400">
-                    مدیریت یکپارچه بنرها، نقد، مشخصات استودیو، جوایز و فایل‌های دانلود بازی
+                    {t("admin.games.modal.subtitle")}
                   </p>
                 </div>
               </div>
@@ -689,7 +703,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <FileText className="w-4 h-4" />
-                <span>مشخصات اصلی</span>
+                <span>{t("admin.games.modal.tabs.basic")}</span>
               </button>
 
               <button
@@ -701,7 +715,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <ImageIcon className="w-4 h-4" />
-                <span>تصاویر و بنر هیرو</span>
+                <span>{t("admin.games.modal.tabs.media")}</span>
               </button>
 
               <button
@@ -713,7 +727,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <Award className="w-4 h-4" />
-                <span>استودیو و جوایز</span>
+                <span>{t("admin.games.modal.tabs.studio")}</span>
               </button>
 
               <button
@@ -725,7 +739,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <BookOpen className="w-4 h-4" />
-                <span>قلب بازی و داستان</span>
+                <span>{t("admin.games.modal.tabs.story")}</span>
               </button>
 
               <button
@@ -737,7 +751,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>پلتفرم و امکانات</span>
+                <span>{t("admin.games.modal.tabs.features")}</span>
               </button>
 
               <button
@@ -749,7 +763,7 @@ export default function AdminGamesPage() {
                   }`}
               >
                 <DownloadCloud className="w-4 h-4" />
-                <span>فایل‌ها و پارت‌ها ({downloadLinks.length})</span>
+                <span>{t("admin.games.modal.tabs.downloads", { count: n(downloadLinks.length) })}</span>
               </button>
             </div>
 
@@ -758,7 +772,7 @@ export default function AdminGamesPage() {
               {modalLoading ? (
                 <div className="py-20 text-center text-slate-400">
                   <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  درحال دریافت جزئیات بازی از دیتابیس...
+                  {t("admin.games.modal.loading")}
                 </div>
               ) : (
                 <>
@@ -768,26 +782,26 @@ export default function AdminGamesPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            عنوان فارسی بازی <span className="text-rose-400">*</span>
+                            {t("admin.games.modal.basic.titleFa")} <span className="text-rose-400">*</span>
                           </label>
                           <input
                             type="text"
                             value={titleFa}
                             onChange={(e) => setTitleFa(e.target.value)}
-                            placeholder="مثال: لست آو آس ریمسترد"
+                            placeholder={t("admin.games.modal.basic.placeholders.titleFa")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
                           />
                         </div>
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            عنوان انگلیسی بازی <span className="text-rose-400">*</span>
+                            {t("admin.games.modal.basic.titleEn")} <span className="text-rose-400">*</span>
                           </label>
                           <input
                             type="text"
                             value={titleEn}
                             onChange={(e) => setTitleEn(e.target.value)}
-                            placeholder="e.g. The Last of Us Remastered"
+                            placeholder={t("admin.games.modal.basic.placeholders.titleEn")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors font-roboto"
                             dir="ltr"
                           />
@@ -797,7 +811,7 @@ export default function AdminGamesPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            نامک آدرس (Slug)
+                            {t("admin.games.modal.basic.slug")}
                           </label>
                           <input
                             type="text"
@@ -811,13 +825,13 @@ export default function AdminGamesPage() {
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            تاریخ / سال انتشار
+                            {t("admin.games.modal.basic.released")}
                           </label>
                           <input
                             type="text"
                             value={released}
                             onChange={(e) => setReleased(e.target.value)}
-                            placeholder="مثال: 2022 یا 2014-07-29"
+                            placeholder={t("admin.games.modal.basic.placeholders.released")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors font-roboto"
                             dir="ltr"
                           />
@@ -825,7 +839,7 @@ export default function AdminGamesPage() {
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            حجم کلی دیتا (GB)
+                            {t("admin.games.modal.basic.size")}
                           </label>
                           <input
                             type="number"
@@ -841,7 +855,7 @@ export default function AdminGamesPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            امتیاز کاربران (از ۵)
+                            {t("admin.games.modal.basic.rating")}
                           </label>
                           <input
                             type="number"
@@ -857,7 +871,7 @@ export default function AdminGamesPage() {
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            نمره متاکریتیک (از ۱۰۰)
+                            {t("admin.games.modal.basic.metacritic")}
                           </label>
                           <input
                             type="number"
@@ -865,7 +879,7 @@ export default function AdminGamesPage() {
                             max="100"
                             value={metacritic}
                             onChange={(e) => setMetacritic(e.target.value === "" ? "" : parseInt(e.target.value))}
-                            placeholder="مثال: 95"
+                            placeholder={t("admin.games.modal.basic.placeholders.metacritic")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors font-roboto"
                             dir="ltr"
                           />
@@ -873,7 +887,7 @@ export default function AdminGamesPage() {
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            وضعیت انتشار بازی
+                            {t("admin.games.modal.basic.status")}
                           </label>
                           <div className="flex items-center gap-3 pt-2">
                             <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-200">
@@ -883,7 +897,7 @@ export default function AdminGamesPage() {
                                 onChange={(e) => setIsActive(e.target.checked)}
                                 className="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 focus:ring-0 focus:ring-offset-0"
                               />
-                              <span>فعال و منتشر شده در فروشگاه</span>
+                              <span>{t("admin.games.modal.basic.activeLabel")}</span>
                             </label>
                           </div>
                         </div>
@@ -899,9 +913,9 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between">
                           <label className="text-slate-200 font-semibold text-xs flex items-center gap-2">
                             <ImageIcon className="w-4 h-4 text-purple-400" />
-                            <span>تصویر کاور باکس بازی (Cover Art)</span>
+                            <span>{t("admin.games.modal.media.coverLabel")}</span>
                           </label>
-                          <span className="text-[11px] text-slate-400">نسبت استاندارد ۳:۴ یا ۴:۵</span>
+                          <span className="text-[11px] text-slate-400">{t("admin.games.modal.media.coverHint")}</span>
                         </div>
 
                         <div className="flex gap-2">
@@ -909,7 +923,7 @@ export default function AdminGamesPage() {
                             type="text"
                             value={coverUrl}
                             onChange={(e) => setCoverUrl(e.target.value)}
-                            placeholder="https://... یا /media/games/cover_..."
+                            placeholder={t("admin.games.modal.media.coverPlaceholder")}
                             className="flex-1 bg-[#141b29] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500 font-roboto"
                             dir="ltr"
                           />
@@ -919,10 +933,10 @@ export default function AdminGamesPage() {
                               disabled={cachingCover}
                               onClick={() => handleCacheRemote("cover")}
                               className="px-3 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 rounded-xl flex items-center gap-1.5 shrink-0 text-xs transition-colors"
-                              title="دانلود و ذخیره‌سازی تصویر در سرور دکتر گیم"
+                              title={t("admin.games.modal.media.coverCacheTitle")}
                             >
                               <DownloadCloud className="w-3.5 h-3.5" />
-                              <span>{cachingCover ? "در حال کش..." : "ذخیره در سرور"}</span>
+                              <span>{cachingCover ? t("admin.games.modal.media.caching") : t("admin.games.modal.media.cacheToServer")}</span>
                             </button>
                           )}
                         </div>
@@ -930,7 +944,7 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between gap-3 pt-1">
                           <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs transition-colors">
                             <Upload className="w-3.5 h-3.5 text-purple-400" />
-                            <span>{uploadingCover ? "درحال آپلود کاور..." : "آپلود کاور از سیستم"}</span>
+                            <span>{uploadingCover ? t("admin.games.modal.media.coverUploading") : t("admin.games.modal.media.coverUpload")}</span>
                             <input
                               type="file"
                               accept="image/*"
@@ -948,11 +962,11 @@ export default function AdminGamesPage() {
                               <div className="w-8 h-10 rounded bg-slate-800 overflow-hidden border border-slate-700">
                                 <img
                                   src={getMediaUrl(coverUrl)}
-                                  alt="Cover preview"
+                                  alt={t("admin.games.modal.media.coverPreviewAlt")}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              <span className="text-[10px] text-emerald-400">کاور بارگذاری شده</span>
+                              <span className="text-[10px] text-emerald-400">{t("admin.games.modal.media.coverUploaded")}</span>
                             </div>
                           )}
                         </div>
@@ -963,9 +977,9 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between">
                           <label className="text-slate-200 font-semibold text-xs flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-indigo-400" />
-                            <span>بنر سینمایی هیرو (Backdrop Hero Banner)</span>
+                            <span>{t("admin.games.modal.media.bannerLabel")}</span>
                           </label>
-                          <span className="text-[11px] text-slate-400">تصویر عریض پس‌زمینه بالای صفحه (۱۶:۹)</span>
+                          <span className="text-[11px] text-slate-400">{t("admin.games.modal.media.bannerHint")}</span>
                         </div>
 
                         <div className="flex gap-2">
@@ -973,7 +987,7 @@ export default function AdminGamesPage() {
                             type="text"
                             value={bannerUrl}
                             onChange={(e) => setBannerUrl(e.target.value)}
-                            placeholder="https://... یا /media/games/banner_..."
+                            placeholder={t("admin.games.modal.media.bannerPlaceholder")}
                             className="flex-1 bg-[#141b29] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500 font-roboto"
                             dir="ltr"
                           />
@@ -983,10 +997,10 @@ export default function AdminGamesPage() {
                               disabled={cachingBanner}
                               onClick={() => handleCacheRemote("banner")}
                               className="px-3 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 rounded-xl flex items-center gap-1.5 shrink-0 text-xs transition-colors"
-                              title="دانلود و ذخیره‌سازی بنر در سرور دکتر گیم"
+                              title={t("admin.games.modal.media.bannerCacheTitle")}
                             >
                               <DownloadCloud className="w-3.5 h-3.5" />
-                              <span>{cachingBanner ? "در حال کش..." : "ذخیره در سرور"}</span>
+                              <span>{cachingBanner ? t("admin.games.modal.media.caching") : t("admin.games.modal.media.cacheToServer")}</span>
                             </button>
                           )}
                         </div>
@@ -994,7 +1008,7 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between gap-3 pt-1">
                           <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs transition-colors">
                             <Upload className="w-3.5 h-3.5 text-indigo-400" />
-                            <span>{uploadingBanner ? "درحال آپلود بنر..." : "آپلود بنر هیرو از سیستم"}</span>
+                            <span>{uploadingBanner ? t("admin.games.modal.media.bannerUploading") : t("admin.games.modal.media.bannerUpload")}</span>
                             <input
                               type="file"
                               accept="image/*"
@@ -1012,11 +1026,11 @@ export default function AdminGamesPage() {
                               <div className="w-16 h-8 rounded bg-slate-800 overflow-hidden border border-slate-700">
                                 <img
                                   src={getMediaUrl(bannerUrl)}
-                                  alt="Banner preview"
+                                  alt={t("admin.games.modal.media.bannerPreviewAlt")}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              <span className="text-[10px] text-emerald-400">بنر بارگذاری شده</span>
+                              <span className="text-[10px] text-emerald-400">{t("admin.games.modal.media.bannerUploaded")}</span>
                             </div>
                           )}
                         </div>
@@ -1025,7 +1039,7 @@ export default function AdminGamesPage() {
                       {/* Screenshots Textarea */}
                       <div>
                         <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                          گالری اسکرین‌شات‌های بازی (هر لینک در یک خط)
+                          {t("admin.games.modal.media.screenshotsLabel")}
                         </label>
                         <textarea
                           rows={3}
@@ -1045,26 +1059,26 @@ export default function AdminGamesPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            استودیوی سازنده بازی (Developer)
+                            {t("admin.games.modal.studio.developerLabel")}
                           </label>
                           <input
                             type="text"
                             value={developer}
                             onChange={(e) => setDeveloper(e.target.value)}
-                            placeholder="مثال: Naughty Dog یا Santa Monica Studio"
+                            placeholder={t("admin.games.modal.studio.developerPlaceholder")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
                           />
                         </div>
 
                         <div>
                           <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                            ناشر بازی (Publisher)
+                            {t("admin.games.modal.studio.publisherLabel")}
                           </label>
                           <input
                             type="text"
                             value={publisher}
                             onChange={(e) => setPublisher(e.target.value)}
-                            placeholder="مثال: Sony Interactive Entertainment"
+                            placeholder={t("admin.games.modal.studio.publisherPlaceholder")}
                             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
                           />
                         </div>
@@ -1074,17 +1088,17 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-slate-300 font-medium text-xs flex items-center gap-1.5">
                             <Award className="w-4 h-4 text-amber-400" />
-                            <span>جوایز و افتخارات بازی (هر جایزه در یک سطر)</span>
+                            <span>{t("admin.games.modal.studio.awardsLabel")}</span>
                           </label>
                           <span className="text-[10px] text-slate-500">
-                            در کارت اول صفحه گیم دیتل نمایش داده می‌شود
+                            {t("admin.games.modal.studio.awardsHint")}
                           </span>
                         </div>
                         <textarea
                           rows={4}
                           value={awardsText}
                           onChange={(e) => setAwardsText(e.target.value)}
-                          placeholder="برنده بیش از ۲۰۰ جایزه بهترین بازی سال (Game of the Year)&#10;بهترین داستان‌سرایی مراسم The Game Awards&#10;شاهکار بیادماندنی استودیوی ناتی‌داگ"
+                          placeholder={t("admin.games.modal.studio.awardsPlaceholder")}
                           className="w-full bg-[#121721] border border-slate-700/80 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-purple-500 leading-relaxed"
                         />
                       </div>
@@ -1098,43 +1112,43 @@ export default function AdminGamesPage() {
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-slate-300 font-medium text-xs flex items-center gap-1.5">
                             <BookOpen className="w-4 h-4 text-purple-400" />
-                            <span>روایت و قلب بازی (Storyline FA)</span>
+                            <span>{t("admin.games.modal.story.storylineLabel")}</span>
                           </label>
                           <span className="text-[10px] text-purple-400">
-                            متن کارت سوم «قلب بازی» در صفحه گیم دیتل
+                            {t("admin.games.modal.story.storylineHint")}
                           </span>
                         </div>
                         <textarea
                           rows={4}
                           value={storylineFa}
                           onChange={(e) => setStorylineFa(e.target.value)}
-                          placeholder="خلاصه داستان جذاب، جهان اثر و اتمسفر داستانی که در باکس اختصاصی قلب بازی نمایش داده می‌شود..."
+                          placeholder={t("admin.games.modal.story.storylinePlaceholder")}
                           className="w-full bg-[#121721] border border-slate-700/80 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-purple-500 leading-relaxed"
                         />
                       </div>
 
                       <div>
                         <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                          توضیحات و نقد فارسی کامل (Full Description FA)
+                          {t("admin.games.modal.story.descriptionFaLabel")}
                         </label>
                         <textarea
                           rows={4}
                           value={descriptionFa}
                           onChange={(e) => setDescriptionFa(e.target.value)}
-                          placeholder="نقد و بررسی کامل گیم‌پلی، گرافیک و نکات فنی بازی به زبان فارسی..."
+                          placeholder={t("admin.games.modal.story.descriptionFaPlaceholder")}
                           className="w-full bg-[#121721] border border-slate-700/80 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-purple-500 leading-relaxed"
                         />
                       </div>
 
                       <div>
                         <label className="block text-slate-300 mb-1.5 font-medium text-xs font-roboto" dir="ltr">
-                          English Description
+                          {t("admin.games.modal.story.descriptionEnLabel")}
                         </label>
                         <textarea
                           rows={3}
                           value={descriptionEn}
                           onChange={(e) => setDescriptionEn(e.target.value)}
-                          placeholder="Original English description of the game..."
+                          placeholder={t("admin.games.modal.story.descriptionEnPlaceholder")}
                           className="w-full bg-[#121721] border border-slate-700/80 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-purple-500 font-roboto"
                           dir="ltr"
                         />
@@ -1147,7 +1161,7 @@ export default function AdminGamesPage() {
                     <div className="space-y-5">
                       <div>
                         <label className="block text-slate-300 mb-2 font-medium text-xs">
-                          پلتفرم‌های تحت پوشش
+                          {t("admin.games.modal.features.platformsLabel")}
                         </label>
                         <div className="flex flex-wrap gap-2.5">
                           {PLATFORM_OPTIONS.map((plat) => {
@@ -1167,7 +1181,7 @@ export default function AdminGamesPage() {
                                 ) : (
                                   <Square className="w-3.5 h-3.5 text-slate-500" />
                                 )}
-                                <span>{plat}</span>
+                                <span>{t(PLATFORM_KEY[plat] ?? plat)}</span>
                               </button>
                             );
                           })}
@@ -1176,20 +1190,20 @@ export default function AdminGamesPage() {
 
                       <div>
                         <label className="block text-slate-300 mb-1.5 font-medium text-xs">
-                          ژانرهای بازی (با کاما یا ویرگول جدا کنید)
+                          {t("admin.games.modal.features.genresLabel")}
                         </label>
                         <input
                           type="text"
                           value={genresText}
                           onChange={(e) => setGenresText(e.target.value)}
-                          placeholder="اکشن, ماجراجویی, نقش‌آفرینی, بقا"
+                          placeholder={t("admin.games.modal.features.genresPlaceholder")}
                           className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
                         />
                       </div>
 
                       <div className="p-4 rounded-2xl bg-[#101520] border border-slate-800 space-y-3">
                         <label className="text-slate-200 font-semibold text-xs block">
-                          ویژگی‌ها و قابلیت‌های خاص بازی
+                          {t("admin.games.modal.features.title")}
                         </label>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1202,10 +1216,10 @@ export default function AdminGamesPage() {
                             />
                             <div>
                               <span className="text-xs text-slate-200 font-medium block">
-                                پشتیبانی از حالت دونفره / چندنفره (Co-op)
+                                {t("admin.games.modal.features.coopLabel")}
                               </span>
                               <span className="text-[10px] text-slate-400">
-                                امکان بازی چند نفره آفلاین یا آنلاین
+                                {t("admin.games.modal.features.coopHint")}
                               </span>
                             </div>
                           </label>
@@ -1219,10 +1233,10 @@ export default function AdminGamesPage() {
                             />
                             <div>
                               <span className="text-xs text-slate-200 font-medium block">
-                                پشتیبانی از واقعیت مجازی (PS VR / PS VR2)
+                                {t("admin.games.modal.features.vrLabel")}
                               </span>
                               <span className="text-[10px] text-slate-400">
-                                به همراه برچسب ویژه VR در مشخصات بازی
+                                {t("admin.games.modal.features.vrHint")}
                               </span>
                             </div>
                           </label>
@@ -1237,10 +1251,10 @@ export default function AdminGamesPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                         <div>
                           <h3 className="text-xs font-semibold text-white">
-                            پارت‌ها، بسته‌ها و ۵ نوع فایل قابل دانلود بازی
+                            {t("admin.games.modal.downloads.title")}
                           </h3>
                           <p className="text-[11px] text-slate-400">
-                            تعریف دیتای بازی، چیت، DLC، زیرنویس و دوبله همراه با تعیین سطح اشتراک مجاز
+                            {t("admin.games.modal.downloads.subtitle")}
                           </p>
                         </div>
 
@@ -1252,7 +1266,7 @@ export default function AdminGamesPage() {
                             className="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>دیتای رسمی</span>
+                            <span>{t("admin.games.modal.downloads.quickAdd.data")}</span>
                           </button>
                           <button
                             type="button"
@@ -1260,7 +1274,7 @@ export default function AdminGamesPage() {
                             className="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>چیت و ترینر</span>
+                            <span>{t("admin.games.modal.downloads.quickAdd.cheat")}</span>
                           </button>
                           <button
                             type="button"
@@ -1268,7 +1282,7 @@ export default function AdminGamesPage() {
                             className="px-2.5 py-1 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>بسته الحاقی (DLC)</span>
+                            <span>{t("admin.games.modal.downloads.quickAdd.dlc")}</span>
                           </button>
                           <button
                             type="button"
@@ -1276,7 +1290,7 @@ export default function AdminGamesPage() {
                             className="px-2.5 py-1 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>زیرنویس</span>
+                            <span>{t("admin.games.modal.downloads.quickAdd.subtitle")}</span>
                           </button>
                           <button
                             type="button"
@@ -1284,14 +1298,14 @@ export default function AdminGamesPage() {
                             className="px-2.5 py-1 bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>دوبله فارسی</span>
+                            <span>{t("admin.games.modal.downloads.quickAdd.dubbing")}</span>
                           </button>
                         </div>
                       </div>
 
                       {downloadLinks.length === 0 ? (
                         <div className="p-8 text-center bg-[#101520] border border-slate-800/80 rounded-2xl text-slate-400 text-xs">
-                          هنوز فایلی برای این بازی ثبت نشده است. از دکمه‌های بالا نوع فایل مورد نظر را اضافه نمایید.
+                          {t("admin.games.modal.downloads.empty")}
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -1301,40 +1315,40 @@ export default function AdminGamesPage() {
                               className="p-3.5 rounded-2xl bg-[#101520] border border-slate-800 flex flex-col md:flex-row items-start md:items-center gap-3 transition-colors hover:border-slate-700"
                             >
                               <span className="w-6 h-6 rounded-full bg-slate-800 text-slate-300 text-[11px] flex items-center justify-center font-roboto shrink-0">
-                                {idx + 1}
+                                {n(idx + 1)}
                               </span>
 
                               {/* File Type Select */}
                               <div className="w-full md:w-32">
-                                <label className="block text-[10px] text-slate-500 mb-0.5">نوع فایل:</label>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">{t("admin.games.modal.downloads.fileTypeLabel")}</label>
                                 <select
                                   value={link.file_type || 'data'}
                                   onChange={(e) => handleUpdateDownloadLink(idx, "file_type", e.target.value)}
                                   className="w-full bg-[#141b29] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-bold"
                                 >
-                                  <option value="data">دیتای رسمی</option>
-                                  <option value="cheat">چیت و ترینر</option>
-                                  <option value="dlc">الحاقی (DLC)</option>
-                                  <option value="subtitle">زیرنویس فارسی</option>
-                                  <option value="dubbing">دوبله اختصاصی</option>
+                                  <option value="data">{t("admin.games.modal.downloads.fileTypes.data")}</option>
+                                  <option value="cheat">{t("admin.games.modal.downloads.fileTypes.cheat")}</option>
+                                  <option value="dlc">{t("admin.games.modal.downloads.fileTypes.dlc")}</option>
+                                  <option value="subtitle">{t("admin.games.modal.downloads.fileTypes.subtitle")}</option>
+                                  <option value="dubbing">{t("admin.games.modal.downloads.fileTypes.dubbing")}</option>
                                 </select>
                               </div>
 
                               {/* Part Name */}
                               <div className="w-full md:w-36">
-                                <label className="block text-[10px] text-slate-500 mb-0.5">عنوان / نام پارت:</label>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">{t("admin.games.modal.downloads.partNameLabel")}</label>
                                 <input
                                   type="text"
                                   value={link.part_name}
                                   onChange={(e) => handleUpdateDownloadLink(idx, "part_name", e.target.value)}
-                                  placeholder="نام پارت"
+                                  placeholder={t("admin.games.modal.downloads.partNamePlaceholder")}
                                   className="w-full bg-[#141b29] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500"
                                 />
                               </div>
 
                               {/* Size GB */}
                               <div className="w-full md:w-20">
-                                <label className="block text-[10px] text-slate-500 mb-0.5">حجم (GB):</label>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">{t("admin.games.modal.downloads.sizeLabel")}</label>
                                 <input
                                   type="number"
                                   step="0.01"
@@ -1342,7 +1356,7 @@ export default function AdminGamesPage() {
                                   onChange={(e) =>
                                     handleUpdateDownloadLink(idx, "file_size_gb", parseFloat(e.target.value) || 0)
                                   }
-                                  placeholder="حجم GB"
+                                  placeholder={t("admin.games.modal.downloads.sizePlaceholder")}
                                   className="w-full bg-[#141b29] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-roboto"
                                   dir="ltr"
                                 />
@@ -1350,22 +1364,22 @@ export default function AdminGamesPage() {
 
                               {/* Required Tier */}
                               <div className="w-full md:w-28">
-                                <label className="block text-[10px] text-slate-500 mb-0.5">اشتراک مجاز:</label>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">{t("admin.games.modal.downloads.tierLabel")}</label>
                                 <select
                                   value={link.required_tier || 'bronze'}
                                   onChange={(e) => handleUpdateDownloadLink(idx, "required_tier", e.target.value)}
                                   className="w-full bg-[#141b29] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-purple-500 font-bold"
                                 >
-                                  <option value="free">رایگان (Free)</option>
-                                  <option value="bronze">برنزی به بالا</option>
-                                  <option value="silver">نقره‌ای به بالا</option>
-                                  <option value="gold">طلایی (Gold)</option>
+                                  <option value="free">{t("admin.games.modal.downloads.tiers.free")}</option>
+                                  <option value="bronze">{t("admin.games.modal.downloads.tiers.bronze")}</option>
+                                  <option value="silver">{t("admin.games.modal.downloads.tiers.silver")}</option>
+                                  <option value="gold">{t("admin.games.modal.downloads.tiers.gold")}</option>
                                 </select>
                               </div>
 
                               {/* Download URL */}
                               <div className="flex-1 w-full">
-                                <label className="block text-[10px] text-slate-500 mb-0.5">آدرس لینک دانلود (URL):</label>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">{t("admin.games.modal.downloads.urlLabel")}</label>
                                 <input
                                   type="text"
                                   value={link.download_url}
@@ -1385,14 +1399,14 @@ export default function AdminGamesPage() {
                                     onChange={(e) => handleUpdateDownloadLink(idx, "is_active", e.target.checked)}
                                     className="w-3.5 h-3.5 rounded text-purple-600 bg-slate-800 border-slate-700"
                                   />
-                                  <span>فعال</span>
+                                  <span>{t("admin.games.modal.downloads.activeLabel")}</span>
                                 </label>
 
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveDownloadLink(idx)}
                                   className="p-1.5 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-                                  title="حذف این بخش"
+                                  title={t("admin.games.modal.downloads.removeTitle")}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -1424,7 +1438,7 @@ export default function AdminGamesPage() {
               {/* Modal Footer Buttons */}
               <div className="flex items-center justify-between pt-4 border-t border-slate-800">
                 <span className="text-[11px] text-slate-500">
-                  همه تغییرات پس از ذخیره بلافاصله در فروشگاه اعمال خواهند شد.
+                  {t("admin.games.modal.footer.note")}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -1433,7 +1447,7 @@ export default function AdminGamesPage() {
                     onClick={() => setShowModal(false)}
                     className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition-colors"
                   >
-                    انصراف
+                    {t("admin.games.modal.footer.cancel")}
                   </button>
                   <button
                     type="submit"
@@ -1443,12 +1457,12 @@ export default function AdminGamesPage() {
                     {submitting ? (
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>درحال ذخیره‌سازی...</span>
+                        <span>{t("admin.games.modal.footer.saving")}</span>
                       </>
                     ) : (
                       <>
                         <Check className="w-4 h-4" />
-                        <span>ذخیره کلیه اطلاعات بازی</span>
+                        <span>{t("admin.games.modal.footer.save")}</span>
                       </>
                     )}
                   </button>

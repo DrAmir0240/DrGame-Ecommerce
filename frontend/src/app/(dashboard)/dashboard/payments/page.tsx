@@ -18,6 +18,7 @@ import {
 import { apiRequest } from '@/lib/apiClient';
 import { useAuthStore } from '@/stores/useAuthStore';
 import InvoiceModal from '@/components/payments/InvoiceModal';
+import { useTranslation } from '@/i18n';
 
 interface PaymentItem {
   id: number;
@@ -31,8 +32,15 @@ interface PaymentItem {
   created_at: string;
 }
 
+const PAYMENT_STATUS_KEY: Record<string, string> = {
+  success: 'payments.status.success',
+  failed: 'payments.status.failed',
+  pending: 'payments.status.pending',
+};
+
 export default function MyPaymentsPage() {
   const { isAuthenticated, user, setAuthModalOpen } = useAuthStore();
+  const { t, n, price } = useTranslation();
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -60,7 +68,10 @@ export default function MyPaymentsPage() {
     }
   }, [isAuthenticated]);
 
-  const toFarsi = (num: number) => (num || 0).toLocaleString('fa-IR');
+  const getStatusLabel = (status: string) => {
+    const key = PAYMENT_STATUS_KEY[status];
+    return key ? t(key) : status;
+  };
 
   const filteredPayments = payments.filter((p) => {
     const term = search.toLowerCase();
@@ -79,21 +90,21 @@ export default function MyPaymentsPage() {
         return (
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
-            <span>موفق</span>
+            <span>{getStatusLabel(status)}</span>
           </span>
         );
       case 'failed':
         return (
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
             <XCircle className="w-3 h-3" />
-            <span>ناموفق</span>
+            <span>{getStatusLabel(status)}</span>
           </span>
         );
       default:
         return (
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            <span>در انتظار تایید</span>
+            <span>{getStatusLabel(status)}</span>
           </span>
         );
     }
@@ -106,18 +117,18 @@ export default function MyPaymentsPage() {
   const successfulCount = payments.filter((p) => p.status === 'success').length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-vazir text-right">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-vazir text-start">
       {!isAuthenticated && (
         <div className="p-5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cyan-300">
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-cyan-400 shrink-0" />
-            <span>جهت مشاهده سوابق پرداخت و فاکتورهای رسمی حساب خود، وارد شوید.</span>
+            <span>{t('payments.loginPrompt')}</span>
           </div>
           <button
             onClick={() => setAuthModalOpen(true, 'otp')}
             className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all shrink-0"
           >
-            ورود به حساب
+            {t('payments.loginButton')}
           </button>
         </div>
       )}
@@ -127,13 +138,13 @@ export default function MyPaymentsPage() {
         <div>
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1">
             <Sparkles className="w-4 h-4" />
-            <span>سوابق تراکنش‌ها و فاکتورهای دیجیتال</span>
+            <span>{t('payments.eyebrow')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            سوابق پرداخت‌ها
+            {t('payments.title')}
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            آرشیو کامل پرداخت‌های انجام‌شده برای خرید اشتراک، شارژ کیف پول و خدمات ویژه
+            {t('payments.subtitle')}
           </p>
         </div>
 
@@ -142,7 +153,7 @@ export default function MyPaymentsPage() {
           className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition-all self-start sm:self-auto"
         >
           <CreditCard className="w-4 h-4" />
-          <span>خرید یا تمدید اشتراک</span>
+          <span>{t('payments.buySubscription')}</span>
         </Link>
       </div>
 
@@ -150,33 +161,33 @@ export default function MyPaymentsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-[#0d121f] border border-white/10 space-y-1 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>مجموع پرداخت‌های موفق</span>
+            <span>{t('payments.stats.totalPaid')}</span>
             <DollarSign className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-black text-emerald-400 font-roboto pt-2">
-            {toFarsi(totalSpentToman)}{' '}
-            <span className="text-xs font-vazir text-slate-400">تومان</span>
+            {n(totalSpentToman)}{' '}
+            <span className="text-xs font-vazir text-slate-400">{t('payments.unitToman')}</span>
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#0d121f] border border-white/10 space-y-1 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>تعداد سفارش‌های موفق</span>
+            <span>{t('payments.stats.successfulOrders')}</span>
             <Receipt className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-2xl font-black text-white font-roboto pt-2">
-            {toFarsi(successfulCount)}{' '}
-            <span className="text-xs font-vazir text-slate-400">سفارش</span>
+            {n(successfulCount)}{' '}
+            <span className="text-xs font-vazir text-slate-400">{t('payments.unitOrders')}</span>
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#0d121f] border border-white/10 space-y-1 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>امنیت پرداخت و تضمین درگاه</span>
+            <span>{t('payments.stats.security')}</span>
             <ShieldCheck className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-sm font-bold text-white pt-2 leading-relaxed">
-            شبکه پرداخت شاپرک با پروتکل رمزنگاری امن SSL
+            {t('payments.stats.securityValue')}
           </div>
         </div>
       </div>
@@ -189,7 +200,7 @@ export default function MyPaymentsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="جستجوی کد رهگیری، نام پلن یا درگاه..."
+            placeholder={t('payments.searchPlaceholder')}
             className="w-full bg-[#141b2d] border border-white/10 rounded-xl pr-10 pl-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
           />
         </div>
@@ -200,10 +211,10 @@ export default function MyPaymentsPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-[#141b2d] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
           >
-            <option value="all">همه تراکنش‌ها</option>
-            <option value="success">فقط پرداخت‌های موفق</option>
-            <option value="pending">در انتظار تایید</option>
-            <option value="failed">پرداخت‌های ناموفق</option>
+            <option value="all">{t('payments.filter.all')}</option>
+            <option value="success">{t('payments.filter.success')}</option>
+            <option value="pending">{t('payments.filter.pending')}</option>
+            <option value="failed">{t('payments.filter.failed')}</option>
           </select>
         </div>
       </div>
@@ -213,27 +224,27 @@ export default function MyPaymentsPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت سوابق پرداخت‌ها...</span>
+            <span className="text-xs text-slate-400">{t('payments.loading')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-start text-xs">
               <thead className="bg-[#141b2d] text-slate-400 border-b border-white/10">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">کد رهگیری</th>
-                  <th className="py-3.5 px-4 font-bold">پلن / خدمت</th>
-                  <th className="py-3.5 px-4 font-bold">مبلغ (تومان)</th>
-                  <th className="py-3.5 px-4 font-bold">درگاه</th>
-                  <th className="py-3.5 px-4 font-bold">تاریخ و ساعت</th>
-                  <th className="py-3.5 px-4 font-bold">وضعیت</th>
-                  <th className="py-3.5 px-4 font-bold text-center">فاکتور رسمی</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.tracking')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.plan')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.amount')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.gateway')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.dateTime')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('payments.table.status')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('payments.table.invoice')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {filteredPayments.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-14 text-center text-slate-500">
-                      هیچ تراکنشی یافت نشد.
+                      {t('payments.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -243,13 +254,13 @@ export default function MyPaymentsPage() {
                         {p.tracking_code || `#${p.id}`}
                       </td>
                       <td className="py-3.5 px-4 font-bold text-white">
-                        {p.plan_name || 'اشتراک ویژه سرویس بازی'}
+                        {p.plan_name || t('payments.defaultPlanName')}
                       </td>
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-200">
-                        {toFarsi(p.amount_toman)}
+                        {price(p.amount_toman)}
                       </td>
                       <td className="py-3.5 px-4 text-slate-400">
-                        {p.gateway || 'درگاه بانکی'}
+                        {p.gateway || t('payments.defaultGateway')}
                       </td>
                       <td className="py-3.5 px-4 text-slate-400">
                         {p.jalali_date}
@@ -264,7 +275,7 @@ export default function MyPaymentsPage() {
                             className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold text-[11px] flex items-center gap-1 mx-auto transition-all"
                           >
                             <Receipt className="w-3.5 h-3.5" />
-                            <span>مشاهده فاکتور</span>
+                            <span>{t('payments.viewInvoice')}</span>
                           </button>
                         ) : (
                           <span className="text-slate-600 text-[11px]">-</span>

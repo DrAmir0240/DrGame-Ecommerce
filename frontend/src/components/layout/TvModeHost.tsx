@@ -2,15 +2,14 @@
 
 import React, { useEffect } from 'react';
 import { useTvModeStore } from '@/stores/useTvModeStore';
-import ConsoleTvMode from './ConsoleTvMode';
+import TvBottomBar from './TvBottomBar';
 
 export default function TvModeHost() {
-  const { isTvMode, closeTvMode, initTvDetection } = useTvModeStore();
+  const { initTvDetection } = useTvModeStore();
 
   useEffect(() => {
     initTvDetection();
   }, [initTvDetection]);
 
-  return <ConsoleTvMode isOpen={isTvMode} onClose={closeTvMode} />;
+  return <TvBottomBar />;
 }
-

@@ -21,30 +21,33 @@ import {
   Share2,
 } from "lucide-react";
 import { AdminProfile } from "@/types/admin";
-import { apiRequest } from "@/lib/apiClient";
+import { apiRequest, ApiError } from "@/lib/apiClient";
+import { getAdminToken, clearAdminTokens } from "@/lib/authTokens";
+import { useTranslation } from "@/i18n";
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { label: "داشبورد کلان", href: "/admin/dashboard", icon: <Home className="w-5 h-5" /> },
-  { label: "مدیریت بنرهای اصلی", href: "/admin/banners", icon: <Sliders className="w-5 h-5" /> },
-  { label: "مدیریت کاربران و سهمیه", href: "/admin/users", icon: <Users className="w-5 h-5" /> },
-  { label: "کاتالوگ بازی‌ها", href: "/admin/games", icon: <Grid className="w-5 h-5" /> },
-  { label: "مدیریت ژانرهای بازی", href: "/admin/genres", icon: <Layers className="w-5 h-5 text-emerald-400" /> },
-  { label: "پلن‌ها و بازی‌های رایگان", href: "/admin/subscriptions", icon: <Layers className="w-5 h-5" /> },
-  { label: "مانیتورینگ زنجیره رفرال", href: "/admin/referrals", icon: <Share2 className="w-5 h-5" /> },
-  { label: "پایش مالی (ریالی / ارزی)", href: "/admin/finance", icon: <DollarSign className="w-5 h-5" /> },
-  { label: "کارتابل تسویه رفرال", href: "/admin/payouts", icon: <CreditCard className="w-5 h-5" /> },
-  { label: "تایید حساب‌های بانکی", href: "/admin/bank-accounts", icon: <CheckCircle className="w-5 h-5" /> },
-  { label: "تیکت‌های پشتیبانی", href: "/admin/tickets", icon: <MessageSquare className="w-5 h-5" /> },
-  { label: "کدهای تخفیف", href: "/admin/discounts", icon: <Tag className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.dashboard", href: "/admin/dashboard", icon: <Home className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.banners", href: "/admin/banners", icon: <Sliders className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.users", href: "/admin/users", icon: <Users className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.games", href: "/admin/games", icon: <Grid className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.genres", href: "/admin/genres", icon: <Layers className="w-5 h-5 text-emerald-400" /> },
+  { labelKey: "admin.layout.nav.subscriptions", href: "/admin/subscriptions", icon: <Layers className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.referrals", href: "/admin/referrals", icon: <Share2 className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.finance", href: "/admin/finance", icon: <DollarSign className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.payouts", href: "/admin/payouts", icon: <CreditCard className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.bankAccounts", href: "/admin/bank-accounts", icon: <CheckCircle className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.tickets", href: "/admin/tickets", icon: <MessageSquare className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.discounts", href: "/admin/discounts", icon: <Tag className="w-5 h-5" /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -59,14 +62,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    const token = localStorage.getItem("drgame_admin_token");
+    const token =
+      getAdminToken() ||
+      (typeof window !== "undefined" ? localStorage.getItem("drgame_admin_token") : null);
+
     if (!token) {
       router.replace("/admin/login");
       return;
     }
 
     // Load admin profile from cache first for immediate responsiveness
-    const storedAdmin = localStorage.getItem("drgame_admin_profile");
+    const storedAdmin = typeof window !== "undefined" ? localStorage.getItem("drgame_admin_profile") : null;
     if (storedAdmin) {
       try {
         setAdmin(JSON.parse(storedAdmin));
@@ -76,16 +82,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     // Verify admin token against backend to ensure active session and eliminate 403 errors
-    apiRequest<AdminProfile>('/admin/auth/me')
+    apiRequest<AdminProfile>("/admin/auth/me")
       .then((profile) => {
         setAdmin(profile);
-        localStorage.setItem("drgame_admin_profile", JSON.stringify(profile));
+        if (typeof window !== "undefined") {
+          localStorage.setItem("drgame_admin_profile", JSON.stringify(profile));
+        }
       })
       .catch((err) => {
-        console.warn("Admin session verification failed:", err);
-        localStorage.removeItem("drgame_admin_token");
-        localStorage.removeItem("drgame_admin_profile");
-        router.replace("/admin/login");
+        console.warn("Admin session verification warning:", err);
+        // ONLY log out if the backend actively rejected the credentials (HTTP 401 or 403)
+        // Network drops or delays should never log the admin out!
+        if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+          clearAdminTokens();
+          router.replace("/admin/login");
+        }
       })
       .finally(() => {
         setLoading(false);
@@ -93,8 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname, isLoginPage, router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("drgame_admin_token");
-    localStorage.removeItem("drgame_admin_profile");
+    clearAdminTokens();
     router.replace("/admin/login");
   };
 
@@ -107,7 +117,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen bg-[#07090e] flex items-center justify-center text-slate-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm">درحال بررسی گواهی مدیریت...</span>
+          <span className="text-sm">{t("admin.layout.verifyingSession")}</span>
         </div>
       </div>
     );
@@ -129,14 +139,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Shield className="w-5 h-5" />
               </div>
               <span className="font-bold text-base bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                پنل مدیریت کلان
+                {t("admin.layout.brand")}
               </span>
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors mx-auto"
-            title="تغییر اندازه سایدبار"
+            title={t("admin.layout.toggleSidebar")}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -155,10 +165,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-950/40"
                     : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
                 }`}
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? t(item.labelKey) : undefined}
               >
                 <div className="flex-shrink-0">{item.icon}</div>
-                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && <span>{t(item.labelKey)}</span>}
               </Link>
             );
           })}
@@ -170,7 +180,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center justify-between">
               <div className="flex flex-col truncate">
                 <span className="text-xs font-semibold text-slate-200 truncate">
-                  {admin?.username || "مدیر ارشد"}
+                  {admin?.username || t("admin.layout.defaultAdminName")}
                 </span>
                 <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-mono">
                   ● {admin?.role || "superadmin"}
@@ -179,7 +189,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <button
                 onClick={handleLogout}
                 className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors"
-                title="خروج از حساب مدیریت"
+                title={t("admin.layout.logout")}
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -188,7 +198,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <button
               onClick={handleLogout}
               className="w-full flex justify-center p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-              title="خروج"
+              title={t("admin.layout.logoutShort")}
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -206,14 +216,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               target="_blank"
               className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 bg-slate-800/50 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/50 transition-colors"
             >
-              مشاهده فروشگاه دکتر گیم
+              {t("admin.layout.viewStore")}
               <ChevronLeft className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-mono">
-              Admin Session Active
+              {t("admin.layout.sessionActive")}
             </span>
           </div>
         </header>

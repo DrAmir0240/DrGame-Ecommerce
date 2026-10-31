@@ -6,8 +6,10 @@ import { BlogPostCard, BlogPostListResponse, BlogCategory } from '@/types/blog';
 import BlogCard from '@/components/blog/BlogCard';
 import BlogFilterSidebar from '@/components/blog/BlogFilterSidebar';
 import { BookOpen, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export default function BlogCatalogPage() {
+  const { t, n } = useTranslation();
   const [posts, setPosts] = useState<BlogPostCard[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -60,13 +62,13 @@ export default function BlogCatalogPage() {
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cosmic-purple/10 border border-cosmic-purple/30 text-cosmic-purple text-xs font-bold">
           <BookOpen className="w-4 h-4" />
-          <span>مجله و پایگاه دانش دکتر گیم</span>
+          <span>{t('blogPage.heroBadge')}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-          اخبار، نقد و آموزش‌های تخصصی کنسول
+          {t('blogPage.heroTitle')}
         </h1>
         <p className="text-text-secondary text-xs sm:text-sm leading-relaxed">
-          جدیدترین راهنماهای انتقال دیتای بازی‌ها، فریمورهای کپی‌خور و تحلیل عناوین روز دنیای گیمینگ توسط تیم تحریریه دکتر گیم.
+          {t('blogPage.heroDescription')}
         </p>
       </div>
 
@@ -104,7 +106,7 @@ export default function BlogCatalogPage() {
             </div>
           ) : posts.length === 0 ? (
             <div className="glass-card rounded-3xl border border-white/10 p-12 text-center text-text-muted text-xs">
-              مقاله‌ای با این مشخصات یافت نشد.
+              {t('blogPage.empty')}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
@@ -122,17 +124,17 @@ export default function BlogCatalogPage() {
                 disabled={page <= 1}
                 className="px-4 py-2 rounded-xl glass-card border border-white/10 text-xs text-white disabled:opacity-40"
               >
-                صفحه قبل
+                {t('blogPage.prevPage')}
               </button>
               <span className="text-xs text-text-muted font-mono">
-                صفحه {page} از {Math.ceil(total / 12)}
+                {t('blogPage.pageOf', { page: n(page), total: n(Math.ceil(total / 12)) })}
               </span>
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= Math.ceil(total / 12)}
                 className="px-4 py-2 rounded-xl glass-card border border-white/10 text-xs text-white disabled:opacity-40"
               >
-                صفحه بعد
+                {t('blogPage.nextPage')}
               </button>
             </div>
           )}

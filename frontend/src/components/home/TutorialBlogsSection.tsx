@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Clock, ArrowLeft, Loader2 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface BlogPostItem {
   id: number;
@@ -19,6 +20,7 @@ interface BlogPostItem {
 }
 
 export default function TutorialBlogsSection() {
+  const { t, locale } = useTranslation();
   const [posts, setPosts] = useState<BlogPostItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +51,7 @@ export default function TutorialBlogsSection() {
   const formatDate = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
-      return d.toLocaleDateString('fa-IR', {
+      return d.toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'ar' ? 'ar-SA' : 'fa-IR', {
         month: 'short',
         day: 'numeric',
       });
@@ -59,7 +61,7 @@ export default function TutorialBlogsSection() {
   };
 
   return (
-    <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 my-4 font-vazir text-right">
+    <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 my-4">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2.5">
@@ -68,10 +70,10 @@ export default function TutorialBlogsSection() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-              مقالات و آموزش‌های تخصصی نصب دیتا
+              {t('blog.tutorialsTitle')}
             </h2>
             <span className="text-xs text-slate-400 hidden sm:inline">
-              راهنماهای گام‌به‌گام انتقال بدون دردسر دیتا به کنسول‌های نسل هشتم و نهم
+              {t('blog.tutorialsSubtitle')}
             </span>
           </div>
         </div>
@@ -80,8 +82,8 @@ export default function TutorialBlogsSection() {
           href="/blog"
           className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
         >
-          <span>مشاهده همه آموزش‌ها</span>
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>{t('blog.viewAllTutorials')}</span>
+          <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
         </Link>
       </div>
 
@@ -106,12 +108,14 @@ export default function TutorialBlogsSection() {
                 </span>
                 <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
                   <Clock className="w-3 h-3" />
-                  <span>{featured.reading_time_min} دقیقه</span>
+                  <span>
+                    {featured.reading_time_min} {t('blog.minutes')}
+                  </span>
                 </span>
               </div>
 
               <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-300 transition-colors leading-snug">
-                {featured.title_fa}
+                {locale === 'en' && featured.title_en ? featured.title_en : featured.title_fa}
               </h3>
 
               <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
@@ -134,18 +138,20 @@ export default function TutorialBlogsSection() {
                   <span className="text-cyan-400 font-bold">{item.category_name}</span>
                   <span className="text-slate-400 font-mono flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{item.reading_time_min} دقیقه</span>
+                    <span>
+                      {item.reading_time_min} {t('blog.minutes')}
+                    </span>
                   </span>
                 </div>
                 <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-relaxed">
-                  {item.title_fa}
+                  {locale === 'en' && item.title_en ? item.title_en : item.title_fa}
                 </h4>
               </div>
 
               <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
                 <span>{formatDate(item.created_at)}</span>
-                <span className="group-hover:translate-x-[-2px] transition-transform text-white">
-                  مطالعه ←
+                <span className="group-hover:translate-x-[-2px] rtl:group-hover:translate-x-[-2px] ltr:group-hover:translate-x-[2px] transition-transform text-white">
+                  {t('blog.readMore')}
                 </span>
               </div>
             </Link>

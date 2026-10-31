@@ -1,0 +1,246 @@
+{
+  "admin": {
+    "games": {
+      "title": "مدیریت جامع کاتالوگ بازی‌ها",
+      "subtitle": "ویرایش تمامی بخش‌های بازی (کاور، بنر، داستان، جوایز، استودیو، متای منتقدین، پلتفرم‌ها و لینک‌های دانلود)",
+      "searchPlaceholder": "جستجوی عنوان بازی...",
+      "addGame": "افزودن بازی جدید",
+      "table": {
+        "title": "عنوان بازی",
+        "studio": "استودیو و ناشر",
+        "size": "حجم دیتا",
+        "rating": "امتیاز و متا",
+        "platforms": "پلتفرم‌ها",
+        "status": "وضعیت",
+        "actions": "عملیات"
+      },
+      "platforms": {
+        "ps5": "PS5",
+        "ps4": "PS4",
+        "xboxSeries": "Xbox Series X/S",
+        "nintendoSwitch": "Nintendo Switch"
+      },
+      "loading": "درحال دریافت کاتالوگ...",
+      "empty": "بازی یافت نشد.",
+      "noCover": "بدون کاور",
+      "status": {
+        "published": "منتشر شده",
+        "draft": "پیش‌نویس"
+      },
+      "actions": {
+        "editFull": "ویرایش کامل",
+        "editTitle": "ویرایش کلیه جزئیات بازی",
+        "delete": "حذف بازی"
+      },
+      "pagination": {
+        "showing": "نمایش {{shown}} از {{total}} بازی در سامانه",
+        "prev": "صفحه قبل",
+        "next": "صفحه بعد",
+        "pageOf": "صفحه {{page}} از {{pages}}"
+      },
+      "confirmDelete": "آیا از حذف این بازی از کاتالوگ اطمینان دارید؟",
+      "errors": {
+        "fetch": "خطا در دریافت کاتالوگ",
+        "uploadImage": "خطا در آپلود تصویر",
+        "upload": "خطا در آپلود",
+        "downloadAndSave": "خطا در دانلود و ذخیره تصویر",
+        "cache": "خطا در کش تصویر",
+        "update": "خطا در ویرایش بازی",
+        "create": "خطا در ایجاد بازی",
+        "process": "خطا در پردازش درخواست",
+        "required": "لطفاً عنوان فارسی و انگلیسی بازی را وارد نمایید."
+      },
+      "messages": {
+        "coverUploaded": "کاور بازی در سرور دکتر گیم ذخیره شد.",
+        "bannerUploaded": "بنر هیرو در سرور دکتر گیم ذخیره شد.",
+        "coverCached": "کاور در هاست محلی ذخیره شد.",
+        "bannerCached": "بنر در هاست محلی ذخیره شد.",
+        "saved": "اطلاعات بازی با موفقیت ذخیره و به‌روزرسانی شد."
+      },
+      "defaults": {
+        "genres": "اکشن, ماجراجویی",
+        "partName": "پارت {{number}}"
+      },
+      "modal": {
+        "titleEdit": "ویرایش کلیه جزئیات بازی",
+        "titleAdd": "ثبت عنوان بازی جدید",
+        "subtitle": "مدیریت یکپارچه بنرها، نقد، مشخصات استودیو، جوایز و فایل‌های دانلود بازی",
+        "loading": "درحال دریافت جزئیات بازی از دیتابیس...",
+        "idLabel": "شناسه: {{id}}",
+        "tabs": {
+          "basic": "مشخصات اصلی",
+          "media": "تصاویر و بنر هیرو",
+          "studio": "استودیو و جوایز",
+          "story": "قلب بازی و داستان",
+          "features": "پلتفرم و امکانات",
+          "downloads": "فایل‌ها و پارت‌ها ({{count}})"
+        },
+        "basic": {
+          "titleFa": "عنوان فارسی بازی",
+          "titleEn": "عنوان انگلیسی بازی",
+          "slug": "نامک آدرس (Slug)",
+          "released": "تاریخ / سال انتشار",
+          "size": "حجم کلی دیتا (GB)",
+          "rating": "امتیاز کاربران (از ۵)",
+          "metacritic": "نمره متاکریتیک (از ۱۰۰)",
+          "status": "وضعیت انتشار بازی",
+          "activeLabel": "فعال و منتشر شده در فروشگاه",
+          "placeholders": {
+            "titleFa": "مثال: لست آو آس ریمسترد",
+            "titleEn": "e.g. The Last of Us Remastered",
+            "released": "مثال: 2022 یا 2014-07-29",
+            "metacritic": "مثال: 95"
+          }
+        },
+        "media": {
+          "coverLabel": "تصویر کاور باکس بازی (Cover Art)",
+          "coverHint": "نسبت استاندارد ۳:۴ یا ۴:۵",
+          "coverPlaceholder": "https://... یا /media/games/cover_...",
+          "coverCacheTitle": "دانلود و ذخیره‌سازی تصویر در سرور دکتر گیم",
+          "caching": "در حال کش...",
+          "cacheToServer": "ذخیره در سرور",
+          "coverUploading": "درحال آپلود کاور...",
+          "coverUpload": "آپلود کاور از سیستم",
+          "coverUploaded": "کاور بارگذاری شده",
+          "coverPreviewAlt": "پیش‌نمایش کاور",
+          "bannerLabel": "بنر سینمایی هیرو (Backdrop Hero Banner)",
+          "bannerHint": "تصویر عریض پس‌زمینه بالای صفحه (۱۶:۹)",
+          "bannerPlaceholder": "https://... یا /media/games/banner_...",
+          "bannerCacheTitle": "دانلود و ذخیره‌سازی بنر در سرور دکتر گیم",
+          "bannerUploading": "درحال آپلود بنر...",
+          "bannerUpload": "آپلود بنر هیرو از سیستم",
+          "bannerUploaded": "بنر بارگذاری شده",
+          "bannerPreviewAlt": "پیش‌نمایش بنر",
+          "screenshotsLabel": "گالری اسکرین‌شات‌های بازی (هر لینک در یک خط)"
+        },
+        "studio": {
+          "developerLabel": "استودیوی سازنده بازی (Developer)",
+          "developerPlaceholder": "مثال: Naughty Dog یا Santa Monica Studio",
+          "publisherLabel": "ناشر بازی (Publisher)",
+          "publisherPlaceholder": "مثال: Sony Interactive Entertainment",
+          "awardsLabel": "جوایز و افتخارات بازی (هر جایزه در یک سطر)",
+          "awardsHint": "در کارت اول صفحه گیم دیتل نمایش داده می‌شود",
+          "awardsPlaceholder": "برنده بیش از ۲۰۰ جایزه بهترین بازی سال (Game of the Year)\nبهترین داستان‌سرایی مراسم The Game Awards\nشاهکار بیادماندنی استودیوی ناتی‌داگ"
+        },
+        "story": {
+          "storylineLabel": "روایت و قلب بازی (Storyline FA)",
+          "storylineHint": "متن کارت سوم «قلب بازی» در صفحه گیم دیتل",
+          "storylinePlaceholder": "خلاصه داستان جذاب، جهان اثر و اتمسفر داستانی که در باکس اختصاصی قلب بازی نمایش داده می‌شود...",
+          "descriptionFaLabel": "توضیحات و نقد فارسی کامل (Full Description FA)",
+          "descriptionFaPlaceholder": "نقد و بررسی کامل گیم‌پلی، گرافیک و نکات فنی بازی به زبان فارسی...",
+          "descriptionEnLabel": "توضیحات انگلیسی بازی",
+          "descriptionEnPlaceholder": "Original English description of the game..."
+        },
+        "features": {
+          "platformsLabel": "پلتفرم‌های تحت پوشش",
+          "genresLabel": "ژانرهای بازی (با کاما یا ویرگول جدا کنید)",
+          "genresPlaceholder": "اکشن, ماجراجویی, نقش‌آفرینی, بقا",
+          "title": "ویژگی‌ها و قابلیت‌های خاص بازی",
+          "coopLabel": "پشتیبانی از حالت دونفره / چندنفره (Co-op)",
+          "coopHint": "امکان بازی چند نفره آفلاین یا آنلاین",
+          "vrLabel": "پشتیبانی از واقعیت مجازی (PS VR / PS VR2)",
+          "vrHint": "به همراه برچسب ویژه VR در مشخصات بازی"
+        },
+        "downloads": {
+          "title": "پارت‌ها، بسته‌ها و ۵ نوع فایل قابل دانلود بازی",
+          "subtitle": "تعریف دیتای بازی، چیت، DLC، زیرنویس و دوبله همراه با تعیین سطح اشتراک مجاز",
+          "empty": "هنوز فایلی برای این بازی ثبت نشده است. از دکمه‌های بالا نوع فایل مورد نظر را اضافه نمایید.",
+          "quickAdd": {
+            "data": "دیتای رسمی",
+            "cheat": "چیت و ترینر",
+            "dlc": "بسته الحاقی (DLC)",
+            "subtitle": "زیرنویس",
+            "dubbing": "دوبله فارسی"
+          },
+          "fileTypeLabel": "نوع فایل:",
+          "partNameLabel": "عنوان / نام پارت:",
+          "partNamePlaceholder": "نام پارت",
+          "sizeLabel": "حجم (GB):",
+          "sizePlaceholder": "حجم GB",
+          "tierLabel": "اشتراک مجاز:",
+          "urlLabel": "آدرس لینک دانلود (URL):",
+          "activeLabel": "فعال",
+          "removeTitle": "حذف این بخش",
+          "fileTypes": {
+            "data": "دیتای رسمی",
+            "cheat": "چیت و ترینر",
+            "dlc": "الحاقی (DLC)",
+            "subtitle": "زیرنویس فارسی",
+            "dubbing": "دوبله اختصاصی"
+          },
+          "tiers": {
+            "free": "رایگان (Free)",
+            "bronze": "برنزی به بالا",
+            "silver": "نقره‌ای به بالا",
+            "gold": "طلایی (Gold)"
+          },
+          "defaults": {
+            "data": "دیتای رسمی (پارت {{number}})",
+            "cheat": "چیت و ترینر اختصاصی",
+            "dlc": "بسته الحاقی (DLC)",
+            "subtitle": "زیرنویس فارسی رسمی",
+            "dubbing": "دوبله فارسی اختصاصی",
+            "part": "پارت {{number}}"
+          }
+        },
+        "footer": {
+          "note": "همه تغییرات پس از ذخیره بلافاصله در فروشگاه اعمال خواهند شد.",
+          "cancel": "انصراف",
+          "saving": "درحال ذخیره‌سازی...",
+          "save": "ذخیره کلیه اطلاعات بازی"
+        }
+      }
+    },
+    "genres": {
+      "title": "مدیریت دسته‌بندی و ژانرهای بازی‌ها",
+      "subtitle": "تعریف، ویرایش ترتیب نمایش و نشان ۸ ژانر برتر (Top 8) صفحه اصلی متصل به پایگاه داده",
+      "add": "افزودن ژانر جدید",
+      "loading": "در حال دریافت ژانرها...",
+      "empty": "هیچ ژانری تعریف نشده است.",
+      "table": {
+        "order": "ترتیب",
+        "nameFa": "نام فارسی ژانر",
+        "nameEn": "نام انگلیسی",
+        "slug": "اسلاگ (Slug)",
+        "top8": "۸ ژانر برتر (Top 8)",
+        "status": "وضعیت",
+        "actions": "عملیات"
+      },
+      "top8Active": "Top 8 فعال",
+      "normal": "عادی",
+      "active": "فعال",
+      "inactive": "غیرفعال",
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "confirmDelete": "آیا از حذف این ژانر اطمینان دارید؟",
+      "modal": {
+        "addTitle": "افزودن ژانر جدید",
+        "editTitle": "ویرایش ژانر",
+        "nameFaLabel": "نام فارسی ژانر:",
+        "nameFaPlaceholder": "مثلاً: اکشن ماجراجویی",
+        "nameEnLabel": "نام انگلیسی ژانر:",
+        "nameEnPlaceholder": "Action-Adventure",
+        "slugLabel": "اسلاگ URL (Slug):",
+        "orderLabel": "ترتیب نمایش:",
+        "iconLabel": "نام آیکون لوسید (اختیاری):",
+        "top8Label": "نمایش در ۸ ژانر برتر (Top 8)",
+        "activeLabel": "فعال در سایت",
+        "cancel": "انصراف",
+        "save": "ذخیره ژانر"
+      },
+      "feedback": {
+        "deleted": "ژانر با موفقیت حذف شد.",
+        "updated": "ژانر با موفقیت به‌روزرسانی شد.",
+        "created": "ژانر جدید با موفقیت اضافه شد."
+      },
+      "errors": {
+        "load": "خطا در بارگذاری ژانرهای بازی از سرور.",
+        "delete": "خطا در حذف ژانر.",
+        "toggleActive": "خطا در تغییر وضعیت ژانر.",
+        "toggleTop8": "خطا در تغییر برچسب Top 8.",
+        "required": "عنوان فارسی و اسلاگ ژانر الزامی است.",
+        "save": "خطا در ذخیره ژانر."
+      }
+    }
+  }
+}

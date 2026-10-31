@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api",
+  },
   images: {
     domains: ["media.rawg.io", "images.unsplash.com", "via.placeholder.com"],
     remotePatterns: [

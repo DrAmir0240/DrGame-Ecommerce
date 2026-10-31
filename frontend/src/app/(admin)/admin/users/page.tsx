@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { AdminUserListItem, AdminUserDossier } from "@/types/admin";
 import { apiRequest } from "@/lib/apiClient";
+import { useTranslation } from "@/i18n";
 
 export default function AdminUsersPage() {
+  const { t, n, price, size } = useTranslation();
   const [users, setUsers] = useState<AdminUserListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -31,7 +33,7 @@ export default function AdminUsersPage() {
   // Quota modal state
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [addedGb, setAddedGb] = useState<number>(10);
-  const [quotaReason, setQuotaReason] = useState("شارژ دستی توسط مدیریت کلان");
+  const [quotaReason, setQuotaReason] = useState(t("admin.users.quotaModal.defaultReason"));
   const [quotaSubmitting, setQuotaSubmitting] = useState(false);
   const [quotaMessage, setQuotaMessage] = useState<string | null>(null);
 
@@ -72,7 +74,7 @@ export default function AdminUsersPage() {
   const openQuotaModal = (u: AdminUserListItem) => {
     setSelectedUser(u);
     setAddedGb(10);
-    setQuotaReason("شارژ دستی توسط مدیریت کلان");
+    setQuotaReason(t("admin.users.quotaModal.defaultReason"));
     setQuotaMessage(null);
     setShowQuotaModal(true);
   };
@@ -92,12 +94,16 @@ export default function AdminUsersPage() {
         }),
       });
 
-      setQuotaMessage(`سهمیه جدید کاربر: ${data.total_quota_gb} گیگابایت ثبت شد.`);
+      setQuotaMessage(
+        t("admin.users.quotaModal.success", {
+          quota: size(data.total_quota_gb, t("admin.users.units.gigabyte")),
+        })
+      );
       // Refresh list
       fetchUsers();
       setTimeout(() => setShowQuotaModal(false), 1200);
     } catch (err: any) {
-      setQuotaMessage(err.message || "خطا در برقراری ارتباط");
+      setQuotaMessage(err.message || t("admin.users.quotaModal.error"));
     } finally {
       setQuotaSubmitting(false);
     }
@@ -108,9 +114,9 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white mb-1">مدیریت کاربران و سهمیه‌های دانلود</h1>
+          <h1 className="text-xl font-bold text-white mb-1">{t("admin.users.title")}</h1>
           <p className="text-xs text-slate-400">
-            مشاهده پرونده کامل، تراکنش‌ها و تنظیم دستی سهمیه حجم دانلود کاربران
+            {t("admin.users.subtitle")}
           </p>
         </div>
 
@@ -123,7 +129,7 @@ export default function AdminUsersPage() {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
-            placeholder="جستجوی نام، موبایل، ایمیل..."
+            placeholder={t("admin.users.searchPlaceholder")}
             className="w-full bg-[#121721] border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 pr-9 transition-colors"
           />
           <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
@@ -133,16 +139,16 @@ export default function AdminUsersPage() {
       {/* Users Table */}
       <div className="bg-[#0c1017] border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
+          <table className="w-full text-start text-xs">
             <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
               <tr>
-                <th className="py-3.5 px-4 font-semibold">کاربر</th>
-                <th className="py-3.5 px-4 font-semibold">تماس</th>
-                <th className="py-3.5 px-4 font-semibold">کد رفرال</th>
-                <th className="py-3.5 px-4 font-semibold">سهمیه کل</th>
-                <th className="py-3.5 px-4 font-semibold">حجم مصرفی</th>
-                <th className="py-3.5 px-4 font-semibold">وضعیت</th>
-                <th className="py-3.5 px-4 font-semibold text-center">عملیات</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.user")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.contact")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.referralCode")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.totalQuota")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.usedQuota")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.status")}</th>
+                <th className="py-3.5 px-4 font-semibold text-center">{t("admin.users.table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
@@ -150,13 +156,13 @@ export default function AdminUsersPage() {
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
                     <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    درحال دریافت فهرست کاربران...
+                    {t("admin.users.loading")}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
-                    کاربری با مشخصات جستجو شده یافت نشد.
+                    {t("admin.users.empty")}
                   </td>
                 </tr>
               ) : (
@@ -180,19 +186,19 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="py-3.5 px-4 font-semibold text-emerald-400">
-                      {u.total_quota_gb} گیگابایت
+                      {size(u.total_quota_gb, t("admin.users.units.gigabyte"))}
                     </td>
                     <td className="py-3.5 px-4 text-slate-400">
-                      {u.used_quota_gb} گیگابایت
+                      {size(u.used_quota_gb, t("admin.users.units.gigabyte"))}
                     </td>
                     <td className="py-3.5 px-4">
                       {u.is_active ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                          فعال
+                          {t("admin.users.status.active")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px]">
-                          مسدود
+                          {t("admin.users.status.blocked")}
                         </span>
                       )}
                     </td>
@@ -201,18 +207,18 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => openQuotaModal(u)}
                           className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-medium text-[11px] flex items-center gap-1 transition-colors"
-                          title="تنظیم دستی سهمیه"
+                          title={t("admin.users.actions.quotaTitle")}
                         >
                           <Edit3 className="w-3.5 h-3.5" />
-                          <span>سهمیه</span>
+                          <span>{t("admin.users.actions.quota")}</span>
                         </button>
                         <button
                           onClick={() => openDossier(u)}
                           className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-colors"
-                          title="مشاهده پرونده کاربر"
+                          title={t("admin.users.actions.dossierTitle")}
                         >
                           <FileText className="w-3.5 h-3.5" />
-                          <span>پرونده</span>
+                          <span>{t("admin.users.actions.dossier")}</span>
                         </button>
                       </div>
                     </td>
@@ -226,7 +232,7 @@ export default function AdminUsersPage() {
         {/* Pagination Bar */}
         <div className="p-4 border-t border-slate-800/80 bg-[#090d13] flex items-center justify-between text-xs text-slate-400">
           <span>
-            نمایش {users.length} از {total} کاربر
+            {t("admin.users.pagination.showing", { shown: n(users.length), total: n(total) })}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -234,15 +240,15 @@ export default function AdminUsersPage() {
               disabled={page === 1}
               className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200"
             >
-              صفحه قبل
+              {t("admin.users.pagination.prev")}
             </button>
-            <span className="font-mono text-slate-300">صفحه {page}</span>
+            <span className="font-mono text-slate-300">{t("admin.users.pagination.page", { page: n(page) })}</span>
             <button
               onClick={() => setPage((p) => p + 1)}
               disabled={users.length < 15}
               className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200"
             >
-              صفحه بعد
+              {t("admin.users.pagination.next")}
             </button>
           </div>
         </div>
@@ -255,7 +261,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 <HardDrive className="w-4 h-4 text-emerald-400" />
-                <span>ویرایش سهمیه کاربر: {selectedUser.full_name || selectedUser.username}</span>
+                <span>{t("admin.users.quotaModal.title", { name: selectedUser.full_name || selectedUser.username })}</span>
               </div>
               <button
                 onClick={() => setShowQuotaModal(false)}
@@ -266,14 +272,14 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs flex justify-between">
-              <span className="text-slate-400">سهمیه فعلی:</span>
-              <span className="text-emerald-400 font-bold">{selectedUser.total_quota_gb} GB</span>
+              <span className="text-slate-400">{t("admin.users.quotaModal.current")}</span>
+              <span className="text-emerald-400 font-bold">{size(selectedUser.total_quota_gb)}</span>
             </div>
 
             <form onSubmit={handleAdjustQuota} className="space-y-4 text-xs">
               <div>
                 <label className="block text-slate-300 mb-1.5 font-medium">
-                  میزان تغییر حجم (گیگابایت)
+                  {t("admin.users.quotaModal.amountLabel")}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -282,18 +288,18 @@ export default function AdminUsersPage() {
                     value={addedGb}
                     onChange={(e) => setAddedGb(parseFloat(e.target.value) || 0)}
                     className="w-full bg-[#121721] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
-                    placeholder="مثلاً 10 یا -5"
+                    placeholder={t("admin.users.quotaModal.amountPlaceholder")}
                     dir="ltr"
                   />
                   <span className="text-slate-400">GB</span>
                 </div>
                 <span className="text-[11px] text-slate-500 mt-1 block">
-                  برای کسر سهمیه، از مقادیر منفی (مانند 5-) استفاده کنید.
+                  {t("admin.users.quotaModal.hint")}
                 </span>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1.5 font-medium">دلیل ثبت در سوابق</label>
+                <label className="block text-slate-300 mb-1.5 font-medium">{t("admin.users.quotaModal.reasonLabel")}</label>
                 <input
                   type="text"
                   value={quotaReason}
@@ -315,14 +321,14 @@ export default function AdminUsersPage() {
                   onClick={() => setShowQuotaModal(false)}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl"
                 >
-                  انصراف
+                  {t("admin.users.quotaModal.cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={quotaSubmitting}
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold rounded-xl flex items-center gap-1.5"
                 >
-                  {quotaSubmitting ? "درحال ثبت..." : "اعمال تغییر سهمیه"}
+                  {quotaSubmitting ? t("admin.users.quotaModal.submitting") : t("admin.users.quotaModal.submit")}
                 </button>
               </div>
             </form>
@@ -337,7 +343,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 <FileText className="w-4 h-4 text-cyan-400" />
-                <span>پرونده دیجیتال: {selectedUser.full_name || selectedUser.username}</span>
+                <span>{t("admin.users.dossier.title", { name: selectedUser.full_name || selectedUser.username })}</span>
               </div>
               <button
                 onClick={() => setShowDossierModal(false)}
@@ -350,30 +356,30 @@ export default function AdminUsersPage() {
             {dossierLoading ? (
               <div className="py-16 text-center text-slate-400">
                 <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                درحال بازیابی پرونده کاربر...
+                {t("admin.users.dossier.loading")}
               </div>
             ) : dossier ? (
               <div className="space-y-6 text-xs">
                 {/* User Info Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl">
-                    <span className="text-slate-500 block mb-1">شناسه کاربر</span>
+                    <span className="text-slate-500 block mb-1">{t("admin.users.dossier.userId")}</span>
                     <span className="font-mono text-slate-200">#{dossier.user.id}</span>
                   </div>
                   <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl">
-                    <span className="text-slate-500 block mb-1">کد معرف</span>
+                    <span className="text-slate-500 block mb-1">{t("admin.users.dossier.referralCode")}</span>
                     <span className="font-mono text-emerald-400">{dossier.user.referral_code}</span>
                   </div>
                   <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl">
-                    <span className="text-slate-500 block mb-1">موجودی رفرال</span>
+                    <span className="text-slate-500 block mb-1">{t("admin.users.dossier.referralBalance")}</span>
                     <span className="text-cyan-400 font-semibold">
-                      {dossier.wallet.withdrawable_balance_toman.toLocaleString("fa-IR")} ت
+                      {price(dossier.wallet.withdrawable_balance_toman)}
                     </span>
                   </div>
                   <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl">
-                    <span className="text-slate-500 block mb-1">کل پورسانت</span>
+                    <span className="text-slate-500 block mb-1">{t("admin.users.dossier.totalCommission")}</span>
                     <span className="text-slate-200 font-semibold">
-                      {dossier.wallet.total_earned_toman.toLocaleString("fa-IR")} ت
+                      {price(dossier.wallet.total_earned_toman)}
                     </span>
                   </div>
                 </div>
@@ -381,9 +387,9 @@ export default function AdminUsersPage() {
                 {/* Quota Breakdown */}
                 <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2">
                   <div className="flex justify-between items-center text-slate-300 font-semibold mb-1">
-                    <span>وضعیت سهمیه ترافیک دانلود</span>
+                    <span>{t("admin.users.dossier.quotaStatus")}</span>
                     <span className="text-emerald-400 font-mono">
-                      {dossier.quota.used_gb} GB / {dossier.quota.total_gb} GB
+                      {size(dossier.quota.used_gb)} / {size(dossier.quota.total_gb)}
                     </span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -405,11 +411,11 @@ export default function AdminUsersPage() {
                 <div>
                   <h3 className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    تاریخچه خریدهای اخیر
+                    {t("admin.users.dossier.recentPurchases")}
                   </h3>
                   {dossier.recent_payments.length === 0 ? (
                     <div className="p-4 bg-slate-900/40 rounded-xl text-slate-500 text-center">
-                      خریدی برای این کاربر ثبت نشده است.
+                      {t("admin.users.dossier.noPurchases")}
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -419,9 +425,9 @@ export default function AdminUsersPage() {
                           className="p-3 bg-slate-900/40 border border-slate-800/80 rounded-xl flex items-center justify-between"
                         >
                           <div>
-                            <span className="font-semibold text-slate-200">پلن: {p.tier_code}</span>
+                            <span className="font-semibold text-slate-200">{t("admin.users.dossier.plan", { plan: p.tier_code })}</span>
                             <span className="text-[11px] text-slate-400 block font-mono">
-                              مبلغ: {p.final_price.toLocaleString("fa-IR")} تومان
+                              {t("admin.users.dossier.amount", { amount: price(p.final_price) })}
                             </span>
                           </div>
                           <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">

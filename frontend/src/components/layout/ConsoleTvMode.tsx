@@ -21,6 +21,7 @@ import { apiRequest } from '@/lib/apiClient';
 import { getMediaUrl } from '@/lib/media';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
+import { useTranslation } from '@/i18n';
 
 interface ConsoleTvModeProps {
   isOpen: boolean;
@@ -29,32 +30,41 @@ interface ConsoleTvModeProps {
 
 export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
   const router = useRouter();
+  const { t, locale, dir } = useTranslation();
   const { user, isAuthenticated } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
 
   const [games, setGames] = useState<GameCardItem[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
-  const [currentTime, setCurrentTime] = useState<string>('۲۱:۴۰');
+  const [currentTime, setCurrentTime] = useState<string>('21:40');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const lastGamepadInputRef = useRef<number>(0);
 
-  // Live Persian Clock
+  // Live Clock formatted according to active locale
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
       const hours = now.getHours().toString().padStart(2, '0');
       const minutes = now.getMinutes().toString().padStart(2, '0');
-      const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-      const farsiClock = `${hours}:${minutes}`.replace(/[0-9]/g, (d) => farsiDigits[parseInt(d, 10)]);
-      setCurrentTime(farsiClock);
+      if (locale === 'fa') {
+        const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        const farsiClock = `${hours}:${minutes}`.replace(/[0-9]/g, (d) => farsiDigits[parseInt(d, 10)]);
+        setCurrentTime(farsiClock);
+      } else if (locale === 'ar') {
+        const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        const arClock = `${hours}:${minutes}`.replace(/[0-9]/g, (d) => arabicDigits[parseInt(d, 10)]);
+        setCurrentTime(arClock);
+      } else {
+        setCurrentTime(`${hours}:${minutes}`);
+      }
     };
     updateClock();
     const timer = setInterval(updateClock, 10000);
     return () => clearInterval(timer);
-  }, []);
+  }, [locale]);
 
   // Fetch games catalog strictly from the backend API (NO mock data)
   const loadGamesFromBackend = async () => {
@@ -76,7 +86,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
       setSelectedIdx(0);
     } catch (err: any) {
       console.error('Failed to load games from backend API in TV Mode:', err);
-      setError(err?.message || 'خطا در برقراری ارتباط با سرور بازی‌ها');
+      setError(err?.message || 'Error communicating with games server');
       setGames([]);
     } finally {
       setIsLoading(false);
@@ -125,12 +135,18 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        // In RTL, ArrowRight moves to previous card
-        setSelectedIdx((prev) => Math.max(0, prev - 1));
+        if (dir === 'rtl') {
+          setSelectedIdx((prev) => Math.max(0, prev - 1));
+        } else {
+          setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+        }
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        // In RTL, ArrowLeft moves to next card
-        setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+        if (dir === 'rtl') {
+          setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+        } else {
+          setSelectedIdx((prev) => Math.max(0, prev - 1));
+        }
       } else if (e.key === 'Enter') {
         e.preventDefault();
         const activeGame = games[selectedIdx];
@@ -146,7 +162,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, games, selectedIdx, router, onClose]);
+  }, [isOpen, games, selectedIdx, router, onClose, dir]);
 
   // Gamepad Loop for 10-foot Console Navigation
   useEffect(() => {
@@ -169,10 +185,18 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
           const btnTriangle = gp.buttons[3]?.pressed; // Triangle (Search / Catalog)
 
           if (dpadRight && games.length > 0) {
-            setSelectedIdx((prev) => Math.max(0, prev - 1));
+            if (dir === 'rtl') {
+              setSelectedIdx((prev) => Math.max(0, prev - 1));
+            } else {
+              setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+            }
             lastGamepadInputRef.current = now;
           } else if (dpadLeft && games.length > 0) {
-            setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+            if (dir === 'rtl') {
+              setSelectedIdx((prev) => Math.min(games.length - 1, prev + 1));
+            } else {
+              setSelectedIdx((prev) => Math.max(0, prev - 1));
+            }
             lastGamepadInputRef.current = now;
           } else if (btnCross && games.length > 0) {
             const activeGame = games[selectedIdx];
@@ -195,18 +219,20 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
           }
         }
       }
+
       animId = requestAnimationFrame(scanGamepad);
     };
 
     animId = requestAnimationFrame(scanGamepad);
     return () => cancelAnimationFrame(animId);
-  }, [isOpen, games, selectedIdx, router, onClose]);
+  }, [isOpen, games, selectedIdx, router, onClose, dir]);
 
   if (!isOpen) return null;
 
   const activeGame = games[selectedIdx] || null;
-  const coverUrl = activeGame?.banner_image_url || activeGame?.cover_image_url
-    ? getMediaUrl(activeGame.banner_image_url || activeGame.cover_image_url || '')
+  const activeAny = activeGame as any;
+  const coverUrl = activeAny?.banner_image_url || activeGame?.cover_image_url
+    ? getMediaUrl(activeAny?.banner_image_url || activeGame?.cover_image_url || '')
     : null;
 
   // Estimate download time based on size (at average 25 Mbps = ~3.1 MB/s)
@@ -215,13 +241,25 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
   const remainingQuota = quota
     ? `${quota.remaining_quota_gb} GB`
     : isAuthenticated
-      ? 'بدون اشتراک'
-      : 'ورود به حساب';
+      ? t('tv.noSubscription')
+      : t('tv.login');
+
+  const mainTitle = activeGame
+    ? locale === 'en'
+      ? activeGame.title_en || activeGame.title_fa
+      : activeGame.title_fa || activeGame.title_en
+    : '';
+
+  const subtitleEn = activeGame
+    ? locale === 'en'
+      ? activeGame.title_fa !== activeGame.title_en ? activeGame.title_fa : null
+      : activeGame.title_en
+    : null;
 
   return (
     <div
       className="fixed inset-0 z-[100] bg-[#05070c] text-white flex flex-col justify-between overflow-hidden font-vazir select-none animate-in fade-in duration-300"
-      dir="rtl"
+      dir={dir}
     >
       {/* ─────────────────────────────────────────────────────────────────────────
           1. IMMERSIVE BACKDROP (Cinematic 10-Foot Background with Dynamic Blur)
@@ -258,7 +296,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                 Nebula Console
               </span>
             </div>
-            <span className="text-[11px] text-slate-400 block">شبکه دانلود سریع و اختصاصی کنسول</span>
+            <span className="text-[11px] text-slate-400 block">{t('tv.brandSubtitle')}</span>
           </div>
         </div>
 
@@ -268,10 +306,10 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
           <button
             onClick={onClose}
             className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 hover:bg-rose-500/20 border border-white/15 hover:border-rose-500/40 text-slate-200 hover:text-rose-300 font-bold text-xs transition-all cursor-pointer shadow-lg active:scale-95"
-            title="خروج از حالت تلویزیون (Esc یا دایره دسته)"
+            title={`${t('tv.exitTv')} (Esc)`}
           >
-            <LogOut className="w-4 h-4" />
-            <span>خروج از حالت تلویزیون</span>
+            <LogOut className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
+            <span>{t('tv.exitTv')}</span>
           </button>
 
           {/* Quota Capsule */}
@@ -305,16 +343,16 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
          ───────────────────────────────────────────────────────────────────────── */}
       <main className="relative z-10 px-6 sm:px-14 flex-1 flex flex-col justify-end pb-4 pt-6 max-w-7xl">
         {isLoading ? (
-          <div className="space-y-4 max-w-xl text-right py-16 animate-pulse">
+          <div className="space-y-4 max-w-xl py-16 animate-pulse">
             <div className="flex items-center gap-3 text-purple-300 text-sm font-bold">
               <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
-              <span>در حال بارگذاری آرشیو بازی‌ها از دیتابیس سرور...</span>
+              <span>{t('tv.loadingGames')}</span>
             </div>
             <div className="h-10 w-3/4 rounded-2xl bg-white/10" />
             <div className="h-4 w-1/2 rounded-xl bg-white/5" />
           </div>
         ) : error && games.length === 0 ? (
-          <div className="space-y-4 max-w-xl text-right py-12">
+          <div className="space-y-4 max-w-xl py-12">
             <div className="flex items-center gap-2 text-rose-400 text-sm font-bold">
               <AlertCircle className="w-5 h-5" />
               <span>{error}</span>
@@ -324,18 +362,16 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-lg active:scale-95 cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
-              <span>تلاش مجدد جهت بارگذاری بازی‌ها</span>
+              <span>{t('tv.retryGames')}</span>
             </button>
           </div>
         ) : games.length === 0 ? (
-          <div className="space-y-3 max-w-xl text-right py-12">
-            <h2 className="text-xl font-bold text-white">هیچ عنوانی در دیتابیس یافت نشد</h2>
-            <p className="text-xs text-slate-400">
-              هنوز بازی‌ای در سیستم ثبت نشده است. می‌توانید با ادمین یا اجرای اسکریپت دیتابیس را پر کنید.
-            </p>
+          <div className="space-y-3 max-w-xl py-12">
+            <h2 className="text-xl font-bold text-white">{t('tv.noGamesTitle')}</h2>
+            <p className="text-xs text-slate-400">{t('tv.noGamesDesc')}</p>
           </div>
         ) : activeGame ? (
-          <div className="space-y-4 max-w-2xl text-right">
+          <div className="space-y-4 max-w-2xl">
             {/* Tags row: Platforms + Genres + Co-op + Rating */}
             <div className="flex items-center gap-2 flex-wrap">
               {/* Dynamic Platforms */}
@@ -365,7 +401,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
               {activeGame.is_two_player && (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-600/30 text-purple-200 border border-purple-500/40 text-xs font-bold">
                   <Users className="w-3.5 h-3.5" />
-                  <span>۲ نفره محلی</span>
+                  <span>{t('tv.twoPlayerLocal')}</span>
                 </span>
               )}
 
@@ -387,19 +423,19 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
               {/* Metacritic */}
               {activeGame.metacritic && (
                 <span className="px-2 py-0.5 rounded-lg bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-roboto text-xs font-bold">
-                  متا: {activeGame.metacritic}
+                  {t('tv.metaScore')}: {activeGame.metacritic}
                 </span>
               )}
             </div>
 
-            {/* Main Title (Persian + English) */}
+            {/* Main Title (Localized) */}
             <div>
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight drop-shadow-2xl">
-                {activeGame.title_fa || activeGame.title_en}
+                {mainTitle}
               </h1>
-              {activeGame.title_en && activeGame.title_fa && (
+              {subtitleEn && (
                 <p className="text-sm sm:text-lg text-slate-300 font-roboto font-medium mt-1 tracking-wide" dir="ltr">
-                  {activeGame.title_en}
+                  {subtitleEn}
                 </p>
               )}
             </div>
@@ -414,7 +450,9 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                   {estimatedHours && (
                     <>
                       <span className="text-slate-500">•</span>
-                      <span>حدود {estimatedHours} ساعت با شبکه پرسرعت دکتر گیم</span>
+                      <span>
+                        ~{estimatedHours} {t('tv.estHours')}
+                      </span>
                     </>
                   )}
                 </>
@@ -422,7 +460,9 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
               {activeGame.released && (
                 <>
                   <span className="text-slate-500">•</span>
-                  <span className="text-slate-400 font-roboto">انتشار: {activeGame.released}</span>
+                  <span className="text-slate-400 font-roboto">
+                    {t('tv.released')}: {activeGame.released}
+                  </span>
                 </>
               )}
             </div>
@@ -437,7 +477,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                 className="flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black text-sm shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Download className="w-5 h-5 stroke-[2.5]" />
-                <span>ارسال به کنسول (دانلود مستقیم)</span>
+                <span>{t('tv.sendToConsole')}</span>
               </button>
 
               <button
@@ -447,7 +487,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                 }}
                 className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                جزئیات و پارت‌ها
+                {t('tv.detailsAndParts')}
               </button>
             </div>
           </div>
@@ -478,13 +518,17 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
               const cardImg = game.cover_image_url
                 ? getMediaUrl(game.cover_image_url)
                 : '/logo.png';
+              const cardTitle =
+                locale === 'en'
+                  ? game.title_en || game.title_fa
+                  : game.title_fa || game.title_en;
 
               return (
                 <button
                   key={game.id}
                   type="button"
                   onClick={() => setSelectedIdx(idx)}
-                  className={`relative group rounded-2xl overflow-hidden transition-all duration-300 shrink-0 w-[125px] sm:w-[150px] aspect-[4/3] sm:aspect-[16/10] text-right cursor-pointer ${
+                  className={`relative group rounded-2xl overflow-hidden transition-all duration-300 shrink-0 w-[125px] sm:w-[150px] aspect-[4/3] sm:aspect-[16/10] cursor-pointer ${
                     isFocused
                       ? 'ring-2 ring-purple-400 shadow-[0_0_25px_rgba(168,85,247,0.85)] scale-105 z-10'
                       : 'opacity-70 hover:opacity-100 border border-white/10 hover:border-white/30 scale-95'
@@ -492,7 +536,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                 >
                   <img
                     src={cardImg}
-                    alt={game.title_en || game.title_fa}
+                    alt={cardTitle}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -508,7 +552,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                   {/* Title overlay */}
                   <div className="absolute bottom-2 inset-x-2 text-center">
                     <span className="text-[11px] font-bold text-white line-clamp-1 drop-shadow-md">
-                      {game.title_fa || game.title_en}
+                      {cardTitle}
                     </span>
                   </div>
                 </button>
@@ -521,7 +565,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
         <div className="flex items-center justify-center gap-4 text-xs text-slate-400 pt-2 font-mono" dir="ltr">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-slate-300 font-sans">سرور تهران ۱</span>
+            <span className="text-slate-300 font-sans">{t('tv.serverStatus')}</span>
           </div>
           <span className="text-slate-600">|</span>
           <div className="flex items-center gap-1 text-cyan-300">
@@ -542,7 +586,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
         {/* Left: TV Mode Icon + Title */}
         <div className="flex items-center gap-2 text-slate-300">
           <Tv className="w-4 h-4 text-purple-400" />
-          <span className="font-bold text-white hidden sm:inline">حالت تلویزیون دکتر گیم (Nebula)</span>
+          <span className="font-bold text-white hidden sm:inline">{t('tv.modeTitle')}</span>
         </div>
 
         {/* Right (RTL): Controller Buttons Guide */}
@@ -552,7 +596,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
             <span className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold text-[10px] font-mono">
               ← →
             </span>
-            <span className="text-white">حرکت</span>
+            <span className="text-white">{t('tv.move')}</span>
           </div>
 
           {/* Square: Options */}
@@ -560,7 +604,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
             <span className="w-5 h-5 rounded-md bg-pink-500/20 border border-pink-400/60 text-pink-400 font-black text-[11px] flex items-center justify-center font-roboto shadow-[0_0_8px_rgba(236,72,153,0.4)]">
               □
             </span>
-            <span className="text-white">گزینه‌ها</span>
+            <span className="text-white">{t('tv.options')}</span>
           </div>
 
           {/* Triangle: Search */}
@@ -568,7 +612,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
             <span className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400/60 text-emerald-400 font-black text-[11px] flex items-center justify-center font-roboto shadow-[0_0_8px_rgba(52,211,153,0.4)]">
               △
             </span>
-            <span className="text-white">جستجو</span>
+            <span className="text-white">{t('tv.search')}</span>
           </div>
 
           {/* Circle: Back */}
@@ -576,7 +620,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
             <span className="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-400/60 text-rose-400 font-black text-[11px] flex items-center justify-center font-roboto shadow-[0_0_8px_rgba(244,63,94,0.4)]">
               ○
             </span>
-            <span className="text-white">بازگشت</span>
+            <span className="text-white">{t('tv.back')}</span>
           </div>
 
           {/* Cross: Select */}
@@ -584,7 +628,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
             <span className="w-5 h-5 rounded-full bg-blue-500/20 border border-blue-400/60 text-blue-400 font-black text-[11px] flex items-center justify-center font-roboto shadow-[0_0_8px_rgba(59,130,246,0.4)]">
               ✕
             </span>
-            <span className="text-white font-bold">انتخاب</span>
+            <span className="text-white font-bold">{t('tv.select')}</span>
           </div>
         </div>
       </footer>

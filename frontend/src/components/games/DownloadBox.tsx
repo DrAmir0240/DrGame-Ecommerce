@@ -23,6 +23,7 @@ import { GameDownloadLink } from '@/types/game';
 import { MySubscriptionStatus } from '@/types/subscription';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 import DownloadConfirmModal from './DownloadConfirmModal';
 
 interface DownloadBoxProps {
@@ -32,16 +33,25 @@ interface DownloadBoxProps {
 
 type TabType = 'data' | 'cheat' | 'dlc' | 'subtitle' | 'dubbing';
 
-const TABS: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'data', label: 'دیتای رسمی بازی', icon: HardDrive },
-  { id: 'cheat', label: 'چیت و ترینر', icon: Zap },
-  { id: 'dlc', label: 'بسته‌های الحاقی (DLC)', icon: Sparkles },
-  { id: 'subtitle', label: 'زیرنویس فارسی', icon: FileText },
-  { id: 'dubbing', label: 'دوبله اختصاصی', icon: Headphones },
+const TABS: { id: TabType; labelKey: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'data', labelKey: 'downloadBox.tabs.data', icon: HardDrive },
+  { id: 'cheat', labelKey: 'downloadBox.tabs.cheat', icon: Zap },
+  { id: 'dlc', labelKey: 'downloadBox.tabs.dlc', icon: Sparkles },
+  { id: 'subtitle', labelKey: 'downloadBox.tabs.subtitle', icon: FileText },
+  { id: 'dubbing', labelKey: 'downloadBox.tabs.dubbing', icon: Headphones },
 ];
+
+const FEATURE_LABEL_KEYS: Record<string, string> = {
+  data: 'downloadBox.features.data',
+  cheat: 'downloadBox.features.cheat',
+  dlc: 'downloadBox.features.dlc',
+  subtitle: 'downloadBox.features.subtitle',
+  dubbing: 'downloadBox.features.dubbing',
+};
 
 export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
   const router = useRouter();
+  const { t, n, size } = useTranslation();
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('data');
   const [copiedPart, setCopiedPart] = useState<number | null>(null);
@@ -114,8 +124,8 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
       return {
         allowed: false,
         reason: 'LOGIN_REQUIRED',
-        badgeText: 'ورود به حساب الزامی است',
-        buttonText: 'ورود جهت دانلود',
+        badgeText: t('downloadBox.eligibility.loginBadge'),
+        buttonText: t('downloadBox.eligibility.loginButton'),
         action: () => setAuthModalOpen(true, 'otp'),
         icon: LogIn,
       };
@@ -126,8 +136,8 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
       return {
         allowed: false,
         reason: 'SUBSCRIPTION_REQUIRED',
-        badgeText: 'نیازمند اشتراک فعال',
-        buttonText: 'خرید اشتراک',
+        badgeText: t('downloadBox.eligibility.subscriptionBadge'),
+        buttonText: t('downloadBox.eligibility.subscriptionButton'),
         action: () => router.push('/subscriptions'),
         icon: CreditCard,
       };
@@ -137,31 +147,31 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
     const tier = mySubStatus.tier;
     const fileType = (link.file_type || activeTab).toLowerCase() as TabType;
     let supportsFeature = true;
-    let featureLabel = 'این بخش';
+    let featureLabel = t(FEATURE_LABEL_KEYS[fileType] ?? 'downloadBox.features.other');
 
     if (fileType === 'data') {
       supportsFeature = tier.allow_data !== false;
-      featureLabel = 'دیتای رسمی بازی';
+      featureLabel = t('downloadBox.features.data');
     } else if (fileType === 'cheat') {
       supportsFeature = Boolean(tier.allow_cheat);
-      featureLabel = 'چیت و ترینر';
+      featureLabel = t('downloadBox.features.cheat');
     } else if (fileType === 'dlc') {
       supportsFeature = Boolean(tier.allow_dlc);
-      featureLabel = 'بسته‌های الحاقی (DLC)';
+      featureLabel = t('downloadBox.features.dlc');
     } else if (fileType === 'subtitle') {
       supportsFeature = Boolean(tier.allow_subtitles);
-      featureLabel = 'زیرنویس فارسی';
+      featureLabel = t('downloadBox.features.subtitle');
     } else if (fileType === 'dubbing') {
       supportsFeature = Boolean(tier.allow_dubbing);
-      featureLabel = 'دوبله فارسی';
+      featureLabel = t('downloadBox.features.dubbing');
     }
 
     if (!supportsFeature) {
       return {
         allowed: false,
         reason: 'FEATURE_UNSUPPORTED',
-        badgeText: `غیرفعال در پلن ${tier.name_fa || tier.code}`,
-        buttonText: 'ارتقا به پلن بالاتر',
+        badgeText: t('downloadBox.eligibility.featureBadge', { plan: tier.name_fa || tier.code }),
+        buttonText: t('downloadBox.eligibility.upgradeButton'),
         action: () => router.push('/subscriptions'),
         icon: ArrowUpRight,
       };
@@ -175,8 +185,8 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
       return {
         allowed: false,
         reason: 'QUOTA_EXHAUSTED',
-        badgeText: `سهمیه ناکافی (${remainingQuota.toFixed(1)} GB مانده)`,
-        buttonText: 'افزایش سهمیه دانلود',
+        badgeText: t('downloadBox.eligibility.quotaBadge', { remaining: size(remainingQuota) }),
+        buttonText: t('downloadBox.eligibility.quotaButton'),
         action: () => router.push('/subscriptions'),
         icon: AlertTriangle,
       };
@@ -186,66 +196,66 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
     return {
       allowed: true,
       reason: 'READY',
-      badgeText: 'مجاز برای دانلود',
-      buttonText: 'دانلود مستقیم',
+      badgeText: t('downloadBox.eligibility.readyBadge'),
+      buttonText: t('downloadBox.eligibility.downloadButton'),
       action: () => handleOpenDownloadModal(link, true),
       icon: Download,
     };
   };
 
   const getTierBadge = (tier?: string) => {
-    const t = (tier || 'gold').toLowerCase();
-    if (t.includes('free') || t.includes('رایگان')) {
+    const tierKey = (tier || 'gold').toLowerCase();
+    if (tierKey.includes('free')) {
       return (
         <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-          رایگان
+          {t('downloadBox.tiers.free')}
         </span>
       );
     }
-    if (t.includes('bronze') || t.includes('برنز')) {
+    if (tierKey.includes('bronze')) {
       return (
         <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
-          برنزی+
+          {t('downloadBox.tiers.bronze')}
         </span>
       );
     }
-    if (t.includes('silver') || t.includes('نقره')) {
+    if (tierKey.includes('silver')) {
       return (
         <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-300/15 text-slate-300 border border-slate-300/30">
-          نقره‌ای+
+          {t('downloadBox.tiers.silver')}
         </span>
       );
     }
     return (
       <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-        طلایی
+        {t('downloadBox.tiers.gold')}
       </span>
     );
   };
 
   return (
-    <div id="download-section" className="rounded-3xl bg-[#0d121f] border border-white/10 p-5 sm:p-7 space-y-6 shadow-2xl text-right font-vazir" dir="rtl">
+    <div id="download-section" className="rounded-3xl bg-[#0d121f] border border-white/10 p-5 sm:p-7 space-y-6 shadow-2xl text-start font-vazir">
       {/* Box Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10 pb-5">
         <div>
           <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2.5">
             <Download className="w-5 h-5 text-cyan-400" />
-            <span>باکس دانلود چندمنظوره نیم‌بهاء دکتر گیم</span>
+            <span>{t('downloadBox.title')}</span>
           </h3>
           <p className="text-xs text-text-muted mt-1 leading-relaxed">
-            سرورهای پرسرعت ابری داخلی با محاسبه ترافیک ۵۰٪ نیم‌بهاء مخابراتی
+            {t('downloadBox.subtitle')}
           </p>
         </div>
 
         {/* User Quota & Subscription Status Pill */}
         {isAuthenticated && mySubStatus?.has_active_subscription && mySubStatus.tier && (
           <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-xs">
-            <span className="text-text-muted">پلن:</span>
+            <span className="text-text-muted">{t('downloadBox.plan')}</span>
             <span className="font-bold text-cyan-400">{mySubStatus.tier.name_fa}</span>
             <span className="text-slate-600">|</span>
-            <span className="text-text-muted">باقیمانده سهمیه:</span>
+            <span className="text-text-muted">{t('downloadBox.remainingQuota')}</span>
             <span className="font-bold text-emerald-400 font-roboto" dir="ltr">
-              {(mySubStatus.quota?.remaining_quota_gb ?? 0).toFixed(1)} GB
+              {size(mySubStatus.quota?.remaining_quota_gb ?? 0)}
             </span>
           </div>
         )}
@@ -253,7 +263,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
         {!isAuthenticated && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold shrink-0">
             <ShieldAlert className="w-4 h-4" />
-            <span>ورود به حساب جهت دانلود الزامی است</span>
+            <span>{t('downloadBox.loginBanner')}</span>
           </div>
         )}
       </div>
@@ -276,14 +286,14 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
               }`}
             >
               <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              <span>{t(tab.labelKey)}</span>
               {count > 0 && (
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-roboto ${
                     isActive ? 'bg-cyan-400 text-slate-950 font-black' : 'bg-white/10 text-text-muted'
                   }`}
                 >
-                  {count}
+                  {n(count)}
                 </span>
               )}
             </button>
@@ -295,9 +305,9 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
       {currentTabLinks.length === 0 ? (
         <div className="text-center py-12 rounded-2xl bg-[#141b2d]/50 border border-white/5 space-y-2">
           <Download className="w-8 h-8 text-text-muted mx-auto opacity-50" />
-          <h4 className="text-xs font-bold text-white">هنوز فایلی در این دسته‌بندی بارگذاری نشده است</h4>
+          <h4 className="text-xs font-bold text-white">{t('downloadBox.emptyTitle')}</h4>
           <p className="text-[11px] text-text-muted max-w-xs mx-auto">
-            تیم فنی دکتر گیم به زودی فایل‌های این بخش را پس از تست کامل سلامت بر روی سرور بارگذاری خواهند کرد.
+            {t('downloadBox.emptyBody')}
           </p>
         </div>
       ) : (
@@ -323,7 +333,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                         : 'bg-slate-800/80 border-slate-700/60 text-slate-500'
                     }`}
                   >
-                    #{link.part_number}
+                    {t('downloadBox.partNumber', { number: n(link.part_number) })}
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -341,13 +351,13 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                       )}
                       {eligibility.allowed && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                          مجاز برای دانلود
+                          {t('downloadBox.eligibility.readyBadge')}
                         </span>
                       )}
                     </div>
                     <span className="text-[11px] text-text-muted flex items-center gap-1.5 font-roboto">
                       <HardDrive className="w-3.5 h-3.5 text-text-secondary" />
-                      <span>حجم: {link.file_size_gb} GB</span>
+                      <span>{t('downloadBox.sizeLabel', { size: size(link.file_size_gb) })}</span>
                     </span>
                   </div>
                 </div>
@@ -363,7 +373,11 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                         ? 'bg-white/5 hover:bg-white/10 border-white/10 text-text-secondary hover:text-white cursor-pointer'
                         : 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-50'
                     }`}
-                    title={eligibility.allowed ? 'کپی لینک مستقیم فایل' : 'دانلود برای شما مجاز نیست'}
+                    title={
+                      eligibility.allowed
+                        ? t('downloadBox.copyTitle')
+                        : t('downloadBox.copyDisabledTitle')
+                    }
                   >
                     {copiedPart === link.part_number ? (
                       <Check className="w-4 h-4 text-emerald-400" />
@@ -371,7 +385,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                       <Copy className="w-4 h-4" />
                     )}
                     <span className="hidden sm:inline">
-                      {copiedPart === link.part_number ? 'کپی شد' : 'کپی لینک'}
+                      {copiedPart === link.part_number ? t('common.copied') : t('downloadBox.copyLink')}
                     </span>
                   </button>
 
@@ -383,7 +397,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4 stroke-[2.5]" />
-                      <span>دانلود مستقیم</span>
+                      <span>{t('downloadBox.eligibility.downloadButton')}</span>
                     </button>
                   ) : (
                     <button

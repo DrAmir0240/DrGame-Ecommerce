@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { GameCardItem } from '@/types/game';
 import { getMediaUrl } from '@/lib/media';
-import PlatformIcon from './PlatformIcons';
+import { useTranslation } from '@/i18n';
 
 interface GameCardProps {
   game: GameCardItem;
@@ -22,12 +22,17 @@ function getPlatformBadgeText(plat: string): string {
 }
 
 export default function GameCard({ game }: GameCardProps) {
-  const title = game.title_fa || game.title_en;
+  const { locale, dir, t, n, size } = useTranslation();
+  const title = locale === 'en' ? (game.title_en || game.title_fa) : (game.title_fa || game.title_en);
 
   // Normalize platforms list
   const platforms = (game.platforms && game.platforms.length > 0)
     ? game.platforms
     : ['PS5', 'PS4'];
+
+  const isReleased = game.released && game.released <= new Date().toISOString().split('T')[0];
+  const releasedText = t('gameCard.released');
+  const earlyAccessText = t('gameCard.earlyAccess');
 
   return (
     <Link
@@ -45,7 +50,7 @@ export default function GameCard({ game }: GameCardProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">
-            بدون کاور
+            {t('games.noCover')}
           </div>
         )}
 
@@ -55,26 +60,25 @@ export default function GameCard({ game }: GameCardProps) {
         {/* Rating Badge (top-right) */}
         {game.rating > 0 && (
           <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-amber-300 text-[10px] font-bold font-roboto">
-            ★ {game.rating.toFixed(1)}
+            ★ {n(game.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
           </div>
         )}
 
         {/* Download Size (top-left) */}
         {game.download_size_gb > 0 && (
           <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-purple-300 text-[10px] font-bold font-roboto">
-            {game.download_size_gb} GB
+            {size(game.download_size_gb)}
           </div>
         )}
       </div>
 
-      {/* Card Info Section matching games.jpg */}
-      <div className="p-3 flex flex-col justify-between flex-1 text-right gap-2">
-        {/* Persian Title */}
+      {/* Card Info Section */}
+      <div className={`p-3 flex flex-col justify-between flex-1 gap-2 ${dir === 'rtl' ? 'text-start' : 'text-left'}`}>
         <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
           {title}
         </h3>
 
-        {/* Bottom Row: Platform Text Badges + Status Badge ("منتشر شده") */}
+        {/* Bottom Row: Platform Text Badges + Status Badge */}
         <div className="flex items-center justify-between gap-1 pt-1 border-t border-white/5">
           {/* Platforms Text Badges */}
           <div className="flex items-center gap-1 flex-wrap">
@@ -93,13 +97,13 @@ export default function GameCard({ game }: GameCardProps) {
           </div>
 
           {/* Status Badge */}
-          {game.released && game.released <= new Date().toISOString().split('T')[0] ? (
+          {isReleased ? (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
-              منتشر شده
+              {releasedText}
             </span>
           ) : (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">
-              دسترسی زودهنگام
+              {earlyAccessText}
             </span>
           )}
         </div>

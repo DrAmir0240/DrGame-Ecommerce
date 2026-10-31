@@ -41,13 +41,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setAuth: (data: TokenResponse) => {
-    // Store tokens in-memory and Secure SameSite=Strict cookies (NEVER in localStorage)
+    if (!data || !data.access_token) return;
+
+    // Store tokens in-memory and Secure SameSite=Lax cookies (NEVER in customer localStorage)
     setAuthTokens(data.access_token, data.refresh_token);
 
     set({
       user: data.user,
       token: data.access_token,
-      refreshToken: data.refresh_token,
+      refreshToken: data.refresh_token || null,
       isAuthenticated: true,
       isAuthModalOpen: false,
     });
@@ -88,7 +90,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         token: getAccessToken(),
       });
     } catch (e: any) {
-      console.error('Failed to fetch user:', e);
+      console.warn('Failed to fetch user:', e);
 
       // SECURITY & RELIABILITY DISTINCTION:
       // Only log out if the backend explicitly rejects the credentials (HTTP 401 or 403).

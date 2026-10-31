@@ -4,12 +4,14 @@ import React from 'react';
 import Link from 'next/link';
 import { BlogPostCard } from '@/types/blog';
 import { Clock, Eye, ThumbsUp, ArrowLeft } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 interface BlogCardProps {
   post: BlogPostCard;
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
+  const { tp, n, d } = useTranslation();
   return (
     <Link
       href={`/blog/${post.slug || post.id}`}
@@ -34,12 +36,12 @@ export default function BlogCard({ post }: BlogCardProps) {
 
             <span className="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-text-muted flex items-center gap-1">
               <Clock className="w-3 h-3 text-amber-400" />
-              <span>{post.reading_time_min} دقیقه</span>
+              <span>{tp('blogUI.readingTime', post.reading_time_min, { count: n(post.reading_time_min) })}</span>
             </span>
           </div>
 
           {/* Bottom Card Content */}
-          <div className="absolute bottom-0 inset-x-0 p-4 space-y-2 text-right">
+          <div className="absolute bottom-0 inset-x-0 p-4 space-y-2 text-start">
             <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cosmic-purple transition-colors line-clamp-2 leading-snug">
               {post.title_fa}
             </h3>
@@ -52,16 +54,16 @@ export default function BlogCard({ post }: BlogCardProps) {
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <Eye className="w-3 h-3" />
-                  <span>{post.views_count}</span>
+                  <span>{n(post.views_count)}</span>
                 </span>
                 <span className="flex items-center gap-1 text-emerald-400">
                   <ThumbsUp className="w-3 h-3" />
-                  <span>{post.likes_count}</span>
+                  <span>{n(post.likes_count)}</span>
                 </span>
               </div>
 
               <span className="font-mono">
-                {new Date(post.created_at).toLocaleDateString('fa-IR')}
+                {d(post.created_at)}
               </span>
             </div>
           </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
+import { useTranslation } from '@/i18n';
 import {
   User as UserIcon,
   Share2,
@@ -25,7 +26,7 @@ import {
 } from 'lucide-react';
 
 interface SidebarItem {
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ReactNode;
   badge?: string;
@@ -33,42 +34,42 @@ interface SidebarItem {
 
 const navItems: SidebarItem[] = [
   {
-    label: 'پروفایل و آواتار سونی',
+    labelKey: 'dashboard.nav.profile',
     href: '/profile',
     icon: <UserIcon className="w-5 h-5" />,
   },
   {
-    label: 'دانلودهای من',
+    labelKey: 'dashboard.nav.downloads',
     href: '/dashboard/downloads',
     icon: <Download className="w-5 h-5 text-cyan-400" />,
   },
   {
-    label: 'تیکت‌های پشتیبانی',
+    labelKey: 'dashboard.nav.tickets',
     href: '/dashboard/tickets',
     icon: <Headphones className="w-5 h-5 text-purple-400" />,
   },
   {
-    label: 'سوابق پرداخت‌ها',
+    labelKey: 'dashboard.nav.payments',
     href: '/dashboard/payments',
     icon: <Receipt className="w-5 h-5 text-emerald-400" />,
   },
   {
-    label: 'مرکز اعلانات',
+    labelKey: 'dashboard.nav.notifications',
     href: '/dashboard/notifications',
     icon: <Bell className="w-5 h-5 text-amber-400" />,
   },
   {
-    label: 'کیف پول و درآمد رفرال',
+    labelKey: 'dashboard.nav.referral',
     href: '/referral',
     icon: <Share2 className="w-5 h-5" />,
   },
   {
-    label: 'نشست‌ها و دستگاه‌های فعال',
+    labelKey: 'dashboard.nav.sessions',
     href: '/sessions',
     icon: <Laptop className="w-5 h-5" />,
   },
   {
-    label: 'ارتقا و تمدید اشتراک',
+    labelKey: 'dashboard.nav.subscriptions',
     href: '/subscriptions',
     icon: <Zap className="w-5 h-5 text-amber-400" />,
   },
@@ -80,6 +81,7 @@ export default function UserDashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { t, size, dir, locale } = useTranslation();
   const { user, isAuthenticated, fetchCurrentUser, logout } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
   const [copiedConsoleCode, setCopiedConsoleCode] = useState(false);
@@ -126,17 +128,17 @@ export default function UserDashboardLayout({
                 user?.avatar_url ||
                 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'
               }
-              alt={user?.full_name || 'کاربر'}
+              alt={user?.full_name || t('dashboard.userAlt')}
               className="w-full h-full object-cover rounded-xl"
             />
           </div>
-          <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-5 h-5 rounded-full border-2 border-[#0c1017] flex items-center justify-center" title="حساب فعال">
+          <div className="absolute -bottom-1 -end-1 bg-emerald-500 w-5 h-5 rounded-full border-2 border-[#0c1017] flex items-center justify-center" title={t('dashboard.activeAccount')}>
             <ShieldCheck className="w-3 h-3 text-white" />
           </div>
         </div>
 
         <h2 className="text-base font-bold text-white mb-0.5">
-          {user?.full_name || 'کاربر دکتر گیم'}
+          {user?.full_name || t('dashboard.defaultUserName')}
         </h2>
         <span className="text-xs text-text-muted font-roboto" dir="ltr">
           @{user?.username || 'user'}
@@ -146,7 +148,7 @@ export default function UserDashboardLayout({
       {/* 7-digit Console Auth Code Box */}
       {user?.console_auth_code && (
         <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-cosmic-purple/30 space-y-1.5 text-center">
-          <div className="text-[11px] text-text-muted">کد ۷ رقمی ورود به کنسول:</div>
+          <div className="text-[11px] text-text-muted">{t('dashboard.consoleCodeLabel')}</div>
           <div className="flex items-center justify-center gap-2">
             <span
               className="font-roboto text-lg font-black tracking-widest text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-xl border border-emerald-500/20"
@@ -157,7 +159,7 @@ export default function UserDashboardLayout({
             <button
               onClick={copyConsoleCode}
               className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
-              title="کپی کد کنسول"
+              title={t('dashboard.copyConsoleCode')}
             >
               {copiedConsoleCode ? (
                 <Check className="w-4 h-4 text-emerald-400" />
@@ -174,10 +176,10 @@ export default function UserDashboardLayout({
         <div className="flex items-center justify-between text-xs">
           <span className="text-text-muted flex items-center gap-1.5 font-medium">
             <HardDrive className="w-3.5 h-3.5 text-cosmic-purple" />
-            سهمیه ترافیک
+            {t('dashboard.quotaTitle')}
           </span>
           <span className="text-emerald-400 font-bold">
-            {quota ? `${quota.remaining_quota_gb} GB باقی‌مانده` : '5 GB باقی‌مانده'}
+            {t('dashboard.quotaRemaining', { size: size(quota ? quota.remaining_quota_gb : 5) })}
           </span>
         </div>
         <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -194,8 +196,8 @@ export default function UserDashboardLayout({
           />
         </div>
         <div className="flex justify-between items-center text-[10px] text-text-muted">
-          <span>مصرف: {quota?.used_quota_gb || 0} GB</span>
-          <span>کل: {quota?.total_quota_gb || 5} GB</span>
+          <span>{t('dashboard.quotaUsed', { size: size(quota?.used_quota_gb || 0) })}</span>
+          <span>{t('dashboard.quotaTotal', { size: size(quota?.total_quota_gb || 5) })}</span>
         </div>
       </div>
 
@@ -215,7 +217,7 @@ export default function UserDashboardLayout({
               }`}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </Link>
           );
         })}
@@ -231,14 +233,19 @@ export default function UserDashboardLayout({
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          <span>خروج از حساب کاربری</span>
+          <span>{t('dashboard.logout')}</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 w-full font-vazir text-right" dir="rtl">
+    <div
+      dir={dir}
+      className={`max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 w-full text-start ${
+        locale === 'fa' || locale === 'ar' ? 'font-vazir' : 'font-sans'
+      }`}
+    >
       {/* Mobile Top Navigation Bar (Triggers Slide-over Drawer) */}
       <div className="lg:hidden mb-6 p-3 sm:p-4 rounded-2xl bg-[#0c1017]/95 border border-white/10 flex items-center justify-between shadow-2xl backdrop-blur-xl">
         <div className="flex items-center gap-3">
@@ -248,12 +255,12 @@ export default function UserDashboardLayout({
                 user?.avatar_url ||
                 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'
               }
-              alt={user?.full_name || 'کاربر'}
+              alt={user?.full_name || t('dashboard.userAlt')}
               className="w-full h-full object-cover rounded-lg"
             />
           </div>
           <div>
-            <div className="text-xs font-bold text-white">{user?.full_name || 'کاربر دکتر گیم'}</div>
+            <div className="text-xs font-bold text-white">{user?.full_name || t('dashboard.defaultUserName')}</div>
             <div className="text-[10px] text-text-muted font-roboto" dir="ltr">@{user?.username || 'user'}</div>
           </div>
         </div>
@@ -264,7 +271,7 @@ export default function UserDashboardLayout({
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/30 font-bold text-xs transition-all active:scale-95 shadow-[0_0_12px_rgba(168,85,247,0.2)]"
         >
           <Menu className="w-4 h-4 text-purple-400" />
-          <span>منوی کاربری</span>
+          <span>{t('dashboard.userMenu')}</span>
         </button>
       </div>
 
@@ -278,12 +285,12 @@ export default function UserDashboardLayout({
           />
 
           {/* Drawer Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-[85vw] w-80 bg-[#0c1017] border-l border-white/10 z-50 shadow-2xl p-5 overflow-y-auto flex flex-col justify-between">
+          <div className="fixed inset-y-0 end-0 max-w-[85vw] w-80 bg-[#0c1017] border-s border-white/10 z-50 shadow-2xl p-5 overflow-y-auto flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
                 <span className="text-xs font-bold text-white flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-purple-400" />
-                  <span>میزکار کاربری دکتر گیم</span>
+                  <span>{t('dashboard.drawerTitle')}</span>
                 </span>
                 <button
                   type="button"

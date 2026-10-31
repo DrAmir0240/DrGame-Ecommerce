@@ -7,6 +7,7 @@ import GameCard from '@/components/games/GameCard';
 import FilterSidebar, { FilterState } from '@/components/games/FilterSidebar';
 import CircularQuotaWidget from '@/components/games/CircularQuotaWidget';
 import { Search, ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft, Gamepad2, Sparkles, Filter } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 function getPaginationRange(currentPage: number, totalPages: number): (number | '...')[] {
   if (totalPages <= 7) {
@@ -44,6 +45,7 @@ function getPaginationRange(currentPage: number, totalPages: number): (number | 
 }
 
 export default function GamesCatalogPage() {
+  const { t, n, tp } = useTranslation();
   const [games, setGames] = useState<GameCardItem[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,11 +146,11 @@ export default function GamesCatalogPage() {
   };
 
   return (
-    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-3 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6 text-right font-vazir">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-3 sm:px-6 lg:px-8 2xl:px-12 py-6 space-y-6 text-start font-vazir">
       {/* Layout Grid: In RTL, 1st child (Sidebar) is on the RIGHT, 2nd child (Content) is on the LEFT. Mirrored in LTR */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         
-        {/* Right Sidebar: فیلترهای پیشرفته (Sticky on desktop, drawer modal on mobile) */}
+        {/* Filter sidebar: sticky on desktop, drawer on mobile */}
         <FilterSidebar
           genres={genres}
           filters={filters}
@@ -174,11 +176,11 @@ export default function GamesCatalogPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen(true)}
                 className="lg:hidden h-10 px-3 rounded-xl bg-[#141b2d] border border-white/10 hover:border-purple-500/40 text-purple-400 hover:text-purple-300 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
-                title="فیلترهای پیشرفته"
-                aria-label="فیلترهای پیشرفته"
+                title={t('gamesPage.filterPanelTitle')}
+                aria-label={t('gamesPage.filterPanelTitle')}
               >
                 <Filter className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-bold sm:inline">فیلترها</span>
+                <span className="text-xs font-bold sm:inline">{t('gamesPage.filtersButton')}</span>
                 {activeFilterCount > 0 && (
                   <span className="w-2 h-2 rounded-full bg-purple-500 ring-2 ring-purple-400/50" />
                 )}
@@ -192,8 +194,8 @@ export default function GamesCatalogPage() {
                     setFilters({ ...filters, search: e.target.value });
                     setPage(1);
                   }}
-                  placeholder="جستجوی بازی، عنوان، ژانر و ..."
-                  className="w-full px-4 py-2.5 pr-10 rounded-xl bg-[#141b2d] border border-white/10 text-white placeholder-text-muted text-xs focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-right"
+                  placeholder={t('gamesPage.searchPlaceholder')}
+                  className="w-full px-4 py-2.5 pr-10 rounded-xl bg-[#141b2d] border border-white/10 text-white placeholder-text-muted text-xs focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-start"
                 />
                 <Search className="absolute right-3 top-3 w-4 h-4 text-text-muted" />
               </div>
@@ -216,15 +218,15 @@ export default function GamesCatalogPage() {
           ) : games.length === 0 ? (
             <div className="py-20 text-center rounded-2xl bg-[#0d121f] border border-white/10 p-8 space-y-3">
               <Gamepad2 className="w-12 h-12 text-text-muted mx-auto" />
-              <h3 className="text-base font-bold text-white">بازی مورد نظر یافت نشد</h3>
+              <h3 className="text-base font-bold text-white">{t('gamesPage.emptyTitle')}</h3>
               <p className="text-xs text-text-muted max-w-sm mx-auto">
-                هیچ بازی با فیلترهای انتخابی پیدا نشد. لطفاً فیلترها را ریست کنید یا عبارت دیگری را جستجو فرمایید.
+                {t('gamesPage.emptyDescription')}
               </p>
               <button
                 onClick={handleResetFilters}
                 className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold hover:bg-purple-500/30 transition-all shadow-[0_0_12px_rgba(168,85,247,0.25)]"
               >
-                حذف همه فیلترها
+                {t('gamesPage.clearFilters')}
               </button>
             </div>
           ) : (
@@ -240,15 +242,15 @@ export default function GamesCatalogPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 pb-4 border-t border-white/5">
               {/* Total & Current Page Info */}
               <div className="text-xs text-slate-400 order-2 sm:order-1 flex items-center gap-1.5">
-                <span>نمایش صفحه</span>
+                <span>{t('gamesPage.showingPage')}</span>
                 <span className="font-bold text-white font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10">
                   {page}
                 </span>
-                <span>از</span>
+                <span>{t('gamesPage.ofPages')}</span>
                 <span className="font-bold text-white font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10">
                   {totalPages}
                 </span>
-                <span className="text-slate-500 mr-1.5">({total.toLocaleString('fa-IR')} بازی)</span>
+                <span className="text-slate-500 mr-1.5">{tp('gamesPage.gamesCount', total)}</span>
               </div>
 
               {/* Navigation Buttons */}
@@ -257,7 +259,7 @@ export default function GamesCatalogPage() {
                 <button
                   onClick={() => handlePageChange(1)}
                   disabled={page <= 1}
-                  title="صفحه اول"
+                  title={t('gamesPage.firstPage')}
                   className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center"
                 >
                   <ChevronsRight className="w-4 h-4" />
@@ -270,7 +272,7 @@ export default function GamesCatalogPage() {
                   className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1"
                 >
                   <ChevronRight className="w-4 h-4" />
-                  <span className="hidden md:inline">صفحه قبل</span>
+                  <span className="hidden md:inline">{t('gamesPage.prevPage')}</span>
                 </button>
 
                 {/* Page Numbers */}
@@ -310,7 +312,7 @@ export default function GamesCatalogPage() {
                   disabled={page >= totalPages}
                   className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1"
                 >
-                  <span className="hidden md:inline">صفحه بعد</span>
+                  <span className="hidden md:inline">{t('gamesPage.nextPage')}</span>
                   <ChevronLeft className="w-4 h-4" />
                 </button>
 
@@ -318,7 +320,7 @@ export default function GamesCatalogPage() {
                 <button
                   onClick={() => handlePageChange(totalPages)}
                   disabled={page >= totalPages}
-                  title="صفحه آخر"
+                  title={t('gamesPage.lastPage')}
                   className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center"
                 >
                   <ChevronsLeft className="w-4 h-4" />

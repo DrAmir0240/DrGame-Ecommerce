@@ -8,8 +8,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { ShieldCheck, Tag, ArrowRight, CheckCircle2, AlertCircle, Sparkles, CreditCard, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/i18n';
 
 function CheckoutContent() {
+  const { t, n, price, d } = useTranslation();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tierCode = searchParams.get('tier') || 'silver';
@@ -32,7 +34,7 @@ function CheckoutContent() {
     async function fetchTier() {
       try {
         const tiers = await apiRequest<SubscriptionTier[]>('/subscriptions/tiers');
-        const found = tiers.find((t) => t.code === tierCode) || tiers.find((t) => t.code === 'silver');
+        const found = tiers.find((tierItem) => tierItem.code === tierCode) || tiers.find((tierItem) => tierItem.code === 'silver');
         if (found) setTier(found);
       } catch (e) {
         console.error('Failed to load tier details:', e);
@@ -61,7 +63,7 @@ function CheckoutContent() {
       setDiscountResult(res);
     } catch (err: any) {
       setDiscountResult(null);
-      setDiscountError(err.message || 'کد تخفیف معتبر نیست یا منقضی شده است.');
+      setDiscountError(err.message || t('checkout.invalidDiscount'));
     } finally {
       setDiscountLoading(false);
     }
@@ -93,7 +95,7 @@ function CheckoutContent() {
       // Refresh global quota
       fetchQuota();
     } catch (err: any) {
-      setCheckoutError(err.message || 'خطا در برقراری ارتباط با درگاه پرداخت.');
+      setCheckoutError(err.message || t('checkout.paymentFailed'));
     } finally {
       setCheckoutLoading(false);
     }
@@ -111,9 +113,9 @@ function CheckoutContent() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
         <AlertCircle className="w-12 h-12 text-rose-400 mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">پلن اشتراک پیدا نشد</h2>
+        <h2 className="text-xl font-bold text-white mb-2">{t('checkout.tierNotFound')}</h2>
         <Link href="/subscriptions" className="text-cosmic-purple hover:underline text-sm">
-          مشاهده تمام پلن‌ها
+          {t('checkout.viewAllPlans')}
         </Link>
       </div>
     );
@@ -131,7 +133,7 @@ function CheckoutContent() {
         className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-white transition-colors mb-8"
       >
         <ArrowRight className="w-4 h-4" />
-        <span>بازگشت به لیست اشتراک‌ها</span>
+        <span>{t('checkout.backToPlans')}</span>
       </Link>
 
       {checkoutSuccess ? (
@@ -142,39 +144,39 @@ function CheckoutContent() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">
-            پرداخت با موفقیت انجام شد!
+            {t('checkout.successTitle')}
           </h1>
           <p className="text-text-secondary text-sm mb-6">
-            اشتراک شما بلافاصله فعال گردید و حجم آن به حسابتان منظور شد.
+            {t('checkout.successDescription')}
           </p>
 
-          <div className="max-w-md mx-auto rounded-2xl bg-white/[0.03] border border-white/10 p-5 mb-8 text-right space-y-3 text-xs sm:text-sm">
+          <div className="max-w-md mx-auto rounded-2xl bg-white/[0.03] border border-white/10 p-5 mb-8 text-start space-y-3 text-xs sm:text-sm">
             <div className="flex justify-between">
-              <span className="text-text-muted">شماره پیگیری تراکنش:</span>
+              <span className="text-text-muted">{t('checkout.trackingCode')}</span>
               <span className="font-mono font-bold text-white">
                 {checkoutSuccess.tracking_code || checkoutSuccess.transaction_ref || 'TRX-SUCCESS'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-text-muted">پلن خریداری شده:</span>
+              <span className="text-text-muted">{t('checkout.purchasedPlan')}</span>
               <span className="font-bold text-white">
                 {checkoutSuccess.tier_name || tier.name_fa || tier.name}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-text-muted">مبلغ پرداخت شده:</span>
+              <span className="text-text-muted">{t('checkout.amountPaid')}</span>
               <span className="font-mono font-bold text-emerald-400">
-                {(checkoutSuccess.final_amount_irr
-                  ? Math.floor(checkoutSuccess.final_amount_irr / 10)
-                  : finalPriceToman
-                ).toLocaleString('fa-IR')}{' '}
-                تومان
+                {price(
+                  checkoutSuccess.final_amount_irr
+                    ? Math.floor(checkoutSuccess.final_amount_irr / 10)
+                    : finalPriceToman
+                )}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-text-muted">اعتبار تا تاریخ:</span>
+              <span className="text-text-muted">{t('checkout.validUntil')}</span>
               <span className="font-mono text-text-muted">
-                {new Date(checkoutSuccess.expires_at || checkoutSuccess.end_date || Date.now()).toLocaleDateString('fa-IR')}
+                {d(checkoutSuccess.expires_at || checkoutSuccess.end_date || Date.now())}
               </span>
             </div>
           </div>
@@ -184,13 +186,13 @@ function CheckoutContent() {
               href="/games"
               className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-cosmic-gradient text-white font-bold text-sm shadow-neon-purple hover:opacity-95 transition-all"
             >
-              دانلود بازی‌ها
+              {t('checkout.downloadGames')}
             </Link>
             <Link
               href="/profile"
               className="w-full sm:w-auto px-8 py-3 rounded-2xl glass-card border border-white/10 hover:border-white/20 text-white font-bold text-sm transition-all"
             >
-              مشاهده پروفایل و سهمیه
+              {t('checkout.viewProfile')}
             </Link>
           </div>
         </div>
@@ -202,37 +204,37 @@ function CheckoutContent() {
             <div className="glass-card rounded-3xl border border-white/10 p-6 sm:p-8">
               <div className="flex items-center justify-between pb-6 border-b border-white/5 mb-6">
                 <div>
-                  <span className="text-xs text-text-muted block mb-1">پلن انتخابی شما:</span>
+                  <span className="text-xs text-text-muted block mb-1">{t('checkout.selectedPlan')}</span>
                   <h2 className="text-2xl font-black text-white">{tier.name_fa || tier.name}</h2>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-cosmic-purple/20 border border-cosmic-purple/40 text-cosmic-purple text-xs font-bold">
-                  {tier.badge || (tier.code === 'gold' ? 'طلایی VIP' : tier.code === 'silver' ? 'نقره‌ای محبوب' : tier.code === 'bronze' ? 'اقتصادی' : 'پایه رایگان')}
+                  {tier.badge || t(tier.code === 'gold' ? 'checkout.badgeGold' : tier.code === 'silver' ? 'checkout.badgeSilver' : tier.code === 'bronze' ? 'checkout.badgeBronze' : 'checkout.badgeFree')}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <span className="text-xs text-text-muted block mb-1">حجم اختصاصی</span>
-                  <span className="text-lg font-black text-white font-mono">{tier.quota_gb} گیگابایت</span>
+                  <span className="text-xs text-text-muted block mb-1">{t('checkout.quotaLabel')}</span>
+                  <span className="text-lg font-black text-white font-mono">{tier.quota_gb} {t('common.unit.gb')}</span>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <span className="text-xs text-text-muted block mb-1">مدت اعتبار</span>
-                  <span className="text-lg font-black text-white">۳۰ روز کامل</span>
+                  <span className="text-xs text-text-muted block mb-1">{t('checkout.durationLabel')}</span>
+                  <span className="text-lg font-black text-white">{t('checkout.durationValue', { days: n(30) })}</span>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <span className="text-xs text-text-muted block mb-1">سرعت دانلود</span>
+                  <span className="text-xs text-text-muted block mb-1">{t('checkout.speedLabel')}</span>
                   <span className="text-lg font-black text-emerald-400">
                     {tier.speed_limit_mbps
-                      ? `${tier.speed_limit_mbps} مگابیت`
+                      ? t('checkout.speedValue', { value: n(tier.speed_limit_mbps) })
                       : tier.max_download_speed_mbps
-                        ? `${tier.max_download_speed_mbps} مگابیت`
-                        : 'نامحدود'}
+                        ? t('checkout.speedValue', { value: n(tier.max_download_speed_mbps) })
+                        : t('checkout.unlimited')}
                   </span>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <span className="text-xs text-text-muted block mb-1">دانلود همزمان</span>
+                  <span className="text-xs text-text-muted block mb-1">{t('checkout.concurrentLabel')}</span>
                   <span className="text-lg font-black text-white">
-                    {tier.concurrent_downloads || (tier.code === 'gold' ? 5 : tier.code === 'silver' ? 3 : 2)} پارت همزمان
+                    {t('checkout.concurrentValue', { count: n(tier.concurrent_downloads || (tier.code === 'gold' ? 5 : tier.code === 'silver' ? 3 : 2)) })}
                   </span>
                 </div>
               </div>
@@ -241,7 +243,7 @@ function CheckoutContent() {
               <div className="pt-6 border-t border-white/5">
                 <span className="block text-xs font-bold text-white mb-2 flex items-center gap-1.5">
                   <Tag className="w-4 h-4 text-cosmic-purple" />
-                  <span>کد تخفیف دارید؟</span>
+                  <span>{t('checkout.couponQuestion')}</span>
                 </span>
 
                 <form onSubmit={handleApplyDiscount} className="flex gap-2">
@@ -249,7 +251,7 @@ function CheckoutContent() {
                     type="text"
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)}
-                    placeholder="کد تخفیف (مثال: GAMEON)"
+                    placeholder={t('checkout.couponPlaceholder')}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-text-muted focus:outline-none focus:border-cosmic-purple"
                   />
                   <button
@@ -257,14 +259,14 @@ function CheckoutContent() {
                     disabled={discountLoading || !discountCode.trim()}
                     className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50"
                   >
-                    {discountLoading ? 'بررسی...' : 'اعمال'}
+                    {discountLoading ? t('checkout.checking') : t('checkout.apply')}
                   </button>
                 </form>
 
                 {discountResult && (
                   <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>{discountResult.message} ({discountResult.discount_percent}٪ تخفیف اعمال شد)</span>
+                    <span>{t('checkout.discountApplied', { message: discountResult.message ?? '', percent: n(discountResult.discount_percent) })}</span>
                   </div>
                 )}
 
@@ -284,30 +286,30 @@ function CheckoutContent() {
               <div>
                 <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-cosmic-purple" />
-                  <span>فاکتور نهایی</span>
+                  <span>{t('checkout.invoiceTitle')}</span>
                 </h3>
 
                 <div className="space-y-3 text-xs border-b border-white/5 pb-4 mb-4">
                   <div className="flex justify-between text-text-secondary">
-                    <span>مبلغ پلن:</span>
-                    <span className="font-mono text-white">{originalPriceToman.toLocaleString('fa-IR')} تومان</span>
+                    <span>{t('checkout.planAmount')}</span>
+                    <span className="font-mono text-white">{price(originalPriceToman)}</span>
                   </div>
                   {discountResult && (
                     <div className="flex justify-between text-emerald-400">
-                      <span>تخفیف ({discountResult.discount_percent}٪):</span>
-                      <span className="font-mono">- {discountToman.toLocaleString('fa-IR')} تومان</span>
+                      <span>{t('checkout.discountLine', { percent: n(discountResult.discount_percent) })}</span>
+                      <span className="font-mono">- {price(discountToman)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-text-secondary">
-                    <span>مالیات و کارمزد:</span>
-                    <span className="text-white">۰ تومان</span>
+                    <span>{t('checkout.taxLine')}</span>
+                    <span className="text-white">{price(0)}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-baseline mb-6">
-                  <span className="text-sm font-bold text-white">مبلغ قابل پرداخت:</span>
+                  <span className="text-sm font-bold text-white">{t('checkout.payable')}</span>
                   <span className="text-2xl font-black text-white font-mono">
-                    {finalPriceToman.toLocaleString('fa-IR')} <span className="text-xs font-normal text-text-muted">تومان</span>
+                    {price(finalPriceToman)}
                   </span>
                 </div>
 
@@ -326,12 +328,12 @@ function CheckoutContent() {
                   className="w-full py-3.5 rounded-2xl bg-cosmic-gradient hover:opacity-95 text-white font-black text-sm shadow-neon-purple transition-all flex items-center justify-center gap-2"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>{checkoutLoading ? 'در حال اتصال به درگاه...' : 'پرداخت آنلاین و فعال‌سازی'}</span>
+                  <span>{checkoutLoading ? t('checkout.connecting') : t('checkout.payNow')}</span>
                 </button>
 
                 <p className="text-[11px] text-text-muted text-center mt-3 flex items-center justify-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>پرداخت امن از طریق شبکه شتاب با شبیه‌ساز رسمی</span>
+                  <span>{t('checkout.securePayment')}</span>
                 </p>
               </div>
             </div>

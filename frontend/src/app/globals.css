@@ -34,6 +34,12 @@ code, kbd, samp, pre, .font-mono {
   font-family: 'Vazirmatn', sans-serif !important;
 }
 
+/* Latin locales should not be forced into the Persian face */
+html[dir='ltr'] .font-vazir,
+html[lang='en'] .font-vazir {
+  font-family: 'Roboto', 'Vazirmatn', sans-serif !important;
+}
+
 .font-roboto {
   font-family: 'Roboto', sans-serif !important;
 }
@@ -87,6 +93,61 @@ select option {
   z-index: 40;
 }
 
+/* =========================================================================
+   10-FOOT TV MODE & CONSOLE VIEWPORT SCALING
+   Keeps the full storefront layout intact while automatically scaling
+   all components, typography, buttons, and spacing for 10-foot viewing.
+   ========================================================================= */
+html.tv-mode {
+  font-size: 18px;
+  zoom: 1.15;
+}
+
+@media (min-width: 1920px) {
+  html.tv-mode {
+    font-size: 19px;
+    zoom: 1.2;
+  }
+}
+
+@media (min-width: 2560px) {
+  html.tv-mode {
+    font-size: 21px;
+    zoom: 1.3;
+  }
+}
+
+html.tv-mode body {
+  /* Extra bottom padding so fixed controller menu never overlaps any content */
+  padding-bottom: 92px !important;
+}
+
+@media (min-width: 1920px) {
+  html.tv-mode body {
+    padding-bottom: 104px !important;
+  }
+}
+
+/* Enhanced 10-foot gamepad focus glow ring for all interactive elements in TV mode */
+html.tv-mode a:focus,
+html.tv-mode a:focus-visible,
+html.tv-mode button:focus,
+html.tv-mode button:focus-visible,
+html.tv-mode input:focus,
+html.tv-mode input:focus-visible,
+html.tv-mode select:focus,
+html.tv-mode select:focus-visible,
+html.tv-mode [tabindex="0"]:focus,
+html.tv-mode [tabindex="0"]:focus-visible,
+html.tv-mode [data-tv-focused="true"] {
+  outline: 3px solid #c084fc !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 35px rgba(168, 85, 247, 0.95), 0 0 12px rgba(34, 211, 238, 0.6) !important;
+  transform: scale(1.05) !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, outline 0.18s ease !important;
+  z-index: 50 !important;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -105,7 +166,6 @@ select option {
 ::-webkit-scrollbar-thumb:hover {
   background: #7C3AED;
 }
-
 
 /* No scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {

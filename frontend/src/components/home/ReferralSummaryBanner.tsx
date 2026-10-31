@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
 import { ReferralStats } from '@/types/referral';
+import { useTranslation } from '@/i18n';
 import ReferralStatsCards from '@/components/referral/ReferralStatsCards';
 
 export default function ReferralSummaryBanner() {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [stats, setStats] = useState<ReferralStats | null>(null);
@@ -60,7 +62,7 @@ export default function ReferralSummaryBanner() {
   };
 
   return (
-    <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-6 pb-2" aria-label="خلاصه درآمد و رفرال دکتر گیم">
+    <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-6 pb-2" aria-label={t('referralBanner.ariaLabel')}>
       {isLoading && !stats ? (
         <div className="animate-pulse space-y-4">
           <div className="h-44 rounded-3xl bg-white/5 border border-white/10" />

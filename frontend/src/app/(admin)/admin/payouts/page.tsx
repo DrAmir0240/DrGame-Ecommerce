@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import { AdminPayoutItem } from "@/types/admin";
 import { apiRequest } from "@/lib/apiClient";
+import { useTranslation } from "@/i18n";
 
 export default function AdminPayoutsPage() {
+  const { t, price, d } = useTranslation();
   const [payouts, setPayouts] = useState<AdminPayoutItem[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,11 @@ export default function AdminPayoutsPage() {
     setSelectedPayout(p);
     setActionType(type);
     setReceiptUrl("");
-    setAdminNotes(type === "approved" ? "تسویه با موفقیت واریز شد" : "اطلاعات حساب نامعتبر است");
+    setAdminNotes(
+      type === "approved"
+        ? t("admin.payouts.defaultNotes.approved")
+        : t("admin.payouts.defaultNotes.rejected")
+    );
     setModalMessage(null);
   };
 
@@ -72,8 +78,8 @@ export default function AdminPayoutsPage() {
 
       setModalMessage(
         actionType === "approved"
-          ? "درخواست با موفقیت تایید شد."
-          : "درخواست رد شد و مبلغ به کیف پول کاربر بازگشت داده شد."
+          ? t("admin.payouts.messages.approved")
+          : t("admin.payouts.messages.rejected")
       );
       fetchPayouts();
       setTimeout(() => setSelectedPayout(null), 1200);
@@ -84,30 +90,26 @@ export default function AdminPayoutsPage() {
     }
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("fa-IR").format(amount) + " تومان";
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-white mb-1">
-            کارتابل تسویه پورسانت‌های رفرال
+            {t("admin.payouts.title")}
           </h1>
           <p className="text-xs text-slate-400">
-            بررسی و تایید درخواست‌های واریز وجه، ثبت کد پیگیری و عودت خودکار وجه در صورت رد
+            {t("admin.payouts.subtitle")}
           </p>
         </div>
 
         {/* Filter buttons */}
         <div className="flex items-center gap-1.5 p-1 bg-[#121721] rounded-2xl border border-slate-800 self-start sm:self-auto">
           {[
-            { label: "همه", val: "" },
-            { label: "در انتظار بررسی", val: "pending" },
-            { label: "واریز شده", val: "approved" },
-            { label: "رد شده", val: "rejected" },
+            { labelKey: "admin.payouts.filters.all", val: "" },
+            { labelKey: "admin.payouts.filters.pending", val: "pending" },
+            { labelKey: "admin.payouts.filters.approved", val: "approved" },
+            { labelKey: "admin.payouts.filters.rejected", val: "rejected" },
           ].map((f) => (
             <button
               key={f.val}
@@ -118,7 +120,7 @@ export default function AdminPayoutsPage() {
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              {f.label}
+              {t(f.labelKey)}
             </button>
           ))}
         </div>
@@ -127,16 +129,16 @@ export default function AdminPayoutsPage() {
       {/* Payouts Table */}
       <div className="bg-[#0c1017] border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
+          <table className="w-full text-start text-xs">
             <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
               <tr>
-                <th className="py-3.5 px-4 font-semibold">شناسه</th>
-                <th className="py-3.5 px-4 font-semibold">کاربر</th>
-                <th className="py-3.5 px-4 font-semibold">مبلغ درخواستی</th>
-                <th className="py-3.5 px-4 font-semibold">حساب مقصد</th>
-                <th className="py-3.5 px-4 font-semibold">تاریخ درخواست</th>
-                <th className="py-3.5 px-4 font-semibold">وضعیت</th>
-                <th className="py-3.5 px-4 font-semibold text-center">اقدام مدیر</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.id")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.user")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.amount")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.destination")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.date")}</th>
+                <th className="py-3.5 px-4 font-semibold">{t("admin.payouts.table.status")}</th>
+                <th className="py-3.5 px-4 font-semibold text-center">{t("admin.payouts.table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
@@ -144,13 +146,13 @@ export default function AdminPayoutsPage() {
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
                     <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    درحال دریافت کارتابل تسویه...
+                    {t("admin.payouts.loading")}
                   </td>
                 </tr>
               ) : payouts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500">
-                    درخواست تسویه‌ای یافت نشد.
+                    {t("admin.payouts.empty")}
                   </td>
                 </tr>
               ) : (
@@ -158,25 +160,31 @@ export default function AdminPayoutsPage() {
                   <tr key={p.id} className="hover:bg-slate-800/20">
                     <td className="py-3.5 px-4 font-mono text-slate-400">#{p.id}</td>
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-200">{p.user_name || "کاربر"}</div>
+                      <div className="font-semibold text-slate-200">
+                        {p.user_name || t("admin.payouts.defaultUser")}
+                      </div>
                       <div className="text-[11px] text-slate-500 font-mono" dir="ltr">
                         {p.user_phone}
                       </div>
                     </td>
                     <td className="py-3.5 px-4 font-bold text-emerald-400">
-                      {formatPrice(p.amount_toman)}
+                      {price(p.amount_toman)}
                     </td>
                     <td className="py-3.5 px-4">
                       {p.account_type === "sheba" ? (
                         <div>
-                          <span className="text-[10px] text-slate-500 block">شماره شبا:</span>
+                          <span className="text-[10px] text-slate-500 block">
+                            {t("admin.payouts.shebaLabel")}
+                          </span>
                           <span className="font-mono text-slate-300 text-[11px]" dir="ltr">
                             {p.sheba_number || "—"}
                           </span>
                         </div>
                       ) : p.account_type === "card" ? (
                         <div>
-                          <span className="text-[10px] text-slate-500 block">شماره کارت:</span>
+                          <span className="text-[10px] text-slate-500 block">
+                            {t("admin.payouts.cardLabel")}
+                          </span>
                           <span className="font-mono text-slate-300 text-[11px]" dir="ltr">
                             {p.card_number || "—"}
                           </span>
@@ -184,7 +192,7 @@ export default function AdminPayoutsPage() {
                       ) : (
                         <div>
                           <span className="text-[10px] text-cyan-400 block font-mono">
-                            USDT {p.crypto_network || "TRC20"}:
+                            {t("admin.payouts.cryptoLabel", { network: p.crypto_network || "TRC20" })}
                           </span>
                           <span className="font-mono text-slate-300 text-[11px]" dir="ltr">
                             {p.crypto_wallet_address || "—"}
@@ -193,20 +201,20 @@ export default function AdminPayoutsPage() {
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-slate-400 font-mono" dir="ltr">
-                      {new Date(p.created_at).toLocaleDateString("fa-IR")}
+                      {d(p.created_at)}
                     </td>
                     <td className="py-3.5 px-4">
                       {p.status === "pending" ? (
                         <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">
-                          در انتظار اقدام
+                          {t("admin.payouts.status.pending")}
                         </span>
                       ) : p.status === "approved" ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                          واریز شده
+                          {t("admin.payouts.status.approved")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px]">
-                          رد شده (عودت)
+                          {t("admin.payouts.status.rejected")}
                         </span>
                       )}
                     </td>
@@ -218,19 +226,19 @@ export default function AdminPayoutsPage() {
                             className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-medium text-[11px] flex items-center gap-1 transition-colors"
                           >
                             <Check className="w-3.5 h-3.5" />
-                            <span>تایید واریز</span>
+                            <span>{t("admin.payouts.actions.approve")}</span>
                           </button>
                           <button
                             onClick={() => openProcessModal(p, "rejected")}
                             className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-medium text-[11px] flex items-center gap-1 transition-colors"
                           >
                             <X className="w-3.5 h-3.5" />
-                            <span>رد درخواست</span>
+                            <span>{t("admin.payouts.actions.reject")}</span>
                           </button>
                         </div>
                       ) : (
                         <div className="text-center text-slate-500 text-[11px]">
-                          پردازش شده
+                          {t("admin.payouts.actions.processed")}
                         </div>
                       )}
                     </td>
@@ -250,7 +258,9 @@ export default function AdminPayoutsPage() {
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 <CreditCard className="w-4 h-4 text-amber-400" />
                 <span>
-                  {actionType === "approved" ? "تایید واریز تسویه" : "رد درخواست تسویه وجه"}
+                  {actionType === "approved"
+                    ? t("admin.payouts.modal.approveTitle")
+                    : t("admin.payouts.modal.rejectTitle")}
                 </span>
               </div>
               <button
@@ -263,13 +273,13 @@ export default function AdminPayoutsPage() {
 
             <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1">
               <div className="flex justify-between">
-                <span className="text-slate-400">کاربر:</span>
+                <span className="text-slate-400">{t("admin.payouts.modal.userLabel")}</span>
                 <span className="text-slate-200 font-semibold">{selectedPayout.user_name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">مبلغ واریز:</span>
+                <span className="text-slate-400">{t("admin.payouts.modal.amountLabel")}</span>
                 <span className="text-emerald-400 font-bold">
-                  {formatPrice(selectedPayout.amount_toman)}
+                  {price(selectedPayout.amount_toman)}
                 </span>
               </div>
             </div>
@@ -277,7 +287,7 @@ export default function AdminPayoutsPage() {
             {actionType === "rejected" && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>توجه: با رد درخواست، مبلغ فوراً به کیف پول کاربر عودت داده خواهد شد.</span>
+                <span>{t("admin.payouts.modal.rejectWarning")}</span>
               </div>
             )}
 
@@ -285,7 +295,7 @@ export default function AdminPayoutsPage() {
               {actionType === "approved" && (
                 <div>
                   <label className="block text-slate-300 mb-1 font-medium">
-                    آدرس تصویر یا لینک فیش واریز
+                    {t("admin.payouts.modal.receiptLabel")}
                   </label>
                   <input
                     type="url"
@@ -299,7 +309,9 @@ export default function AdminPayoutsPage() {
               )}
 
               <div>
-                <label className="block text-slate-300 mb-1 font-medium">یادداشت مدیر</label>
+                <label className="block text-slate-300 mb-1 font-medium">
+                  {t("admin.payouts.modal.notesLabel")}
+                </label>
                 <input
                   type="text"
                   value={adminNotes}
@@ -320,7 +332,7 @@ export default function AdminPayoutsPage() {
                   onClick={() => setSelectedPayout(null)}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl"
                 >
-                  انصراف
+                  {t("admin.payouts.modal.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -332,10 +344,10 @@ export default function AdminPayoutsPage() {
                   }`}
                 >
                   {submitting
-                    ? "درحال ثبت..."
+                    ? t("admin.payouts.modal.submitting")
                     : actionType === "approved"
-                    ? "تایید نهایی واریز"
-                    : "ثبت رد درخواست"}
+                    ? t("admin.payouts.modal.submitApprove")
+                    : t("admin.payouts.modal.submitReject")}
                 </button>
               </div>
             </form>

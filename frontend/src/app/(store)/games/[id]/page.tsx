@@ -8,6 +8,7 @@ import DownloadBox from '@/components/games/DownloadBox';
 import SimilarGamesCarousel from '@/components/games/SimilarGamesCarousel';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getMediaUrl } from '@/lib/media';
+import { useTranslation } from '@/i18n';
 import {
   Star,
   ThumbsUp,
@@ -31,6 +32,7 @@ export default function GameDetailPage() {
   const params = useParams();
   const gameId = params?.id as string;
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
+  const { t, n, size } = useTranslation();
 
   const [game, setGame] = useState<GameDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,7 +121,7 @@ export default function GameDetailPage() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-28 text-center text-sm text-text-muted">
         <div className="w-8 h-8 border-2 border-cosmic-purple border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        در حال بارگذاری اطلاعات سینمایی بازی...
+        {t('gameDetail.loading')}
       </div>
     );
   }
@@ -127,7 +129,7 @@ export default function GameDetailPage() {
   if (!game) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-28 text-center text-sm text-white">
-        بازی مورد نظر یافت نشد.
+        {t('gameDetail.notFound')}
       </div>
     );
   }
@@ -137,7 +139,7 @@ export default function GameDetailPage() {
   const playtimeEstimate = Math.round(game.download_size_gb > 60 ? 25 : 18);
 
   return (
-    <div className="relative min-h-screen text-right space-y-12 pb-24">
+    <div className="relative min-h-screen text-start space-y-12 pb-24">
       {/* ========================================================================= */}
       {/* 1. CINEMATIC HERO SECTION (Banner Image sits behind the Main Title Card) */}
       {/* ========================================================================= */}
@@ -172,7 +174,7 @@ export default function GameDetailPage() {
             </div>
 
             {/* Game Info, Badges, Download CTA & Voting */}
-            <div className="flex-1 space-y-5 text-center md:text-right w-full">
+            <div className="flex-1 space-y-5 text-center md:text-start w-full">
               {/* Top Tags: Genres + Multiplayer Status + Platforms */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                 {/* Genres */}
@@ -189,19 +191,19 @@ export default function GameDetailPage() {
                 {game.is_two_player ? (
                   <span className="flex items-center gap-1 px-3 py-1 rounded-xl bg-purple-600/25 border border-purple-500/40 text-purple-200 text-xs font-bold">
                     <Users className="w-3.5 h-3.5" />
-                    <span>۲ نفره محلی (Co-op)</span>
+                    <span>{t('gameDetail.multiplayer')}</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-text-secondary text-xs font-bold">
                     <Users className="w-3.5 h-3.5" />
-                    <span>تک‌نفره</span>
+                    <span>{t('gameDetail.singlePlayer')}</span>
                   </span>
                 )}
 
                 {game.has_vr && (
                   <span className="flex items-center gap-1 px-3 py-1 rounded-xl bg-cyan-600/25 border border-cyan-500/40 text-cyan-300 text-xs font-bold">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>واقعیت مجازی (VR)</span>
+                    <span>{t('gameDetail.vrSupportBadge')}</span>
                   </span>
                 )}
 
@@ -230,11 +232,11 @@ export default function GameDetailPage() {
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6 text-xs text-slate-300 pt-1">
                 <div className="flex items-center gap-1.5 text-amber-400 font-bold">
                   <Star className="w-4 h-4 fill-amber-400 stroke-none" />
-                  <span>امتیاز: {game.rating.toFixed(1)}</span>
+                  <span>{t('gameDetail.rating', { value: n(game.rating, { maximumFractionDigits: 1 }) })}</span>
                 </div>
                 {game.metacritic && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-text-muted">متامتریک:</span>
+                    <span className="text-text-muted">{t('gameDetail.metacriticLabel')}</span>
                     <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold font-roboto">
                       {game.metacritic}
                     </span>
@@ -242,7 +244,7 @@ export default function GameDetailPage() {
                 )}
                 <div className="flex items-center gap-1.5">
                   <HardDrive className="w-4 h-4 text-purple-400" />
-                  <span>حجم دیتا: {game.download_size_gb} GB</span>
+                  <span>{t('gameDetail.sizeLabel', { size: size(game.download_size_gb) })}</span>
                 </div>
                 {game.released && (
                   <div className="flex items-center gap-1.5 text-slate-400">
@@ -260,7 +262,7 @@ export default function GameDetailPage() {
                   className="flex items-center gap-2.5 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 group shrink-0"
                 >
                   <Download className="w-4 h-4 stroke-[2.5] group-hover:translate-y-0.5 transition-transform" />
-                  <span>دانلود دیتای بازی</span>
+                  <span>{t('gameDetail.downloadCta')}</span>
                 </button>
 
                 {/* Minimal Like Button (Icon + Counter only) */}
@@ -271,8 +273,8 @@ export default function GameDetailPage() {
                       ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                       : 'glass-card border-white/10 text-white hover:border-emerald-500/30 hover:text-emerald-400'
                   }`}
-                  title="پسندیدم"
-                  aria-label="پسندیدم"
+                  title={t('gameDetail.like')}
+                  aria-label={t('gameDetail.like')}
                 >
                   <ThumbsUp className={`w-4 h-4 ${userVote === 'like' ? 'fill-emerald-400' : ''}`} />
                   <span>{likesCount}</span>
@@ -286,8 +288,8 @@ export default function GameDetailPage() {
                       ? 'bg-rose-500/25 border-rose-400 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
                       : 'glass-card border-white/10 text-white hover:border-rose-500/30 hover:text-rose-400'
                   }`}
-                  title="نپسندیدم"
-                  aria-label="نپسندیدم"
+                  title={t('gameDetail.dislike')}
+                  aria-label={t('gameDetail.dislike')}
                 >
                   <ThumbsDown className={`w-4 h-4 ${userVote === 'dislike' ? 'fill-rose-400' : ''}`} />
                   <span>{dislikesCount}</span>
@@ -301,8 +303,8 @@ export default function GameDetailPage() {
                       ? 'bg-nebula-violet border-nebula-violet text-white shadow-neon-purple'
                       : 'glass-card border-white/10 text-white hover:border-white/20'
                   }`}
-                  title={inWishlist ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
-                  aria-label="علاقه‌مندی"
+                  title={inWishlist ? t('gameDetail.wishlistSaved') : t('gameDetail.wishlistAdd')}
+                  aria-label={t('gameDetail.wishlistAria')}
                 >
                   <Bookmark className={`w-4 h-4 ${inWishlist ? 'fill-white' : ''}`} />
                 </button>
@@ -311,8 +313,8 @@ export default function GameDetailPage() {
                 <button
                   onClick={handleShare}
                   className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl glass-card border border-white/10 text-text-secondary hover:text-white transition-all text-xs font-semibold"
-                  title="اشتراک‌گذاری بازی"
-                  aria-label="اشتراک‌گذاری"
+                  title={t('gameDetail.shareTitle')}
+                  aria-label={t('gameDetail.shareAria')}
                 >
                   {copiedShare ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
                 </button>
@@ -323,16 +325,16 @@ export default function GameDetailPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. GAME DETAILS (3-CARD GRID: جوایز و استودیو | ویژگی‌های بازی | داستان) */}
+      {/* 2. GAME DETAILS (3-CARD GRID: studio & awards | features | story) */}
       {/* ========================================================================= */}
       <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 space-y-6">
         {/* Section Header with Cyan Indicator */}
         <div>
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
-            <h2 className="text-xl sm:text-2xl font-black text-white">جزئیات بازی</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-white">{t('gameDetail.detailsTitle')}</h2>
           </div>
-          <p className="text-xs text-text-muted mr-4 mt-1">خلاصه تدوین شده بازی</p>
+          <p className="text-xs text-text-muted mr-4 mt-1">{t('gameDetail.detailsSubtitle')}</p>
         </div>
 
         {/* 3-Column Card Layout */}
@@ -345,13 +347,13 @@ export default function GameDetailPage() {
               {/* Center Capsule Tag */}
               <div className="flex justify-center mb-5">
                 <span className="px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                  جوایز و استودیو
+                  {t('gameDetail.awardsTag')}
                 </span>
               </div>
 
               {/* Studio Block */}
               <div className="space-y-3">
-                <span className="text-xs text-text-muted block font-medium">استودیوی سازنده</span>
+                <span className="text-xs text-text-muted block font-medium">{t('gameDetail.developerLabel')}</span>
                 <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                     <Building2 className="w-6 h-6" />
@@ -374,7 +376,7 @@ export default function GameDetailPage() {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
                   <Award className="w-4 h-4 text-amber-400" />
-                  <span>جوایز بازی</span>
+                  <span>{t('gameDetail.awardsTitle')}</span>
                 </h4>
                 <div className="space-y-2 text-xs text-slate-300">
                   {game.awards && game.awards.length > 0 ? (
@@ -387,7 +389,7 @@ export default function GameDetailPage() {
                   ) : (
                     <div className="flex items-center gap-2 text-text-muted">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/50" />
-                      <span>جایزه‌ای ثبت نشده است</span>
+                      <span>{t('gameDetail.noAwards')}</span>
                     </div>
                   )}
                 </div>
@@ -400,19 +402,19 @@ export default function GameDetailPage() {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span>افتخارات استودیو</span>
+                  <span>{t('gameDetail.studioHonorsTitle')}</span>
                 </h4>
                 <div className="space-y-2 text-xs text-slate-300">
                   <div className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
                     <span className="leading-relaxed">
-                      خالق تحسین‌شده‌ترین فرانچایزهای انحصاری تاریخ کنسول‌های پلی‌استیشن
+                      {t('gameDetail.honor1')}
                     </span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
                     <span className="leading-relaxed">
-                      برنده جایزه برترین تیم توسعه فنی و روایتگری سینمایی
+                      {t('gameDetail.honor2')}
                     </span>
                   </div>
                 </div>
@@ -428,24 +430,24 @@ export default function GameDetailPage() {
               {/* Center Capsule Tag */}
               <div className="flex justify-center mb-3">
                 <span className="px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                  ویژگی‌های بازی
+                  {t('gameDetail.featuresTag')}
                 </span>
               </div>
 
               <h3 className="text-center font-bold text-white text-sm mb-4">
-                بازی از چه چیزهایی پشتیبانی می‌کند؟
+                {t('gameDetail.featuresTitle')}
               </h3>
 
               {/* Top Score Box (Metacritic & ESRB) */}
               <div className="rounded-2xl bg-[#070a10] border border-white/10 p-4 flex items-center justify-between mb-5">
                 {/* Metacritic Score */}
-                <div className="text-right">
-                  <span className="text-[11px] text-text-muted block mb-1">امتیاز منتقدان</span>
+                <div className="text-start">
+                  <span className="text-[11px] text-text-muted block mb-1">{t('gameDetail.criticsScore')}</span>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-sm font-black font-roboto">
                       {game.metacritic || 86}
                     </span>
-                    <span className="text-xs text-slate-300 font-semibold">متاکریتیک</span>
+                    <span className="text-xs text-slate-300 font-semibold">{t('gameDetail.metacriticShort')}</span>
                   </div>
                 </div>
 
@@ -467,29 +469,29 @@ export default function GameDetailPage() {
               <div className="space-y-3 text-xs">
                 {/* DualSense */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">بازخورد لمسی DualSense</span>
-                  <span className="text-emerald-400 font-bold">پشتیبانی می‌شود</span>
+                  <span className="text-slate-400">{t('gameDetail.touchFeedback')}</span>
+                  <span className="text-emerald-400 font-bold">{t('gameDetail.supported')}</span>
                 </div>
 
                 {/* VR */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">پشتیبانی از واقعیت مجازی</span>
+                  <span className="text-slate-400">{t('gameDetail.vrSupportRow')}</span>
                   <span className={game.has_vr ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                    {game.has_vr ? 'پشتیبانی می‌شود' : 'پشتیبانی نمی‌شود'}
+                    {game.has_vr ? t('gameDetail.supported') : t('gameDetail.notSupported')}
                   </span>
                 </div>
 
                 {/* Online */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">بازی آنلاین</span>
+                  <span className="text-slate-400">{t('gameDetail.onlinePlay')}</span>
                   <span className="text-slate-300 font-medium">
-                    {game.is_two_player ? 'پشتیبانی می‌شود (تا ۴ نفر)' : 'ثبت نشده است'}
+                    {game.is_two_player ? t('gameDetail.onlineSupported') : t('gameDetail.notRecorded')}
                   </span>
                 </div>
 
                 {/* Player count */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">تعداد بازیکن</span>
+                  <span className="text-slate-400">{t('gameDetail.playerCount')}</span>
                   <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs flex items-center justify-center font-roboto font-bold">
                     {game.is_two_player ? '2' : '1'}
                   </span>
@@ -497,26 +499,26 @@ export default function GameDetailPage() {
 
                 {/* Playtime */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">مدت زمان بازی</span>
+                  <span className="text-slate-400">{t('gameDetail.playtime')}</span>
                   <div className="text-left">
                     <span className="text-white font-bold font-roboto">
-                      {playtimeEstimate} ساعت داستان اصلی
+                      {t('gameDetail.playtimeValue', { hours: n(playtimeEstimate) })}
                     </span>
                     <span className="text-[10px] text-text-muted block">
-                      منبع زمان بازی: HowLongToBeat
+                      {t('gameDetail.playtimeSource')}
                     </span>
                   </div>
                 </div>
 
                 {/* Age Rating */}
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-slate-400">رده سنی</span>
+                  <span className="text-slate-400">{t('gameDetail.ageRating')}</span>
                   <span className="text-slate-300 font-medium font-roboto">ESRB Teen (+16)</span>
                 </div>
 
                 {/* Platforms */}
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-400">پلتفرم‌ها</span>
+                  <span className="text-slate-400">{t('gameDetail.platforms')}</span>
                   <span className="text-slate-300 font-semibold font-roboto">
                     {game.platforms.join(' • ')}
                   </span>
@@ -526,18 +528,18 @@ export default function GameDetailPage() {
           </div>
 
           {/* ───────────────────────────────────────────────────────────────── */}
-          {/* Card 3 (Left): داستان (Heart of the Game / Story)                  */}
+          {/* Card 3 (Left): story */}
           {/* ───────────────────────────────────────────────────────────────── */}
           <div className="bg-[#0b0f17]/90 rounded-3xl border border-white/10 p-6 flex flex-col justify-between space-y-4 backdrop-blur-xl relative overflow-hidden shadow-xl">
             <div>
               {/* Center Capsule Tag */}
               <div className="flex justify-center mb-3">
                 <span className="px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
-                  قلب بازی
+                  {t('gameDetail.storyTag')}
                 </span>
               </div>
 
-              <h3 className="text-center font-bold text-white text-base mb-4">داستان</h3>
+              <h3 className="text-center font-bold text-white text-base mb-4">{t('gameDetail.storyTitle')}</h3>
 
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-line space-y-3 font-normal">
                 <p>
@@ -545,7 +547,7 @@ export default function GameDetailPage() {
                 </p>
                 {!game.storyline_fa && (
                   <p className="text-text-muted text-xs">
-                    تجربه‌ای عمیق و سینمایی با گیم‌پلی استاندارد نسل نهم که بالاترین استانداردهای بصری و روایت داستانی را در اختیار بازیکنان قرار می‌دهد.
+                    {t('gameDetail.storyFallback')}
                   </p>
                 )}
               </div>
@@ -553,7 +555,7 @@ export default function GameDetailPage() {
 
             {/* Subtle PS Embellishment */}
             <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-text-muted">
-              <span>نسخه رسمی تایید شده پلی‌استیشن</span>
+              <span>{t('gameDetail.psVerified')}</span>
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
@@ -567,7 +569,7 @@ export default function GameDetailPage() {
         <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 rounded-full bg-purple-500 shadow-[0_0_12px_#a855f7]" />
-            <h2 className="text-xl sm:text-2xl font-black text-white">تصاویر گیم‌پلی (Gameplay Screenshots)</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-white">{t('gameDetail.screenshotsTitle')}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
             {game.screenshots.map((src, index) => (
@@ -593,7 +595,7 @@ export default function GameDetailPage() {
       <section id="download-section" className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-4 space-y-6 scroll-mt-24">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white">فایل‌ها</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-white">{t('gameDetail.filesTitle')}</h2>
         </div>
 
         <DownloadBox links={game.download_links} gameTitle={game.title_fa || game.title_en} />

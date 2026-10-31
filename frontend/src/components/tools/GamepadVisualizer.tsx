@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Gamepad2, Activity, Vibrate, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 interface GamepadState {
   connected: boolean;
@@ -11,6 +12,7 @@ interface GamepadState {
 }
 
 export default function GamepadVisualizer() {
+  const { t, percent } = useTranslation();
   const [gamepad, setGamepad] = useState<GamepadState>({
     connected: false,
     id: '',
@@ -65,7 +67,7 @@ export default function GamepadVisualizer() {
         setTimeout(() => setVibrating(false), 1000);
       }
     } else {
-      alert('ویبره توسط مرورگر یا این کنترلر پشتیبانی نمی‌شود.');
+      alert(t('gamepad.unsupportedAlert'));
     }
   };
 
@@ -99,10 +101,10 @@ export default function GamepadVisualizer() {
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-black text-white">
-              {gamepad.connected ? 'کنترلر متصل و آماده تست' : 'در انتظار اتصال دسته بازی...'}
+              {gamepad.connected ? t('gamepad.connectedTitle') : t('gamepad.disconnectedTitle')}
             </h2>
             <p className="text-xs text-text-muted font-mono mt-0.5">
-              {gamepad.connected ? gamepad.id : 'دسته PS4 / PS5 یا Xbox را با کابل USB یا بلوتوث وصل کرده و یکی از کلیدها را فشار دهید.'}
+              {gamepad.connected ? gamepad.id : t('gamepad.disconnectedHint')}
             </p>
           </div>
         </div>
@@ -114,7 +116,7 @@ export default function GamepadVisualizer() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white text-xs font-bold transition-all shadow-neon-purple disabled:opacity-50"
           >
             <Vibrate className={`w-4 h-4 ${vibrating ? 'animate-spin' : ''}`} />
-            <span>{vibrating ? 'در حال لرزش...' : 'تست ویبره دسته'}</span>
+            <span>{vibrating ? t('gamepad.vibrateBusy') : t('gamepad.vibrateTest')}</span>
           </button>
         )}
       </div>
@@ -125,22 +127,22 @@ export default function GamepadVisualizer() {
         <div className="glass-card rounded-3xl border border-white/10 p-6 space-y-6">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-cosmic-purple" />
-            <span>بخش سمت چپ (D-Pad و L1 / L2)</span>
+            <span>{t('gamepad.leftPanel')}</span>
           </h3>
 
           {/* L1 & L2 Triggers */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-text-muted">کلید L1 (Bumper):</span>
+              <span className="text-text-muted">{t('gamepad.l1Label')}</span>
               <span className={`px-2.5 py-0.5 rounded-md font-mono font-bold ${isPressed(4) ? 'bg-emerald-500 text-black' : 'bg-white/5 text-text-muted'}`}>
-                {isPressed(4) ? 'PRESSED' : 'RELEASED'}
+                {isPressed(4) ? t('gamepad.pressed') : t('gamepad.released')}
               </span>
             </div>
 
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-text-muted">تریگر L2 (آنالوگ):</span>
-                <span className="font-mono text-white font-bold">{Math.round(btnValue(6) * 100)}%</span>
+                <span className="text-text-muted">{t('gamepad.l2Label')}</span>
+                <span className="font-mono text-white font-bold">{percent(Math.round(btnValue(6) * 100) / 100)}</span>
               </div>
               <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
                 <div
@@ -153,7 +155,7 @@ export default function GamepadVisualizer() {
 
           {/* D-Pad Matrix */}
           <div className="pt-4 border-t border-white/5">
-            <span className="text-xs text-text-muted block mb-3 font-medium">کلیدهای ۴ جهته (D-Pad):</span>
+            <span className="text-xs text-text-muted block mb-3 font-medium">{t('gamepad.dpadLabel')}</span>
             <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto text-center">
               <div />
               <div className={`p-3 rounded-xl border text-xs font-bold transition-all ${isPressed(12) ? 'bg-emerald-500 border-emerald-400 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 border-white/10 text-white'}`}>
@@ -184,13 +186,13 @@ export default function GamepadVisualizer() {
         <div className="glass-card rounded-3xl border border-white/10 p-6 space-y-6 flex flex-col justify-between">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Activity className="w-4 h-4 text-cyan-400" />
-            <span>شوکرها و تست سلامت دریفت (Stick Drift)</span>
+            <span>{t('gamepad.sticksTitle')}</span>
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
             {/* Left Stick Circle */}
             <div className="space-y-2 text-center">
-              <span className="text-xs text-text-muted font-bold block">استیک چپ (L3)</span>
+              <span className="text-xs text-text-muted font-bold block">{t('gamepad.leftStick')}</span>
               <div className="relative w-28 h-28 mx-auto rounded-full bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-x-0 top-1/2 h-[1px] bg-white/10" />
                 <div className="absolute inset-y-0 left-1/2 w-[1px] bg-white/10" />
@@ -212,13 +214,13 @@ export default function GamepadVisualizer() {
                 X: {lx.toFixed(2)} | Y: {ly.toFixed(2)}
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block font-bold ${leftDrift > 15 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                دریفت: {leftDrift}%
+                {t('gamepad.drift', { percent: percent(leftDrift / 100) })}
               </span>
             </div>
 
             {/* Right Stick Circle */}
             <div className="space-y-2 text-center">
-              <span className="text-xs text-text-muted font-bold block">استیک راست (R3)</span>
+              <span className="text-xs text-text-muted font-bold block">{t('gamepad.rightStick')}</span>
               <div className="relative w-28 h-28 mx-auto rounded-full bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-x-0 top-1/2 h-[1px] bg-white/10" />
                 <div className="absolute inset-y-0 left-1/2 w-[1px] bg-white/10" />
@@ -240,15 +242,15 @@ export default function GamepadVisualizer() {
                 X: {rx.toFixed(2)} | Y: {ry.toFixed(2)}
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block font-bold ${rightDrift > 15 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                دریفت: {rightDrift}%
+                {t('gamepad.drift', { percent: percent(rightDrift / 100) })}
               </span>
             </div>
           </div>
 
           <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 text-[11px] text-text-muted text-center">
             {leftDrift < 10 && rightDrift < 10
-              ? '✅ سلامت شوکرها عالی است (بدون دریفت).'
-              : '⚠️ دریفت جزئی مشاهده شد؛ تمیزکاری سنسور توصیه می‌شود.'}
+              ? t('gamepad.sticksHealthy')
+              : t('gamepad.sticksDriftWarning')}
           </div>
         </div>
 
@@ -256,22 +258,22 @@ export default function GamepadVisualizer() {
         <div className="glass-card rounded-3xl border border-white/10 p-6 space-y-6">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-            <span>بخش سمت راست (کلیدهای اصلی و R1 / R2)</span>
+            <span>{t('gamepad.rightPanel')}</span>
           </h3>
 
           {/* R1 & R2 */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-text-muted">کلید R1 (Bumper):</span>
+              <span className="text-text-muted">{t('gamepad.r1Label')}</span>
               <span className={`px-2.5 py-0.5 rounded-md font-mono font-bold ${isPressed(5) ? 'bg-emerald-500 text-black' : 'bg-white/5 text-text-muted'}`}>
-                {isPressed(5) ? 'PRESSED' : 'RELEASED'}
+                {isPressed(5) ? t('gamepad.pressed') : t('gamepad.released')}
               </span>
             </div>
 
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-text-muted">تریگر R2 (آنالوگ):</span>
-                <span className="font-mono text-white font-bold">{Math.round(btnValue(7) * 100)}%</span>
+                <span className="text-text-muted">{t('gamepad.r2Label')}</span>
+                <span className="font-mono text-white font-bold">{percent(Math.round(btnValue(7) * 100) / 100)}</span>
               </div>
               <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
                 <div
@@ -284,7 +286,7 @@ export default function GamepadVisualizer() {
 
           {/* PlayStation Action Buttons */}
           <div className="pt-4 border-t border-white/5">
-            <span className="text-xs text-text-muted block mb-3 font-medium">کلیدهای عملیاتی (Action Buttons):</span>
+            <span className="text-xs text-text-muted block mb-3 font-medium">{t('gamepad.actionButtons')}</span>
             <div className="grid grid-cols-3 gap-2 max-w-[180px] mx-auto text-center font-mono">
               <div />
               {/* Triangle (Button 3) */}

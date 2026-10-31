@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface BannerSlide {
   id: number;
@@ -33,7 +34,13 @@ interface BannerSlide {
   updated_at?: string;
 }
 
+const STATUS_KEY: Record<string, string> = {
+  active: 'admin.banners.status.active',
+  inactive: 'admin.banners.status.inactive',
+};
+
 export default function AdminBannersPage() {
+  const { t, n } = useTranslation();
   const [slides, setSlides] = useState<BannerSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'games' | 'services'>('games');
@@ -52,7 +59,7 @@ export default function AdminBannersPage() {
     description: '',
     backdrop_url: '',
     link_href: '',
-    cta_text: 'مشاهده و اقدام',
+    cta_text: t('admin.banners.defaults.ctaText'),
     platforms: 'PS5, PS4',
     display_order: 1,
     is_active: true,
@@ -66,7 +73,7 @@ export default function AdminBannersPage() {
       setSlides(data);
     } catch (err: any) {
       console.error('Failed to fetch banners:', err);
-      setError('خطا در دریافت لیست بنرها از سرور.');
+      setError(t('admin.banners.errors.fetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -85,13 +92,13 @@ export default function AdminBannersPage() {
     setEditingSlide(null);
     setFormData({
       position: activePosition,
-      badge: activeTab === 'games' ? 'بازی منتخب' : 'خدمت طلایی',
+      badge: activeTab === 'games' ? t('admin.banners.defaults.badgeGame') : t('admin.banners.defaults.badgeService'),
       title_fa: '',
       title_en: '',
       description: '',
       backdrop_url: '',
       link_href: activeTab === 'games' ? '/games' : '/subscriptions',
-      cta_text: activeTab === 'games' ? 'مشاهده و دانلود' : 'خرید اشتراک',
+      cta_text: activeTab === 'games' ? t('admin.banners.defaults.ctaGame') : t('admin.banners.defaults.ctaSubscription'),
       platforms: activeTab === 'games' ? 'PS5, PS4' : 'PS5, PS4, Xbox',
       display_order: filteredSlides.length + 1,
       is_active: true,
@@ -118,15 +125,15 @@ export default function AdminBannersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('آیا از حذف این اسلاید اطمینان دارید؟')) return;
+    if (!confirm(t('admin.banners.confirm.delete'))) return;
 
     try {
       await apiRequest(`/home/admin/banners/${id}`, { method: 'DELETE' });
       setSlides((prev) => prev.filter((s) => s.id !== id));
-      setFeedback('اسلاید با موفقیت حذف شد.');
+      setFeedback(t('admin.banners.feedback.deleted'));
       setTimeout(() => setFeedback(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'خطا در حذف اسلاید.');
+      alert(err.message || t('admin.banners.errors.deleteFailed'));
     }
   };
 
@@ -138,14 +145,14 @@ export default function AdminBannersPage() {
       });
       setSlides((prev) => prev.map((s) => (s.id === slide.id ? updated : s)));
     } catch (err: any) {
-      alert(err.message || 'خطا در تغییر وضعیت اسلاید.');
+      alert(err.message || t('admin.banners.errors.toggleFailed'));
     }
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title_fa || !formData.backdrop_url) {
-      alert('لطفاً عنوان و آدرس تصویر را وارد کنید.');
+      alert(t('admin.banners.errors.requiredFields'));
       return;
     }
 
@@ -181,36 +188,36 @@ export default function AdminBannersPage() {
         setSlides((prev) =>
           prev.map((s) => (s.id === editingSlide.id ? updated : s))
         );
-        setFeedback('اسلاید با موفقیت به‌روزرسانی شد.');
+        setFeedback(t('admin.banners.feedback.updated'));
       } else {
         const created = await apiRequest<BannerSlide>('/home/admin/banners', {
           method: 'POST',
           body: JSON.stringify(payload),
         });
         setSlides((prev) => [...prev, created]);
-        setFeedback('اسلاید جدید با موفقیت اضافه شد.');
+        setFeedback(t('admin.banners.feedback.created'));
       }
 
       setIsModalOpen(false);
       setTimeout(() => setFeedback(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'خطا در ذخیره اسلاید.');
+      alert(err.message || t('admin.banners.errors.saveFailed'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-8 font-vazir text-right">
+    <div className="space-y-8 font-vazir text-start">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
             <Sliders className="w-6 h-6 text-emerald-400" />
-            <span>مدیریت بنرهای دوگانه صفحه اصلی (Double Hero Banners)</span>
+            <span>{t('admin.banners.title')}</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            تنظیم اسلایدهای بنر اول (بازی‌های شاخص) و بنر دوم (خدمات و پلن‌های پلتفرم) متصل به دیتابیس
+            {t('admin.banners.subtitle')}
           </p>
         </div>
 
@@ -219,7 +226,7 @@ export default function AdminBannersPage() {
           className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>افزودن اسلاید جدید</span>
+          <span>{t('admin.banners.addSlide')}</span>
         </button>
       </div>
 
@@ -248,7 +255,7 @@ export default function AdminBannersPage() {
           }`}
         >
           <Gamepad2 className="w-4 h-4" />
-          <span>بنر ۱: بازی‌های شاخص AAA ({slides.filter((s) => s.position === 1).length})</span>
+          <span>{t('admin.banners.tabs.games', { count: n(slides.filter((s) => s.position === 1).length) })}</span>
         </button>
 
         <button
@@ -260,7 +267,7 @@ export default function AdminBannersPage() {
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>بنر ۲: خدمات و تخفیف‌های اشتراک ({slides.filter((s) => s.position === 2).length})</span>
+          <span>{t('admin.banners.tabs.services', { count: n(slides.filter((s) => s.position === 2).length) })}</span>
         </button>
       </div>
 
@@ -269,20 +276,20 @@ export default function AdminBannersPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت بنرها...</span>
+            <span className="text-xs text-slate-400">{t('admin.banners.loading')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-start text-xs">
               <thead className="bg-[#090d13] border-b border-slate-800 text-slate-400">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">اولویت</th>
-                  <th className="py-3.5 px-4 font-bold">پیش‌نمایش تصویر</th>
-                  <th className="py-3.5 px-4 font-bold">عنوان اسلاید</th>
-                  <th className="py-3.5 px-4 font-bold">بج / تگ</th>
-                  <th className="py-3.5 px-4 font-bold">لینک هدف</th>
-                  <th className="py-3.5 px-4 font-bold">وضعیت</th>
-                  <th className="py-3.5 px-4 font-bold text-center">عملیات</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.priority')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.preview')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.title')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.badge')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.link')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.banners.table.status')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.banners.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
@@ -323,7 +330,7 @@ export default function AdminBannersPage() {
                             : 'bg-slate-800 text-slate-400 border-slate-700'
                         }`}
                       >
-                        {slide.is_active ? 'فعال' : 'غیرفعال'}
+                        {t(STATUS_KEY[slide.is_active ? 'active' : 'inactive'] ?? 'common.unknown')}
                       </button>
                     </td>
                     <td className="py-3.5 px-4 text-center">
@@ -331,14 +338,14 @@ export default function AdminBannersPage() {
                         <button
                           onClick={() => handleOpenEdit(slide)}
                           className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                          title="ویرایش"
+                          title={t('admin.banners.actions.edit')}
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(slide.id)}
                           className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
-                          title="حذف"
+                          title={t('admin.banners.actions.delete')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -349,7 +356,7 @@ export default function AdminBannersPage() {
                 {filteredSlides.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-slate-500">
-                      هیچ اسلایدی در این بخش وجود ندارد.
+                      {t('admin.banners.empty')}
                     </td>
                   </tr>
                 )}
@@ -366,7 +373,7 @@ export default function AdminBannersPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Sliders className="w-5 h-5 text-emerald-400" />
-                <span>{editingSlide ? 'ویرایش اسلاید بنر' : 'افزودن اسلاید جدید'}</span>
+                <span>{editingSlide ? t('admin.banners.modal.editTitle') : t('admin.banners.modal.addTitle')}</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -378,19 +385,19 @@ export default function AdminBannersPage() {
 
             <form onSubmit={handleSave} className="space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">عنوان فارسی اسلاید:</label>
+                <label className="text-slate-300 font-bold">{t('admin.banners.form.titleFa')}</label>
                 <input
                   type="text"
                   required
                   value={formData.title_fa}
                   onChange={(e) => setFormData({ ...formData, title_fa: e.target.value })}
-                  placeholder="مثلاً: خدای جنگ رگناروک"
+                  placeholder={t('admin.banners.placeholders.titleFa')}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">عنوان انگلیسی (اختیاری):</label>
+                <label className="text-slate-300 font-bold">{t('admin.banners.form.titleEn')}</label>
                 <input
                   type="text"
                   value={formData.title_en}
@@ -403,18 +410,18 @@ export default function AdminBannersPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">بج / تگ کوچک:</label>
+                  <label className="text-slate-300 font-bold">{t('admin.banners.form.badge')}</label>
                   <input
                     type="text"
                     value={formData.badge}
                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="بازی منتخب ماه"
+                    placeholder={t('admin.banners.placeholders.badge')}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">اولویت نمایش (ترتیب):</label>
+                  <label className="text-slate-300 font-bold">{t('admin.banners.form.displayOrder')}</label>
                   <input
                     type="number"
                     min="1"
@@ -426,32 +433,32 @@ export default function AdminBannersPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">آدرس تصویر پس‌زمینه (URL):</label>
+                <label className="text-slate-300 font-bold">{t('admin.banners.form.backdropUrl')}</label>
                 <input
                   type="url"
                   required
                   value={formData.backdrop_url}
                   onChange={(e) => setFormData({ ...formData, backdrop_url: e.target.value })}
-                  placeholder="https://... یا /uploads/..."
+                  placeholder={t('admin.banners.placeholders.backdropUrl')}
                   dir="ltr"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 font-roboto text-[11px]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">توضیحات کوتاه اسلاید:</label>
+                <label className="text-slate-300 font-bold">{t('admin.banners.form.description')}</label>
                 <textarea
                   rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="متن کوتاه جذاب..."
+                  placeholder={t('admin.banners.placeholders.description')}
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">پلتفرم‌ها (با کاما جدا کنید):</label>
+                  <label className="text-slate-300 font-bold">{t('admin.banners.form.platforms')}</label>
                   <input
                     type="text"
                     value={formData.platforms}
@@ -463,19 +470,19 @@ export default function AdminBannersPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">متن دکمه (CTA):</label>
+                  <label className="text-slate-300 font-bold">{t('admin.banners.form.ctaText')}</label>
                   <input
                     type="text"
                     value={formData.cta_text}
                     onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                    placeholder="مشاهده جزئیات و دانلود"
+                    placeholder={t('admin.banners.placeholders.ctaText')}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">لینک دکمه (Href):</label>
+                <label className="text-slate-300 font-bold">{t('admin.banners.form.linkHref')}</label>
                 <input
                   type="text"
                   value={formData.link_href}
@@ -492,7 +499,7 @@ export default function AdminBannersPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
                 >
-                  انصراف
+                  {t('admin.banners.modal.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -501,7 +508,7 @@ export default function AdminBannersPage() {
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   <Save className="w-4 h-4" />
-                  <span>ذخیره اسلاید</span>
+                  <span>{t('admin.banners.modal.save')}</span>
                 </button>
               </div>
             </form>

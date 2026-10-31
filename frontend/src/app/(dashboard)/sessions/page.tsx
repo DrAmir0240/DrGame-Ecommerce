@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { apiRequest } from '@/lib/apiClient';
 import { UserSession } from '@/types/auth';
 import { Monitor, Smartphone, Gamepad2, ShieldAlert, Trash2, CheckCircle2, Clock, Globe, Crown, ShieldCheck, Lock } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export default function SessionsPage() {
+  const { t, d } = useTranslation();
   const [sessions, setSessions] = useState<UserSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [revokingId, setRevokingId] = useState<number | null>(null);
@@ -25,7 +27,7 @@ export default function SessionsPage() {
       setSessions([
         {
           id: 1,
-          device_name: 'مرورگر کروم (سیستم جاری)',
+          device_name: t('sessions.demoDeviceDesktop'),
           device_type: 'desktop',
           ip_address: '192.168.1.100',
           is_active: true,
@@ -36,7 +38,7 @@ export default function SessionsPage() {
         },
         {
           id: 2,
-          device_name: 'کنسول پلی‌استیشن ۵ (PlayStation 5)',
+          device_name: t('sessions.demoDeviceConsole'),
           device_type: 'console',
           ip_address: '192.168.1.105',
           is_active: true,
@@ -60,7 +62,7 @@ export default function SessionsPage() {
     try {
       await apiRequest(`/users/sessions/${sessionId}`, { method: 'DELETE' });
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-      setFeedback('دستگاه با موفقیت خارج شد.');
+      setFeedback(t('sessions.revokeSuccess'));
       setTimeout(() => setFeedback(null), 3000);
     } catch (e) {
       console.error('Failed to revoke session:', e);
@@ -81,11 +83,11 @@ export default function SessionsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 text-right font-vazir">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 text-start font-vazir">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">نشست‌ها و دستگاه‌های متصل</h1>
-          <p className="text-xs text-text-muted mt-1">مدیریت دستگاه‌های دارای دسترسی به حساب کاربری شما و دستگاه‌های اصلی</p>
+          <h1 className="text-2xl font-bold text-white">{t('sessions.title')}</h1>
+          <p className="text-xs text-text-muted mt-1">{t('sessions.subtitle')}</p>
         </div>
       </div>
 
@@ -97,10 +99,10 @@ export default function SessionsPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-sm text-text-muted">در حال بارگذاری لیست دستگاه‌ها...</div>
+        <div className="text-center py-12 text-sm text-text-muted">{t('sessions.loading')}</div>
       ) : sessions.length === 0 ? (
         <div className="p-8 rounded-2xl bg-[#0d121f] border border-white/10 text-center text-sm text-text-muted">
-          هیچ دستگاه فعالی یافت نشد.
+          {t('sessions.empty')}
         </div>
       ) : (
         <div className="space-y-3">
@@ -123,20 +125,20 @@ export default function SessionsPage() {
                       {s.is_current && (
                         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 font-bold">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          <span>نشست فعلی (Current)</span>
+                          <span>{t('sessions.currentBadge')}</span>
                         </span>
                       )}
 
                       {s.is_primary && (
                         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-bold">
                           <Crown className="w-3 h-3 text-amber-400" />
-                          <span>دستگاه اصلی (Primary)</span>
+                          <span>{t('sessions.primaryBadge')}</span>
                         </span>
                       )}
 
                       {s.device_type === 'console' && !s.is_primary && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                          کنسول
+                          {t('sessions.consoleBadge')}
                         </span>
                       )}
                     </div>
@@ -145,12 +147,12 @@ export default function SessionsPage() {
                       {s.ip_address && (
                         <span className="flex items-center gap-1 font-roboto">
                           <Globe className="w-3.5 h-3.5" />
-                          <span>IP: {s.ip_address}</span>
+                          <span>{t('sessions.ip', { ip: s.ip_address })}</span>
                         </span>
                       )}
                       <span className="flex items-center gap-1 font-roboto">
                         <Clock className="w-3.5 h-3.5" />
-                        <span>آخرین فعالیت: {new Date(s.last_active_at).toLocaleTimeString('fa-IR')}</span>
+                        <span>{t('sessions.lastActive', { time: d(s.last_active_at, { hour: '2-digit', minute: '2-digit' }) })}</span>
                       </span>
                     </div>
                   </div>
@@ -158,19 +160,19 @@ export default function SessionsPage() {
 
                 {s.is_current ? (
                   <span
-                    title="امکان خروج از نشست فعلی از این بخش وجود ندارد"
+                    title={t('sessions.currentTitle')}
                     className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-text-muted text-xs font-semibold flex items-center gap-1.5 self-end sm:self-center cursor-not-allowed opacity-80"
                   >
                     <Lock className="w-3.5 h-3.5 text-text-muted" />
-                    <span>نشست جاری</span>
+                    <span>{t('sessions.currentButton')}</span>
                   </span>
                 ) : s.is_primary ? (
                   <span
-                    title="کنسول اصلی ثبت‌شده در سامانه محافظت‌شده است"
+                    title={t('sessions.primaryTitle')}
                     className="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold flex items-center gap-1.5 self-end sm:self-center cursor-not-allowed"
                   >
                     <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                    <span>کنسول اصلی</span>
+                    <span>{t('sessions.primaryButton')}</span>
                   </span>
                 ) : (
                   <button
@@ -179,7 +181,7 @@ export default function SessionsPage() {
                     className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all self-end sm:self-center disabled:opacity-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>{revokingId === s.id ? 'در حال خروج...' : 'لغو دسترسی'}</span>
+                    <span>{revokingId === s.id ? t('sessions.revoking') : t('sessions.revoke')}</span>
                   </button>
                 )}
               </div>

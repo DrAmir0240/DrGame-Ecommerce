@@ -16,6 +16,7 @@ import {
   Vault,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface AdminReferralUser {
   id: number;
@@ -44,6 +45,7 @@ interface ReferralOverviewStats {
 }
 
 export default function AdminReferralsPage() {
+  const { t, n, price } = useTranslation();
   const [users, setUsers] = useState<AdminReferralUser[]>([]);
   const [stats, setStats] = useState<ReferralOverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,8 +53,6 @@ export default function AdminReferralsPage() {
   const [search, setSearch] = useState('');
   const [filterVisibility, setFilterVisibility] = useState<'all' | 'visible' | 'hidden'>('all');
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  const toFarsi = (num: number) => (num || 0).toLocaleString('fa-IR');
 
   const fetchReferrals = async () => {
     try {
@@ -66,7 +66,7 @@ export default function AdminReferralsPage() {
       setStats(data.stats || null);
     } catch (err: any) {
       console.error('Failed to load referral overview:', err);
-      setError('خطا در دریافت اطلاعات مانیتورینگ رفرال از سرور.');
+      setError(t('admin.referrals.errors.load'));
     } finally {
       setLoading(false);
     }
@@ -87,12 +87,12 @@ export default function AdminReferralsPage() {
       );
       setFeedback(
         nextState
-          ? `کاربر «${userName}» بدون حذف ارتباطات شبکه مخفی شد.`
-          : `کاربر «${userName}» از حالت مخفی خارج شد.`
+          ? t('admin.referrals.feedback.hidden', { name: userName })
+          : t('admin.referrals.feedback.visible', { name: userName })
       );
       setTimeout(() => setFeedback(null), 3500);
     } catch (err: any) {
-      alert(err.message || 'خطا در تغییر وضعیت مخفی‌سازی کاربر.');
+      alert(err.message || t('admin.referrals.errors.toggle'));
     }
   };
 
@@ -110,16 +110,16 @@ export default function AdminReferralsPage() {
   });
 
   return (
-    <div className="space-y-8 font-vazir text-right">
+    <div className="space-y-8 font-vazir text-start">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
             <Share2 className="w-6 h-6 text-emerald-400" />
-            <span>مانیتورینگ جامع زنجیره رفرال و کمیسیون‌ها</span>
+            <span>{t('admin.referrals.title')}</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            پایش ۵ شاخص مالی و عملکردی شبکه بازاریابی، مدیریت معرف‌ها و کنترل سوییچ مخفی‌سازی (Hide/Unhide)
+            {t('admin.referrals.subtitle')}
           </p>
         </div>
       </div>
@@ -143,66 +143,77 @@ export default function AdminReferralsPage() {
         {/* Indicator 1: Total Network Users */}
         <div className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 space-y-2 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>کل اعضای شبکه</span>
+            <span>{t('admin.referrals.kpis.users.label')}</span>
             <Users className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-xl font-bold text-white font-roboto pt-1">
-            {toFarsi(stats?.total_network_users || 0)}{' '}
-            <span className="text-xs font-vazir text-slate-400">کاربر</span>
+            {n(stats?.total_network_users || 0)}{' '}
+            <span className="text-xs font-vazir text-slate-400">
+              {t('admin.referrals.kpis.users.unit')}
+            </span>
           </div>
-          <span className="text-[10px] text-slate-500 block">در تمامی ۳ لایه</span>
+          <span className="text-[10px] text-slate-500 block">
+            {t('admin.referrals.kpis.users.hint')}
+          </span>
         </div>
 
         {/* Indicator 2: Total Commissions Earned */}
         <div className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 space-y-2 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>کل پورسانت‌های کسب‌شده</span>
+            <span>{t('admin.referrals.kpis.commissions.label')}</span>
             <DollarSign className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-xl font-bold text-emerald-400 font-roboto pt-1">
-            {toFarsi(stats?.total_commissions_earned || 0)}{' '}
-            <span className="text-xs font-vazir text-slate-400">تومان</span>
+            {price(stats?.total_commissions_earned || 0)}
           </div>
-          <span className="text-[10px] text-slate-500 block">محاسبه‌شده در کل زنجیره</span>
+          <span className="text-[10px] text-slate-500 block">
+            {t('admin.referrals.kpis.commissions.hint')}
+          </span>
         </div>
 
         {/* Indicator 3: Pending Settlements */}
         <div className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 space-y-2 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>در انتظار تسویه (موجودی)</span>
+            <span>{t('admin.referrals.kpis.pending.label')}</span>
             <CreditCard className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-xl font-bold text-amber-400 font-roboto pt-1">
-            {toFarsi(stats?.total_pending_settlements || 0)}{' '}
-            <span className="text-xs font-vazir text-slate-400">تومان</span>
+            {price(stats?.total_pending_settlements || 0)}
           </div>
-          <span className="text-[10px] text-slate-500 block">موجودی کیف پول فعال</span>
+          <span className="text-[10px] text-slate-500 block">
+            {t('admin.referrals.kpis.pending.hint')}
+          </span>
         </div>
 
         {/* Indicator 4: Active Direct Referrers */}
         <div className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 space-y-2 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>بازاریابان لایه ۱ فعال</span>
+            <span>{t('admin.referrals.kpis.activeReferrers.label')}</span>
             <TrendingUp className="w-4 h-4 text-purple-400" />
           </div>
           <div className="text-xl font-bold text-purple-400 font-roboto pt-1">
-            {toFarsi(stats?.active_referrers_count || 0)}{' '}
-            <span className="text-xs font-vazir text-slate-400">نفر</span>
+            {n(stats?.active_referrers_count || 0)}{' '}
+            <span className="text-xs font-vazir text-slate-400">
+              {t('admin.referrals.kpis.activeReferrers.unit')}
+            </span>
           </div>
-          <span className="text-[10px] text-slate-500 block">دارای حداقل یک زیرمجموعه</span>
+          <span className="text-[10px] text-slate-500 block">
+            {t('admin.referrals.kpis.activeReferrers.hint')}
+          </span>
         </div>
 
         {/* Indicator 5: Treasury Pool Balance */}
         <div className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 space-y-2 shadow-lg">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>موجودی صندوق پلتفرم</span>
+            <span>{t('admin.referrals.kpis.treasury.label')}</span>
             <Vault className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-xl font-bold text-blue-400 font-roboto pt-1">
-            {toFarsi(stats?.treasury_balance || 0)}{' '}
-            <span className="text-xs font-vazir text-slate-400">تومان</span>
+            {price(stats?.treasury_balance || 0)}
           </div>
-          <span className="text-[10px] text-slate-500 block">واریزی مازاد لایه‌های فاقد معرف</span>
+          <span className="text-[10px] text-slate-500 block">
+            {t('admin.referrals.kpis.treasury.hint')}
+          </span>
         </div>
       </div>
 
@@ -214,21 +225,21 @@ export default function AdminReferralsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="جستجوی نام، تلفن یا کد معرف..."
+            placeholder={t('admin.referrals.searchPlaceholder')}
             className="w-full bg-[#121721] border border-slate-700 rounded-xl pr-10 pl-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
         <div className="flex items-center gap-2 self-stretch sm:self-auto">
-          <span className="text-xs text-slate-400">وضعیت نمایش:</span>
+          <span className="text-xs text-slate-400">{t('admin.referrals.visibilityLabel')}</span>
           <select
             value={filterVisibility}
             onChange={(e) => setFilterVisibility(e.target.value as any)}
             className="bg-[#121721] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
           >
-            <option value="all">همه کاربران</option>
-            <option value="visible">فقط نمایان (عادی)</option>
-            <option value="hidden">فقط مخفی‌شده (Hidden)</option>
+            <option value="all">{t('admin.referrals.visibility.all')}</option>
+            <option value="visible">{t('admin.referrals.visibility.visible')}</option>
+            <option value="hidden">{t('admin.referrals.visibility.hidden')}</option>
           </select>
         </div>
       </div>
@@ -238,30 +249,30 @@ export default function AdminReferralsPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت داده‌های شبکه رفرال...</span>
+            <span className="text-xs text-slate-400">{t('admin.referrals.loading')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-start text-xs">
               <thead className="bg-[#090d13] border-b border-slate-800 text-slate-400">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">کاربر معرف</th>
-                  <th className="py-3.5 px-4 font-bold">کد معرف</th>
-                  <th className="py-3.5 px-4 font-bold text-center">لایه ۱</th>
-                  <th className="py-3.5 px-4 font-bold text-center">لایه ۲</th>
-                  <th className="py-3.5 px-4 font-bold text-center">لایه ۳</th>
-                  <th className="py-3.5 px-4 font-bold text-center">کل شبکه</th>
-                  <th className="py-3.5 px-4 font-bold">کل درآمد (تومان)</th>
-                  <th className="py-3.5 px-4 font-bold">موجودی کیف پول</th>
-                  <th className="py-3.5 px-4 font-bold text-center">وضعیت رفرال</th>
-                  <th className="py-3.5 px-4 font-bold text-center">عملیات هاید</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.referrals.table.referrer')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.referrals.table.code')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.layer1')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.layer2')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.layer3')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.totalNetwork')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.referrals.table.totalEarned')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.referrals.table.balance')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.status')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.referrals.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={10} className="py-8 text-center text-slate-500">
-                      کاربری در شبکه یافت نشد.
+                      {t('admin.referrals.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -281,42 +292,42 @@ export default function AdminReferralsPage() {
 
                       <td className="py-3.5 px-4">
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-bold text-[11px]">
-                          {user.referralCode || 'ندارد'}
+                          {user.referralCode || t('admin.referrals.noCode')}
                         </span>
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-roboto font-bold text-slate-200">
-                        {user.layer1Count}
+                        {n(user.layer1Count)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-roboto text-slate-300">
-                        {user.layer2Count}
+                        {n(user.layer2Count)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-roboto text-slate-400">
-                        {user.layer3Count}
+                        {n(user.layer3Count)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-roboto font-black text-cyan-400">
-                        {user.totalNetworkCount}
+                        {n(user.totalNetworkCount)}
                       </td>
 
                       <td className="py-3.5 px-4 font-roboto font-bold text-emerald-400">
-                        {toFarsi(user.totalEarnedToman)}
+                        {price(user.totalEarnedToman)}
                       </td>
 
                       <td className="py-3.5 px-4 font-roboto font-bold text-amber-400">
-                        {toFarsi(user.balanceToman)}
+                        {price(user.balanceToman)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
                         {user.isHidden ? (
                           <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold">
-                            مخفی در رنکینگ
+                            {t('admin.referrals.status.hidden')}
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
-                            فعال در لیدربرد
+                            {t('admin.referrals.status.active')}
                           </span>
                         )}
                       </td>
@@ -331,19 +342,19 @@ export default function AdminReferralsPage() {
                           }`}
                           title={
                             user.isHidden
-                              ? 'نمایش مجدد کاربر در آمارهای عمومی'
-                              : 'مخفی‌سازی کاربر بدون آسیب به روابط و درآمدهای زنجیره'
+                              ? t('admin.referrals.actions.showTitle')
+                              : t('admin.referrals.actions.hideTitle')
                           }
                         >
                           {user.isHidden ? (
                             <>
                               <Eye className="w-3.5 h-3.5" />
-                              <span>نمایش</span>
+                              <span>{t('admin.referrals.actions.show')}</span>
                             </>
                           ) : (
                             <>
                               <EyeOff className="w-3.5 h-3.5" />
-                              <span>هاید (Hide)</span>
+                              <span>{t('admin.referrals.actions.hide')}</span>
                             </>
                           )}
                         </button>

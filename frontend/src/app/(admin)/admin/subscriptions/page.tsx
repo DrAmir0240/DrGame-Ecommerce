@@ -21,8 +21,10 @@ import {
 import { AdminFreeTierGame, AdminSubscriptionItem, AdminGameItem } from "@/types/admin";
 import { SubscriptionTier } from "@/types/subscription";
 import { apiRequest } from "@/lib/apiClient";
+import { useTranslation } from "@/i18n";
 
 export default function AdminSubscriptionsPage() {
+  const { t, n, d, size, price: formatPrice } = useTranslation();
   const [freeGames, setFreeGames] = useState<AdminFreeTierGame[]>([]);
   const [allGames, setAllGames] = useState<AdminGameItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<AdminSubscriptionItem[]>([]);
@@ -175,11 +177,11 @@ export default function AdminSubscriptionsPage() {
         body: JSON.stringify({ tiers: batchPayload }),
       });
 
-      setTierSaveMsg("تمام مبالغ، سهمیه‌های ۹ گانه و مجوزهای دانلود با موفقیت در پایگاه داده ذخیره و به روز رسانی شدند.");
+      setTierSaveMsg(t("admin.subscriptions.messages.saved"));
       setTimeout(() => setTierSaveMsg(null), 4000);
       fetchData();
     } catch (err: any) {
-      setTierSaveError(err.message || "خطا در ذخیره‌سازی");
+      setTierSaveError(err.message || t("admin.subscriptions.messages.saveError"));
     } finally {
       setIsSavingTiers(false);
     }
@@ -188,13 +190,13 @@ export default function AdminSubscriptionsPage() {
   const handleAddFreeGame = async () => {
     if (!selectedGameId) return;
     if (freeGames.length >= 5) {
-      alert("حداکثر ۵ بازی مجاز در پلن رایگان قابل ثبت است.");
+      alert(t("admin.subscriptions.free.maxAlert"));
       return;
     }
 
     const currentIds = freeGames.map((g) => g.game_id);
     if (currentIds.includes(Number(selectedGameId))) {
-      alert("این بازی قبلاً در لیست مجاز قرار داده شده است.");
+      alert(t("admin.subscriptions.free.duplicateAlert"));
       return;
     }
 
@@ -215,26 +217,26 @@ export default function AdminSubscriptionsPage() {
         method: "POST",
         body: JSON.stringify({ game_ids: ids }),
       });
-      setFreeMessage("لیست بازی‌های مجاز پلن رایگان با موفقیت ذخیره شد.");
+      setFreeMessage(t("admin.subscriptions.free.saved"));
       fetchData();
       setSelectedGameId("");
     } catch (err: any) {
-      setFreeMessage(err.message || "خطا در به‌روزرسانی بازی‌های رایگان");
+      setFreeMessage(err.message || t("admin.subscriptions.free.saveError"));
     } finally {
       setSavingFree(false);
     }
   };
 
   return (
-    <div className="space-y-8 font-vazir text-right" dir="rtl">
+    <div className="space-y-8 font-vazir text-start">
       {/* Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-black text-white mb-1 flex items-center gap-2.5">
           <Layers className="w-6 h-6 text-purple-400" />
-          <span>تنظیمات تعرفه، حجم اشتراک‌های ۹ گانه و دسترسی دانلود</span>
+          <span>{t("admin.subscriptions.title")}</span>
         </h1>
         <p className="text-xs text-slate-400 leading-relaxed">
-          تعیین داینامیک قیمت و سهمیه دانلود هر پلن برای دوره‌های ۱، ۳ و ۶ ماهه، همراه با اعطای ویژگی‌های دانلود بخش‌های مختلف بازی
+          {t("admin.subscriptions.subtitle")}
         </p>
       </div>
 
@@ -264,10 +266,10 @@ export default function AdminSubscriptionsPage() {
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold text-slate-200">
-                پیکربندی تعرفه و حجم سهمیه پلن‌ها (دوره‌های ۱، ۳ و ۶ ماهه)
+                {t("admin.subscriptions.pricing.title")}
               </h2>
               <span className="text-[11px] text-slate-400 block mt-0.5">
-                تغییر مبالغ به تومان و حجم سهمیه به گیگابایت برای هر دوره زمانی
+                {t("admin.subscriptions.pricing.subtitle")}
               </span>
             </div>
           </div>
@@ -284,7 +286,7 @@ export default function AdminSubscriptionsPage() {
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>۱ ماهه (پایه)</span>
+              <span>{t("admin.subscriptions.pricing.period1")}</span>
             </button>
             <button
               type="button"
@@ -295,7 +297,7 @@ export default function AdminSubscriptionsPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>۳ ماهه</span>
+              <span>{t("admin.subscriptions.pricing.period3")}</span>
             </button>
             <button
               type="button"
@@ -306,7 +308,7 @@ export default function AdminSubscriptionsPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>۶ ماهه</span>
+              <span>{t("admin.subscriptions.pricing.period6")}</span>
             </button>
           </div>
         </div>
@@ -314,58 +316,60 @@ export default function AdminSubscriptionsPage() {
         {/* 4 Cards Grid for current duration */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { key: 'free', title: 'پلن رایگان (Free)', color: 'text-slate-300', border: 'border-slate-700', isFree: true },
-            { key: 'bronze', title: 'پلن برنزی (Bronze)', color: 'text-amber-400', border: 'border-amber-500/30', isFree: false },
-            { key: 'silver', title: 'پلن نقره‌ای (Silver)', color: 'text-cyan-300', border: 'border-cyan-500/30', isFree: false },
-            { key: 'gold', title: 'پلن طلایی (Gold VIP)', color: 'text-yellow-400', border: 'border-yellow-500/30', isFree: false },
-          ].map((t) => {
-            const price = tierPrices[`${t.key}-${selectedDuration}`] ?? 0;
-            const quota = tierQuotas[`${t.key}-${selectedDuration}`] ?? 0;
+            { key: 'free', titleKey: "admin.subscriptions.tiers.free", color: 'text-slate-300', border: 'border-slate-700', isFree: true },
+            { key: 'bronze', titleKey: "admin.subscriptions.tiers.bronze", color: 'text-amber-400', border: 'border-amber-500/30', isFree: false },
+            { key: 'silver', titleKey: "admin.subscriptions.tiers.silver", color: 'text-cyan-300', border: 'border-cyan-500/30', isFree: false },
+            { key: 'gold', titleKey: "admin.subscriptions.tiers.gold", color: 'text-yellow-400', border: 'border-yellow-500/30', isFree: false },
+          ].map((tier) => {
+            const price = tierPrices[`${tier.key}-${selectedDuration}`] ?? 0;
+            const quota = tierQuotas[`${tier.key}-${selectedDuration}`] ?? 0;
 
             return (
               <div
-                key={t.key}
-                className={`p-5 rounded-3xl bg-[#121721] border ${t.border} space-y-4 shadow-xl flex flex-col justify-between`}
+                key={tier.key}
+                className={`p-5 rounded-3xl bg-[#121721] border ${tier.border} space-y-4 shadow-xl flex flex-col justify-between`}
               >
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
-                    <span className={`text-xs font-bold ${t.color}`}>{t.title}</span>
+                    <span className={`text-xs font-bold ${tier.color}`}>{t(tier.titleKey)}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
-                      دوره {selectedDuration} ماهه
+                      {t("admin.subscriptions.pricing.periodBadge", { months: n(selectedDuration) })}
                     </span>
                   </div>
 
                   <div className="space-y-3">
                     <div>
                       <label className="text-[11px] text-slate-400 block mb-1">
-                        قیمت این دوره (تومان):
+                        {t("admin.subscriptions.pricing.priceLabel")}
                       </label>
                       <input
                         type="number"
-                        disabled={t.isFree}
+                        disabled={tier.isFree}
                         value={price}
-                        onChange={(e) => handlePriceChange(t.key, Number(e.target.value))}
+                        onChange={(e) => handlePriceChange(tier.key, Number(e.target.value))}
                         className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-roboto focus:outline-none focus:border-cyan-500 disabled:opacity-40"
                       />
-                      {!t.isFree && price > 0 && (
+                      {!tier.isFree && price > 0 && (
                         <span className="text-[10px] text-slate-500 block mt-1">
-                          {price.toLocaleString('fa-IR')} تومان
+                          {formatPrice(price)}
                         </span>
                       )}
                     </div>
 
                     <div>
                       <label className="text-[11px] text-slate-400 block mb-1">
-                        سهمیه حجم دانلودی (GB):
+                        {t("admin.subscriptions.pricing.quotaLabel")}
                       </label>
                       <input
                         type="number"
                         value={quota}
-                        onChange={(e) => handleQuotaChange(t.key, Number(e.target.value))}
+                        onChange={(e) => handleQuotaChange(tier.key, Number(e.target.value))}
                         className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-roboto focus:outline-none focus:border-cyan-500"
                       />
                       <span className="text-[10px] text-slate-500 block mt-1">
-                        {quota >= 1000 ? `${(quota / 1000).toFixed(1)} ترابایت` : `${quota} گیگابایت`}
+                        {quota >= 1000
+                          ? size(quota / 1000, t("admin.subscriptions.units.terabyte"))
+                          : size(quota, t("admin.subscriptions.units.gigabyte"))}
                       </span>
                     </div>
                   </div>
@@ -386,10 +390,10 @@ export default function AdminSubscriptionsPage() {
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-bold text-slate-200">
-              ویژگی‌های دانلود انواع بخش‌های بازی (دسته‌بندی‌های سه‌گانه اشتراک)
+              {t("admin.subscriptions.features.title")}
             </h2>
             <span className="text-[11px] text-slate-400 block mt-0.5">
-              تعیین اجازه دانلود دیتای بازی، چیت، دی‌ال‌سی، زیرنویس فارسی و دوبله اختصاصی برای هر پلن اشتراک
+              {t("admin.subscriptions.features.subtitle")}
             </span>
           </div>
         </div>
@@ -397,9 +401,9 @@ export default function AdminSubscriptionsPage() {
         {/* 3 Tier Columns for Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
-            { key: 'bronze', title: 'اشتراک برنزی (Bronze)', border: 'border-amber-500/40', badge: 'bg-amber-500/10 text-amber-400' },
-            { key: 'silver', title: 'اشتراک نقره‌ای (Silver)', border: 'border-cyan-500/40', badge: 'bg-cyan-500/10 text-cyan-300' },
-            { key: 'gold', title: 'اشتراک طلایی VIP (Gold)', border: 'border-yellow-500/40', badge: 'bg-yellow-500/10 text-yellow-400' },
+            { key: 'bronze', titleKey: "admin.subscriptions.features.bronze", border: 'border-amber-500/40', badge: 'bg-amber-500/10 text-amber-400' },
+            { key: 'silver', titleKey: "admin.subscriptions.features.silver", border: 'border-cyan-500/40', badge: 'bg-cyan-500/10 text-cyan-300' },
+            { key: 'gold', titleKey: "admin.subscriptions.features.gold", border: 'border-yellow-500/40', badge: 'bg-yellow-500/10 text-yellow-400' },
           ].map((tier) => {
             const feats = tierFeatures[tier.key] || {
               allow_data: true,
@@ -410,11 +414,11 @@ export default function AdminSubscriptionsPage() {
             };
 
             const featureItems = [
-              { id: 'allow_data' as const, label: 'دیتای خود بازی', icon: HardDrive, desc: 'دانلود پارت‌های اصلی دیتا' },
-              { id: 'allow_cheat' as const, label: 'چیت و ترینر بازی', icon: Zap, desc: 'سیوگیم‌ها و ترینرهای اختصاصی' },
-              { id: 'allow_dlc' as const, label: 'بسته‌های الحاقی (DLC)', icon: Sparkles, desc: 'افزونه‌ها و محتوای دانلودی اضافی' },
-              { id: 'allow_subtitles' as const, label: 'زیرنویس فارسی بازی', icon: FileText, desc: 'ترجمه اختصاصی منوها و زیرنویس' },
-              { id: 'allow_dubbing' as const, label: 'دوبله فارسی بازی', icon: Headphones, desc: 'صوت دوبله گویندگان فارسی' },
+              { id: 'allow_data' as const, labelKey: "admin.subscriptions.features.items.data.label", icon: HardDrive, descKey: "admin.subscriptions.features.items.data.desc" },
+              { id: 'allow_cheat' as const, labelKey: "admin.subscriptions.features.items.cheat.label", icon: Zap, descKey: "admin.subscriptions.features.items.cheat.desc" },
+              { id: 'allow_dlc' as const, labelKey: "admin.subscriptions.features.items.dlc.label", icon: Sparkles, descKey: "admin.subscriptions.features.items.dlc.desc" },
+              { id: 'allow_subtitles' as const, labelKey: "admin.subscriptions.features.items.subtitles.label", icon: FileText, descKey: "admin.subscriptions.features.items.subtitles.desc" },
+              { id: 'allow_dubbing' as const, labelKey: "admin.subscriptions.features.items.dubbing.label", icon: Headphones, descKey: "admin.subscriptions.features.items.dubbing.desc" },
             ];
 
             return (
@@ -423,9 +427,9 @@ export default function AdminSubscriptionsPage() {
                 className={`p-5 rounded-3xl bg-[#121721] border ${tier.border} space-y-4 shadow-xl`}
               >
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <span className="text-xs sm:text-sm font-bold text-white">{tier.title}</span>
+                  <span className="text-xs sm:text-sm font-bold text-white">{t(tier.titleKey)}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${tier.badge}`}>
-                    مجوزهای دانلود
+                    {t("admin.subscriptions.features.badge")}
                   </span>
                 </div>
 
@@ -449,8 +453,8 @@ export default function AdminSubscriptionsPage() {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <span className="text-xs font-bold block">{item.label}</span>
-                            <span className="text-[10px] text-slate-400">{item.desc}</span>
+                            <span className="text-xs font-bold block">{t(item.labelKey)}</span>
+                            <span className="text-[10px] text-slate-400">{t(item.descKey)}</span>
                           </div>
                         </div>
 
@@ -484,7 +488,7 @@ export default function AdminSubscriptionsPage() {
               <Save className="w-4 h-4" />
             )}
             <span>
-              {isSavingTiers ? 'در حال ثبت در دیتابیس...' : 'ذخیره سراسری مبالغ، سهمیه‌ها و ویژگی‌های اشتراک'}
+              {isSavingTiers ? t("admin.subscriptions.features.saving") : t("admin.subscriptions.features.save")}
             </span>
           </button>
         </div>
@@ -501,15 +505,15 @@ export default function AdminSubscriptionsPage() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-200">
-                پیکربندی ۵ بازی مجاز در اشتراک رایگان
+                {t("admin.subscriptions.free.title")}
               </h2>
               <span className="text-[11px] text-slate-400">
-                کاربران با پلن رایگان تنها مجاز به دانلود دیتای این عناوین منتخب هستند.
+                {t("admin.subscriptions.free.subtitle")}
               </span>
             </div>
           </div>
           <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-mono self-start sm:self-auto">
-            {freeGames.length} / 5 بازی انتخاب شده
+            {t("admin.subscriptions.free.selected", { count: n(freeGames.length) })}
           </span>
         </div>
 
@@ -520,7 +524,7 @@ export default function AdminSubscriptionsPage() {
             onChange={(e) => setSelectedGameId(e.target.value ? Number(e.target.value) : "")}
             className="w-full sm:w-80 bg-[#121721] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
           >
-            <option value="">انتخاب بازی از کاتالوگ...</option>
+            <option value="">{t("admin.subscriptions.free.selectPlaceholder")}</option>
             {allGames.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.title_fa} ({g.title_en})
@@ -534,7 +538,7 @@ export default function AdminSubscriptionsPage() {
             className="w-full sm:w-auto px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>افزودن به پلن رایگان</span>
+            <span>{t("admin.subscriptions.free.add")}</span>
           </button>
         </div>
 
@@ -557,7 +561,7 @@ export default function AdminSubscriptionsPage() {
                     <img src={fg.cover_image_url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-600">
-                      No Img
+                      {t("admin.subscriptions.free.noImage")}
                     </div>
                   )}
                 </div>
@@ -576,13 +580,13 @@ export default function AdminSubscriptionsPage() {
                 className="w-full py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[11px] flex items-center justify-center gap-1 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>حذف از رایگان</span>
+                <span>{t("admin.subscriptions.free.remove")}</span>
               </button>
             </div>
           ))}
           {freeGames.length === 0 && (
             <div className="col-span-full py-6 text-center text-xs text-slate-500">
-              هنوز عنوانی برای پلن رایگان انتخاب نشده است.
+              {t("admin.subscriptions.free.empty")}
             </div>
           )}
         </div>
@@ -595,28 +599,28 @@ export default function AdminSubscriptionsPage() {
         <div className="p-4 border-b border-slate-800 bg-[#121721] flex items-center justify-between">
           <h2 className="text-xs font-bold text-slate-200 flex items-center gap-2">
             <Layers className="w-4 h-4 text-emerald-400" />
-            <span>فهرست اشتراک‌های صادرشده کاربران</span>
+            <span>{t("admin.subscriptions.table.title")}</span>
           </h2>
-          <span className="text-[11px] text-slate-400">آخرین تراکنش‌ها</span>
+          <span className="text-[11px] text-slate-400">{t("admin.subscriptions.table.recent")}</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
+          <table className="w-full text-start text-xs">
             <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
               <tr>
-                <th className="py-3 px-4 font-semibold">شناسه</th>
-                <th className="py-3 px-4 font-semibold">کاربر</th>
-                <th className="py-3 px-4 font-semibold">پلن</th>
-                <th className="py-3 px-4 font-semibold">تاریخ شروع</th>
-                <th className="py-3 px-4 font-semibold">تاریخ انقضا</th>
-                <th className="py-3 px-4 font-semibold">وضعیت</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.id")}</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.user")}</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.plan")}</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.startsAt")}</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.expiresAt")}</th>
+                <th className="py-3 px-4 font-semibold">{t("admin.subscriptions.table.status")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
               {subscriptions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-500">
-                    اشتراکی یافت نشد.
+                    {t("admin.subscriptions.table.empty")}
                   </td>
                 </tr>
               ) : (
@@ -624,7 +628,7 @@ export default function AdminSubscriptionsPage() {
                   <tr key={s.id} className="hover:bg-slate-800/20">
                     <td className="py-3 px-4 font-mono text-slate-400">#{s.id}</td>
                     <td className="py-3 px-4">
-                      <span className="font-semibold text-slate-200">{s.user_name || "کاربر"}</span>
+                      <span className="font-semibold text-slate-200">{s.user_name || t("admin.subscriptions.table.defaultUser")}</span>
                       <span className="block text-[11px] text-slate-500 font-mono" dir="ltr">
                         {s.user_phone}
                       </span>
@@ -635,19 +639,19 @@ export default function AdminSubscriptionsPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-400 font-mono" dir="ltr">
-                      {new Date(s.starts_at).toLocaleDateString("fa-IR")}
+                      {d(s.starts_at)}
                     </td>
                     <td className="py-3 px-4 text-slate-400 font-mono" dir="ltr">
-                      {new Date(s.expires_at).toLocaleDateString("fa-IR")}
+                      {d(s.expires_at)}
                     </td>
                     <td className="py-3 px-4">
                       {s.is_active ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                          فعال
+                          {t("admin.subscriptions.table.active")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 text-[10px]">
-                          منقضی
+                          {t("admin.subscriptions.table.expired")}
                         </span>
                       )}
                     </td>

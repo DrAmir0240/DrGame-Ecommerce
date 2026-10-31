@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, Star, ChevronLeft, Gamepad2, ArrowRight } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
 import { getMediaUrl } from '@/lib/media';
+import { useTranslation } from '@/i18n';
 
 interface SimilarGameItem {
   id: number;
@@ -23,6 +24,7 @@ interface SimilarGamesCarouselProps {
 }
 
 export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselProps) {
+  const { t, n } = useTranslation();
   const [similarGames, setSimilarGames] = useState<SimilarGameItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,10 +39,10 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
 
   if (loading) {
     return (
-      <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-12 space-y-4 font-vazir text-right">
+      <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-12 space-y-4 font-vazir text-start">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white">بازی‌های مشابه و پیشنهادی</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-white">{t('similarGames.titleLoading')}</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
@@ -54,16 +56,16 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
   if (similarGames.length === 0) return null;
 
   return (
-    <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-14 space-y-5 font-vazir text-right">
+    <section className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-8 pb-14 space-y-5 font-vazir text-start">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-cyan-400 to-purple-600 shadow-[0_0_12px_#22d3ee]" />
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              بازی‌های مشابه و عناوین پیشنهادی
+              {t('similarGames.title')}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              ۵ بازی محبوب که با این عنوان هم‌ژانر هستند
+              {t('similarGames.subtitle', { count: n(5) })}
             </p>
           </div>
         </div>
@@ -72,7 +74,7 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
           href="/games"
           className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
         >
-          <span>مشاهده همه بازی‌ها</span>
+          <span>{t('similarGames.viewAll')}</span>
           <ChevronLeft className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -104,7 +106,7 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
               {game.rating && game.rating > 0 && (
                 <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 text-amber-300 text-[10px] font-bold font-roboto">
                   <Star className="w-3 h-3 fill-amber-300 stroke-none" />
-                  <span>{game.rating.toFixed(1)}</span>
+                  <span>{n(game.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
                 </div>
               )}
 

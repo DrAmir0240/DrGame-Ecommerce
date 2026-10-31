@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { SettlementAccount } from '@/types/referral';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 import {
   X,
   Building2,
@@ -30,6 +31,7 @@ export default function SettlementAccountsModal({
   accounts,
   onAccountAdded,
 }: SettlementAccountsModalProps) {
+  const { t } = useTranslation();
   const [accountType, setAccountType] = useState<'bank_iran' | 'crypto'>('bank_iran');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,15 +61,15 @@ export default function SettlementAccountsModal({
     setError(null);
 
     if (!shebaNumber.trim() || !accountHolder.trim()) {
-      setError('شماره شبا و نام صاحب حساب الزامی است.');
+      setError(t('referralUI.settlement.errShebaHolder'));
       return;
     }
     if (!nationalId.trim() || nationalId.length !== 10) {
-      setError('کد ملی باید دقیقاً ۱۰ رقم باشد.');
+      setError(t('referralUI.settlement.errNationalId'));
       return;
     }
     if (!mobilePhone.trim() || mobilePhone.length < 11) {
-      setError('شماره موبایل معتبر (۱۱ رقمی به نام صاحب حساب) وارد کنید.');
+      setError(t('referralUI.settlement.errMobile'));
       return;
     }
 
@@ -75,7 +77,7 @@ export default function SettlementAccountsModal({
     setTimeout(() => {
       setIsOtpSending(false);
       setOtpStep('otp');
-      setSuccessMsg('کد اعتبارسنجی تستی پیامک شد (کد پیش‌فرض: 123456)');
+      setSuccessMsg(t('referralUI.settlement.otpSent'));
     }, 700);
   };
 
@@ -84,7 +86,7 @@ export default function SettlementAccountsModal({
     setError(null);
 
     if (otpCode !== '123456' && otpCode.length < 5) {
-      setError('کد اعتبارسنجی وارد شده صحیح نمی‌باشد. (کد تستی: 123456)');
+      setError(t('referralUI.settlement.errOtp'));
       return;
     }
 
@@ -117,11 +119,11 @@ export default function SettlementAccountsModal({
       setBankName('');
       setOtpStep('form');
       setOtpCode('');
-      setSuccessMsg('حساب بانکی پس از احراز هویت با موفقیت ثبت شد.');
+      setSuccessMsg(t('referralUI.settlement.bankSaved'));
       setTimeout(() => setSuccessMsg(null), 3000);
       onAccountAdded();
     } catch (err: any) {
-      setError(err.message || 'خطا در ثبت حساب تسویه');
+      setError(err.message || t('referralUI.settlement.errBankSave'));
     } finally {
       setLoading(false);
     }
@@ -134,7 +136,7 @@ export default function SettlementAccountsModal({
 
     try {
       if (!cryptoWalletAddress.trim()) {
-        throw new Error('آدرس کیف پول تتر (USDT) الزامی است.');
+        throw new Error(t('referralUI.settlement.errWalletRequired'));
       }
 
       await apiRequest('/referral/settlement-accounts', {
@@ -147,18 +149,18 @@ export default function SettlementAccountsModal({
       });
 
       setCryptoWalletAddress('');
-      setSuccessMsg('کیف پول کریپتو با موفقیت ثبت شد.');
+      setSuccessMsg(t('referralUI.settlement.walletSaved'));
       setTimeout(() => setSuccessMsg(null), 3000);
       onAccountAdded();
     } catch (err: any) {
-      setError(err.message || 'خطا در ثبت کیف پول');
+      setError(err.message || t('referralUI.settlement.errWalletSave'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 font-vazir text-right">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 font-vazir text-start">
       <div className="relative w-full max-w-lg rounded-3xl bg-[#0b0e17] border border-white/10 p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
         <button
           onClick={onClose}
@@ -169,10 +171,10 @@ export default function SettlementAccountsModal({
 
         <h3 className="text-xl font-black text-white mb-2 flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-emerald-400" />
-          <span>مدیریت حساب‌های تسویه سود</span>
+          <span>{t('referralUI.settlement.title')}</span>
         </h3>
         <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          جهت دریافت واریزی پورسانت بازاریابی، حساب بانکی تاییدشده به همراه کد ملی و موبایل یا کیف پول تتر را ثبت نمایید.
+          {t('referralUI.settlement.subtitle')}
         </p>
 
         {successMsg && (
@@ -185,7 +187,7 @@ export default function SettlementAccountsModal({
         {/* Existing Accounts List */}
         {accounts.length > 0 && (
           <div className="mb-6 space-y-2">
-            <span className="text-xs text-slate-300 font-bold block mb-1">حساب‌های ثبت‌شده شما:</span>
+            <span className="text-xs text-slate-300 font-bold block mb-1">{t('referralUI.settlement.existingAccounts')}</span>
             {accounts.map((acc) => (
               <div
                 key={acc.id}
@@ -199,17 +201,19 @@ export default function SettlementAccountsModal({
                       <Coins className="w-4 h-4 text-amber-400" />
                     )}
                     <span className="font-bold text-white">
-                      {acc.account_type === 'bank_iran' ? `${acc.bank_name || 'حساب بانکی'} (${acc.account_holder})` : `کیف پول USDT (${acc.crypto_network})`}
+                      {acc.account_type === 'bank_iran'
+                        ? `${acc.bank_name || t('referralUI.settlement.bankFallback')} (${acc.account_holder})`
+                        : t('referralUI.settlement.cryptoAccount', { network: acc.crypto_network || '' })}
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-mono block mt-0.5 dir-ltr text-right">
+                  <span className="text-[11px] text-slate-400 font-mono block mt-0.5 dir-ltr text-start">
                     {acc.sheba_number || acc.crypto_wallet_address}
                   </span>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                   acc.is_verified ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                 }`}>
-                  {acc.is_verified ? 'تایید شده' : 'در انتظار تایید'}
+                  {acc.is_verified ? t('referralUI.settlement.verified') : t('referralUI.settlement.pending')}
                 </span>
               </div>
             ))}
@@ -230,7 +234,7 @@ export default function SettlementAccountsModal({
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>حساب بانکی و کد ملی</span>
+            <span>{t('referralUI.settlement.tabBank')}</span>
           </button>
           <button
             type="button"
@@ -243,7 +247,7 @@ export default function SettlementAccountsModal({
             }`}
           >
             <Coins className="w-4 h-4" />
-            <span>کیف پول تتر (USDT)</span>
+            <span>{t('referralUI.settlement.tabCrypto')}</span>
           </button>
         </div>
 
@@ -252,7 +256,7 @@ export default function SettlementAccountsModal({
           otpStep === 'form' ? (
             <form onSubmit={handleRequestOtp} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1 font-bold">شماره شبا (۲۴ رقم بدون IR):</label>
+                <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.shebaLabel')}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -260,7 +264,7 @@ export default function SettlementAccountsModal({
                     value={shebaNumber.replace(/^IR/i, '')}
                     onChange={(e) => setShebaNumber(`IR${e.target.value.replace(/[^0-9]/g, '')}`)}
                     maxLength={24}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-right pl-12"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-start pl-12"
                     required
                   />
                   <span className="absolute left-3 top-2.5 text-slate-400 font-mono font-bold">IR</span>
@@ -268,10 +272,10 @@ export default function SettlementAccountsModal({
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-bold">نام و نام خانوادگی صاحب حساب:</label>
+                <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.holderLabel')}</label>
                 <input
                   type="text"
-                  placeholder="مثال: علیرضا محمدی"
+                  placeholder={t('referralUI.settlement.holderPlaceholder')}
                   value={accountHolder}
                   onChange={(e) => setAccountHolder(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400"
@@ -281,26 +285,26 @@ export default function SettlementAccountsModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1 font-bold">کد ملی صاحب حساب (۱۰ رقم):</label>
+                  <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.nationalIdLabel')}</label>
                   <input
                     type="text"
                     maxLength={10}
                     placeholder="0012345678"
                     value={nationalId}
                     onChange={(e) => setNationalId(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-right"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-start"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1 font-bold">شماره موبایل منطبق:</label>
+                  <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.mobileLabel')}</label>
                   <input
                     type="tel"
                     maxLength={11}
                     placeholder="09123456789"
                     value={mobilePhone}
                     onChange={(e) => setMobilePhone(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-right"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-start"
                     required
                   />
                 </div>
@@ -308,24 +312,24 @@ export default function SettlementAccountsModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">نام بانک:</label>
+                  <label className="block text-slate-300 mb-1">{t('referralUI.settlement.bankNameLabel')}</label>
                   <input
                     type="text"
-                    placeholder="مثال: ملت، سامان"
+                    placeholder={t('referralUI.settlement.bankNamePlaceholder')}
                     value={bankName}
                     onChange={(e) => setBankName(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-cyan-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">شماره کارت (اختیاری):</label>
+                  <label className="block text-slate-300 mb-1">{t('referralUI.settlement.cardLabel')}</label>
                   <input
                     type="text"
                     maxLength={16}
-                    placeholder="۶۰۳۷..."
+                    placeholder={t('referralUI.settlement.cardPlaceholder')}
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-right"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-400 dir-ltr text-start"
                   />
                 </div>
               </div>
@@ -343,7 +347,7 @@ export default function SettlementAccountsModal({
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {isOtpSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Smartphone className="w-4 h-4" />}
-                <span>{isOtpSending ? 'در حال ارسال پیامک اعتبارسنجی...' : 'دریافت پیامک تایید و احراز هویت'}</span>
+                <span>{isOtpSending ? t('referralUI.settlement.otpSending') : t('referralUI.settlement.requestOtp')}</span>
               </button>
             </form>
           ) : (
@@ -352,15 +356,15 @@ export default function SettlementAccountsModal({
               <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 space-y-1">
                 <div className="font-bold flex items-center gap-1.5">
                   <Smartphone className="w-4 h-4" />
-                  <span>تأیید پیامکی تطابق شبا با کد ملی {nationalId}</span>
+                  <span>{t('referralUI.settlement.otpTitle', { nationalId })}</span>
                 </div>
                 <p className="text-[11px] text-slate-300">
-                  کد ۶ رقمی ارسال شده به شماره {mobilePhone} را وارد کنید. (برای تست: 123456)
+                  {t('referralUI.settlement.otpHint', { phone: mobilePhone })}
                 </p>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-bold">کد تأیید ۶ رقمی:</label>
+                <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.otpLabel')}</label>
                 <input
                   type="text"
                   maxLength={6}
@@ -386,7 +390,7 @@ export default function SettlementAccountsModal({
                   onClick={() => setOtpStep('form')}
                   className="w-1/3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
                 >
-                  ویرایش اطلاعات
+                  {t('referralUI.settlement.editInfo')}
                 </button>
                 <button
                   type="submit"
@@ -394,7 +398,7 @@ export default function SettlementAccountsModal({
                   className="w-2/3 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
-                  <span>{loading ? 'در حال تایید...' : 'تایید نهایی و ثبت حساب'}</span>
+                  <span>{loading ? t('referralUI.settlement.verifying') : t('referralUI.settlement.confirmSave')}</span>
                 </button>
               </div>
             </form>
@@ -403,28 +407,28 @@ export default function SettlementAccountsModal({
           /* Crypto Form */
           <form onSubmit={handleCryptoSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block text-slate-300 mb-1 font-bold">آدرس کیف پول تتر (USDT):</label>
+              <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.walletLabel')}</label>
               <input
                 type="text"
-                placeholder="T... یا 0x..."
+                placeholder={t('referralUI.settlement.walletPlaceholder')}
                 value={cryptoWalletAddress}
                 onChange={(e) => setCryptoWalletAddress(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-amber-400 dir-ltr text-right"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-amber-400 dir-ltr text-start"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 mb-1 font-bold">نوع شبکه انتقال رمزارز:</label>
+              <label className="block text-slate-300 mb-1 font-bold">{t('referralUI.settlement.networkLabel')}</label>
               <select
                 value={cryptoNetwork}
                 onChange={(e) => setCryptoNetwork(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs focus:outline-none focus:border-amber-400"
               >
-                <option value="TRC20">Tron (TRC20) - کارمزد پایین و پرسرعت</option>
-                <option value="BEP20">BNB Smart Chain (BEP20)</option>
-                <option value="POLYGON">Polygon Network</option>
-                <option value="ERC20">Ethereum (ERC20)</option>
+                <option value="TRC20">{t('referralUI.settlement.networks.trc20')}</option>
+                <option value="BEP20">{t('referralUI.settlement.networks.bep20')}</option>
+                <option value="POLYGON">{t('referralUI.settlement.networks.polygon')}</option>
+                <option value="ERC20">{t('referralUI.settlement.networks.erc20')}</option>
               </select>
             </div>
 
@@ -441,7 +445,7 @@ export default function SettlementAccountsModal({
               className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              <span>{loading ? 'در حال ثبت...' : 'ثبت کیف پول تتر'}</span>
+              <span>{loading ? t('referralUI.settlement.submitting') : t('referralUI.settlement.submitCrypto')}</span>
             </button>
           </form>
         )}

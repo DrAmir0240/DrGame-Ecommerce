@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { Clock, Database, Zap } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
+import { useTranslation } from '@/i18n';
 
 export default function CircularQuotaWidget() {
+  const { t, tp, n } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
 
@@ -15,9 +17,6 @@ export default function CircularQuotaWidget() {
       fetchQuota();
     }
   }, [isAuthenticated]);
-
-  const toFarsi = (num: number | string) =>
-    Number(num).toLocaleString('fa-IR');
 
   // If not logged in or no subscription data
   if (!isAuthenticated || !quota) {
@@ -28,7 +27,7 @@ export default function CircularQuotaWidget() {
           className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-500/20 via-cosmic-purple/20 to-cyan-500/20 hover:from-amber-500/30 hover:to-cyan-500/30 border border-amber-500/30 text-amber-300 hover:text-white transition-all text-xs font-bold shadow-[0_0_15px_rgba(245,158,11,0.15)] shrink-0"
         >
           <Zap className="w-4 h-4 text-amber-400" />
-          <span>خرید اشتراک و دانلود بازی‌ها</span>
+          <span>{t('quotaWidget.cta')}</span>
         </Link>
       </div>
     );
@@ -59,16 +58,16 @@ export default function CircularQuotaWidget() {
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-right">
+    <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 text-start">
       {/* 1. زمان باقی‌مانده اشتراک */}
       <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-card/80 border border-white/10 backdrop-blur-md">
         <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
           <Clock className="w-4 h-4 text-purple-400" />
         </div>
         <div className="flex flex-col">
-          <span className="text-[10px] text-text-muted">زمان باقی‌مانده اشتراک:</span>
-          <span className="text-xs font-bold text-purple-300 font-roboto" dir="rtl">
-            {toFarsi(daysRemaining)} روز
+          <span className="text-[10px] text-text-muted">{t('quotaWidget.remainingTime')}</span>
+          <span className="text-xs font-bold text-purple-300 font-roboto">
+            {tp('quotaWidget.days', daysRemaining, { count: n(daysRemaining) })}
           </span>
         </div>
       </div>
@@ -105,9 +104,9 @@ export default function CircularQuotaWidget() {
         </div>
 
         <div className="flex flex-col">
-          <span className="text-[10px] text-text-muted">حجم باقی‌مانده اشتراک:</span>
-          <span className="text-xs font-bold text-purple-300 font-roboto" dir="rtl">
-            {toFarsi(remaining)} گیگابایت
+          <span className="text-[10px] text-text-muted">{t('quotaWidget.remainingQuota')}</span>
+          <span className="text-xs font-bold text-purple-300 font-roboto">
+            {t('quotaWidget.gigabytes', { value: n(remaining) })}
           </span>
         </div>
       </div>

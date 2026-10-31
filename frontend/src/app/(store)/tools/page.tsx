@@ -3,21 +3,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { Gamepad2, Cpu, ArrowLeft, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export default function ToolsHubPage() {
+  const { t } = useTranslation();
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cosmic-purple/10 border border-cosmic-purple/30 text-cosmic-purple text-xs font-bold mb-4">
           <Sparkles className="w-4 h-4" />
-          <span>جعبه ابزار تخصصی کنسول دکتر گیم</span>
+          <span>{t('tools.hubBadge')}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-          ابزارهای اختصاصی گیمرها و نصاب‌های کنسول
+          {t('tools.hubTitle')}
         </h1>
         <p className="text-text-secondary text-sm sm:text-base leading-relaxed">
-          مجموعه ابزارهای هوشمند تحت وب برای تست سلامت و دریفت کنترلر، و سامانه پی‌لودهای جیلبریک فریمور کنسول.
+          {t('tools.hubDescription')}
         </p>
 
       </div>
@@ -36,22 +38,22 @@ export default function ToolsHubPage() {
 
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold">
-                نسخه آنلاین
+                {t('tools.onlineBadge')}
               </span>
               <span className="text-[10px] text-text-muted font-roboto font-semibold">DualSense / DualShock</span>
             </div>
 
             <h3 className="text-xl font-black text-white group-hover:text-cosmic-purple transition-colors mb-3">
-              تست سلامت دسته (Gamepad Tester)
+              {t('tools.gamepadCardTitle')}
             </h3>
 
             <p className="text-xs text-text-secondary leading-relaxed mb-6">
-              تست بلادرنگ تمامی دکمه‌های دسته، درصد حساسیت تریگرهای L2/R2، عیب‌یابی دقیق دریفت شوکرهای آنالوگ (Drift Error) و تست موتورهای ویبره دوگانه هپتیک.
+              {t('tools.gamepadCardDescription')}
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-white/5 text-xs font-bold text-white group-hover:text-cosmic-purple transition-colors">
-            <span>شروع تست کنترلر</span>
+            <span>{t('tools.startTest')}</span>
             <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-4px] transition-transform" />
           </div>
         </Link>
@@ -68,22 +70,22 @@ export default function ToolsHubPage() {
 
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-bold">
-                هاست اختصاصی DNS
+                {t('tools.dnsHostBadge')}
               </span>
               <span className="text-[10px] text-text-muted font-roboto font-semibold">PS4 & PS5 Jailbreak</span>
             </div>
 
             <h3 className="text-xl font-black text-white group-hover:text-cyan-400 transition-colors mb-3">
-              سامانه جیلبریک و پی‌لود کنسول
+              {t('tools.jailbreakCardTitle')}
             </h3>
 
             <p className="text-xs text-text-secondary leading-relaxed mb-6">
-              هاست پایدار پی‌لودهای GoldHEN و وب‌کیت برای فریمورهای مختلف پلی‌استیشن ۴ و ۵ بدون قطعی، با قابلیت کش آفلاین و راهنمای تصویری گام‌به‌گام.
+              {t('tools.jailbreakCardDescription')}
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-white/5 text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">
-            <span>ورود به سامانه جیلبریک</span>
+            <span>{t('tools.enterJailbreak')}</span>
             <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-4px] transition-transform" />
           </div>
         </Link>

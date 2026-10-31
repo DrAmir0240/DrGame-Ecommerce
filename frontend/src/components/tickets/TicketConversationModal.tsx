@@ -13,6 +13,14 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
+
+const STATUS_KEY: Record<string, string> = {
+  answered: 'ticketUI.status.answered',
+  in_progress: 'ticketUI.status.inProgress',
+  closed: 'ticketUI.status.closed',
+  open: 'ticketUI.status.awaiting',
+};
 
 interface TicketMessage {
   id: number;
@@ -48,6 +56,7 @@ export default function TicketConversationModal({
   onClose,
   onRefreshList,
 }: TicketConversationModalProps) {
+  const { t, d } = useTranslation();
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
@@ -63,7 +72,7 @@ export default function TicketConversationModal({
       const data = await apiRequest<TicketDetail>(`/tickets/me/${ticketId}`);
       setTicket(data);
     } catch (err: any) {
-      setError(err.message || 'خطا در بارگذاری اطلاعات تیکت.');
+      setError(err.message || t('ticketUI.errorLoad'));
     } finally {
       setLoading(false);
     }
@@ -107,29 +116,29 @@ export default function TicketConversationModal({
       setNewMessage('');
       if (onRefreshList) onRefreshList();
     } catch (err: any) {
-      setError(err.message || 'خطا در ارسال پیام.');
+      setError(err.message || t('ticketUI.errorSend'));
     } finally {
       setSending(false);
     }
   };
 
   const getStatusBadge = (status: string) => {
+    const label = STATUS_KEY[status] ? t(STATUS_KEY[status]) : status;
     switch (status) {
       case 'answered':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">پاسخ داده شده</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">{label}</span>;
       case 'in_progress':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">در حال بررسی</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">{label}</span>;
       case 'closed':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">بسته شده</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">{label}</span>;
       default:
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">در انتظار پاسخ</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">{label}</span>;
     }
   };
 
   const formatMessageTime = (dateStr: string) => {
     try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('fa-IR', {
+      return d(dateStr, {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -141,7 +150,7 @@ export default function TicketConversationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 font-vazir text-right">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 font-vazir text-start">
       <div className="relative w-full max-w-2xl h-[85vh] rounded-3xl bg-[#0b0e17] border border-white/10 flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-white/10 bg-[#0e121e] flex items-center justify-between shrink-0">
@@ -153,7 +162,7 @@ export default function TicketConversationModal({
               {ticket && getStatusBadge(ticket.status)}
             </div>
             <h3 className="text-sm sm:text-base font-bold text-white truncate">
-              {ticket?.subject || 'در حال دریافت اطلاعات تیکت...'}
+              {ticket?.subject || t('ticketUI.loadingTicket')}
             </h3>
           </div>
 
@@ -170,7 +179,7 @@ export default function TicketConversationModal({
           {loading ? (
             <div className="h-full flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-              <span className="text-xs text-slate-400">در حال دریافت تاریخچه پیام‌ها...</span>
+              <span className="text-xs text-slate-400">{t('ticketUI.loadingHistory')}</span>
             </div>
           ) : error ? (
             <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
@@ -179,7 +188,7 @@ export default function TicketConversationModal({
             </div>
           ) : !ticket || ticket.messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-xs text-slate-500">
-              پیامی در این تیکت یافت نشد.
+              {t('ticketUI.empty')}
             </div>
           ) : (
             ticket.messages.map((msg) => {
@@ -194,13 +203,13 @@ export default function TicketConversationModal({
                       <>
                         <Headphones className="w-3.5 h-3.5 text-cyan-400" />
                         <span className="font-bold text-cyan-300">
-                          {msg.sender_name || 'پشتیبانی فنی دکتر گیم'}
+                          {msg.sender_name || t('ticketUI.supportName')}
                         </span>
                       </>
                     ) : (
                       <>
                         <UserIcon className="w-3.5 h-3.5 text-purple-400" />
-                        <span className="font-bold text-slate-300">شما</span>
+                        <span className="font-bold text-slate-300">{t('ticketUI.you')}</span>
                       </>
                     )}
                     <span className="text-[10px] text-slate-500 mr-2 font-roboto" dir="ltr">
@@ -228,13 +237,13 @@ export default function TicketConversationModal({
         <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0e121e] shrink-0">
           {ticket?.status === 'closed' ? (
             <div className="p-3 rounded-xl bg-slate-800/80 text-center text-xs text-slate-400 font-bold">
-              این تیکت بسته شده است و امکان ارسال پاسخ جدید وجود ندارد. در صورت نیاز، تیکت جدیدی ایجاد کنید.
+              {t('ticketUI.closedNotice')}
             </div>
           ) : (
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="پاسخ خود را بنویسید..."
+                placeholder={t('ticketUI.replyPlaceholder')}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 disabled={sending || loading}
@@ -246,7 +255,7 @@ export default function TicketConversationModal({
                 className="px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50 shrink-0"
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                <span className="hidden sm:inline">ارسال پاسخ</span>
+                <span className="hidden sm:inline">{t('ticketUI.reply')}</span>
               </button>
             </form>
           )}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { SettlementAccount } from '@/types/referral';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 import { X, Wallet, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 interface WithdrawalModalProps {
@@ -20,6 +21,7 @@ export default function WithdrawalModal({
   accounts,
   onWithdrawSuccess,
 }: WithdrawalModalProps) {
+  const { t, price } = useTranslation();
   const [selectedAccountId, setSelectedAccountId] = useState<number | ''>(
     accounts.length > 0 ? accounts[0].id : ''
   );
@@ -36,15 +38,15 @@ export default function WithdrawalModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAccountId) {
-      setError('لطفاً یک حساب تسویه انتخاب کنید.');
+      setError(t('referralUI.withdrawal.errNoAccount'));
       return;
     }
     if (numAmount < 50000) {
-      setError('حداقل مبلغ قابل برداشت ۵۰,۰۰۰ تومان می‌باشد.');
+      setError(t('referralUI.withdrawal.errMinAmount', { amount: price(50000) }));
       return;
     }
     if (numAmount > withdrawableBalanceToman) {
-      setError('مبلغ درخواستی بیشتر از موجودی قابل برداشت است.');
+      setError(t('referralUI.withdrawal.errExceeds'));
       return;
     }
 
@@ -67,7 +69,7 @@ export default function WithdrawalModal({
         onClose();
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'خطا در ثبت درخواست برداشت');
+      setError(err.message || t('referralUI.withdrawal.errSubmit'));
     } finally {
       setLoading(false);
     }
@@ -85,36 +87,36 @@ export default function WithdrawalModal({
 
         <h3 className="text-xl font-black text-white mb-2 flex items-center gap-2">
           <Wallet className="w-5 h-5 text-emerald-400" />
-          <span>درخواست برداشت وجه</span>
+          <span>{t('referralUI.withdrawal.title')}</span>
         </h3>
         <p className="text-xs text-text-secondary mb-6">
-          واریز وجه به حساب‌های بانکی داخلی از طریق پایا/ساتنا و به کیف پول‌های کریپتو به صورت تتر انجام می‌پذیرد.
+          {t('referralUI.withdrawal.subtitle')}
         </p>
 
         {success ? (
           <div className="text-center py-8 space-y-3 animate-in zoom-in-95">
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
-            <h4 className="text-base font-bold text-white">درخواست برداشت با موفقیت ثبت شد</h4>
+            <h4 className="text-base font-bold text-white">{t('referralUI.withdrawal.successTitle')}</h4>
             <p className="text-xs text-text-muted">
-              مبلغ مورد نظر پس از بررسی واحد مالی به حساب شما واریز خواهد شد.
+              {t('referralUI.withdrawal.successBody')}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Balance Status */}
             <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-xs">
-              <span className="text-text-muted">موجودی فعلی:</span>
+              <span className="text-text-muted">{t('referralUI.withdrawal.currentBalance')}</span>
               <span className="font-mono font-bold text-emerald-400 text-sm">
-                {withdrawableBalanceToman.toLocaleString('fa-IR')} تومان
+                {price(withdrawableBalanceToman)}
               </span>
             </div>
 
             {/* Select Settlement Account */}
             <div>
-              <label className="block text-xs text-text-muted mb-1">واریز به حساب:</label>
+              <label className="block text-xs text-text-muted mb-1">{t('referralUI.withdrawal.destination')}</label>
               {accounts.length === 0 ? (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-                  ابتدا باید یک حساب بانکی یا کیف پول رمزارز در بخش حساب‌های تسویه ثبت نمایید.
+                  {t('referralUI.withdrawal.noAccounts')}
                 </div>
               ) : (
                 <select
@@ -126,7 +128,7 @@ export default function WithdrawalModal({
                   {accounts.map((acc) => (
                     <option key={acc.id} value={acc.id}>
                       {acc.account_type === 'bank_iran'
-                        ? `${acc.bank_name || 'بانک'} - ${acc.account_holder} (${acc.sheba_number?.slice(0, 10)}...)`
+                        ? `${acc.bank_name || t('referralUI.withdrawal.bankFallback')} - ${acc.account_holder} (${acc.sheba_number?.slice(0, 10)}...)`
                         : `USDT ${acc.crypto_network} (${acc.crypto_wallet_address?.slice(0, 12)}...)`}
                     </option>
                   ))}
@@ -136,10 +138,10 @@ export default function WithdrawalModal({
 
             {/* Amount Input */}
             <div>
-              <label className="block text-xs text-text-muted mb-1">مبلغ درخواستی (تومان):</label>
+              <label className="block text-xs text-text-muted mb-1">{t('referralUI.withdrawal.amountLabel')}</label>
               <input
                 type="number"
-                placeholder="حداقل ۵۰,۰۰۰ تومان"
+                placeholder={t('referralUI.withdrawal.amountPlaceholder', { amount: price(50000) })}
                 min={50000}
                 max={withdrawableBalanceToman}
                 value={amountToman}
@@ -152,9 +154,9 @@ export default function WithdrawalModal({
             {/* Remaining Calculation */}
             {numAmount > 0 && (
               <div className="flex justify-between text-xs text-text-muted px-1">
-                <span>موجودی پس از برداشت:</span>
+                <span>{t('referralUI.withdrawal.remainingAfter')}</span>
                 <span className={`font-mono font-bold ${remaining < 0 ? 'text-rose-400' : 'text-white'}`}>
-                  {remaining.toLocaleString('fa-IR')} تومان
+                  {price(remaining)}
                 </span>
               </div>
             )}
@@ -171,7 +173,7 @@ export default function WithdrawalModal({
               disabled={loading || accounts.length === 0 || numAmount < 50000 || numAmount > withdrawableBalanceToman}
               className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-95 text-white font-bold text-xs shadow-neon-purple transition-all flex items-center justify-center gap-1.5 disabled:opacity-40"
             >
-              <span>{loading ? 'در حال ثبت درخواست...' : 'تایید و ثبت نهایی برداشت'}</span>
+              <span>{loading ? t('referralUI.withdrawal.submitting') : t('referralUI.withdrawal.submit')}</span>
               <ArrowLeft className="w-4 h-4" />
             </button>
           </form>

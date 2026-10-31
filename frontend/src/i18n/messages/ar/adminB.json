@@ -1,0 +1,246 @@
+{
+  "admin": {
+    "games": {
+      "title": "الإدارة الشاملة لكتالوج الألعاب",
+      "subtitle": "تعديل جميع أقسام اللعبة (الغلاف، البانر، القصة، الجوائز، الاستوديو، تقييمات النقاد، المنصات وروابط التحميل)",
+      "searchPlaceholder": "البحث عن عنوان لعبة...",
+      "addGame": "إضافة لعبة جديدة",
+      "table": {
+        "title": "عنوان اللعبة",
+        "studio": "الاستوديو والناشر",
+        "size": "حجم البيانات",
+        "rating": "التقييم والميتاكريتيك",
+        "platforms": "المنصات",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "platforms": {
+        "ps5": "PS5",
+        "ps4": "PS4",
+        "xboxSeries": "Xbox Series X/S",
+        "nintendoSwitch": "Nintendo Switch"
+      },
+      "loading": "جارٍ تحميل الكتالوج...",
+      "empty": "لم يتم العثور على ألعاب.",
+      "noCover": "بدون غلاف",
+      "status": {
+        "published": "منشورة",
+        "draft": "مسودة"
+      },
+      "actions": {
+        "editFull": "تعديل كامل",
+        "editTitle": "تعديل جميع تفاصيل اللعبة",
+        "delete": "حذف اللعبة"
+      },
+      "pagination": {
+        "showing": "عرض {{shown}} من أصل {{total}} لعبة في النظام",
+        "prev": "الصفحة السابقة",
+        "next": "الصفحة التالية",
+        "pageOf": "الصفحة {{page}} من {{pages}}"
+      },
+      "confirmDelete": "هل أنت متأكد من حذف هذه اللعبة من الكتالوج؟",
+      "errors": {
+        "fetch": "تعذّر تحميل الكتالوج",
+        "uploadImage": "تعذّر رفع الصورة",
+        "upload": "فشل الرفع",
+        "downloadAndSave": "تعذّر تنزيل الصورة وحفظها",
+        "cache": "تعذّر تخزين الصورة مؤقتًا",
+        "update": "تعذّر تعديل اللعبة",
+        "create": "تعذّر إنشاء اللعبة",
+        "process": "تعذّرت معالجة الطلب",
+        "required": "يرجى إدخال عنوان اللعبة بالفارسية والإنجليزية."
+      },
+      "messages": {
+        "coverUploaded": "تم حفظ غلاف اللعبة على خادم DrGame.",
+        "bannerUploaded": "تم حفظ بانر الهيرو على خادم DrGame.",
+        "coverCached": "تم حفظ الغلاف على الاستضافة المحلية.",
+        "bannerCached": "تم حفظ البانر على الاستضافة المحلية.",
+        "saved": "تم حفظ معلومات اللعبة وتحديثها بنجاح."
+      },
+      "defaults": {
+        "genres": "أكشن، مغامرة",
+        "partName": "الجزء {{number}}"
+      },
+      "modal": {
+        "titleEdit": "تعديل جميع تفاصيل اللعبة",
+        "titleAdd": "تسجيل عنوان لعبة جديد",
+        "subtitle": "إدارة موحّدة للبانرات والمراجعات وبيانات الاستوديو والجوائز وملفات تحميل اللعبة",
+        "loading": "جارٍ جلب تفاصيل اللعبة من قاعدة البيانات...",
+        "idLabel": "المعرّف: {{id}}",
+        "tabs": {
+          "basic": "البيانات الأساسية",
+          "media": "الصور وبانر الهيرو",
+          "studio": "الاستوديو والجوائز",
+          "story": "قصة اللعبة وروحها",
+          "features": "المنصات والإمكانات",
+          "downloads": "الملفات والأجزاء ({{count}})"
+        },
+        "basic": {
+          "titleFa": "عنوان اللعبة بالفارسية",
+          "titleEn": "عنوان اللعبة بالإنجليزية",
+          "slug": "الاسم اللطيف للرابط (Slug)",
+          "released": "تاريخ / سنة الإصدار",
+          "size": "الحجم الكلي للبيانات (GB)",
+          "rating": "تقييم المستخدمين (من 5)",
+          "metacritic": "درجة الميتاكريتيك (من 100)",
+          "status": "حالة إصدار اللعبة",
+          "activeLabel": "نشطة ومنشورة في المتجر",
+          "placeholders": {
+            "titleFa": "مثال: ذا لاست أوف أس ريماسترد",
+            "titleEn": "e.g. The Last of Us Remastered",
+            "released": "مثال: 2022 أو 2014-07-29",
+            "metacritic": "مثال: 95"
+          }
+        },
+        "media": {
+          "coverLabel": "صورة غلاف علبة اللعبة (Cover Art)",
+          "coverHint": "النسبة القياسية 3:4 أو 4:5",
+          "coverPlaceholder": "https://... أو /media/games/cover_...",
+          "coverCacheTitle": "تنزيل الصورة وحفظها على خادم DrGame",
+          "caching": "جارٍ التخزين المؤقت...",
+          "cacheToServer": "حفظ على الخادم",
+          "coverUploading": "جارٍ رفع الغلاف...",
+          "coverUpload": "رفع الغلاف من الجهاز",
+          "coverUploaded": "تم رفع الغلاف",
+          "coverPreviewAlt": "معاينة الغلاف",
+          "bannerLabel": "بانر الهيرو السينمائي (Backdrop Hero Banner)",
+          "bannerHint": "صورة خلفية عريضة أعلى الصفحة (16:9)",
+          "bannerPlaceholder": "https://... أو /media/games/banner_...",
+          "bannerCacheTitle": "تنزيل البانر وحفظه على خادم DrGame",
+          "bannerUploading": "جارٍ رفع البانر...",
+          "bannerUpload": "رفع بانر الهيرو من الجهاز",
+          "bannerUploaded": "تم رفع البانر",
+          "bannerPreviewAlt": "معاينة البانر",
+          "screenshotsLabel": "معرض لقطات شاشة اللعبة (رابط واحد في كل سطر)"
+        },
+        "studio": {
+          "developerLabel": "استوديو تطوير اللعبة (Developer)",
+          "developerPlaceholder": "مثال: Naughty Dog أو Santa Monica Studio",
+          "publisherLabel": "ناشر اللعبة (Publisher)",
+          "publisherPlaceholder": "مثال: Sony Interactive Entertainment",
+          "awardsLabel": "جوائز اللعبة وتكريماتها (جائزة واحدة في كل سطر)",
+          "awardsHint": "تظهر في البطاقة الأولى بصفحة تفاصيل اللعبة",
+          "awardsPlaceholder": "الفائزة بأكثر من 200 جائزة لأفضل لعبة في العام (Game of the Year)\nأفضل سرد قصصي في حفل The Game Awards\nتحفة لا تُنسى من استوديو Naughty Dog"
+        },
+        "story": {
+          "storylineLabel": "سرد اللعبة وروحها (Storyline FA)",
+          "storylineHint": "نص البطاقة الثالثة «قلب اللعبة» في صفحة تفاصيل اللعبة",
+          "storylinePlaceholder": "ملخص جذاب للقصة وعالم العمل والأجواء السردية التي تظهر في صندوق «قلب اللعبة» المخصص...",
+          "descriptionFaLabel": "الوصف والمراجعة الفارسية الكاملة (Full Description FA)",
+          "descriptionFaPlaceholder": "مراجعة شاملة لأسلوب اللعب والرسومات والتفاصيل التقنية للعبة باللغة الفارسية...",
+          "descriptionEnLabel": "الوصف بالإنجليزية",
+          "descriptionEnPlaceholder": "Original English description of the game..."
+        },
+        "features": {
+          "platformsLabel": "المنصات المدعومة",
+          "genresLabel": "أنواع اللعبة (افصل بينها بفواصل)",
+          "genresPlaceholder": "أكشن، مغامرة، تقمص أدوار، بقاء",
+          "title": "الميزات والقدرات الخاصة باللعبة",
+          "coopLabel": "دعم وضع اللاعبين اثنين / تعدد اللاعبين (Co-op)",
+          "coopHint": "إمكانية اللعب الجماعي دون اتصال أو عبر الإنترنت",
+          "vrLabel": "دعم الواقع الافتراضي (PS VR / PS VR2)",
+          "vrHint": "مع شارة VR خاصة في بيانات اللعبة"
+        },
+        "downloads": {
+          "title": "الأجزاء والحزم و5 أنواع من ملفات التحميل",
+          "subtitle": "تعريف بيانات اللعبة والغش وDLC والترجمة والدبلجة مع تحديد مستوى الاشتراك المسموح",
+          "empty": "لم تُضف أي ملفات لهذه اللعبة بعد. استخدم الأزرار أعلاه لإضافة نوع الملف المطلوب.",
+          "quickAdd": {
+            "data": "البيانات الرسمية",
+            "cheat": "الغش والمدربات",
+            "dlc": "حزمة إضافية (DLC)",
+            "subtitle": "الترجمة",
+            "dubbing": "الدبلجة الفارسية"
+          },
+          "fileTypeLabel": "نوع الملف:",
+          "partNameLabel": "عنوان / اسم الجزء:",
+          "partNamePlaceholder": "اسم الجزء",
+          "sizeLabel": "الحجم (GB):",
+          "sizePlaceholder": "الحجم GB",
+          "tierLabel": "الاشتراك المسموح:",
+          "urlLabel": "رابط التحميل (URL):",
+          "activeLabel": "نشط",
+          "removeTitle": "حذف هذا القسم",
+          "fileTypes": {
+            "data": "البيانات الرسمية",
+            "cheat": "الغش والمدربات",
+            "dlc": "إضافة (DLC)",
+            "subtitle": "الترجمة الفارسية",
+            "dubbing": "دبلجة حصرية"
+          },
+          "tiers": {
+            "free": "مجاني (Free)",
+            "bronze": "برونزي وأعلى",
+            "silver": "فضي وأعلى",
+            "gold": "ذهبي (Gold)"
+          },
+          "defaults": {
+            "data": "البيانات الرسمية (الجزء {{number}})",
+            "cheat": "غش ومدرب حصري",
+            "dlc": "حزمة إضافية (DLC)",
+            "subtitle": "ترجمة فارسية رسمية",
+            "dubbing": "دبلجة فارسية حصرية",
+            "part": "الجزء {{number}}"
+          }
+        },
+        "footer": {
+          "note": "ستُطبَّق جميع التغييرات في المتجر فور الحفظ.",
+          "cancel": "إلغاء",
+          "saving": "جارٍ الحفظ...",
+          "save": "حفظ جميع معلومات اللعبة"
+        }
+      }
+    },
+    "genres": {
+      "title": "إدارة تصنيفات وأنواع الألعاب",
+      "subtitle": "تعريف الأنواع وتعديل ترتيب العرض وإبراز الأنواع الثمانية الأولى (Top 8) في الصفحة الرئيسية عبر قاعدة البيانات",
+      "add": "إضافة نوع جديد",
+      "loading": "جارٍ جلب الأنواع...",
+      "empty": "لم يتم تعريف أي نوع بعد.",
+      "table": {
+        "order": "الترتيب",
+        "nameFa": "اسم النوع بالفارسية",
+        "nameEn": "الاسم بالإنجليزية",
+        "slug": "الاسم اللطيف (Slug)",
+        "top8": "الأنواع الثمانية الأولى (Top 8)",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "top8Active": "Top 8 مفعّل",
+      "normal": "عادي",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirmDelete": "هل أنت متأكد من حذف هذا النوع؟",
+      "modal": {
+        "addTitle": "إضافة نوع جديد",
+        "editTitle": "تعديل النوع",
+        "nameFaLabel": "اسم النوع بالفارسية:",
+        "nameFaPlaceholder": "مثال: أكشن ومغامرة",
+        "nameEnLabel": "اسم النوع بالإنجليزية:",
+        "nameEnPlaceholder": "Action-Adventure",
+        "slugLabel": "الاسم اللطيف للرابط (Slug):",
+        "orderLabel": "ترتيب العرض:",
+        "iconLabel": "اسم أيقونة Lucide (اختياري):",
+        "top8Label": "الإظهار ضمن الأنواع الثمانية الأولى (Top 8)",
+        "activeLabel": "نشط في الموقع",
+        "cancel": "إلغاء",
+        "save": "حفظ النوع"
+      },
+      "feedback": {
+        "deleted": "تم حذف النوع بنجاح.",
+        "updated": "تم تحديث النوع بنجاح.",
+        "created": "تمت إضافة النوع الجديد بنجاح."
+      },
+      "errors": {
+        "load": "تعذّر تحميل أنواع الألعاب من الخادم.",
+        "delete": "تعذّر حذف النوع.",
+        "toggleActive": "تعذّر تغيير حالة النوع.",
+        "toggleTop8": "تعذّر تغيير شارة Top 8.",
+        "required": "اسم النوع بالفارسية والاسم اللطيف مطلوبان.",
+        "save": "تعذّر حفظ النوع."
+      }
+    }
+  }
+}

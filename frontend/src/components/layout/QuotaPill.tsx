@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { Database, AlertTriangle, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
+import { useTranslation } from '@/i18n';
 
 export default function QuotaPill() {
+  const { t, n, d, size } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const { quota, fetchQuota, isLoading } = useQuotaStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -37,22 +39,18 @@ export default function QuotaPill() {
     barColor = 'bg-amber-500';
   }
 
-  const toFarsi = (num: number) =>
-    Number(num.toFixed(1))
-      .toLocaleString('fa-IR');
-
   return (
     <div className="relative shrink-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-medium transition-all ${statusColor} hover:brightness-110 shrink-0`}
-        title="وضعیت حجم دانلود"
+        title={t('quotaPill.title')}
       >
         <Database className="w-3.5 h-3.5 shrink-0" />
         <span className="font-roboto font-bold tracking-tight text-[11px] sm:text-xs">
-          <span className="inline sm:hidden">{toFarsi(remaining)} GB</span>
+          <span className="inline sm:hidden">{size(remaining)}</span>
           <span className="hidden sm:inline">
-            {toFarsi(remaining)} / {toFarsi(total)} GB
+            {n(remaining)} / {size(total)}
           </span>
         </span>
         <div className="w-12 h-1.5 rounded-full bg-white/10 overflow-hidden hidden md:block">
@@ -73,28 +71,28 @@ export default function QuotaPill() {
           <div className="absolute left-0 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl glass-card border border-white/10 p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
               <div>
-                <span className="text-xs text-text-muted block">پلن فعلی:</span>
+                <span className="text-xs text-text-muted block">{t('quotaPill.currentPlan')}</span>
                 <span className="text-sm font-black text-white">{quota.tier_name}</span>
               </div>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${statusColor}`}>
-                {percentage > 15 ? 'فعال' : 'رو به اتمام'}
+                {percentage > 15 ? t('quotaPill.statusActive') : t('quotaPill.statusLow')}
               </span>
             </div>
 
             <div className="space-y-2 mb-4 text-xs">
               <div className="flex justify-between text-text-secondary">
-                <span>حجم باقیمانده:</span>
-                <span className="font-bold text-white font-roboto">{toFarsi(remaining)} GB</span>
+                <span>{t('quotaPill.remaining')}</span>
+                <span className="font-bold text-white font-roboto">{size(remaining)}</span>
               </div>
               <div className="flex justify-between text-text-secondary">
-                <span>کل سهمیه:</span>
-                <span className="font-bold text-white font-roboto">{toFarsi(total)} GB</span>
+                <span>{t('quotaPill.total')}</span>
+                <span className="font-bold text-white font-roboto">{size(total)}</span>
               </div>
               {quota.expires_at && (
                 <div className="flex justify-between text-text-secondary">
-                  <span>تاریخ انقضا:</span>
+                  <span>{t('quotaPill.expires')}</span>
                   <span className="font-roboto text-text-muted">
-                    {new Date(quota.expires_at).toLocaleDateString('fa-IR')}
+                    {d(quota.expires_at)}
                   </span>
                 </div>
               )}
@@ -105,7 +103,7 @@ export default function QuotaPill() {
               onClick={() => setIsOpen(false)}
               className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white text-xs font-bold transition-all shadow-neon-purple"
             >
-              <span>ارتقا و خرید حجم</span>
+              <span>{t('quotaPill.upgrade')}</span>
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Genre } from '@/types/game';
 import PlatformIcon from './PlatformIcons';
+import { useTranslation } from '@/i18n';
 
 export interface FilterState {
   search: string;
@@ -41,32 +42,38 @@ interface FilterSidebarProps {
 
 // 4 main console platforms: PS5, PS4, Xbox, Switch (Microsoft / PC removed)
 const PLATFORMS = [
-  { id: 'PS5', label: 'PlayStation 5' },
-  { id: 'PS4', label: 'PlayStation 4' },
-  { id: 'Xbox', label: 'Xbox' },
-  { id: 'Switch', label: 'Nintendo Switch' },
+  { id: 'PS5', labelKey: 'filters.platformNames.ps5' },
+  { id: 'PS4', labelKey: 'filters.platformNames.ps4' },
+  { id: 'Xbox', labelKey: 'filters.platformNames.xbox' },
+  { id: 'Switch', labelKey: 'filters.platformNames.switch' },
 ];
 
 // Top 8 genres matching games.jpg
 const TOP_GENRES = [
-  { slug: 'action', name: 'اکشن' },
-  { slug: 'adventure', name: 'ماجراجویی' },
-  { slug: 'role-playing-games-rpg', name: 'نقش‌آفرینی' },
-  { slug: 'shooter', name: 'شوتر' },
-  { slug: 'racing', name: 'مسابقه‌ای' },
-  { slug: 'strategy', name: 'استراتژی' },
-  { slug: 'puzzle', name: 'معمایی' },
-  { slug: 'sports', name: 'ورزشی' },
+  { slug: 'action', labelKey: 'filters.genre.action' },
+  { slug: 'adventure', labelKey: 'filters.genre.adventure' },
+  { slug: 'role-playing-games-rpg', labelKey: 'filters.genre.rpg' },
+  { slug: 'shooter', labelKey: 'filters.genre.shooter' },
+  { slug: 'racing', labelKey: 'filters.genre.racing' },
+  { slug: 'strategy', labelKey: 'filters.genre.strategy' },
+  { slug: 'puzzle', labelKey: 'filters.genre.puzzle' },
+  { slug: 'sports', labelKey: 'filters.genre.sports' },
 ];
 
 // 6 stepped size options
-const SIZE_STEPS = [
-  { label: 'همه', max: 200 },
-  { label: '< ۱۰ GB', max: 10 },
-  { label: '۱۰-۳۰ GB', max: 30 },
-  { label: '۳۰-۶۰ GB', max: 60 },
-  { label: '۶۰-۱۰۰ GB', max: 100 },
-  { label: '> ۱۰۰ GB', max: 200 },
+interface SizeStep {
+  labelKey: string;
+  max: number;
+  min?: number;
+}
+
+const SIZE_STEPS: SizeStep[] = [
+  { labelKey: 'filters.sizeAll', max: 200 },
+  { labelKey: 'filters.sizeUnder', max: 10 },
+  { labelKey: 'filters.sizeRange', min: 10, max: 30 },
+  { labelKey: 'filters.sizeRange', min: 30, max: 60 },
+  { labelKey: 'filters.sizeRange', min: 60, max: 100 },
+  { labelKey: 'filters.sizeOver', max: 200 },
 ];
 
 export default function FilterSidebar({
@@ -78,10 +85,18 @@ export default function FilterSidebar({
   isOpenMobile,
   onCloseMobile,
 }: FilterSidebarProps) {
+  const { t, n, size } = useTranslation();
   const [showAllGenres, setShowAllGenres] = useState(false);
 
   const update = (partial: Partial<FilterState>) => {
     onChange({ ...filters, ...partial });
+  };
+
+  const getSizeStepLabel = (step: SizeStep) => {
+    if (step.labelKey === 'filters.sizeRange') {
+      return t(step.labelKey, { min: n(step.min ?? 0), max: n(step.max) });
+    }
+    return t(step.labelKey, { size: size(step.max) });
   };
 
   const renderFilterContent = (isMobile = false) => (
@@ -90,26 +105,26 @@ export default function FilterSidebar({
       <div className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-2 text-purple-400 font-bold text-sm">
           <Filter className="w-4 h-4 text-purple-400" />
-          <span>فیلترهای پیشرفته</span>
+          <span>{t('filters.title')}</span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onReset}
             className="text-xs text-text-muted hover:text-purple-400 flex items-center gap-1 transition-colors"
-            title="حذف همه فیلترها"
+            title={t('filters.clearAllTitle')}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>پاک کردن</span>
+            <span>{t('filters.clear')}</span>
           </button>
           {isMobile && onCloseMobile && (
             <button
               onClick={onCloseMobile}
               className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-colors flex items-center gap-1 text-xs"
-              title="بستن فیلترها"
-              aria-label="بستن فیلترها"
+              title={t('filters.closeFilters')}
+              aria-label={t('filters.closeFilters')}
             >
               <X className="w-4 h-4" />
-              <span>بستن</span>
+              <span>{t('common.close')}</span>
             </button>
           )}
         </div>
@@ -119,13 +134,14 @@ export default function FilterSidebar({
       <div className="space-y-2">
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <span>پلتفرم‌ها</span>
+            <span>{t('filters.platforms')}</span>
           </span>
         </label>
         <div className="grid grid-cols-4 gap-2">
           {PLATFORMS.map((plat) => {
             const isSelected = filters.platform === plat.id;
             const isPS = plat.id.startsWith('PS');
+            const platformLabel = t(plat.labelKey);
             return (
               <button
                 key={plat.id}
@@ -135,8 +151,8 @@ export default function FilterSidebar({
                     ? 'bg-purple-500/20 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.45)] ring-1 ring-purple-500'
                     : 'bg-[#141b2d] border-white/10 hover:border-white/20 hover:bg-[#1a233a]'
                 }`}
-                title={plat.label}
-                aria-label={plat.label}
+                title={platformLabel}
+                aria-label={platformLabel}
               >
                 <PlatformIcon
                   platform={plat.id}
@@ -152,9 +168,9 @@ export default function FilterSidebar({
       {/* 2. ژانرها */}
       <div className="space-y-2 pt-2 border-t border-white/10">
         <label className="text-xs font-bold text-white flex items-center justify-between">
-          <span>ژانرها</span>
+          <span>{t('filters.genres')}</span>
           {filters.genre && (
-            <span className="text-[10px] text-purple-400 font-bold">۱ انتخاب</span>
+            <span className="text-[10px] text-purple-400 font-bold">{t('filters.selectedCount', { count: n(1) })}</span>
           )}
         </label>
         
@@ -171,7 +187,7 @@ export default function FilterSidebar({
                     : 'bg-[#141b2d] border-white/5 text-text-secondary hover:text-white hover:border-white/15'
                 }`}
               >
-                {g.name}
+                {t(g.labelKey)}
               </button>
             );
           })}
@@ -206,7 +222,7 @@ export default function FilterSidebar({
           onClick={() => setShowAllGenres(!showAllGenres)}
           className="w-full text-center text-xs text-text-muted hover:text-purple-400 py-1 transition-colors flex items-center justify-center gap-1 font-semibold"
         >
-          <span>{showAllGenres ? 'بستن لیست' : 'بیشتر ...'}</span>
+          <span>{showAllGenres ? t('filters.showLess') : t('filters.showAll')}</span>
           {showAllGenres ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>
@@ -216,10 +232,10 @@ export default function FilterSidebar({
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-purple-400" />
-            <span>حالت بازی</span>
+            <span>{t('filters.gameMode')}</span>
           </span>
           {filters.is_two_player !== null && (
-            <span className="text-[10px] text-purple-400 font-bold">۱ انتخاب</span>
+            <span className="text-[10px] text-purple-400 font-bold">{t('filters.selectedCount', { count: n(1) })}</span>
           )}
         </label>
         <div className="grid grid-cols-2 gap-1.5">
@@ -232,9 +248,8 @@ export default function FilterSidebar({
                 : 'bg-[#141b2d] border-white/5 text-slate-300 hover:text-white hover:border-white/15'
             }`}
           >
-            تک‌نفره
-          </button>
-          <button
+            {t('filters.singlePlayer')}
+          </button>          <button
             type="button"
             onClick={() => update({ is_two_player: filters.is_two_player === true ? null : true })}
             className={`py-2 px-2 rounded-xl text-xs font-semibold border text-center transition-all ${
@@ -243,7 +258,7 @@ export default function FilterSidebar({
                 : 'bg-[#141b2d] border-white/5 text-slate-300 hover:text-white hover:border-white/15'
             }`}
           >
-            چند‌نفره (دو یا چند دسته)
+            {t('filters.multiPlayer')}
           </button>
         </div>
       </div>
@@ -253,10 +268,10 @@ export default function FilterSidebar({
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>واقعیت مجازی</span>
+            <span>{t('filters.vr')}</span>
           </span>
           {filters.has_vr && (
-            <span className="text-[10px] text-purple-400 font-bold">فعال</span>
+            <span className="text-[10px] text-purple-400 font-bold">{t('filters.active')}</span>
           )}
         </label>
         <button
@@ -270,7 +285,7 @@ export default function FilterSidebar({
         >
           <span className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>فقط بازی‌های واقعیت مجازی (VR)</span>
+            <span>{t('filters.vrOnly')}</span>
           </span>
           <span className={`w-2.5 h-2.5 rounded-full transition-all ${filters.has_vr ? 'bg-purple-400 shadow-[0_0_8px_#c084fc]' : 'bg-white/20'}`} />
         </button>
@@ -281,7 +296,7 @@ export default function FilterSidebar({
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-purple-400" />
-            <span>وضعیت انتشار</span>
+            <span>{t('filters.releaseStatus')}</span>
           </span>
         </label>
         <div className="grid grid-cols-2 gap-1.5">
@@ -294,7 +309,7 @@ export default function FilterSidebar({
                 : 'bg-[#141b2d] border-white/10 text-slate-300 hover:text-white hover:border-white/20'
             }`}
           >
-            منتشر شده
+            {t('filters.released')}
           </button>
           <button
             type="button"
@@ -305,7 +320,7 @@ export default function FilterSidebar({
                 : 'bg-[#141b2d] border-white/10 text-slate-300 hover:text-white hover:border-white/20'
             }`}
           >
-            دسترسی زودهنگام
+            {t('filters.earlyAccess')}
           </button>
         </div>
       </div>
@@ -315,10 +330,12 @@ export default function FilterSidebar({
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <HardDrive className="w-3.5 h-3.5 text-purple-400" />
-            <span>حجم دیتا</span>
+            <span>{t('filters.dataSize')}</span>
           </span>
           <span className="text-[10px] text-text-muted font-roboto">
-            {filters.max_size < 200 ? `< ${filters.max_size} GB` : 'همه'}
+            {filters.max_size < 200
+              ? t('filters.sizeUnder', { size: size(filters.max_size) })
+              : t('filters.sizeAll')}
           </span>
         </label>
         <div className="grid grid-cols-3 gap-1.5">
@@ -326,7 +343,7 @@ export default function FilterSidebar({
             const isSelected = filters.max_size === step.max;
             return (
               <button
-                key={step.label}
+                key={`${step.labelKey}-${step.max}`}
                 onClick={() => update({ max_size: step.max })}
                 className={`py-1 px-1.5 rounded-lg text-[11px] border text-center transition-all font-roboto ${
                   isSelected
@@ -334,7 +351,7 @@ export default function FilterSidebar({
                     : 'bg-[#141b2d] border-white/5 text-text-secondary hover:text-white'
                 }`}
               >
-                {step.label}
+                {getSizeStepLabel(step)}
               </button>
             );
           })}
@@ -346,10 +363,10 @@ export default function FilterSidebar({
         <div className="flex justify-between items-center text-xs">
           <span className="text-white font-bold flex items-center gap-1">
             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span>حداقل امتیاز:</span>
+            <span>{t('filters.minRating')}</span>
           </span>
           <span className="font-bold text-amber-400 font-roboto">
-            {filters.min_rating > 0 ? `${filters.min_rating} / 5` : 'همه'}
+            {filters.min_rating > 0 ? t('filters.ratingValue', { value: n(filters.min_rating) }) : t('common.all')}
           </span>
         </div>
         <input
@@ -370,7 +387,7 @@ export default function FilterSidebar({
             onClick={onCloseMobile}
             className="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95"
           >
-            <span>بستن فیلترها</span>
+            <span>{t('filters.closeFilters')}</span>
           </button>
         </div>
       )}
@@ -380,7 +397,7 @@ export default function FilterSidebar({
   return (
     <>
       {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-      <aside className="hidden lg:block w-72 shrink-0 text-right font-vazir select-none sticky top-20 z-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">
+      <aside className="hidden lg:block w-72 shrink-0 text-start font-vazir select-none sticky top-20 z-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">
         <div className="p-4 rounded-2xl bg-[#0d121f]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
           {renderFilterContent(false)}
         </div>
@@ -395,7 +412,7 @@ export default function FilterSidebar({
             onClick={onCloseMobile}
           />
           {/* Slide-in sidebar drawer */}
-          <aside className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-[#0d121f] border-l border-white/10 p-4 overflow-y-auto shadow-2xl z-10 text-right font-vazir select-none animate-in slide-in-from-right duration-300">
+          <aside className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-[#0d121f] border-l border-white/10 p-4 overflow-y-auto shadow-2xl z-10 text-start font-vazir select-none animate-in slide-in-from-right duration-300">
             {renderFilterContent(true)}
           </aside>
         </div>

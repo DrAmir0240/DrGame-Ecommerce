@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface TierCardProps {
   tier: SubscriptionTier;
@@ -34,6 +35,7 @@ interface FreeGameItem {
 }
 
 export default function TierCard({ tier, isCurrent = false, duration = 1 }: TierCardProps) {
+  const { t, price, size } = useTranslation();
   const isFree = tier.code === 'free';
   const isBronze = tier.code === 'bronze';
   const isSilver = tier.code === 'silver';
@@ -52,9 +54,6 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
     }
   }, [isFree]);
 
-  // Format price cleanly with Vazir font
-  const formatToman = (toman: number) => toman.toLocaleString('fa-IR');
-
   // Dynamic price calculation based on duration
   const getDynamicPrice = () => {
     const dKey = duration === 1 ? '1_month' : `${duration}_months`;
@@ -68,7 +67,12 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
   const dynamicPrice = getDynamicPrice();
 
   // Period label
-  const periodLabel = duration === 1 ? '/ ۳۰ روز' : duration === 3 ? '/ ۹۰ روز (۳ ماهه)' : '/ ۱۸۰ روز (۶ ماهه)';
+  const periodLabel =
+    duration === 1
+      ? t('plans.period.days30')
+      : duration === 3
+        ? t('plans.period.days90')
+        : t('plans.period.days180');
 
   // Dynamic quota display
   const getDynamicQuota = () => {
@@ -79,11 +83,8 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
     } else {
       totalGb = (tier.quota_gb || (isBronze ? 500 : isSilver ? 1000 : 2200)) * duration;
     }
-    if (totalGb >= 1000) {
-      const tb = (totalGb / 1000).toFixed(1).replace('.0', '');
-      return `${tb} TB دانلود بازی`;
-    }
-    return `${totalGb} GB دانلود بازی`;
+    const formattedSize = totalGb >= 1000 ? size(totalGb / 1000, 'TB') : size(totalGb, 'GB');
+    return t('plans.quota.download', { size: formattedSize });
   };
 
   // Outer border & card styles
@@ -95,35 +96,35 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
   // --- FREE TIER CARD ---
   if (isFree) {
     return (
-      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`} dir="rtl">
+      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`}>
         <div>
           {/* Top Banner Box */}
           <div className="bg-white text-slate-900 rounded-2xl p-5 mb-6 shadow-md text-center">
-            <h3 className="text-2xl font-black text-slate-950 mb-1.5 font-vazir">رایگان</h3>
+            <h3 className="text-2xl font-black text-slate-950 mb-1.5 font-vazir">{t('plans.free.badge')}</h3>
             <p className="text-xs text-slate-700 leading-relaxed font-medium font-vazir">
-              این پلن به بازی‌های منتخب دسترسی می‌دهد و حجم دانلودشان رایگان است.
+              {t('plans.free.description')}
             </p>
           </div>
 
           {/* Price Header */}
           <div className="text-center mb-6">
-            <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">رایگان</div>
-            <div className="text-xs text-slate-400 font-medium font-vazir">یک‌بار برای همیشه</div>
+            <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">{t('plans.free.priceTitle')}</div>
+            <div className="text-xs text-slate-400 font-medium font-vazir">{t('plans.free.priceNote')}</div>
           </div>
 
           {/* Free Games Box */}
           <div className="rounded-2xl border border-slate-800/80 bg-[#12151e]/80 p-3 space-y-2.5 mb-8">
             <div className="text-[11px] font-bold text-slate-400 mb-1 px-1">
-              بازی‌های رایگان این پلن:
+              {t('plans.free.gamesTitle')}
             </div>
             {loadingFreeGames ? (
               <div className="py-6 flex items-center justify-center gap-2 text-xs text-slate-400">
                 <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-                <span>در حال دریافت بازی‌های هدیه...</span>
+                <span>{t('plans.free.gamesLoading')}</span>
               </div>
             ) : freeGames.length === 0 ? (
               <div className="py-4 text-center text-xs text-slate-500">
-                بازی رایگانی در حال حاضر تعریف نشده است.
+                {t('plans.free.gamesEmpty')}
               </div>
             ) : (
               freeGames.map((game) => (
@@ -132,7 +133,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
                   href={`/games/${game.id}`}
                   className="border border-slate-700/60 bg-[#161b26] hover:bg-[#1c2230] rounded-xl p-2 flex items-center justify-between transition-all group block"
                 >
-                  <div className="text-right pl-2">
+                  <div className="text-start pl-2">
                     <span className="text-xs font-bold text-slate-200 tracking-wide font-vazir block">
                       {game.title_fa || game.title_en}
                     </span>
@@ -162,14 +163,14 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
               disabled
               className="w-full py-3.5 rounded-xl bg-white/20 text-white font-bold text-sm text-center cursor-default font-vazir"
             >
-              پلن فعال شما
+              {t('plans.currentPlan')}
             </button>
           ) : (
             <Link
               href="/games?tier=free"
               className="w-full py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-black text-sm text-center block shadow-lg hover:shadow-white/20 transition-all font-vazir"
             >
-              دانلود رایگان
+              {t('plans.free.cta')}
             </Link>
           )}
         </div>
@@ -179,22 +180,22 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
 
   // --- BRONZE TIER CARD ---
   if (isBronze) {
-    const priceText = formatToman(dynamicPrice || 698000);
+    const priceText = price(dynamicPrice || 698000);
     return (
-      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`} dir="rtl">
+      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`}>
         <div>
           {/* Top Banner Box */}
           <div className="bg-[#c57e48] text-white rounded-2xl p-5 mb-6 shadow-md text-center">
-            <h3 className="text-2xl font-black mb-1.5 font-vazir">برنز</h3>
+            <h3 className="text-2xl font-black mb-1.5 font-vazir">{t('plans.bronze.name')}</h3>
             <p className="text-xs text-white/95 leading-relaxed font-medium font-vazir">
-              شروعی اقتصادی با سرعت اختصاصی و دیتای پرسرعت بازی‌ها.
+              {t('plans.bronze.tagline')}
             </p>
           </div>
 
           {/* Price Header */}
           <div className="text-center mb-5">
             <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
-              <span>{priceText}</span> <span className="text-xl font-bold">تومان</span>
+              <span>{priceText}</span>
             </div>
             <div className="text-xs text-slate-400 font-medium font-vazir">{periodLabel}</div>
           </div>
@@ -210,7 +211,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#c57e48] shrink-0" />
-                <span>حداکثر سرعت دانلود: ۲۰ مگابیت برثانیه</span>
+                <span>{t('plans.bronze.features.speed')}</span>
               </div>
               <Zap className="w-4 h-4 text-[#c57e48] shrink-0" />
             </div>
@@ -218,7 +219,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#c57e48] shrink-0" />
-                <span>بازی‌های PS4 و PS5</span>
+                <span>{t('plans.bronze.features.consoles')}</span>
               </div>
               <Gamepad2 className="w-4 h-4 text-[#c57e48] shrink-0" />
             </div>
@@ -226,7 +227,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between text-slate-400">
               <div className="flex items-center gap-2">
                 <X className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>بازی‌های PS1, PS2, PS3, Nintendo و Xbox</span>
+                <span>{t('plans.bronze.features.noRetro')}</span>
               </div>
               <Gamepad2 className="w-4 h-4 text-slate-500 shrink-0" />
             </div>
@@ -234,7 +235,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between text-slate-400">
               <div className="flex items-center gap-2">
                 <X className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>خرید زیرنویس در این پلن در دسترس نیست</span>
+                <span>{t('plans.bronze.features.noSubtitles')}</span>
               </div>
               <FileText className="w-4 h-4 text-slate-500 shrink-0" />
             </div>
@@ -242,7 +243,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between text-slate-400">
               <div className="flex items-center gap-2">
                 <X className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>خرید DLC در این پلن در دسترس نیست</span>
+                <span>{t('plans.bronze.features.noDlc')}</span>
               </div>
               <Sparkles className="w-4 h-4 text-slate-500 shrink-0" />
             </div>
@@ -251,7 +252,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           {/* Warning Box */}
           <div className="border border-rose-900/50 bg-rose-950/20 rounded-xl p-3.5 flex items-start gap-2.5 text-[11px] text-rose-300 leading-relaxed mb-6 font-vazir">
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <span>با تمام شدن سهمیه، نمی‌توانی بازی جدیدی باز کنی. بازی‌های بازشده تا پایان مهلت در دسترس می‌مانند.</span>
+            <span>{t('plans.warning')}</span>
           </div>
         </div>
 
@@ -262,14 +263,14 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
               disabled
               className="w-full py-3.5 rounded-xl bg-white/20 text-white font-bold text-sm text-center cursor-default font-vazir"
             >
-              پلن فعال شما
+              {t('plans.currentPlan')}
             </button>
           ) : (
             <Link
               href={`/checkout?tier=bronze&duration=${duration}`}
               className="w-full py-3.5 rounded-xl bg-[#c57e48] hover:bg-[#b46d37] text-white font-black text-sm text-center block shadow-lg hover:shadow-[#c57e48]/30 transition-all font-vazir"
             >
-              انتخاب برنز
+              {t('plans.bronze.cta')}
             </Link>
           )}
         </div>
@@ -279,22 +280,22 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
 
   // --- SILVER TIER CARD ---
   if (isSilver) {
-    const priceText = formatToman(dynamicPrice || 1198000);
+    const priceText = price(dynamicPrice || 1198000);
     return (
-      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`} dir="rtl">
+      <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`}>
         <div>
           {/* Top Banner Box */}
           <div className="bg-[#d4d8df] text-slate-900 rounded-2xl p-5 mb-6 shadow-md text-center">
-            <h3 className="text-2xl font-black mb-1.5 font-vazir">نقره‌ای</h3>
+            <h3 className="text-2xl font-black mb-1.5 font-vazir">{t('plans.silver.name')}</h3>
             <p className="text-xs text-slate-700 leading-relaxed font-medium font-vazir">
-              پلنی متعادل با دسترسی به پلتفرم‌های بیشتر و دیتای حجیم.
+              {t('plans.silver.tagline')}
             </p>
           </div>
 
           {/* Price Header */}
           <div className="text-center mb-5">
             <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
-              <span>{priceText}</span> <span className="text-xl font-bold">تومان</span>
+              <span>{priceText}</span>
             </div>
             <div className="text-xs text-slate-400 font-medium font-vazir">{periodLabel}</div>
           </div>
@@ -310,7 +311,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-cyan-300 shrink-0" />
-                <span>حداکثر سرعت دانلود: ۲۰ مگابیت برثانیه</span>
+                <span>{t('plans.silver.features.speed')}</span>
               </div>
               <Zap className="w-4 h-4 text-cyan-300 shrink-0" />
             </div>
@@ -318,7 +319,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-cyan-300 shrink-0" />
-                <span>بازی‌های PS2, PS3, PS4 و PS5</span>
+                <span>{t('plans.silver.features.consoles')}</span>
               </div>
               <Gamepad2 className="w-4 h-4 text-cyan-300 shrink-0" />
             </div>
@@ -326,7 +327,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-cyan-300 shrink-0" />
-                <span>امکان خرید زیرنویس و DLC</span>
+                <span>{t('plans.silver.features.extras')}</span>
               </div>
               <FileText className="w-4 h-4 text-cyan-300 shrink-0" />
             </div>
@@ -334,7 +335,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-cyan-300 shrink-0" />
-                <span>تم‌ها شامل پلن نقره‌ای نیستند</span>
+                <span>{t('plans.silver.features.themes')}</span>
               </div>
               <Sparkles className="w-4 h-4 text-cyan-300 shrink-0" />
             </div>
@@ -342,7 +343,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             <div className="flex items-center justify-between text-slate-400">
               <div className="flex items-center gap-2">
                 <X className="w-4 h-4 text-slate-500 shrink-0" />
-                <span>بازی‌های PS1, Xbox و Nintendo شامل پلن نیستند</span>
+                <span>{t('plans.silver.features.excluded')}</span>
               </div>
               <Gamepad2 className="w-4 h-4 text-slate-500 shrink-0" />
             </div>
@@ -351,7 +352,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           {/* Warning Box */}
           <div className="border border-rose-900/50 bg-rose-950/20 rounded-xl p-3.5 flex items-start gap-2.5 text-[11px] text-rose-300 leading-relaxed mb-6 font-vazir">
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <span>با تمام شدن سهمیه، نمی‌توانی بازی جدیدی باز کنی. بازی‌های بازشده تا پایان مهلت در دسترس می‌مانند.</span>
+            <span>{t('plans.warning')}</span>
           </div>
         </div>
 
@@ -362,14 +363,14 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
               disabled
               className="w-full py-3.5 rounded-xl bg-white/20 text-white font-bold text-sm text-center cursor-default font-vazir"
             >
-              پلن فعال شما
+              {t('plans.currentPlan')}
             </button>
           ) : (
             <Link
               href={`/checkout?tier=silver&duration=${duration}`}
               className="w-full py-3.5 rounded-xl bg-[#d4d8df] hover:bg-white text-slate-950 font-black text-sm text-center block shadow-lg hover:shadow-slate-300/30 transition-all font-vazir"
             >
-              انتخاب نقره‌ای
+              {t('plans.silver.cta')}
             </Link>
           )}
         </div>
@@ -378,22 +379,22 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
   }
 
   // --- GOLD TIER CARD ---
-  const priceText = formatToman(dynamicPrice || 2988000);
+  const priceText = price(dynamicPrice || 2988000);
   return (
-    <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`} dir="rtl">
+    <div className={`rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${outerCardStyle}`}>
       <div>
         {/* Top Banner Box */}
         <div className="bg-[#181920] border border-amber-500/40 text-amber-400 rounded-2xl p-5 mb-6 shadow-md text-center">
-          <h3 className="text-2xl font-black mb-1.5 font-vazir text-amber-400">طلایی</h3>
+          <h3 className="text-2xl font-black mb-1.5 font-vazir text-amber-400">{t('plans.gold.name')}</h3>
           <p className="text-xs text-amber-200/90 leading-relaxed font-medium font-vazir">
-            دسترسی گسترده به پلتفرم‌ها، سرعت بالاتر و دیتای اختصاصی بازی‌ها.
+            {t('plans.gold.tagline')}
           </p>
         </div>
 
         {/* Price Header */}
         <div className="text-center mb-5">
           <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
-            <span>{priceText}</span> <span className="text-xl font-bold">تومان</span>
+            <span>{priceText}</span>
           </div>
           <div className="text-xs text-slate-400 font-medium font-vazir">{periodLabel}</div>
         </div>
@@ -409,7 +410,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>حداکثر سرعت دانلود: ۴۰ مگابیت برثانیه</span>
+              <span>{t('plans.gold.features.speed')}</span>
             </div>
             <Zap className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
@@ -417,7 +418,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>بازی‌های Xbox 360, PS1, PS2, PS3, Nintendo و PS4, PS5</span>
+              <span>{t('plans.gold.features.consoles')}</span>
             </div>
             <Gamepad2 className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
@@ -425,7 +426,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>دسترسی به همه دسته‌بندی‌های بازی</span>
+              <span>{t('plans.gold.features.categories')}</span>
             </div>
             <LayoutGrid className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
@@ -433,7 +434,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>امکان خرید زیرنویس و DLC</span>
+              <span>{t('plans.gold.features.extras')}</span>
             </div>
             <FileText className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
@@ -441,7 +442,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>تم‌ها همراه پلن طلایی</span>
+              <span>{t('plans.gold.features.themes')}</span>
             </div>
             <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
@@ -450,7 +451,7 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
         {/* Warning Box */}
         <div className="border border-amber-500/30 bg-amber-950/20 rounded-xl p-3.5 flex items-start gap-2.5 text-[11px] text-amber-200 leading-relaxed mb-6 font-vazir">
           <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <span>با تمام شدن سهمیه، نمی‌توانی بازی جدیدی باز کنی. بازی‌های بازشده تا پایان مهلت در دسترس می‌مانند.</span>
+          <span>{t('plans.warning')}</span>
         </div>
       </div>
 
@@ -461,14 +462,14 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
             disabled
             className="w-full py-3.5 rounded-xl bg-white/20 text-white font-bold text-sm text-center cursor-default font-vazir"
           >
-            پلن فعال شما
+            {t('plans.currentPlan')}
           </button>
         ) : (
           <Link
             href={`/checkout?tier=gold&duration=${duration}`}
             className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm text-center block shadow-lg shadow-amber-500/20 transition-all font-vazir"
           >
-            انتخاب طلایی
+            {t('plans.gold.cta')}
           </Link>
         )}
       </div>

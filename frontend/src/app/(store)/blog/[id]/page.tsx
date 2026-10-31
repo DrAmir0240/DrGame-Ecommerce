@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiRequest } from '@/lib/apiClient';
 import { BlogPostDetail } from '@/types/blog';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslation } from '@/i18n';
 import {
   ArrowRight,
   Clock,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 
 export default function BlogDetailPage() {
+  const { t, n } = useTranslation();
   const params = useParams();
   const idOrSlug = params.id as string;
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
@@ -91,9 +93,9 @@ export default function BlogDetailPage() {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center">
         <BookOpen className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">مقاله مورد نظر پیدا نشد</h2>
+        <h2 className="text-xl font-bold text-white mb-2">{t('blogPage.detail.notFoundTitle')}</h2>
         <Link href="/blog" className="text-cosmic-purple text-xs hover:underline">
-          بازگشت به مقالات
+          {t('blogPage.detail.backToArticles')}
         </Link>
       </div>
     );
@@ -108,7 +110,7 @@ export default function BlogDetailPage() {
           className="inline-flex items-center gap-2 hover:text-white transition-colors"
         >
           <ArrowRight className="w-4 h-4" />
-          <span>بازگشت به مجله</span>
+          <span>{t('blogPage.detail.backToMagazine')}</span>
         </Link>
 
         <span className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-cyan-300 font-bold">
@@ -142,12 +144,12 @@ export default function BlogDetailPage() {
 
           <span className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-cyan-400" />
-            <span className="font-mono">{post.reading_time_min} دقیقه زمان مطالعه</span>
+            <span className="font-mono">{t('blogPage.detail.readingTime', { count: n(post.reading_time_min) })}</span>
           </span>
 
           <span className="flex items-center gap-1.5">
             <Eye className="w-4 h-4 text-text-muted" />
-            <span className="font-mono">{post.views_count.toLocaleString('fa-IR')} بازدید</span>
+            <span className="font-mono">{t('blogPage.detail.views', { count: n(post.views_count) })}</span>
           </span>
         </div>
       </div>
@@ -172,8 +174,8 @@ export default function BlogDetailPage() {
       {/* Interactive Voting Bar (Green Like / Red Dislike) */}
       <div className="glass-card rounded-3xl border border-white/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h4 className="text-sm font-bold text-white mb-1">آیا این مقاله برای شما مفید بود؟</h4>
-          <p className="text-xs text-text-muted">با ثبت نظر خود به ارتقای محتوای دیتابیس دکتر گیم کمک کنید.</p>
+          <h4 className="text-sm font-bold text-white mb-1">{t('blogPage.detail.helpfulTitle')}</h4>
+          <p className="text-xs text-text-muted">{t('blogPage.detail.helpfulDescription')}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -188,7 +190,7 @@ export default function BlogDetailPage() {
             }`}
           >
             <ThumbsUp className="w-4 h-4" />
-            <span>مفید بود ({post.likes_count.toLocaleString('fa-IR')})</span>
+            <span>{t('blogPage.detail.helpfulCount', { count: n(post.likes_count) })}</span>
           </button>
 
           {/* Dislike Button */}
@@ -202,7 +204,7 @@ export default function BlogDetailPage() {
             }`}
           >
             <ThumbsDown className="w-4 h-4" />
-            <span>نیاز به تکمیل ({post.dislikes_count.toLocaleString('fa-IR')})</span>
+            <span>{t('blogPage.detail.needsWorkCount', { count: n(post.dislikes_count) })}</span>
           </button>
         </div>
       </div>

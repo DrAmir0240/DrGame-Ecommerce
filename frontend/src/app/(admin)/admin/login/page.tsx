@@ -3,10 +3,13 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { setAdminToken } from "@/lib/authTokens";
+import { useTranslation } from "@/i18n";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api").replace(/\/api\/?$/, "");
 
 export default function AdminLoginPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,7 +19,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!usernameOrEmail.trim() || !password.trim()) {
-      setError("لطفاً نام کاربری و کلمه عبور را وارد نمایید.");
+      setError(t("admin.login.errors.required"));
       return;
     }
 
@@ -35,15 +38,32 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.detail || "نام کاربری یا کلمه عبور مدیر اشتباه است.");
+        let msg = t("admin.login.errors.invalidCredentials");
+        if (typeof data.detail === "string") {
+          msg = data.detail;
+        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+          msg = data.detail.map((d: any) => d.msg || JSON.stringify(d)).join(" | ");
+        }
+        throw new Error(msg);
       }
 
-      localStorage.setItem("drgame_admin_token", data.access_token);
-      localStorage.setItem("drgame_admin_profile", JSON.stringify(data.admin));
+      if (!data.access_token) {
+        throw new Error(t("admin.login.errors.noToken"));
+      }
 
-      router.replace("/admin/dashboard");
+      // 1. Sets both access_token and refresh_token in cookies, plus admin_access_token & admin_refresh_token
+      setAdminToken(data.access_token, data.refresh_token);
+
+      // 2. Also keep localStorage for older admin components
+      if (typeof window !== "undefined") {
+        localStorage.setItem("drgame_admin_token", data.access_token);
+        localStorage.setItem("drgame_admin_profile", JSON.stringify(data.admin));
+      }
+
+      // 3. Navigate to admin dashboard
+      window.location.href = "/admin/dashboard";
     } catch (err: any) {
-      setError(err.message || "خطا در برقراری ارتباط با سرور.");
+      setError(err.message || t("admin.login.errors.network"));
     } finally {
       setLoading(false);
     }
@@ -61,9 +81,9 @@ export default function AdminLoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 shadow-lg shadow-emerald-950/50">
             <Shield className="w-8 h-8" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">ورود به درگاه مدیریت کلان</h1>
+          <h1 className="text-xl font-bold text-white mb-2">{t("admin.login.title")}</h1>
           <p className="text-xs text-slate-400">
-            دسترسی فقط مختص مدیران تایید شده سامانه دکتر گیم
+            {t("admin.login.subtitle")}
           </p>
         </div>
 
@@ -77,7 +97,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              نام کاربری یا ایمیل مدیر
+              {t("admin.login.usernameLabel")}
             </label>
             <div className="relative">
               <input
@@ -94,7 +114,7 @@ export default function AdminLoginPage() {
 
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              رمز عبور امنیتی
+              {t("admin.login.passwordLabel")}
             </label>
             <div className="relative">
               <input
@@ -118,7 +138,7 @@ export default function AdminLoginPage() {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>ورود به مرکز فرماندهی</span>
+                <span>{t("admin.login.submit")}</span>
                 <ArrowLeft className="w-4 h-4" />
               </>
             )}

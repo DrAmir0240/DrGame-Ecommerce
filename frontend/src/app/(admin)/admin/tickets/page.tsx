@@ -15,6 +15,21 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
+
+const FILTER_OPTIONS: { labelKey: string; val: string }[] = [
+  { labelKey: 'admin.tickets.filters.all', val: 'all' },
+  { labelKey: 'admin.tickets.filters.open', val: 'open' },
+  { labelKey: 'admin.tickets.filters.answered', val: 'answered' },
+  { labelKey: 'admin.tickets.filters.closed', val: 'closed' },
+];
+
+const STATUS_KEY: Record<string, string> = {
+  open: 'admin.tickets.status.open',
+  in_progress: 'admin.tickets.status.inProgress',
+  answered: 'admin.tickets.status.answered',
+  closed: 'admin.tickets.status.closed',
+};
 
 interface TicketMessage {
   id: number;
@@ -44,6 +59,7 @@ interface AdminTicketDetail extends AdminTicketItem {
 }
 
 export default function AdminTicketsPage() {
+  const { t, d } = useTranslation();
   const [tickets, setTickets] = useState<AdminTicketItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<AdminTicketDetail | null>(null);
@@ -62,7 +78,7 @@ export default function AdminTicketsPage() {
       setTickets(data || []);
     } catch (err: any) {
       console.error('Failed to load admin tickets:', err);
-      setError('خطا در دریافت لیست تیکت‌ها از سرور.');
+      setError(t('admin.tickets.errors.load'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +95,7 @@ export default function AdminTicketsPage() {
       const detail = await apiRequest<AdminTicketDetail>(`/admin/tickets/${ticket.id}`);
       setSelectedTicket(detail);
     } catch (err: any) {
-      alert(err.message || 'خطا در بارگذاری پیام‌های تیکت.');
+      alert(err.message || t('admin.tickets.errors.loadMessages'));
     } finally {
       setLoadingDetail(false);
     }
@@ -114,7 +130,7 @@ export default function AdminTicketsPage() {
       );
       setReplyText('');
     } catch (err: any) {
-      alert(err.message || 'خطا در ارسال پاسخ.');
+      alert(err.message || t('admin.tickets.errors.send'));
     } finally {
       setSending(false);
     }
@@ -133,7 +149,7 @@ export default function AdminTicketsPage() {
         setSelectedTicket((prev) => (prev ? { ...prev, status: 'closed' } : null));
       }
     } catch (err: any) {
-      alert(err.message || 'خطا در بستن تیکت.');
+      alert(err.message || t('admin.tickets.errors.close'));
     }
   };
 
@@ -145,52 +161,42 @@ export default function AdminTicketsPage() {
   const getStatusBadge = (status: AdminTicketItem['status']) => {
     switch (status) {
       case 'answered':
-        return <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">پاسخ داده شد</span>;
+        return <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">{t(STATUS_KEY.answered)}</span>;
       case 'in_progress':
-        return <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">در حال بررسی</span>;
+        return <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">{t(STATUS_KEY.in_progress)}</span>;
       case 'closed':
-        return <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px]">بسته شده</span>;
+        return <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px]">{t(STATUS_KEY.closed)}</span>;
       default:
-        return <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px]">در انتظار پاسخ</span>;
+        return <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px]">{t(STATUS_KEY.open)}</span>;
     }
   };
 
   const formatDate = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('fa-IR', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateStr;
-    }
+    return d(dateStr, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
-    <div className="space-y-6 font-vazir text-right">
+    <div className="space-y-6 font-vazir text-start">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
             <Headphones className="w-5 h-5 text-emerald-400" />
-            <span>سامانه مدیریت و پاسخ‌گویی به تیکت‌های پشتیبانی</span>
+            <span>{t('admin.tickets.title')}</span>
           </h1>
           <p className="text-xs text-slate-400">
-            بررسی پرسش‌های فنی، حسابداری و پیگیری کاربران به صورت چت تعاملی دوطرفه متصل به دیتابیس زنده
+            {t('admin.tickets.subtitle')}
           </p>
         </div>
 
         {/* Filter */}
         <div className="flex items-center gap-1.5 p-1 bg-[#121721] rounded-2xl border border-slate-800 self-start sm:self-auto">
-          {[
-            { label: 'همه تیکت‌ها', val: 'all' },
-            { label: 'در انتظار پاسخ', val: 'open' },
-            { label: 'پاسخ داده شده', val: 'answered' },
-            { label: 'بسته شده', val: 'closed' },
-          ].map((f) => (
+          {FILTER_OPTIONS.map((f) => (
             <button
               key={f.val}
               onClick={() => setFilterStatus(f.val)}
@@ -200,7 +206,7 @@ export default function AdminTicketsPage() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {f.label}
+              {t(f.labelKey)}
             </button>
           ))}
         </div>
@@ -218,56 +224,56 @@ export default function AdminTicketsPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت تیکت‌ها...</span>
+            <span className="text-xs text-slate-400">{t('admin.tickets.loading')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-start text-xs">
               <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold">کد پیگیری</th>
-                  <th className="py-3.5 px-4 font-semibold">کاربر</th>
-                  <th className="py-3.5 px-4 font-semibold">موضوع تیکت</th>
-                  <th className="py-3.5 px-4 font-semibold">دپارتمان</th>
-                  <th className="py-3.5 px-4 font-semibold">تاریخ</th>
-                  <th className="py-3.5 px-4 font-semibold">وضعیت</th>
-                  <th className="py-3.5 px-4 font-semibold text-center">عملیات</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.trackingCode')}</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.user')}</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.subject')}</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.department')}</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.date')}</th>
+                  <th className="py-3.5 px-4 font-semibold">{t('admin.tickets.table.status')}</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">{t('admin.tickets.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50">
                 {filteredTickets.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-12 text-center text-slate-500">
-                      هیچ تیکتی در این بخش یافت نشد.
+                      {t('admin.tickets.empty')}
                     </td>
                   </tr>
                 ) : (
-                  filteredTickets.map((t) => (
-                    <tr key={t.id} className="hover:bg-slate-800/20">
+                  filteredTickets.map((ticket) => (
+                    <tr key={ticket.id} className="hover:bg-slate-800/20">
                       <td className="py-3.5 px-4 font-mono text-cyan-400 font-bold" dir="ltr">
-                        {t.tracking_code || `#${t.id}`}
+                        {ticket.tracking_code || `#${ticket.id}`}
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-200">{t.user_name || 'کاربر'}</div>
+                        <div className="font-semibold text-slate-200">{ticket.user_name || t('admin.tickets.defaultUser')}</div>
                         <div className="text-[11px] text-slate-500 font-mono" dir="ltr">
-                          {t.user_phone}
+                          {ticket.user_phone}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-medium text-slate-200">{t.subject}</td>
-                      <td className="py-3.5 px-4 text-slate-400">{t.department}</td>
+                      <td className="py-3.5 px-4 font-medium text-slate-200">{ticket.subject}</td>
+                      <td className="py-3.5 px-4 text-slate-400">{ticket.department}</td>
                       <td className="py-3.5 px-4 font-mono text-slate-400">
-                        {formatDate(t.created_at)}
+                        {formatDate(ticket.created_at)}
                       </td>
                       <td className="py-3.5 px-4">
-                        {getStatusBadge(t.status)}
+                        {getStatusBadge(ticket.status)}
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <button
-                          onClick={() => handleOpenTicket(t)}
+                          onClick={() => handleOpenTicket(ticket)}
                           className="px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 font-semibold text-[11px] flex items-center gap-1 mx-auto transition-colors"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          <span>مشاهده و پاسخ</span>
+                          <span>{t('admin.tickets.openAndReply')}</span>
                         </button>
                       </td>
                     </tr>
@@ -293,7 +299,7 @@ export default function AdminTicketsPage() {
                   <h2 className="text-sm font-bold text-white">{selectedTicket.subject}</h2>
                 </div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  ارسال شده توسط {selectedTicket.user_name} ({selectedTicket.user_phone})
+                  {t('admin.tickets.modal.sentBy', { name: selectedTicket.user_name, phone: selectedTicket.user_phone })}
                 </div>
               </div>
 
@@ -303,7 +309,7 @@ export default function AdminTicketsPage() {
                     onClick={() => handleCloseTicket(selectedTicket.id)}
                     className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors"
                   >
-                    بستن تیکت
+                    {t('admin.tickets.modal.closeTicket')}
                   </button>
                 )}
                 <button
@@ -320,11 +326,11 @@ export default function AdminTicketsPage() {
               {loadingDetail ? (
                 <div className="py-12 flex flex-col items-center justify-center gap-2">
                   <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                  <span className="text-xs text-slate-400">در حال بارگذاری پیام‌ها...</span>
+                  <span className="text-xs text-slate-400">{t('admin.tickets.modal.loadingMessages')}</span>
                 </div>
               ) : selectedTicket.messages.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-500">
-                  پیامی در این تیکت وجود ندارد.
+                  {t('admin.tickets.modal.noMessages')}
                 </div>
               ) : (
                 selectedTicket.messages.map((m) => {
@@ -343,7 +349,7 @@ export default function AdminTicketsPage() {
                       >
                         <div className="flex items-center justify-between gap-3 text-[10px] text-slate-400 mb-1">
                           <span className="font-semibold text-slate-300">
-                            {isAdmin ? 'پاسخ پشتیبانی دکتر گیم' : selectedTicket.user_name}
+                            {isAdmin ? t('admin.tickets.modal.adminReply') : selectedTicket.user_name}
                           </span>
                           <span className="font-mono">{formatDate(m.created_at)}</span>
                         </div>
@@ -363,7 +369,7 @@ export default function AdminTicketsPage() {
                   type="text"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="متن پاسخ رسمی برای کاربر..."
+                  placeholder={t('admin.tickets.modal.replyPlaceholder')}
                   className="flex-1 bg-[#121721] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500"
                 />
                 <button
@@ -372,12 +378,12 @@ export default function AdminTicketsPage() {
                   className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-purple-950/40 disabled:opacity-50 transition-all shrink-0"
                 >
                   {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                  <span>ارسال پاسخ</span>
+                  <span>{t('admin.tickets.modal.send')}</span>
                 </button>
               </form>
             ) : (
               <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-center text-xs text-slate-500">
-                این تیکت بسته شده است و امکان ارسال پاسخ جدید وجود ندارد.
+                {t('admin.tickets.modal.closedNotice')}
               </div>
             )}
           </div>

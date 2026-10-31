@@ -1,0 +1,190 @@
+{
+  "plans": {
+    "currentPlan": "Your active plan",
+    "period": {
+      "days30": "/ 30 days",
+      "days90": "/ 90 days (3 months)",
+      "days180": "/ 180 days (6 months)"
+    },
+    "quota": {
+      "download": "{{size}} of game downloads"
+    },
+    "warning": "Once your quota runs out you can't open new games. Games you've already opened stay available until your plan expires.",
+    "free": {
+      "badge": "Free",
+      "description": "This plan gives you access to selected games with free download quota.",
+      "priceTitle": "Free",
+      "priceNote": "One-time, forever",
+      "gamesTitle": "Free games in this plan:",
+      "gamesLoading": "Loading bonus games...",
+      "gamesEmpty": "No free games are defined right now.",
+      "cta": "Download for free"
+    },
+    "bronze": {
+      "name": "Bronze",
+      "tagline": "A budget-friendly start with dedicated speed and high-speed game data.",
+      "cta": "Choose Bronze",
+      "features": {
+        "speed": "Max download speed: 20 Mbps",
+        "consoles": "PS4 and PS5 games",
+        "noRetro": "PS1, PS2, PS3, Nintendo and Xbox games",
+        "noSubtitles": "Subtitles are not available on this plan",
+        "noDlc": "DLC purchases are not available on this plan"
+      }
+    },
+    "silver": {
+      "name": "Silver",
+      "tagline": "A balanced plan with more platforms and high-volume data.",
+      "cta": "Choose Silver",
+      "features": {
+        "speed": "Max download speed: 20 Mbps",
+        "consoles": "PS2, PS3, PS4 and PS5 games",
+        "extras": "Subtitles and DLC available for purchase",
+        "themes": "Themes are not included in the Silver plan",
+        "excluded": "PS1, Xbox and Nintendo games are not included"
+      }
+    },
+    "gold": {
+      "name": "Gold",
+      "tagline": "Broad platform access, higher speed and dedicated game data.",
+      "cta": "Choose Gold",
+      "features": {
+        "speed": "Max download speed: 40 Mbps",
+        "consoles": "Xbox 360, PS1, PS2, PS3, Nintendo, PS4 and PS5 games",
+        "categories": "Access to every game category",
+        "extras": "Subtitles and DLC available for purchase",
+        "themes": "Themes included with the Gold plan"
+      }
+    }
+  },
+  "invoice": {
+    "print": "Print invoice",
+    "brandTitle": "DrGame",
+    "brandTagline": "Complete console services, data downloads and original games",
+    "official": "Official electronic invoice",
+    "number": "Invoice No: INV-{{code}}",
+    "buyer": "Buyer:",
+    "buyerFallback": "Dear DrGame customer",
+    "trackingCode": "Bank / Shaparak tracking code:",
+    "gateway": "Payment gateway: {{gateway}}",
+    "table": {
+      "service": "Service / subscription",
+      "quantity": "Qty",
+      "total": "Total amount"
+    },
+    "planFallback": "Premium console gaming subscription",
+    "itemDescription": "High-speed access to our dedicated data repository",
+    "subtotal": "Subtotal:",
+    "discount": "Discount:",
+    "tax": "VAT:",
+    "totalPaid": "Total paid:",
+    "verified": "Transaction successful - officially verified electronically"
+  },
+  "referralUI": {
+    "settlement": {
+      "title": "Payout accounts",
+      "subtitle": "To receive your marketing commissions, add a verified bank account along with your national ID and mobile number, or a Tether wallet.",
+      "existingAccounts": "Your saved accounts:",
+      "bankFallback": "Bank account",
+      "cryptoAccount": "USDT wallet ({{network}})",
+      "verified": "Verified",
+      "pending": "Pending review",
+      "tabBank": "Bank account & national ID",
+      "tabCrypto": "Tether wallet (USDT)",
+      "shebaLabel": "IBAN (24 digits, without IR):",
+      "holderLabel": "Account holder full name:",
+      "holderPlaceholder": "e.g. John Smith",
+      "nationalIdLabel": "Holder national ID (10 digits):",
+      "mobileLabel": "Registered mobile number:",
+      "bankNameLabel": "Bank name:",
+      "bankNamePlaceholder": "e.g. Mellat, Saman",
+      "cardLabel": "Card number (optional):",
+      "cardPlaceholder": "6037...",
+      "otpSending": "Sending verification SMS...",
+      "requestOtp": "Send confirmation SMS",
+      "otpTitle": "SMS verification of IBAN against national ID {{nationalId}}",
+      "otpHint": "Enter the 6-digit code sent to {{phone}}. (Test code: 123456)",
+      "otpLabel": "6-digit verification code:",
+      "editInfo": "Edit details",
+      "verifying": "Verifying...",
+      "confirmSave": "Confirm and save account",
+      "walletLabel": "Tether (USDT) wallet address:",
+      "walletPlaceholder": "T... or 0x...",
+      "networkLabel": "Transfer network:",
+      "networks": {
+        "trc20": "Tron (TRC20) - low fees, high speed",
+        "bep20": "BNB Smart Chain (BEP20)",
+        "polygon": "Polygon Network",
+        "erc20": "Ethereum (ERC20)"
+      },
+      "submitting": "Saving...",
+      "submitCrypto": "Save Tether wallet",
+      "errShebaHolder": "IBAN and account holder name are required.",
+      "errNationalId": "National ID must be exactly 10 digits.",
+      "errMobile": "Enter a valid 11-digit mobile number registered to the account holder.",
+      "otpSent": "A test verification code was sent by SMS (default code: 123456)",
+      "errOtp": "The verification code is incorrect. (Test code: 123456)",
+      "bankSaved": "Bank account verified and saved successfully.",
+      "errBankSave": "Failed to save the payout account",
+      "errWalletRequired": "Tether (USDT) wallet address is required.",
+      "walletSaved": "Crypto wallet saved successfully.",
+      "errWalletSave": "Failed to save the wallet"
+    },
+    "withdrawal": {
+      "title": "Withdrawal request",
+      "subtitle": "Payouts to domestic bank accounts are made via Paya/Satna, and to crypto wallets in Tether.",
+      "successTitle": "Withdrawal request submitted",
+      "successBody": "The amount will be transferred to your account after review by our finance team.",
+      "currentBalance": "Current balance:",
+      "destination": "Pay to account:",
+      "noAccounts": "You first need to add a bank account or crypto wallet under Payout accounts.",
+      "bankFallback": "Bank",
+      "amountLabel": "Requested amount (Toman):",
+      "amountPlaceholder": "Minimum {{amount}}",
+      "remainingAfter": "Balance after withdrawal:",
+      "submitting": "Submitting request...",
+      "submit": "Confirm withdrawal",
+      "errNoAccount": "Please select a payout account.",
+      "errMinAmount": "The minimum withdrawal amount is {{amount}}.",
+      "errExceeds": "The requested amount exceeds your withdrawable balance.",
+      "errSubmit": "Failed to submit the withdrawal request"
+    },
+    "transactions": {
+      "title": "Transaction and commission history",
+      "totalRecords_one": "Total: {{count}} record",
+      "totalRecords_other": "Total: {{count}} records",
+      "emptyTitle": "No transactions or commissions have been recorded for your account yet.",
+      "emptyBody": "As soon as someone in your network buys a subscription, the commission appears in this table instantly.",
+      "colId": "ID",
+      "colTier": "Referral level",
+      "colAmount": "Amount received",
+      "colDescription": "Description",
+      "colDate": "Date",
+      "tierBadge": "Level {{level}}",
+      "page": "Page {{page}} of {{total}}",
+      "prev": "Previous",
+      "next": "Next"
+    }
+  },
+  "referralStats": {
+    "badge": "Exclusive marketing link",
+    "title": "Your referral code and invite link",
+    "description": "Invite friends and earn cash commission on every purchase they and your downline make, up to 10 levels deep (50% of the pool for level 1).",
+    "codeLabel": "Referral code:",
+    "copied": "Copied!",
+    "copy": "Copy invite link",
+    "withdrawable": "Withdrawable balance",
+    "totalEarned": "Total earned",
+    "withdrawCta": "Request payout",
+    "earnedFromNetwork": "Shared from your referral network",
+    "directReferrals": "Direct members (level 1)",
+    "usersUnit": "users",
+    "joinedWithCode": "Signed up with your invite code",
+    "activeSubs": "Active downline subscriptions",
+    "activeUnit": "active subs",
+    "recurringCommission": "Generating recurring commission"
+  },
+  "referralBanner": {
+    "ariaLabel": "DrGame earnings and referral summary"
+  }
+}

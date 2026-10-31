@@ -7,8 +7,10 @@ import TierCard from '@/components/subscriptions/TierCard';
 import { Zap, HelpCircle, Sparkles, Clock, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
+import { useTranslation } from '@/i18n';
 
 export default function SubscriptionsPage() {
+  const { t } = useTranslation();
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [duration, setDuration] = useState<1 | 3 | 6>(1);
@@ -33,18 +35,18 @@ export default function SubscriptionsPage() {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 2xl:px-12 max-w-[1700px] 2xl:max-w-[1850px] mx-auto font-vazir text-right">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 2xl:px-12 max-w-[1700px] 2xl:max-w-[1850px] mx-auto font-vazir text-start">
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold mb-4 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
           <Sparkles className="w-4 h-4 animate-pulse" />
-          <span>اشتراک‌های پرسرعت دیتابیس دکتر گیم</span>
+          <span>{t('subscriptionPlans.heroBadge')}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-          پلن مناسب کنسول خود را انتخاب کنید
+          {t('subscriptionPlans.heroTitle')}
         </h1>
         <p className="text-text-secondary text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto">
-          دسترسی پرسرعت و پایدار به آرشیو دیتای بازی‌های PS5، PS4، Nintendo Switch و VR بدون قطعی با سرورهای قدرتمند داخلی و بین‌المللی.
+          {t('subscriptionPlans.heroDescription')}
         </p>
 
         {/* 3-Period Duration Toggle Bar */}
@@ -58,7 +60,7 @@ export default function SubscriptionsPage() {
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>۱ ماهه (عادی)</span>
+            <span>{t('subscriptionPlans.duration1')}</span>
           </button>
 
           <button
@@ -69,7 +71,7 @@ export default function SubscriptionsPage() {
                 : 'text-text-secondary hover:text-white'
             }`}
           >
-            <span>۳ ماهه</span>
+            <span>{t('subscriptionPlans.duration3')}</span>
           </button>
 
           <button
@@ -80,7 +82,7 @@ export default function SubscriptionsPage() {
                 : 'text-text-secondary hover:text-white'
             }`}
           >
-            <span>۶ ماهه</span>
+            <span>{t('subscriptionPlans.duration6')}</span>
           </button>
         </div>
       </div>
@@ -112,26 +114,26 @@ export default function SubscriptionsPage() {
       <div className="max-w-4xl mx-auto pt-6 border-t border-white/10">
         <h2 className="text-xl sm:text-2xl font-black text-white mb-6 flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-cyan-400" />
-          <span>سوالات متداول اشتراک‌ها</span>
+          <span>{t('subscriptionPlans.faqTitle')}</span>
         </h2>
         <div className="space-y-4">
           <div className="p-5 rounded-2xl bg-[#0d121f] border border-white/10 space-y-2">
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-400" />
-              <span>تفاوت پلن‌های ۳ ماهه و ۶ ماهه چیست؟</span>
+              <span>{t('subscriptionPlans.faq1Question')}</span>
             </h4>
             <p className="text-xs text-text-secondary leading-relaxed">
-              با انتخاب دوره‌های طولانی‌تر، سهمیه دانلود شما برای کل بازه تجمیع شده و دغدغه تمدید ماهانه نخواهید داشت.
+              {t('subscriptionPlans.faq1Answer')}
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-[#0d121f] border border-white/10 space-y-2">
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>آیا ترافیک دانلود بازی‌ها نیم‌بهاء محاسبه می‌شود؟</span>
+              <span>{t('subscriptionPlans.faq2Question')}</span>
             </h4>
             <p className="text-xs text-text-secondary leading-relaxed">
-              بله، تمامی سرورهای اختصاصی دانلود دکتر گیم داخل دیتاسنترهای معتبر ایران میزبانی می‌شوند و برای تمامی اپراتورهای مخابراتی مشمول تخفیف ترافیک ۵۰٪ نیم‌بهاء هستند.
+              {t('subscriptionPlans.faq2Answer')}
             </p>
           </div>
         </div>

@@ -25,9 +25,11 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/i18n';
 
 export default function ReferralDashboardPage() {
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
+  const { t, n } = useTranslation();
 
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [accounts, setAccounts] = useState<SettlementAccount[]>([]);
@@ -85,13 +87,13 @@ export default function ReferralDashboardPage() {
         <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cyan-300">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>حالت نمایش نمونه میزکار بازاریابی. برای دسترسی به لینک اختصاصی خود و برداشت پورسانت، وارد شوید.</span>
+            <span>{t('referral.loginPrompt')}</span>
           </div>
           <button
             onClick={() => setAuthModalOpen(true, 'otp')}
             className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shrink-0"
           >
-            ورود به حساب
+            {t('referral.loginButton')}
           </button>
         </div>
       )}
@@ -100,13 +102,13 @@ export default function ReferralDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-            <span>میزکار بازاریابی ارجاعی و کیف پول</span>
+            <span>{t('referral.title')}</span>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-              تسویه مستقیم
+              {t('referral.settlementBadge')}
             </span>
           </h1>
           <p className="text-xs text-text-secondary mt-1">
-            کسب درآمد پایدار از تمامی خریدهای اشتراک شبکه کاربران معرفی‌شده توسط شما تا ۱۰ سطح
+            {t('referral.subtitle')}
           </p>
         </div>
 
@@ -116,7 +118,7 @@ export default function ReferralDashboardPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card border border-white/10 hover:border-white/20 text-white text-xs font-bold transition-all"
           >
             <CreditCard className="w-4 h-4 text-cosmic-purple" />
-            <span>حساب‌های تسویه ({accounts.length})</span>
+            <span>{t('referral.accountsButton', { count: n(accounts.length) })}</span>
           </button>
 
           <button
@@ -124,7 +126,7 @@ export default function ReferralDashboardPage() {
             disabled={!stats || stats.withdrawable_balance_toman < 50000}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white text-xs font-bold transition-all shadow-neon-purple disabled:opacity-40"
           >
-            <span>برداشت وجه</span>
+            <span>{t('referral.withdraw')}</span>
           </button>
         </div>
       </div>
@@ -133,7 +135,7 @@ export default function ReferralDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0d121f] border border-white/10 shadow-lg">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold text-white">فیلتر لایه شبکه زیرمجموعه‌ها:</span>
+          <span className="text-xs font-bold text-white">{t('referral.layerFilterLabel')}</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -142,10 +144,10 @@ export default function ReferralDashboardPage() {
             onChange={(e) => setSelectedLayer(e.target.value as any)}
             className="px-4 py-2 rounded-xl bg-[#141b2d] border border-white/10 text-white text-xs font-bold focus:outline-none focus:border-cyan-400 cursor-pointer"
           >
-            <option value="1">لایه ۱ (مستقیم - ۱۰٪ پورسانت) - پیش‌فرض</option>
-            <option value="2">لایه ۲ (غیرمستقیم - ۵٪ پورسانت)</option>
-            <option value="3">لایه ۳ (غیرمستقیم - ۲.۵٪ پورسانت)</option>
-            <option value="all">همه لایه‌های شبکه</option>
+            <option value="1">{t('referral.layers.one')}</option>
+            <option value="2">{t('referral.layers.two')}</option>
+            <option value="3">{t('referral.layers.three')}</option>
+            <option value="all">{t('referral.layers.all')}</option>
           </select>
         </div>
       </div>
@@ -161,30 +163,30 @@ export default function ReferralDashboardPage() {
         <div>
           <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
             <Layers className="w-5 h-5 text-amber-400" />
-            <span>فرمول محاسبه پورسانت نصف‌شونده پلکانی (Halving Commission Formula)</span>
+            <span>{t('referral.formula.title')}</span>
           </h3>
           <p className="text-xs text-text-secondary leading-relaxed mt-1">
-            در مدل درآمدزایی دکتر گیم، درصد پورسانت پایه اولیه توسط سیستم تعیین شده و در هر لایه صعودی به سمت بالا نصف می‌گردد:
+            {t('referral.formula.description')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div className="p-4 rounded-2xl bg-[#141b2d] border border-emerald-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">لایه ۱ (معرف مستقیم)</span>
-            <span className="text-lg font-black text-emerald-400">۱۰٪ از مبلغ خرید</span>
-            <span className="text-[10px] text-text-muted block">نصف کل پورسانت پایه ۲۰ درصدی</span>
+            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer1Label')}</span>
+            <span className="text-lg font-black text-emerald-400">{t('referral.formula.layer1Value')}</span>
+            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer1Note')}</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-[#141b2d] border border-cyan-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">لایه ۲ (معرف بالادستی ۲)</span>
-            <span className="text-lg font-black text-cyan-400">۵٪ از مبلغ خرید</span>
-            <span className="text-[10px] text-text-muted block">نصف پورسانت لایه اول</span>
+            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer2Label')}</span>
+            <span className="text-lg font-black text-cyan-400">{t('referral.formula.layer2Value')}</span>
+            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer2Note')}</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-[#141b2d] border border-amber-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">لایه ۳ (معرف بالادستی ۳)</span>
-            <span className="text-lg font-black text-amber-400">۲.۵٪ از مبلغ خرید</span>
-            <span className="text-[10px] text-text-muted block">نصف پورسانت لایه دوم (ادامه تا بی‌نهایت)</span>
+            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer3Label')}</span>
+            <span className="text-lg font-black text-amber-400">{t('referral.formula.layer3Value')}</span>
+            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer3Note')}</span>
           </div>
         </div>
 
@@ -192,13 +194,13 @@ export default function ReferralDashboardPage() {
         <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 space-y-2 leading-relaxed">
           <div className="flex items-center gap-2 text-amber-400 font-bold">
             <HelpCircle className="w-4 h-4 shrink-0" />
-            <span>قوانین، شرایط پرداخت و سلب مسئولیت حقوقی:</span>
+            <span>{t('referral.terms.title')}</span>
           </div>
           <p className="text-[11px] text-text-secondary leading-relaxed">
-            ۱. پورسانت بازاریابی صرفاً پس از پرداخت موفق و فعال‌سازی اشتراک توسط کاربر دعوت‌شده محاسبه و به موجودی قابل تسویه افزوده خواهد شد.
+            {t('referral.terms.item1')}
           </p>
           <p className="text-[11px] text-text-secondary leading-relaxed">
-            ۲. پلتفرم دکتر گیم حق نظارت مستمر بر سلامت تراکنش‌ها، رفتارهای مشکوک یا ایجاد زنجیره‌های خودارجاعی (Self-referral) را برای خود محفوظ دانسته و در صورت کشف تقلب، حساب کاربری و موجودی مسدود خواهد گردید.
+            {t('referral.terms.item2')}
           </p>
         </div>
       </div>

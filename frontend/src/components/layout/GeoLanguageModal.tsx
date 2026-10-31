@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Globe2, Check, Sparkles, X, ShieldCheck } from 'lucide-react';
+import { useTranslation, SupportedLocale } from '@/i18n';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface LanguageOption {
-  code: string;
+  code: SupportedLocale;
   name: string;
   nativeName: string;
   flag: string;
@@ -37,26 +39,19 @@ const LANGUAGES: LanguageOption[] = [
     code: 'ar',
     name: 'Arabic',
     nativeName: 'العربية',
-    flag: '🇦🇪',
+    flag: '🇸🇦',
     currency: 'USDT / بطاقات دولية',
     region: 'الشرق الأوسط',
     dir: 'rtl',
-  },
-  {
-    code: 'tr',
-    name: 'Turkish',
-    nativeName: 'Türkçe',
-    flag: '🇹🇷',
-    currency: 'USDT / Kripto Para',
-    region: 'Türkiye',
-    dir: 'ltr',
   },
 ];
 
 export default function GeoLanguageModal() {
   const pathname = usePathname();
+  const { changeLanguage, t } = useTranslation();
+  const { setLang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState<string>('fa');
+  const [selectedLang, setSelectedLang] = useState<SupportedLocale>('fa');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -69,8 +64,6 @@ export default function GeoLanguageModal() {
           setSelectedLang('fa');
         } else if (browserLang === 'ar') {
           setSelectedLang('ar');
-        } else if (browserLang === 'tr') {
-          setSelectedLang('tr');
         } else {
           setSelectedLang('en');
         }
@@ -84,6 +77,8 @@ export default function GeoLanguageModal() {
       localStorage.setItem('drgame_lang', selectedLang);
       localStorage.setItem('drgame_geo_modal_seen', 'true');
     }
+    setLang(selectedLang);
+    changeLanguage(selectedLang);
     setIsOpen(false);
   };
 
@@ -102,13 +97,13 @@ export default function GeoLanguageModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-vazir animate-fade-in">
-      <div className="w-full max-w-lg bg-[#0d121f] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 space-y-6 relative text-right">
+      <div className="w-full max-w-lg bg-[#0d121f] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 space-y-6 relative text-start">
         
         {/* Close Button */}
         <button
           onClick={handleDismiss}
           className="absolute top-5 left-5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-colors"
-          title="بستن"
+          title={t('chrome.geoClose')}
         >
           <X className="w-4 h-4" />
         </button>
@@ -117,13 +112,13 @@ export default function GeoLanguageModal() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold">
             <Globe2 className="w-4 h-4" />
-            <span>Select Region & Language / انتخاب منطقه و زبان</span>
+            <span>{t('chrome.geoTitle')}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            به دکتر گیم خوش آمدید
+            {t('chrome.geoWelcome')}
           </h2>
           <p className="text-xs text-text-secondary leading-relaxed">
-            لطفاً زبان رابط کاربری و شیوه پرداخت مناسب خود را انتخاب نمایید:
+            {t('chrome.geoSubtitle')}
           </p>
         </div>
 
@@ -137,7 +132,7 @@ export default function GeoLanguageModal() {
                 key={lang.code}
                 type="button"
                 onClick={() => setSelectedLang(lang.code)}
-                className={`w-full p-3.5 rounded-2xl border transition-all text-right flex items-center justify-between gap-3 ${
+                className={`w-full p-3.5 rounded-2xl border transition-all text-start flex items-center justify-between gap-3 ${
                   isSelected
                     ? 'bg-cyan-500/15 border-cyan-400/60 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
                     : 'bg-[#141b2d] border-white/5 hover:border-white/15'
@@ -174,7 +169,7 @@ export default function GeoLanguageModal() {
         <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-text-muted">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>پیکربندی برگزیده:</span>
+            <span>{t('chrome.geoConfig')}</span>
           </div>
           <span className="font-bold text-white">
             {activeOption.nativeName} ({activeOption.region})
@@ -188,14 +183,14 @@ export default function GeoLanguageModal() {
             onClick={handleDismiss}
             className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-text-secondary hover:text-white text-xs font-bold transition-colors"
           >
-            بعداً یادآوری کن
+            {t('chrome.geoLater')}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-black transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center gap-2"
           >
-            <span>تایید و ادامه</span>
+            <span>{t('chrome.geoConfirm')}</span>
             <Sparkles className="w-4 h-4" />
           </button>
         </div>

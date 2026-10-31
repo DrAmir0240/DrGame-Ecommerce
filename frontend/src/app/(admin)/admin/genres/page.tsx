@@ -17,6 +17,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface GenreItem {
   id: number;
@@ -32,6 +33,7 @@ interface GenreItem {
 }
 
 export default function AdminGenresPage() {
+  const { t, n } = useTranslation();
   const [genres, setGenres] = useState<GenreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +61,7 @@ export default function AdminGenresPage() {
       setGenres(data || []);
     } catch (err: any) {
       console.error('Failed to load genres:', err);
-      setError('خطا در بارگذاری ژانرهای بازی از سرور.');
+      setError(t('admin.genres.errors.load'));
     } finally {
       setLoading(false);
     }
@@ -98,15 +100,15 @@ export default function AdminGenresPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('آیا از حذف این ژانر اطمینان دارید؟')) return;
+    if (!confirm(t('admin.genres.confirmDelete'))) return;
 
     try {
       await apiRequest(`/admin/genres/${id}`, { method: 'DELETE' });
       setGenres((prev) => prev.filter((g) => g.id !== id));
-      setFeedback('ژانر با موفقیت حذف شد.');
+      setFeedback(t('admin.genres.feedback.deleted'));
       setTimeout(() => setFeedback(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'خطا در حذف ژانر.');
+      alert(err.message || t('admin.genres.errors.delete'));
     }
   };
 
@@ -118,7 +120,7 @@ export default function AdminGenresPage() {
       });
       setGenres((prev) => prev.map((g) => (g.id === genre.id ? updated : g)));
     } catch (err: any) {
-      alert(err.message || 'خطا در تغییر وضعیت ژانر.');
+      alert(err.message || t('admin.genres.errors.toggleActive'));
     }
   };
 
@@ -130,14 +132,14 @@ export default function AdminGenresPage() {
       });
       setGenres((prev) => prev.map((g) => (g.id === genre.id ? updated : g)));
     } catch (err: any) {
-      alert(err.message || 'خطا در تغییر برچسب Top 8.');
+      alert(err.message || t('admin.genres.errors.toggleTop8'));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name_fa || !formData.slug) {
-      alert('عنوان فارسی و اسلاگ ژانر الزامی است.');
+      alert(t('admin.genres.errors.required'));
       return;
     }
 
@@ -159,36 +161,36 @@ export default function AdminGenresPage() {
           body: JSON.stringify(payload),
         });
         setGenres((prev) => prev.map((g) => (g.id === editingGenre.id ? updated : g)));
-        setFeedback('ژانر با موفقیت به‌روزرسانی شد.');
+        setFeedback(t('admin.genres.feedback.updated'));
       } else {
         const created = await apiRequest<GenreItem>('/admin/genres', {
           method: 'POST',
           body: JSON.stringify(payload),
         });
         setGenres((prev) => [...prev, created]);
-        setFeedback('ژانر جدید با موفقیت اضافه شد.');
+        setFeedback(t('admin.genres.feedback.created'));
       }
 
       setIsModalOpen(false);
       setTimeout(() => setFeedback(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'خطا در ذخیره ژانر.');
+      alert(err.message || t('admin.genres.errors.save'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-8 font-vazir text-right">
+    <div className="space-y-8 font-vazir text-start">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
             <Layers className="w-6 h-6 text-emerald-400" />
-            <span>مدیریت دسته‌بندی و ژانرهای بازی‌ها</span>
+            <span>{t('admin.genres.title')}</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            تعریف، ویرایش ترتیب نمایش و نشان ۸ ژانر برتر (Top 8) صفحه اصلی متصل به پایگاه داده
+            {t('admin.genres.subtitle')}
           </p>
         </div>
 
@@ -197,7 +199,7 @@ export default function AdminGenresPage() {
           className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>افزودن ژانر جدید</span>
+          <span>{t('admin.genres.add')}</span>
         </button>
       </div>
 
@@ -220,34 +222,34 @@ export default function AdminGenresPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت ژانرها...</span>
+            <span className="text-xs text-slate-400">{t('admin.genres.loading')}</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
+            <table className="w-full text-start text-xs">
               <thead className="bg-[#090d13] border-b border-slate-800 text-slate-400">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">ترتیب</th>
-                  <th className="py-3.5 px-4 font-bold">نام فارسی ژانر</th>
-                  <th className="py-3.5 px-4 font-bold">نام انگلیسی</th>
-                  <th className="py-3.5 px-4 font-bold">اسلاگ (Slug)</th>
-                  <th className="py-3.5 px-4 font-bold text-center">۸ ژانر برتر (Top 8)</th>
-                  <th className="py-3.5 px-4 font-bold text-center">وضعیت</th>
-                  <th className="py-3.5 px-4 font-bold text-center">عملیات</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.genres.table.order')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.genres.table.nameFa')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.genres.table.nameEn')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('admin.genres.table.slug')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.genres.table.top8')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.genres.table.status')}</th>
+                  <th className="py-3.5 px-4 font-bold text-center">{t('admin.genres.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {genres.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-12 text-center text-slate-500">
-                      هیچ ژانری تعریف نشده است.
+                      {t('admin.genres.empty')}
                     </td>
                   </tr>
                 ) : (
                   genres.map((genre) => (
                     <tr key={genre.id} className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-300">
-                        #{genre.display_order}
+                        #{n(genre.display_order)}
                       </td>
                       <td className="py-3.5 px-4 font-bold text-white">
                         {genre.name_fa}
@@ -268,7 +270,7 @@ export default function AdminGenresPage() {
                           }`}
                         >
                           <Star className={`w-3 h-3 ${genre.is_top8 ? 'fill-amber-300' : ''}`} />
-                          <span>{genre.is_top8 ? 'Top 8 فعال' : 'عادی'}</span>
+                          <span>{genre.is_top8 ? t('admin.genres.top8Active') : t('admin.genres.normal')}</span>
                         </button>
                       </td>
                       <td className="py-3.5 px-4 text-center">
@@ -280,7 +282,7 @@ export default function AdminGenresPage() {
                               : 'bg-slate-800 text-slate-400 border-slate-700'
                           }`}
                         >
-                          {genre.is_active ? 'فعال' : 'غیرفعال'}
+                          {genre.is_active ? t('admin.genres.active') : t('admin.genres.inactive')}
                         </button>
                       </td>
                       <td className="py-3.5 px-4 text-center">
@@ -288,14 +290,14 @@ export default function AdminGenresPage() {
                           <button
                             onClick={() => handleOpenEdit(genre)}
                             className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                            title="ویرایش"
+                            title={t('admin.genres.edit')}
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(genre.id)}
                             className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
-                            title="حذف"
+                            title={t('admin.genres.delete')}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -317,7 +319,7 @@ export default function AdminGenresPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Layers className="w-5 h-5 text-emerald-400" />
-                <span>{editingGenre ? 'ویرایش ژانر' : 'افزودن ژانر جدید'}</span>
+                <span>{editingGenre ? t('admin.genres.modal.editTitle') : t('admin.genres.modal.addTitle')}</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -329,24 +331,24 @@ export default function AdminGenresPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">نام فارسی ژانر:</label>
+                <label className="text-slate-300 font-bold">{t('admin.genres.modal.nameFaLabel')}</label>
                 <input
                   type="text"
                   required
                   value={formData.name_fa}
                   onChange={(e) => setFormData({ ...formData, name_fa: e.target.value })}
-                  placeholder="مثلاً: اکشن ماجراجویی"
+                  placeholder={t('admin.genres.modal.nameFaPlaceholder')}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">نام انگلیسی ژانر:</label>
+                <label className="text-slate-300 font-bold">{t('admin.genres.modal.nameEnLabel')}</label>
                 <input
                   type="text"
                   value={formData.name_en}
                   onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                  placeholder="Action-Adventure"
+                  placeholder={t('admin.genres.modal.nameEnPlaceholder')}
                   dir="ltr"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 font-roboto"
                 />
@@ -354,7 +356,7 @@ export default function AdminGenresPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">اسلاگ URL (Slug):</label>
+                  <label className="text-slate-300 font-bold">{t('admin.genres.modal.slugLabel')}</label>
                   <input
                     type="text"
                     required
@@ -367,7 +369,7 @@ export default function AdminGenresPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-bold">ترتیب نمایش:</label>
+                  <label className="text-slate-300 font-bold">{t('admin.genres.modal.orderLabel')}</label>
                   <input
                     type="number"
                     min="1"
@@ -379,7 +381,7 @@ export default function AdminGenresPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold">نام آیکون لوسید (اختیاری):</label>
+                <label className="text-slate-300 font-bold">{t('admin.genres.modal.iconLabel')}</label>
                 <input
                   type="text"
                   value={formData.icon_name}
@@ -398,7 +400,7 @@ export default function AdminGenresPage() {
                     onChange={(e) => setFormData({ ...formData, is_top8: e.target.checked })}
                     className="w-4 h-4 rounded text-amber-500 focus:ring-0 bg-slate-900 border-slate-700"
                   />
-                  <span className="text-slate-200 font-bold">نمایش در ۸ ژانر برتر (Top 8)</span>
+                  <span className="text-slate-200 font-bold">{t('admin.genres.modal.top8Label')}</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -408,7 +410,7 @@ export default function AdminGenresPage() {
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     className="w-4 h-4 rounded text-emerald-500 focus:ring-0 bg-slate-900 border-slate-700"
                   />
-                  <span className="text-slate-200 font-bold">فعال در سایت</span>
+                  <span className="text-slate-200 font-bold">{t('admin.genres.modal.activeLabel')}</span>
                 </label>
               </div>
 
@@ -418,7 +420,7 @@ export default function AdminGenresPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
                 >
-                  انصراف
+                  {t('admin.genres.modal.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -427,7 +429,7 @@ export default function AdminGenresPage() {
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   <Save className="w-4 h-4" />
-                  <span>ذخیره ژانر</span>
+                  <span>{t('admin.genres.modal.save')}</span>
                 </button>
               </div>
             </form>

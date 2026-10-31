@@ -14,12 +14,12 @@ import {
   Twitter,
   Coins,
   CreditCard,
-  Gamepad2,
-  Sparkles,
 } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export default function Footer() {
   const pathname = usePathname();
+  const { t } = useTranslation();
   // 'domestic' (Iran) or 'international'
   const [footerMode, setFooterMode] = useState<'domestic' | 'international'>('domestic');
 
@@ -34,9 +34,9 @@ export default function Footer() {
       <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-3 flex items-center justify-between border-b border-white/5 text-xs text-text-muted">
         <div className="flex items-center gap-2">
           <Globe className="w-3.5 h-3.5 text-cosmic-purple" />
-          <span>پیکربندی منطقه جغرافیایی فروشگاه:</span>
+          <span>{t('footer.geoConfig')}</span>
           <span className="font-bold text-white">
-            {footerMode === 'domestic' ? 'ایران (پرداخت ریالی و نمادها)' : 'بین‌الملل (کریپتو و ارزی)'}
+            {footerMode === 'domestic' ? t('footer.domestic') : t('footer.international')}
           </span>
         </div>
         <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
@@ -48,7 +48,7 @@ export default function Footer() {
                 : 'text-text-muted hover:text-white'
             }`}
           >
-            ایران (شاپرک)
+            {t('footer.iranShaparak')}
           </button>
           <button
             onClick={() => setFooterMode('international')}
@@ -58,7 +58,7 @@ export default function Footer() {
                 : 'text-text-muted hover:text-white'
             }`}
           >
-            Global (Crypto/USDT)
+            {t('footer.globalCrypto')}
           </button>
         </div>
       </div>
@@ -71,12 +71,14 @@ export default function Footer() {
               <img src="/logo.png" alt="DrGame Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="text-lg font-black tracking-tight text-white block">دکتر گیم</span>
+              <span className="text-lg font-black tracking-tight text-white block">
+                {t('footer.brandName')}
+              </span>
               <span className="text-[10px] text-text-muted font-mono tracking-wider">DRGAME.IR</span>
             </div>
           </div>
           <p className="text-xs text-text-secondary leading-relaxed">
-            بزرگترین آرشیو فوق‌سریع بازی‌های کنسولی پلی‌استیشن، سوییچ و وی‌آر همراه با محاسبه دقیق ترافیک، تست سلامت فایل‌ها و به‌روزرسانی لحظه‌ای RAWG.
+            {t('footer.description')}
           </p>
           <div className="flex items-center gap-3 text-text-muted">
             <a
@@ -111,26 +113,26 @@ export default function Footer() {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-sm font-bold text-white mb-4">دسترسی سریع</h4>
+          <h4 className="text-sm font-bold text-white mb-4">{t('footer.quickLinks')}</h4>
           <ul className="space-y-2.5 text-xs text-text-secondary">
             <li>
               <Link href="/games" className="hover:text-white transition-colors">
-                کاتالوگ دیتابیس بازی‌ها
+                {t('footer.gamesCatalog')}
               </Link>
             </li>
             <li>
               <Link href="/subscriptions" className="hover:text-white transition-colors">
-                پلن‌های اشتراک حجمی
+                {t('footer.subPlans')}
               </Link>
             </li>
             <li>
               <Link href="/tools" className="hover:text-white transition-colors">
-                ابزارهای اختصاصی کنسول
+                {t('footer.consoleTools')}
               </Link>
             </li>
             <li>
               <Link href="/blog" className="hover:text-white transition-colors">
-                آموزش نصب دیتا و اخبار
+                {t('footer.tutorialsAndNews')}
               </Link>
             </li>
           </ul>
@@ -139,25 +141,25 @@ export default function Footer() {
         {/* Dynamic Mode Content: Contact & Support */}
         {footerMode === 'domestic' ? (
           <div>
-            <h4 className="text-sm font-bold text-white mb-4">پشتیبانی و تماس (ایران)</h4>
+            <h4 className="text-sm font-bold text-white mb-4">{t('footer.domesticSupport')}</h4>
             <ul className="space-y-3 text-xs text-text-secondary">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="font-mono dir-ltr">۰۲۱ - ۹۱۰۰XXXX</span>
+                <span className="font-mono dir-ltr">{t('footer.phone')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-cosmic-purple shrink-0" />
-                <span className="font-mono">support@drgame.ir</span>
+                <span className="font-mono">{t('footer.email')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>تهران، خیابان ولیعصر، برج فناوری اطلاعات دکترگیم</span>
+                <span>{t('footer.address')}</span>
               </li>
             </ul>
           </div>
         ) : (
           <div>
-            <h4 className="text-sm font-bold text-white mb-4">International Support</h4>
+            <h4 className="text-sm font-bold text-white mb-4">{t('footer.internationalSupport')}</h4>
             <ul className="space-y-3 text-xs text-text-secondary">
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -178,43 +180,43 @@ export default function Footer() {
         {/* Dynamic Mode Badges & Payment Trust */}
         {footerMode === 'domestic' ? (
           <div>
-            <h4 className="text-sm font-bold text-white mb-4">مجوزها و درگاه‌ها</h4>
+            <h4 className="text-sm font-bold text-white mb-4">{t('footer.licensesAndGateways')}</h4>
             <div className="grid grid-cols-2 gap-3">
               {/* Enamad Placeholder */}
               <div className="p-3 rounded-2xl glass-card border border-white/10 text-center flex flex-col items-center justify-center">
                 <ShieldCheck className="w-8 h-8 text-cyan-400 mb-1" />
-                <span className="text-[11px] font-bold text-white">اینماد الکترونیکی</span>
-                <span className="text-[9px] text-emerald-400">تایید هویت دو ستاره</span>
+                <span className="text-[11px] font-bold text-white">{t('footer.enamad')}</span>
+                <span className="text-[9px] text-emerald-400">{t('footer.enamadSub')}</span>
               </div>
               {/* Samandehi Placeholder */}
               <div className="p-3 rounded-2xl glass-card border border-white/10 text-center flex flex-col items-center justify-center">
                 <ShieldCheck className="w-8 h-8 text-amber-400 mb-1" />
-                <span className="text-[11px] font-bold text-white">نشان ملی ساماندهی</span>
-                <span className="text-[9px] text-text-muted">ثبت در وزارت ارشاد</span>
+                <span className="text-[11px] font-bold text-white">{t('footer.samandehi')}</span>
+                <span className="text-[9px] text-text-muted">{t('footer.samandehiSub')}</span>
               </div>
             </div>
             <div className="mt-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-[11px] text-text-muted">
-              <span>درگاه پرداخت امن شاپرک:</span>
+              <span>{t('footer.shaparakGateway')}</span>
               <span className="font-bold text-emerald-400 flex items-center gap-1">
-                <CreditCard className="w-3.5 h-3.5" /> زیبال / سداد
+                <CreditCard className="w-3.5 h-3.5" /> {t('footer.shaparakGatewaysList')}
               </span>
             </div>
           </div>
         ) : (
           <div>
-            <h4 className="text-sm font-bold text-white mb-4">Crypto & Global Gateways</h4>
+            <h4 className="text-sm font-bold text-white mb-4">{t('footer.cryptoGateways')}</h4>
             <div className="p-4 rounded-2xl glass-card border border-white/10 space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-text-muted">Automated Tether:</span>
+                <span className="text-text-muted">{t('footer.automatedTether')}</span>
                 <span className="font-mono font-bold text-emerald-400">USDT / USDC</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-text-muted">Supported Chains:</span>
+                <span className="text-text-muted">{t('footer.supportedChains')}</span>
                 <span className="text-white font-mono text-[11px]">Tron, BNB, Polygon</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-text-muted">Instant Quota Charge:</span>
-                <span className="text-cyan-400 font-bold">0-Confirmation</span>
+                <span className="text-text-muted">{t('footer.instantQuota')}</span>
+                <span className="text-cyan-400 font-bold">{t('footer.zeroConfirmation')}</span>
               </div>
             </div>
           </div>
@@ -223,7 +225,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="border-t border-white/5 py-4 text-center text-[11px] text-text-muted">
-        <p>© 2026 دکتر گیم (DrGame). تمامی حقوق محفوظ است. توسعه یافته برای تجربه کنسولی ۱۰ فوتی.</p>
+        <p>{t('footer.copyright')}</p>
       </div>
     </footer>
   );

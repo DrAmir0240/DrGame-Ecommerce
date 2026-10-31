@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { GameCardItem } from '@/types/game';
 import GameCard from '@/components/games/GameCard';
+import { useTranslation } from '@/i18n';
 
 interface GameCarouselProps {
   title: string;
@@ -19,8 +20,9 @@ export default function GameCarousel({
   icon,
   viewAllHref,
   games,
-  emptyMessage = 'هنوز عنوانی در این بخش ثبت نشده است.',
+  emptyMessage,
 }: GameCarouselProps) {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -53,7 +55,7 @@ export default function GameCarousel({
               href={viewAllHref}
               className="flex items-center gap-1 text-xs text-text-muted hover:text-white transition-colors pl-2"
             >
-              <span>مشاهده همه</span>
+              <span>{t('common.viewAll')}</span>
               <ArrowLeft className="w-3.5 h-3.5" />
             </Link>
           )}
@@ -61,7 +63,7 @@ export default function GameCarousel({
           <div className="flex items-center gap-1">
             <button
               onClick={() => scroll('right')}
-              aria-label="اسکرول به راست"
+              aria-label={t('chrome.scrollRight')}
               data-nav
               className="w-8 h-8 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
             >
@@ -69,7 +71,7 @@ export default function GameCarousel({
             </button>
             <button
               onClick={() => scroll('left')}
-              aria-label="اسکرول به چپ"
+              aria-label={t('chrome.scrollLeft')}
               data-nav
               className="w-8 h-8 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
             >

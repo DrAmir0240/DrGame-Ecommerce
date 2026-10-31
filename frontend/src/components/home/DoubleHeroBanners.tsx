@@ -13,6 +13,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
+import { useTranslation } from '@/i18n';
 
 interface BannerItem {
   id: number;
@@ -30,6 +31,7 @@ interface BannerItem {
 }
 
 export default function DoubleHeroBanners() {
+  const { locale, t, n } = useTranslation();
   const [gameBanners, setGameBanners] = useState<BannerItem[]>([]);
   const [serviceBanners, setServiceBanners] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,87 +61,88 @@ export default function DoubleHeroBanners() {
 
   // Auto-play for game banner (6 seconds interval, pauses on hover)
   useEffect(() => {
-    if (isGamePaused || gameBanners.length <= 1) return;
+    if (gameBanners.length <= 1 || isGamePaused) return;
     const timer = setInterval(() => {
       setGameIdx((prev) => (prev + 1) % gameBanners.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [isGamePaused, gameBanners.length]);
+  }, [gameBanners.length, isGamePaused]);
 
   // Auto-play for service banner (7 seconds interval, pauses on hover)
   useEffect(() => {
-    if (isServicePaused || serviceBanners.length <= 1) return;
+    if (serviceBanners.length <= 1 || isServicePaused) return;
     const timer = setInterval(() => {
       setServiceIdx((prev) => (prev + 1) % serviceBanners.length);
     }, 7000);
     return () => clearInterval(timer);
-  }, [isServicePaused, serviceBanners.length]);
+  }, [serviceBanners.length, isServicePaused]);
 
   if (loading) {
     return (
-      <section className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-2 pb-6 space-y-5 font-vazir text-right">
-        <div className="h-72 sm:h-80 md:h-[320px] rounded-3xl bg-[#080b12] border border-white/5 flex items-center justify-center animate-pulse">
-          <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+      <div className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-6">
+        <div className="h-[320px] rounded-3xl bg-white/[0.02] border border-white/5 animate-pulse flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-cyan-400 animate-spin opacity-50" />
         </div>
-        <div className="h-72 sm:h-80 md:h-[320px] rounded-3xl bg-[#090b14] border border-white/5 flex items-center justify-center animate-pulse">
-          <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
-        </div>
-      </section>
+      </div>
     );
   }
 
-  const activeGame = gameBanners[gameIdx];
-  const activeService = serviceBanners[serviceIdx];
+  // If no banners from DB, do not crash or render blank space
+  if (gameBanners.length === 0 && serviceBanners.length === 0) {
+    return null;
+  }
+
+  const activeGame = gameBanners[gameIdx] || null;
+  const activeService = serviceBanners[serviceIdx] || null;
 
   return (
-    <section className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-2 pb-6 space-y-5 font-vazir text-right">
+    <section
+      aria-label={t('chrome.bannerAria')}
+      className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-4 sm:py-6 space-y-5 sm:space-y-6"
+    >
       {/* =========================================================================
-          BANNER 1 (TOP): FEATURED AAA GAMES SLIDER (2/3 Height ~320px)
+          BANNER 1 (TOP): GAME SPOTLIGHT SLIDER (2/3 Height ~320px)
          ========================================================================= */}
       {activeGame && (
         <div
           onMouseEnter={() => setIsGamePaused(true)}
           onMouseLeave={() => setIsGamePaused(false)}
-          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#080b12] group"
+          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
         >
-          {/* Background Image with Cinematic Gradient Overlays */}
+          {/* Background Image with Smooth Fade Transition */}
           <div
             className="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform scale-105"
             style={{ backgroundImage: `url(${activeGame.backdrop_url})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/80 to-[#080b12]/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080b12]/90 via-transparent to-[#080b12]/70" />
+          {/* Gradients to match the look in games.jpg and hero-banner-game.jpg */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#090b14] via-[#090b14]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#090b14]/90 via-transparent to-[#090b14]/70" />
 
           {/* Slide Content */}
           <div className="relative z-10 p-5 sm:p-7 md:p-8 w-full flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
             <div className="max-w-2xl space-y-2">
-              {/* Badges Row */}
+              {/* Badge & Platforms */}
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full border text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
                   {activeGame.badge}
                 </span>
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
-                  <Star className="w-3 h-3 fill-amber-300 stroke-none" />
-                  <span>4.9</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  {(activeGame.platforms || []).map((p) => (
-                    <span
-                      key={p}
-                      className="px-2 py-0.5 rounded-md bg-black/60 border border-white/10 text-white text-[10px] font-bold font-roboto uppercase"
-                    >
-                      {p}
-                    </span>
-                  ))}
-                </div>
+
+                {activeGame.platforms?.map((plat, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 uppercase tracking-wider font-roboto"
+                  >
+                    {plat}
+                  </span>
+                ))}
               </div>
 
               {/* Titles */}
               <div className="space-y-0.5">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                  {activeGame.title_fa}
+                  {locale === 'en' && activeGame.title_en ? activeGame.title_en : activeGame.title_fa}
                 </h2>
-                {activeGame.title_en && (
+                {activeGame.title_en && locale !== 'en' && (
                   <p className="text-xs sm:text-sm text-slate-400 font-roboto" dir="ltr">
                     {activeGame.title_en}
                   </p>
@@ -159,7 +162,7 @@ export default function DoubleHeroBanners() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
-                <span>{activeGame.cta_text || 'مشاهده و دانلود'}</span>
+                <span>{activeGame.cta_text || t('hero.startBrowsing')}</span>
               </Link>
 
               {/* Arrows */}
@@ -172,14 +175,14 @@ export default function DoubleHeroBanners() {
                       )
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label="اسلاید قبلی"
+                    aria-label={t('chrome.prevSlide')}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setGameIdx((prev) => (prev + 1) % gameBanners.length)}
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label="اسلاید بعدی"
+                    aria-label={t('chrome.nextSlide')}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -200,7 +203,7 @@ export default function DoubleHeroBanners() {
                       ? 'w-6 bg-cyan-400 shadow-[0_0_8px_#22d3ee]'
                       : 'w-2 bg-white/30 hover:bg-white/60'
                   }`}
-                  aria-label={`رفتن به اسلاید ${idx + 1}`}
+                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })}
                 />
               ))}
             </div>
@@ -235,13 +238,13 @@ export default function DoubleHeroBanners() {
                 </span>
                 <span className="flex items-center gap-1 text-[11px] text-slate-400">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>سرورهای اختصاصی نیم‌بهاء ایران</span>
+                  <span>{t('chrome.dedicatedServers')}</span>
                 </span>
               </div>
 
               {/* Title */}
               <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                {activeService.title_fa}
+                {locale === 'en' && activeService.title_en ? activeService.title_en : activeService.title_fa}
               </h3>
 
               {/* Description */}
@@ -257,7 +260,7 @@ export default function DoubleHeroBanners() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 <Zap className="w-4 h-4 fill-slate-950 stroke-none" />
-                <span>{activeService.cta_text || 'مشاهده و اقدام'}</span>
+                <span>{activeService.cta_text || t('subscription.buyNow')}</span>
               </Link>
 
               {/* Arrows */}
@@ -270,7 +273,7 @@ export default function DoubleHeroBanners() {
                       )
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label="اسلاید قبلی"
+                    aria-label={t('chrome.prevSlide')}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -279,7 +282,7 @@ export default function DoubleHeroBanners() {
                       setServiceIdx((prev) => (prev + 1) % serviceBanners.length)
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label="اسلاید بعدی"
+                    aria-label={t('chrome.nextSlide')}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -300,7 +303,7 @@ export default function DoubleHeroBanners() {
                       ? 'w-6 bg-amber-400 shadow-[0_0_8px_#f59e0b]'
                       : 'w-2 bg-white/30 hover:bg-white/60'
                   }`}
-                  aria-label={`رفتن به اسلاید ${idx + 1}`}
+                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })}
                 />
               ))}
             </div>

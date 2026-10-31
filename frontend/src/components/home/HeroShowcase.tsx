@@ -3,76 +3,71 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Download, Info, Star, Users, Glasses, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 interface HeroSlide {
   id: string;
   slug: string;
-  title: string;
+  titleKey: string;
   subtitle: string;
-  description: string;
+  descriptionKey: string;
   rating: number;
   backdropUrl: string;
   consoles: string[];
   isTwoPlayer: boolean;
   isVr: boolean;
-  genres: string[];
 }
 
 const HERO_SLIDES: HeroSlide[] = [
   {
     id: '1',
     slug: 'god-of-war-ragnarok',
-    title: 'خدای جنگ: رگناروک',
+    titleKey: 'showcase.slides.godOfWar.title',
     subtitle: 'God of War Ragnarök',
-    description:
-      'همراه با کریتوس و آترئوس به سفری اسطوره‌ای در میان ۹ قلمرو اسکاندیناوی بروید؛ در حالی که نیروهای آسگارد برای نبردی پیشگویی‌شده آماده می‌شوند.',
+    descriptionKey: 'showcase.slides.godOfWar.description',
     rating: 4.9,
     backdropUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600&auto=format&fit=crop&q=80',
     consoles: ['ps5', 'ps4'],
     isTwoPlayer: false,
     isVr: false,
-    genres: ['اکشن', 'ماجراجویی', 'اسطوره‌ای'],
   },
   {
     id: '2',
     slug: 'marvels-spider-man-2',
-    title: 'اسپایدرمن ۲ مارول',
+    titleKey: 'showcase.slides.spiderMan.title',
     subtitle: "Marvel's Spider-Man 2",
-    description:
-      'پیتر پارکر و مایلز مورالس بازگشته‌اند تا با ونوم هولناک و کریون شکارچی در خیابان‌های نیویورک مبارزه کنند. تجربه خارق‌العاده لودینگ فوق‌سریع SSD پلی‌استیشن ۵.',
+    descriptionKey: 'showcase.slides.spiderMan.description',
     rating: 4.8,
     backdropUrl: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=1600&auto=format&fit=crop&q=80',
     consoles: ['ps5'],
     isTwoPlayer: false,
     isVr: false,
-    genres: ['اکشن', 'ابرقهرمانی', 'جهان‌باز'],
   },
   {
     id: '3',
     slug: 'horizon-call-of-the-mountain',
-    title: 'هورایزن: ندای کوهستان VR',
+    titleKey: 'showcase.slides.horizon.title',
     subtitle: 'Horizon Call of the Mountain',
-    description:
-      'غوطه‌وری تمام‌عیار در دنیای هورایزن با هدست واقعیت مجازی PSVR2؛ با کمان تیراندازی کنید، از قله‌های مرتفع بالا بروید و با ماشین‌های غول‌پیکر روبرو شوید.',
+    descriptionKey: 'showcase.slides.horizon.description',
     rating: 4.7,
     backdropUrl: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1600&auto=format&fit=crop&q=80',
     consoles: ['ps5', 'psvr2'],
     isTwoPlayer: false,
     isVr: true,
-    genres: ['واقعیت مجازی', 'اکشن', 'ماجراجویی'],
   },
 ];
 
-const consoleIconMap: Record<string, { src: string; name: string }> = {
-  ps5: { src: '/platforms/ps5-white.png', name: 'پلی‌استیشن ۵' },
-  ps4: { src: '/platforms/ps4-white.png', name: 'پلی‌استیشن ۴' },
-  psvr2: { src: '/platforms/psvr-white.png', name: 'PS VR' },
-  switch: { src: '/platforms/nintendo.png', name: 'نینتندو سوییچ' },
-  xbox360: { src: '/platforms/xbox.png', name: 'ایکس‌باکس' },
-  xbox: { src: '/platforms/xbox.png', name: 'ایکس‌باکس' },
+const consoleIconMap: Record<string, { src: string; nameKey: string }> = {
+  ps5: { src: '/platforms/ps5-white.png', nameKey: 'showcase.consoles.ps5' },
+  ps4: { src: '/platforms/ps4-white.png', nameKey: 'showcase.consoles.ps4' },
+  psvr2: { src: '/platforms/psvr-white.png', nameKey: 'showcase.consoles.psvr2' },
+  switch: { src: '/platforms/nintendo.png', nameKey: 'showcase.consoles.switch' },
+  xbox360: { src: '/platforms/xbox.png', nameKey: 'showcase.consoles.xbox360' },
+  xbox: { src: '/platforms/xbox.png', nameKey: 'showcase.consoles.xbox' },
 };
 
 export default function HeroShowcase() {
+  const { t, n } = useTranslation();
   const [currentIdx, setCurrentIdx] = useState(0);
 
   useEffect(() => {
@@ -110,13 +105,13 @@ export default function HeroShowcase() {
             {/* Console SVGs */}
             <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1 rounded-xl border border-white/15">
               {slide.consoles.map((c) => {
-                const info = consoleIconMap[c] || { src: '/ps5.svg', name: c };
+                const info = consoleIconMap[c] || { src: '/ps5.svg', nameKey: c };
                 return (
                   <img
                     key={c}
                     src={info.src}
-                    alt={info.name}
-                    title={info.name}
+                    alt={t(info.nameKey)}
+                    title={t(info.nameKey)}
                     className="w-5 h-5 object-contain"
                   />
                 );
@@ -126,27 +121,27 @@ export default function HeroShowcase() {
             {slide.isVr && (
               <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold">
                 <Glasses className="w-3.5 h-3.5" />
-                <span>VR Supported</span>
+                <span>{t('showcase.vrSupported')}</span>
               </span>
             )}
 
             {slide.isTwoPlayer && (
               <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
                 <Users className="w-3.5 h-3.5" />
-                <span>دو نفره (Co-op)</span>
+                <span>{t('showcase.twoPlayer')}</span>
               </span>
             )}
 
             <div className="flex items-center gap-1 bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-xl border border-amber-500/30 text-xs font-bold">
               <Star className="w-3.5 h-3.5 fill-current" />
-              <span>{slide.rating}</span>
+              <span>{n(slide.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
             </div>
           </div>
 
           {/* Titles */}
           <div>
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-              {slide.title}
+              {t(slide.titleKey)}
             </h2>
             <span className="text-sm sm:text-base text-text-muted font-mono tracking-wider block mt-1">
               {slide.subtitle}
@@ -155,7 +150,7 @@ export default function HeroShowcase() {
 
           {/* Synopsis */}
           <p className="text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-3 max-w-2xl">
-            {slide.description}
+            {t(slide.descriptionKey)}
           </p>
 
           {/* Action CTAs */}
@@ -165,7 +160,7 @@ export default function HeroShowcase() {
               className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-cosmic-gradient hover:opacity-95 text-white font-black text-xs sm:text-sm shadow-neon-purple transition-all"
             >
               <Download className="w-4 h-4" />
-              <span>دانلود مستقیم دیتای بازی</span>
+              <span>{t('showcase.downloadCta')}</span>
             </Link>
 
             <Link
@@ -173,7 +168,7 @@ export default function HeroShowcase() {
               className="flex items-center gap-2 px-5 py-3 rounded-2xl glass-card border border-white/10 hover:border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
             >
               <Info className="w-4 h-4" />
-              <span>مشاهده جزئیات و پارت‌ها</span>
+              <span>{t('showcase.detailsCta')}</span>
             </Link>
           </div>
         </div>
@@ -182,14 +177,14 @@ export default function HeroShowcase() {
         <div className="absolute left-6 bottom-6 z-20 flex items-center gap-2">
           <button
             onClick={prevSlide}
-            aria-label="اسلاید قبلی"
+            aria-label={t('showcase.prevSlide')}
             className="w-10 h-10 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
           <button
             onClick={nextSlide}
-            aria-label="اسلاید بعدی"
+            aria-label={t('showcase.nextSlide')}
             className="w-10 h-10 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
           >
             <ChevronLeft className="w-5 h-5" />

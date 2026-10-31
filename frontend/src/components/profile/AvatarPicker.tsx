@@ -3,14 +3,15 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Check, ShieldCheck, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export const SONY_PRESET_AVATARS = [
-  { id: 'kratos', name: 'کریتوس (God of War)', url: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80' },
-  { id: 'spidey', name: 'مرد عنکبوتی (Marvel)', url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80' },
-  { id: 'aloy', name: 'الوی (Horizon Forbidden West)', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
-  { id: 'jin', name: 'جین ساکای (Ghost of Tsushima)', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
-  { id: 'joel', name: 'جوئل (The Last of Us)', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
-  { id: 'astro', name: 'استرو بات (Astro Bot)', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80' },
+  { id: 'kratos', nameKey: 'avatar.preset.kratos', url: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80' },
+  { id: 'spidey', nameKey: 'avatar.preset.spidey', url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80' },
+  { id: 'aloy', nameKey: 'avatar.preset.aloy', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
+  { id: 'jin', nameKey: 'avatar.preset.jin', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
+  { id: 'joel', nameKey: 'avatar.preset.joel', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
+  { id: 'astro', nameKey: 'avatar.preset.astro', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80' },
 ];
 
 interface AvatarPickerProps {
@@ -19,6 +20,7 @@ interface AvatarPickerProps {
 }
 
 export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPickerProps) {
+  const { t, n } = useTranslation();
   const [selected, setSelected] = useState<string>(currentAvatarUrl || SONY_PRESET_AVATARS[0].url);
 
   const handleSelect = (url: string) => {
@@ -31,14 +33,15 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-white">
           <Sparkles className="w-4 h-4 text-nebula-violet" />
-          <span>آواتارهای رسمی کنسولی سونی</span>
+          <span>{t('avatar.title')}</span>
         </div>
-        <span className="text-xs text-text-muted">طراحی طبق الگوی نمایه ۱۲۱</span>
+        <span className="text-xs text-text-muted">{t('avatar.subtitle', { count: n(121) })}</span>
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
         {SONY_PRESET_AVATARS.map((avatar) => {
           const isSelected = selected === avatar.url;
+          const label = t(avatar.nameKey);
           return (
             <button
               key={avatar.id}
@@ -49,12 +52,12 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
                   ? 'border-nebula-violet shadow-neon-purple scale-105 bg-cosmic-purple/20'
                   : 'border-white/10 hover:border-white/30 bg-surface-card'
               }`}
-              title={avatar.name}
+              title={label}
             >
               <div className="relative w-full h-full rounded-xl overflow-hidden">
                 <img
                   src={avatar.url}
-                  alt={avatar.name}
+                  alt={label}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>

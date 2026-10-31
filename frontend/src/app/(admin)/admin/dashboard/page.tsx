@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
 import { apiRequest } from "@/lib/apiClient";
+import { useTranslation } from "@/i18n";
 
 export default function AdminDashboardPage() {
+  const { t, n, price } = useTranslation();
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export default function AdminDashboardPage() {
         const data = await apiRequest<AdminDashboardStats>("/admin/stats");
         setStats(data);
       } catch (err: any) {
-        setError(err.message || "خطا در دریافت آمار داشبورد");
+        setError(err.message || t("admin.dashboard.errors.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -37,46 +39,42 @@ export default function AdminDashboardPage() {
     fetchStats();
   }, []);
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("fa-IR").format(amount) + " تومان";
-  };
-
   const statCards = [
     {
-      title: "کاربران ثبت‌نامی",
-      value: stats ? stats.total_users.toLocaleString("fa-IR") : "۰",
+      title: t("admin.dashboard.cards.users"),
+      value: stats ? n(stats.total_users) : n(0),
       icon: <Users className="w-6 h-6 text-cyan-400" />,
       bg: "from-cyan-500/10 to-transparent",
       border: "border-cyan-500/20",
       link: "/admin/users",
     },
     {
-      title: "اشتراک‌های فعال",
-      value: stats ? stats.active_subscriptions.toLocaleString("fa-IR") : "۰",
+      title: t("admin.dashboard.cards.activeSubscriptions"),
+      value: stats ? n(stats.active_subscriptions) : n(0),
       icon: <Layers className="w-6 h-6 text-emerald-400" />,
       bg: "from-emerald-500/10 to-transparent",
       border: "border-emerald-500/20",
       link: "/admin/subscriptions",
     },
     {
-      title: "عناوین بازی‌ها",
-      value: stats ? stats.total_games.toLocaleString("fa-IR") : "۰",
+      title: t("admin.dashboard.cards.games"),
+      value: stats ? n(stats.total_games) : n(0),
       icon: <Grid className="w-6 h-6 text-purple-400" />,
       bg: "from-purple-500/10 to-transparent",
       border: "border-purple-500/20",
       link: "/admin/games",
     },
     {
-      title: "درخواست‌های تسویه",
-      value: stats ? stats.pending_payouts.toLocaleString("fa-IR") : "۰",
+      title: t("admin.dashboard.cards.pendingPayouts"),
+      value: stats ? n(stats.pending_payouts) : n(0),
       icon: <CreditCard className="w-6 h-6 text-amber-400" />,
       bg: "from-amber-500/10 to-transparent",
       border: "border-amber-500/20",
       link: "/admin/payouts",
     },
     {
-      title: "گردش کل مالی",
-      value: stats ? formatPrice(stats.total_revenue_toman) : "۰ تومان",
+      title: t("admin.dashboard.cards.totalRevenue"),
+      value: stats ? price(stats.total_revenue_toman) : price(0),
       icon: <DollarSign className="w-6 h-6 text-emerald-400" />,
       bg: "from-emerald-500/10 to-cyan-500/5",
       border: "border-emerald-500/30",
@@ -90,15 +88,15 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">مرکز پایش و مدیریت کلان پلتفرم</h1>
+          <h1 className="text-2xl font-bold text-white mb-1">{t("admin.dashboard.title")}</h1>
           <p className="text-xs text-slate-400">
-            خلاصه آمار عملکردی، درآمدی و عملیات جاری سامانه دکتر گیم
+            {t("admin.dashboard.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Core Status: Operational
+            {t("admin.dashboard.coreStatus")}
           </span>
         </div>
       </div>
@@ -145,7 +143,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              عملیات کلیدی و اقدام سریع
+              {t("admin.dashboard.quickActions.title")}
             </h2>
           </div>
 
@@ -155,8 +153,8 @@ export default function AdminDashboardPage() {
               className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/40 transition-all flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-semibold text-slate-200 mb-0.5">شارژ سهمیه کاربر</div>
-                <div className="text-[11px] text-slate-400">افزایش یا کاهش دستی حجم دانلود کاربران</div>
+                <div className="text-xs font-semibold text-slate-200 mb-0.5">{t("admin.dashboard.quickActions.users.title")}</div>
+                <div className="text-[11px] text-slate-400">{t("admin.dashboard.quickActions.users.description")}</div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500" />
             </Link>
@@ -166,8 +164,8 @@ export default function AdminDashboardPage() {
               className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/40 transition-all flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-semibold text-slate-200 mb-0.5">کارتابل تسویه رفرال</div>
-                <div className="text-[11px] text-slate-400">تایید حواله‌های بانکی شبا و ولت USDT</div>
+                <div className="text-xs font-semibold text-slate-200 mb-0.5">{t("admin.dashboard.quickActions.payouts.title")}</div>
+                <div className="text-[11px] text-slate-400">{t("admin.dashboard.quickActions.payouts.description")}</div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500" />
             </Link>
@@ -177,8 +175,8 @@ export default function AdminDashboardPage() {
               className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/40 transition-all flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-semibold text-slate-200 mb-0.5">مدیریت کاتالوگ بازی‌ها</div>
-                <div className="text-[11px] text-slate-400">ثبت عنوان، لینک‌های دانلود و ویرایش تگ‌ها</div>
+                <div className="text-xs font-semibold text-slate-200 mb-0.5">{t("admin.dashboard.quickActions.games.title")}</div>
+                <div className="text-[11px] text-slate-400">{t("admin.dashboard.quickActions.games.description")}</div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500" />
             </Link>
@@ -188,8 +186,8 @@ export default function AdminDashboardPage() {
               className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 transition-all flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-semibold text-slate-200 mb-0.5">بازی‌های مجاز رایگان</div>
-                <div className="text-[11px] text-slate-400">انتخاب داینامیک ۵ بازی مجاز در اشتراک رایگان</div>
+                <div className="text-xs font-semibold text-slate-200 mb-0.5">{t("admin.dashboard.quickActions.freeGames.title")}</div>
+                <div className="text-[11px] text-slate-400">{t("admin.dashboard.quickActions.freeGames.description", { count: n(5) })}</div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-500" />
             </Link>
@@ -201,25 +199,25 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-cyan-400" />
-              امنیت و زیرساخت
+              {t("admin.dashboard.security.title")}
             </h2>
           </div>
 
           <div className="space-y-3 text-xs">
             <div className="flex justify-between items-center py-1.5 border-b border-slate-800/50">
-              <span className="text-slate-400">سطح احراز هویت</span>
+              <span className="text-slate-400">{t("admin.dashboard.security.authLevel")}</span>
               <span className="text-emerald-400 font-mono">Isolated Admin JWT</span>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-slate-800/50">
-              <span className="text-slate-400">کش لایه استعلام سهمیه</span>
+              <span className="text-slate-400">{t("admin.dashboard.security.quotaCache")}</span>
               <span className="text-slate-200 font-mono">Redis Standalone</span>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-slate-800/50">
-              <span className="text-slate-400">مدل پایگاه داده</span>
+              <span className="text-slate-400">{t("admin.dashboard.security.database")}</span>
               <span className="text-slate-200 font-mono">PostgreSQL 16 Async</span>
             </div>
             <div className="flex justify-between items-center py-1.5">
-              <span className="text-slate-400">موتور پورسانت</span>
+              <span className="text-slate-400">{t("admin.dashboard.security.commissionEngine")}</span>
               <span className="text-cyan-400 font-mono">79/21 Halving Pool</span>
             </div>
           </div>

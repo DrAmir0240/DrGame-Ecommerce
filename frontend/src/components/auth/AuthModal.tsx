@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Gamepad2, KeyRound, Mail, Phone, Lock, User, ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { X, Gamepad2, KeyRound, Phone, Lock, User, ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
 import { TokenResponse } from '@/types/auth';
+import { useTranslation } from '@/i18n';
 
 export default function AuthModal() {
+  const { t } = useTranslation();
   const { isAuthModalOpen, setAuthModalOpen, authModalInitialTab, setAuth } = useAuthStore();
   const [tab, setTab] = useState<'otp' | 'password' | 'console'>(authModalInitialTab);
   const [isConsoleUA, setIsConsoleUA] = useState(false);
@@ -57,7 +59,7 @@ export default function AuthModal() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpTarget) {
-      setError('لطفاً شماره موبایل یا آدرس ایمیل خود را وارد نمایید.');
+      setError(t('auth.errors.phoneRequired'));
       return;
     }
     setLoading(true);
@@ -72,7 +74,7 @@ export default function AuthModal() {
         setSimulatedNotice(res.detail);
       }
     } catch (err: any) {
-      setError(err.message || 'خطا در ارسال کد تایید');
+      setError(err.message || t('auth.errors.otpSend'));
     } finally {
       setLoading(false);
     }
@@ -81,7 +83,7 @@ export default function AuthModal() {
   const handleRegisterOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode || !fullName || !username || !password) {
-      setError('لطفاً تمامی فیلدهای الزامی را پر کنید.');
+      setError(t('auth.errors.requiredFields'));
       return;
     }
     setLoading(true);
@@ -98,9 +100,10 @@ export default function AuthModal() {
         }),
       });
       setAuth(res);
+      setAuthModalOpen(false);
       resetForms();
     } catch (err: any) {
-      setError(err.message || 'خطا در ثبت‌نام با کد تایید');
+      setError(err.message || t('auth.errors.register'));
     } finally {
       setLoading(false);
     }
@@ -109,7 +112,7 @@ export default function AuthModal() {
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginIdentifier || !loginPassword) {
-      setError('نام کاربری و کلمه عبور را وارد نمایید.');
+      setError(t('auth.errors.credentials'));
       return;
     }
     setLoading(true);
@@ -123,9 +126,10 @@ export default function AuthModal() {
         }),
       });
       setAuth(res);
+      setAuthModalOpen(false);
       resetForms();
     } catch (err: any) {
-      setError(err.message || 'نام کاربری یا رمز عبور اشتباه است.');
+      setError(err.message || t('auth.errors.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -134,7 +138,7 @@ export default function AuthModal() {
   const handleConsoleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!consoleCode) {
-      setError('کد ۷ رقمی کنسول را وارد نمایید.');
+      setError(t('auth.errors.consoleCode'));
       return;
     }
     setLoading(true);
@@ -147,9 +151,10 @@ export default function AuthModal() {
         }),
       });
       setAuth(res);
+      setAuthModalOpen(false);
       resetForms();
     } catch (err: any) {
-      setError(err.message || 'کد ۷ رقمی کنسول نامعتبر است.');
+      setError(err.message || t('auth.errors.invalidConsoleCode'));
     } finally {
       setLoading(false);
     }
@@ -162,7 +167,7 @@ export default function AuthModal() {
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-md rounded-2xl glass-card border border-cosmic-purple/40 p-6 shadow-2xl text-right overflow-hidden"
+          className="relative w-full max-w-md rounded-2xl glass-card border border-cosmic-purple/40 p-6 shadow-2xl overflow-hidden"
         >
           {/* Header Close */}
           <button
@@ -181,8 +186,8 @@ export default function AuthModal() {
               <Gamepad2 className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">ورود به دکتر گیم</h2>
-              <p className="text-xs text-text-muted">دسترسی به بازی‌ها، اشتراک و امکانات اختصاصی</p>
+              <h2 className="text-xl font-bold text-white">{t('auth.loginToDrGame')}</h2>
+              <p className="text-xs text-text-muted">{t('auth.loginSubtitle')}</p>
             </div>
           </div>
 
@@ -196,7 +201,7 @@ export default function AuthModal() {
                   : 'text-text-secondary hover:text-white'
               }`}
             >
-              کد یکبار مصرف (OTP)
+              {t('auth.otpTab')}
             </button>
             <button
               onClick={() => { setTab('password'); resetForms(); }}
@@ -206,7 +211,7 @@ export default function AuthModal() {
                   : 'text-text-secondary hover:text-white'
               }`}
             >
-              رمز عبور
+              {t('auth.passwordTab')}
             </button>
             <button
               onClick={() => { setTab('console'); resetForms(); }}
@@ -216,7 +221,7 @@ export default function AuthModal() {
                   : 'text-text-secondary hover:text-white'
               }`}
             >
-              <span>کد کنسول</span>
+              <span>{t('auth.consoleTab')}</span>
               {isConsoleUA && (
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               )}
@@ -235,7 +240,7 @@ export default function AuthModal() {
           {simulatedNotice && (
             <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>کد پیامکی (محیط تست): <b>{simulatedNotice.replace('DEBUG_CODE: ', '')}</b></span>
+              <span>{t('auth.errors.testCode')} <b>{simulatedNotice.replace('DEBUG_CODE: ', '')}</b></span>
             </div>
           )}
 
@@ -246,14 +251,14 @@ export default function AuthModal() {
                 <form onSubmit={handleSendOtp} className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-text-secondary mb-2">
-                      شماره موبایل یا ایمیل
+                      {t('auth.phoneOrEmail')}
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         value={otpTarget}
                         onChange={(e) => setOtpTarget(e.target.value)}
-                        placeholder="09123456789 یا gamer@domain.com"
+                        placeholder={t('auth.phoneOrEmailPlaceholder')}
                         className="w-full px-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-nebula-violet transition-colors"
                         required
                       />
@@ -266,21 +271,21 @@ export default function AuthModal() {
                     disabled={loading}
                     className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50"
                   >
-                    {loading ? 'در حال ارسال کد...' : 'دریافت کد تایید ۶ رقمی'}
+                    {loading ? t('auth.sendingOtp') : t('auth.sendOtp')}
                   </button>
                 </form>
               ) : (
                 <form onSubmit={handleRegisterOtp} className="space-y-3">
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <label className="text-xs text-text-secondary">کد تایید ۶ رقمی</label>
+                      <label className="text-xs text-text-secondary">{t('auth.sendOtp')}</label>
                       <button
                         type="button"
                         onClick={() => setOtpStep('target')}
                         className="text-xs text-nebula-violet hover:underline flex items-center gap-1"
                       >
                         <ArrowLeft className="w-3 h-3" />
-                        <span>تغییر شماره</span>
+                        <span>{t('auth.changeTarget')}</span>
                       </button>
                     </div>
                     <input
@@ -295,36 +300,36 @@ export default function AuthModal() {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">نام کامل</label>
+                    <label className="block text-xs text-text-secondary mb-1">{t('auth.fullName')}</label>
                     <input
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="علیرضا محمدی"
+                      placeholder={t('auth.fullNamePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">نام کاربری انگلیسی</label>
+                    <label className="block text-xs text-text-secondary mb-1">{t('auth.username')}</label>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="gamer_2026"
+                      placeholder={t('auth.usernamePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">کلمه عبور</label>
+                    <label className="block text-xs text-text-secondary mb-1">{t('auth.password')}</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="حداقل ۶ کاراکتر"
+                      placeholder={t('auth.passwordPlaceholder')}
                       className="w-full px-4 py-2.5 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
                       required
                     />
@@ -335,7 +340,7 @@ export default function AuthModal() {
                     disabled={loading}
                     className="w-full py-3 mt-2 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50"
                   >
-                    {loading ? 'در حال فعال‌سازی...' : 'تکمیل ثبت‌نام و ورود'}
+                    {loading ? t('auth.activating') : t('auth.verifyAndLogin')}
                   </button>
                 </form>
               )}
@@ -347,7 +352,7 @@ export default function AuthModal() {
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-text-secondary mb-2">
-                  نام کاربری، ایمیل یا موبایل
+                  {t('auth.phoneOrEmail')}
                 </label>
                 <div className="relative">
                   <input
@@ -364,7 +369,7 @@ export default function AuthModal() {
 
               <div>
                 <label className="block text-xs font-medium text-text-secondary mb-2">
-                  کلمه عبور
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <input
@@ -384,7 +389,7 @@ export default function AuthModal() {
                 disabled={loading}
                 className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50"
               >
-                {loading ? 'در حال بررسی...' : 'ورود به حساب کاربری'}
+                {loading ? t('auth.verifying') : t('auth.loginWithPassword')}
               </button>
             </form>
           )}
@@ -393,12 +398,12 @@ export default function AuthModal() {
           {tab === 'console' && (
             <form onSubmit={handleConsoleLogin} className="space-y-4">
               <div className="p-3 rounded-xl bg-cosmic-purple/10 border border-cosmic-purple/30 text-xs text-text-secondary">
-                کد ورود اختصاصی ۷ رقمی را از پنل کاربری خود در گوشی یا کامپیوتر برداشته و اینجا وارد کنید تا در کنسول لاگین شوید.
+                {t('auth.consoleHint')}
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-text-secondary mb-2">
-                  کد ۷ رقمی ورود سریع کنسول
+                  {t('auth.consoleLabel')}
                 </label>
                 <div className="relative">
                   <input
@@ -419,7 +424,7 @@ export default function AuthModal() {
                 disabled={loading}
                 className="w-full py-3 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50"
               >
-                {loading ? 'در حال اعتبارسنجی کنسول...' : 'ورود فوری در کنسول'}
+                {loading ? t('auth.consoleValidating') : t('auth.consoleLoginBtn')}
               </button>
             </form>
           )}

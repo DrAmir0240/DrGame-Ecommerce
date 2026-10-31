@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslation } from '@/i18n';
 
 interface NotificationItem {
   id: number;
@@ -30,6 +31,7 @@ interface NotificationItem {
 
 export default function MyNotificationsPage() {
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
+  const { t, n, d } = useTranslation();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
@@ -107,35 +109,21 @@ export default function MyNotificationsPage() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('fa-IR', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return '';
-    }
-  };
-
   const unreadCount = safeNotifications.filter((n) => !n.is_read).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-vazir text-right">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-vazir text-start">
       {!isAuthenticated && (
         <div className="p-5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cyan-300">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-cyan-400 shrink-0" />
-            <span>جهت مشاهده اعلانات و پیام‌های شخصی حساب خود، لطفاً وارد شوید.</span>
+            <span>{t('notifications.loginPrompt')}</span>
           </div>
           <button
             onClick={() => setAuthModalOpen(true, 'otp')}
             className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all shrink-0"
           >
-            ورود به حساب
+            {t('notifications.loginButton')}
           </button>
         </div>
       )}
@@ -145,13 +133,13 @@ export default function MyNotificationsPage() {
         <div>
           <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1">
             <Bell className="w-4 h-4" />
-            <span>پیام‌ها، رویدادها و هشدارهای سیستمی</span>
+            <span>{t('notifications.eyebrow')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            مرکز اعلانات
+            {t('notifications.title')}
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            اطلاع‌رسانی وضعیت اشتراک، پاداش‌های رفرال، بازی‌های جدید و پیام‌های پشتیبانی
+            {t('notifications.subtitle')}
           </p>
         </div>
 
@@ -161,7 +149,7 @@ export default function MyNotificationsPage() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white font-bold text-xs transition-all self-start sm:self-auto"
           >
             <CheckCheck className="w-4 h-4 text-cyan-400" />
-            <span>علامت‌گذاری همه به عنوان خوانده شده</span>
+            <span>{t('notifications.markAllRead')}</span>
           </button>
         )}
       </div>
@@ -169,10 +157,10 @@ export default function MyNotificationsPage() {
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto">
         {[
-          { label: 'همه اعلانات', val: 'all', count: notifications.length },
-          { label: 'خوانده‌نشده', val: 'unread', count: unreadCount },
-          { label: 'پاداش و پورسانت', val: 'bonus', count: notifications.filter((n) => n.type === 'bonus').length },
-          { label: 'هشدار و امنیت', val: 'warning', count: notifications.filter((n) => n.type === 'warning' || n.type === 'alert').length },
+          { labelKey: 'notifications.tabs.all', val: 'all', count: notifications.length },
+          { labelKey: 'notifications.tabs.unread', val: 'unread', count: unreadCount },
+          { labelKey: 'notifications.tabs.bonus', val: 'bonus', count: notifications.filter((n) => n.type === 'bonus').length },
+          { labelKey: 'notifications.tabs.warning', val: 'warning', count: notifications.filter((n) => n.type === 'warning' || n.type === 'alert').length },
         ].map((tab) => (
           <button
             key={tab.val}
@@ -183,10 +171,10 @@ export default function MyNotificationsPage() {
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <span>{tab.label}</span>
+            <span>{t(tab.labelKey)}</span>
             {tab.count > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/10 font-mono">
-                {tab.count}
+                {n(tab.count)}
               </span>
             )}
           </button>
@@ -198,14 +186,14 @@ export default function MyNotificationsPage() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-            <span className="text-xs text-slate-400">در حال دریافت اعلانات...</span>
+            <span className="text-xs text-slate-400">{t('notifications.loading')}</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 rounded-3xl bg-[#0d121f] border border-white/10 text-center space-y-3">
             <Bell className="w-12 h-12 text-slate-600 mx-auto opacity-40" />
-            <h4 className="text-sm font-bold text-white">اعلانی یافت نشد</h4>
+            <h4 className="text-sm font-bold text-white">{t('notifications.emptyTitle')}</h4>
             <p className="text-xs text-slate-400">
-              هیچ پیامی در این دسته‌بندی وجود ندارد.
+              {t('notifications.emptyDescription')}
             </p>
           </div>
         ) : (
@@ -231,7 +219,7 @@ export default function MyNotificationsPage() {
                     </h3>
                     {!item.is_read && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        جدید
+                        {t('notifications.newBadge')}
                       </span>
                     )}
                   </div>
@@ -243,7 +231,7 @@ export default function MyNotificationsPage() {
                   <div className="flex items-center gap-4 text-[11px] text-slate-400 pt-1">
                     <span className="flex items-center gap-1 font-roboto">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{formatDate(item.created_at)}</span>
+                      <span>{d(item.created_at, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </span>
 
                     {item.link && (
@@ -251,7 +239,7 @@ export default function MyNotificationsPage() {
                         href={item.link}
                         className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-bold"
                       >
-                        <span>مشاهده صفحه مربوطه</span>
+                        <span>{t('notifications.viewLink')}</span>
                         <ExternalLink className="w-3 h-3" />
                       </Link>
                     )}
@@ -266,7 +254,7 @@ export default function MyNotificationsPage() {
                     handleDelete(item.id);
                   }}
                   className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                  title="حذف اعلان"
+                  title={t('notifications.deleteTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
