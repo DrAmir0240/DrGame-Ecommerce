@@ -11,6 +11,39 @@
   --cosmic-purple: #7C3AED;
   --nebula-violet: #A855F7;
   --galaxy-indigo: #4C1D95;
+
+  /* Render native form controls (inputs, date pickers, autofill) in dark mode.
+     Without this the UA paints a white field and white text becomes invisible. */
+  color-scheme: dark;
+}
+
+/* ── Form control safety net ────────────────────────────────────────────────
+   Any input that does not get an explicit background class still gets a dark
+   surface, so typed text (usually text-white) is always readable.            */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']),
+textarea {
+  background-color: #0d121f;
+  color: #ffffff;
+  caret-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #5a5d6a;
+  opacity: 1;
+}
+
+/* Chrome/Safari autofill must not repaint the field white */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px #0d121f inset;
+  box-shadow: 0 0 0 1000px #0d121f inset;
+  caret-color: #ffffff;
+  transition: background-color 9999s ease-out 0s;
 }
 
 * {

@@ -14,6 +14,11 @@ const config: Config = {
         oled: "#070709",
         "card-dark": "#101116",
         "card-inner": "#181920",
+
+        /* Form / panel surfaces (used by inputs, modals and inner cards) */
+        "surface-base": "#0d121f",
+        "surface-card": "#141b2d",
+        "surface-hover": "#1b2438",
         
         /* Cosmic Purple Theme Tokens */
         "cosmic-purple": "#7C3AED",

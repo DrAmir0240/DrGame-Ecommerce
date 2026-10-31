@@ -175,7 +175,7 @@ export default function AuthModal() {
               setAuthModalOpen(false);
               resetForms();
             }}
-            className="absolute top-4 left-4 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+            className="absolute top-4 end-4 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -259,10 +259,10 @@ export default function AuthModal() {
                         value={otpTarget}
                         onChange={(e) => setOtpTarget(e.target.value)}
                         placeholder={t('auth.phoneOrEmailPlaceholder')}
-                        className="w-full px-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-nebula-violet transition-colors"
+                        className="w-full ps-11 pe-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-nebula-violet transition-colors"
                         required
                       />
-                      <Phone className="absolute left-3.5 top-3.5 w-4 h-4 text-text-muted" />
+                      <Phone className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted" />
                     </div>
                   </div>
 
@@ -360,10 +360,10 @@ export default function AuthModal() {
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
                     placeholder="drgamer"
-                    className="w-full px-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
+                    className="w-full ps-11 pe-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
                     required
                   />
-                  <User className="absolute left-3.5 top-3.5 w-4 h-4 text-text-muted" />
+                  <User className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted" />
                 </div>
               </div>
 
@@ -377,10 +377,10 @@ export default function AuthModal() {
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
+                    className="w-full ps-11 pe-4 py-3 rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-nebula-violet"
                     required
                   />
-                  <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-text-muted" />
+                  <Lock className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted" />
                 </div>
               </div>
 
@@ -412,10 +412,10 @@ export default function AuthModal() {
                     value={consoleCode}
                     onChange={(e) => setConsoleCode(e.target.value.toUpperCase())}
                     placeholder="7X9K2PL"
-                    className="w-full text-center uppercase tracking-widest text-xl font-mono font-bold px-4 py-3 rounded-xl bg-surface-base border border-cosmic-purple/40 text-nebula-violet focus:outline-none focus:border-nebula-violet"
+                    className="w-full text-center uppercase tracking-widest text-xl font-mono font-bold px-11 py-3 rounded-xl bg-surface-base border border-cosmic-purple/40 text-nebula-violet focus:outline-none focus:border-nebula-violet"
                     required
                   />
-                  <KeyRound className="absolute left-3.5 top-3.5 w-5 h-5 text-nebula-violet" />
+                  <KeyRound className="absolute start-3.5 top-3.5 w-5 h-5 text-nebula-violet" />
                 </div>
               </div>
 
