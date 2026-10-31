@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { apiRequest } from '@/lib/apiClient';
 import { GameCardItem, Genre, PaginatedGames } from '@/types/game';
 import GameCard from '@/components/games/GameCard';
@@ -44,8 +45,25 @@ function getPaginationRange(currentPage: number, totalPages: number): (number | 
   ];
 }
 
-export default function GamesCatalogPage() {
+function GamesCatalogContent() {
   const { t, n, tp } = useTranslation();
+  const searchParams = useSearchParams();
+
+  // Read URL query filters
+  const paramGenre = searchParams.get('genre') || '';
+  const paramPlatform = searchParams.get('platform') || '';
+  const paramSearch = searchParams.get('search') || '';
+  const paramTwoPlayer =
+    searchParams.get('is_two_player') === 'true'
+      ? true
+      : searchParams.get('is_two_player') === 'false'
+      ? false
+      : null;
+  const paramHasVr = searchParams.get('has_vr') === 'true';
+  const paramReleaseStatus = searchParams.get('release_status') || '';
+  const paramMaxSize = searchParams.get('max_size') ? Number(searchParams.get('max_size')) : 200;
+  const paramMinRating = searchParams.get('min_rating') ? Number(searchParams.get('min_rating')) : 0;
+
   const [games, setGames] = useState<GameCardItem[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,17 +72,37 @@ export default function GamesCatalogPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Filters State
+  // Filters State initialized from search params
   const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    genre: '',
-    platform: '',
-    max_size: 200,
-    min_rating: 0,
-    is_two_player: null,
-    has_vr: false,
-    release_status: '',
+    search: paramSearch,
+    genre: paramGenre,
+    platform: paramPlatform,
+    max_size: paramMaxSize,
+    min_rating: paramMinRating,
+    is_two_player: paramTwoPlayer,
+    has_vr: paramHasVr,
+    release_status: paramReleaseStatus,
   });
+
+  // Sync state if URL search params change
+  useEffect(() => {
+    setFilters({
+      search: searchParams.get('search') || '',
+      genre: searchParams.get('genre') || '',
+      platform: searchParams.get('platform') || '',
+      max_size: searchParams.get('max_size') ? Number(searchParams.get('max_size')) : 200,
+      min_rating: searchParams.get('min_rating') ? Number(searchParams.get('min_rating')) : 0,
+      is_two_player:
+        searchParams.get('is_two_player') === 'true'
+          ? true
+          : searchParams.get('is_two_player') === 'false'
+          ? false
+          : null,
+      has_vr: searchParams.get('has_vr') === 'true',
+      release_status: searchParams.get('release_status') || '',
+    });
+    setPage(1);
+  }, [searchParams]);
 
   const activeFilterCount =
     (filters.genre ? 1 : 0) +
@@ -101,7 +139,7 @@ export default function GamesCatalogPage() {
 
       const data = await apiRequest<PaginatedGames>(`/games?${queryParams.toString()}`);
       
-      // If the current page is out of bounds (e.g. after filter change), jump to page 1
+      // If current page is out of bounds (e.g. after filter change), jump to page 1
       if (data.total_pages > 0 && page > data.total_pages) {
         setPage(1);
         return;
@@ -175,62 +213,80 @@ export default function GamesCatalogPage() {
               <button
                 type="button"
                 onClick={() => setMobileFilterOpen(true)}
-                className="lg:hidden h-10 px-3 rounded-xl bg-[#141b2d] border border-white/10 hover:border-purple-500/40 text-purple-400 hover:text-purple-300 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+                className="lg:hidden h-10 px-3 rounded-xl bg-[#141b2d] border border-white/10 hover:border-purple-500/40 text-purple-400 hover:text-purple-300 flex items-center gap-1.5 shrink-0 transition-all active:scale-95 cursor-pointer"
                 title={t('gamesPage.filterPanelTitle')}
                 aria-label={t('gamesPage.filterPanelTitle')}
               >
-                <Filter className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-bold sm:inline">{t('gamesPage.filtersButton')}</span>
+                <Filter className="w-4 h-4" />
+                <span className="text-xs font-bold">{t('gamesPage.filters')}</span>
                 {activeFilterCount > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-purple-500 ring-2 ring-purple-400/50" />
+                  <span className="w-5 h-5 rounded-full bg-purple-600 text-white font-bold text-[10px] flex items-center justify-center font-roboto">
+                    {n(activeFilterCount)}
+                  </span>
                 )}
               </button>
 
+              {/* Main Search Input */}
               <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
+                  placeholder={t('gamesPage.searchPlaceholder')}
                   value={filters.search}
                   onChange={(e) => {
-                    setFilters({ ...filters, search: e.target.value });
+                    setFilters((prev) => ({ ...prev, search: e.target.value }));
                     setPage(1);
                   }}
-                  placeholder={t('gamesPage.searchPlaceholder')}
-                  className="w-full px-4 py-2.5 pr-10 rounded-xl bg-[#141b2d] border border-white/10 text-white placeholder-text-muted text-xs focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-start"
+                  className="w-full h-10 pr-10 pl-4 rounded-xl bg-[#141b2d] border border-white/10 hover:border-white/20 focus:border-purple-500/50 text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
                 />
-                <Search className="absolute right-3 top-3 w-4 h-4 text-text-muted" />
               </div>
             </div>
 
-            {/* Circular Quota & Days Remaining Indicators */}
-            <CircularQuotaWidget />
+            {/* Quota Widgets */}
+            <div className="w-full md:w-auto flex items-center justify-end shrink-0">
+              <CircularQuotaWidget />
+            </div>
           </div>
 
-          {/* Games Grid (5 Columns on Desktop matching games.jpg) */}
+          {/* Loading State Skeleton */}
           {loading ? (
-            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
-              {Array.from({ length: 15 }).map((_, idx) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+              {Array.from({ length: 15 }).map((_, i) => (
                 <div
-                  key={idx}
-                  className="rounded-2xl bg-[#0d121f] border border-white/5 overflow-hidden animate-pulse aspect-[3/4]"
-                />
+                  key={i}
+                  className="rounded-3xl bg-[#0d121f] border border-white/5 overflow-hidden animate-pulse flex flex-col aspect-[3/4]"
+                >
+                  <div className="flex-1 bg-white/[0.03]" />
+                  <div className="p-3.5 space-y-2">
+                    <div className="h-4 bg-white/10 rounded-md w-3/4" />
+                    <div className="h-3 bg-white/5 rounded-md w-1/2" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : games.length === 0 ? (
-            <div className="py-20 text-center rounded-2xl bg-[#0d121f] border border-white/10 p-8 space-y-3">
-              <Gamepad2 className="w-12 h-12 text-text-muted mx-auto" />
-              <h3 className="text-base font-bold text-white">{t('gamesPage.emptyTitle')}</h3>
-              <p className="text-xs text-text-muted max-w-sm mx-auto">
-                {t('gamesPage.emptyDescription')}
-              </p>
+            /* Empty State */
+            <div className="rounded-3xl bg-[#0d121f] border border-white/10 p-12 text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-purple-600/10 border border-purple-500/30 text-purple-400 flex items-center justify-center mx-auto">
+                <Gamepad2 className="w-8 h-8" />
+              </div>
+              <div className="space-y-1 max-w-sm mx-auto">
+                <h3 className="text-base font-bold text-white">{t('gamesPage.emptyTitle')}</h3>
+                <p className="text-xs text-slate-400">
+                  {t('gamesPage.emptyBody')}
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold hover:bg-purple-500/30 transition-all shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors shadow-lg shadow-purple-600/20 cursor-pointer"
               >
-                {t('gamesPage.clearFilters')}
+                {t('gamesPage.resetFilters')}
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
+            /* Games Grid */
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
               {games.map((game) => (
                 <GameCard key={game.id} game={game} />
               ))}
@@ -239,44 +295,38 @@ export default function GamesCatalogPage() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 pb-4 border-t border-white/5">
-              {/* Total & Current Page Info */}
-              <div className="text-xs text-slate-400 order-2 sm:order-1 flex items-center gap-1.5">
-                <span>{t('gamesPage.showingPage')}</span>
-                <span className="font-bold text-white font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10">
-                  {page}
-                </span>
-                <span>{t('gamesPage.ofPages')}</span>
-                <span className="font-bold text-white font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10">
-                  {totalPages}
-                </span>
-                <span className="text-slate-500 mr-1.5">{tp('gamesPage.gamesCount', total)}</span>
+            <div className="pt-6 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
+              <div className="text-xs text-slate-400">
+                {t('gamesPage.paginationShowing', {
+                  from: n((page - 1) * 20 + 1),
+                  to: n(Math.min(page * 20, total)),
+                  total: n(total),
+                })}
               </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex items-center gap-1.5 order-1 sm:order-2 flex-wrap justify-center">
+              <div className="flex items-center gap-1.5 font-roboto" dir="ltr">
                 {/* First Page Button */}
                 <button
                   onClick={() => handlePageChange(1)}
                   disabled={page <= 1}
                   title={t('gamesPage.firstPage')}
-                  className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center"
+                  className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center cursor-pointer"
                 >
                   <ChevronsRight className="w-4 h-4" />
                 </button>
 
-                {/* Prev Button */}
+                {/* Previous Button */}
                 <button
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page <= 1}
-                  className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1"
+                  className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1 cursor-pointer"
                 >
                   <ChevronRight className="w-4 h-4" />
                   <span className="hidden md:inline">{t('gamesPage.prevPage')}</span>
                 </button>
 
                 {/* Page Numbers */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 mx-1">
                   {getPaginationRange(page, totalPages).map((item, idx) => {
                     if (item === '...') {
                       return (
@@ -294,7 +344,7 @@ export default function GamesCatalogPage() {
                       <button
                         key={`page-${pageNum}`}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`min-w-[34px] h-[34px] px-2 rounded-xl text-xs font-bold transition-all ${
+                        className={`min-w-[34px] h-[34px] px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           isActive
                             ? 'bg-purple-600 text-white font-black shadow-[0_0_15px_rgba(168,85,247,0.5)] border border-purple-400 scale-105'
                             : 'bg-[#0d121f] border border-white/10 text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/5'
@@ -310,7 +360,7 @@ export default function GamesCatalogPage() {
                 <button
                   onClick={() => handlePageChange(page + 1)}
                   disabled={page >= totalPages}
-                  className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1"
+                  className="px-3 py-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center gap-1 cursor-pointer"
                 >
                   <span className="hidden md:inline">{t('gamesPage.nextPage')}</span>
                   <ChevronLeft className="w-4 h-4" />
@@ -321,7 +371,7 @@ export default function GamesCatalogPage() {
                   onClick={() => handlePageChange(totalPages)}
                   disabled={page >= totalPages}
                   title={t('gamesPage.lastPage')}
-                  className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center"
+                  className="p-2 rounded-xl bg-[#0d121f] border border-white/10 text-slate-300 disabled:opacity-30 disabled:hover:border-white/10 hover:border-purple-500/40 hover:text-white transition-all text-xs flex items-center cursor-pointer"
                 >
                   <ChevronsLeft className="w-4 h-4" />
                 </button>
@@ -332,5 +382,13 @@ export default function GamesCatalogPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function GamesCatalogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <GamesCatalogContent />
+    </Suspense>
   );
 }

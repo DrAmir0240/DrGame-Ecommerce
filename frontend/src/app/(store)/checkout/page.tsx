@@ -6,7 +6,7 @@ import { apiRequest } from '@/lib/apiClient';
 import { SubscriptionTier, DiscountValidationResult, CheckoutResponse } from '@/types/subscription';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
-import { ShieldCheck, Tag, ArrowRight, CheckCircle2, AlertCircle, Sparkles, CreditCard, Lock } from 'lucide-react';
+import { ShieldCheck, Tag, ArrowRight, CheckCircle2, AlertCircle, Sparkles, CreditCard, Lock, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
 
@@ -15,6 +15,10 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tierCode = searchParams.get('tier') || 'silver';
+  const durationParam = Number(searchParams.get('duration')) || 1;
+  const initialDuration = [1, 3, 6].includes(durationParam) ? durationParam : 1;
+
+  const [duration, setDuration] = useState<number>(initialDuration);
 
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
   const { fetchQuota } = useQuotaStore();
@@ -45,6 +49,23 @@ function CheckoutContent() {
     fetchTier();
   }, [tierCode]);
 
+  // Duration multiplier & calculation
+  const durationMultiplier = duration === 6 ? 5.0 : duration === 3 ? 2.7 : 1.0;
+  const rawDurations = (tier?.durations as Record<string, { price_toman?: number; quota_gb?: number }> | undefined);
+  const customDurationCfg = rawDurations?.[String(duration)];
+  const basePriceToman = tier ? (tier.price_toman ?? (tier.price_irr ? Math.floor(tier.price_irr / 10) : 0)) : 0;
+  const originalPriceToman = customDurationCfg?.price_toman ?? Math.round(basePriceToman * durationMultiplier);
+  const totalQuotaGb = customDurationCfg?.quota_gb ?? Math.round((tier?.quota_gb || 0) * duration);
+  const durationDays = duration === 6 ? 180 : duration === 3 ? 90 : 30;
+
+  const discountToman = discountResult ? (discountResult.discount_amount ?? Math.floor((discountResult.discount_amount_irr || 0) / 10)) : 0;
+  const finalPriceToman = discountResult ? (discountResult.final_price ?? Math.floor((discountResult.final_price_irr || 0) / 10)) : originalPriceToman;
+  const calculatedDiscountPercent = discountResult?.discount_percent ?? (
+    originalPriceToman > 0 && discountToman > 0
+      ? Math.round((discountToman / originalPriceToman) * 100)
+      : 0
+  );
+
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!discountCode.trim() || !tier) return;
@@ -52,12 +73,11 @@ function CheckoutContent() {
     setDiscountLoading(true);
     setDiscountError(null);
     try {
-      const priceToman = tier.price_toman ?? (tier.price_irr ? Math.floor(tier.price_irr / 10) : 0);
       const res = await apiRequest<DiscountValidationResult>('/subscriptions/discount/validate', {
         method: 'POST',
         body: JSON.stringify({
           code: discountCode.trim(),
-          original_price: priceToman,
+          original_price: originalPriceToman,
         }),
       });
       setDiscountResult(res);
@@ -71,7 +91,7 @@ function CheckoutContent() {
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
-      setAuthModalOpen(true);
+      setAuthModalOpen(true, 'otp');
       return;
     }
 
@@ -86,6 +106,7 @@ function CheckoutContent() {
         method: 'POST',
         body: JSON.stringify({
           tier_code: tier.code,
+          duration_months: duration,
           discount_code: isValidDiscount ? discountResult.code : undefined,
           payment_method: 'simulation',
         }),
@@ -120,10 +141,6 @@ function CheckoutContent() {
       </div>
     );
   }
-
-  const originalPriceToman = tier.price_toman ?? (tier.price_irr ? Math.floor(tier.price_irr / 10) : 0);
-  const discountToman = discountResult ? (discountResult.discount_amount ?? Math.floor((discountResult.discount_amount_irr || 0) / 10)) : 0;
-  const finalPriceToman = discountResult ? (discountResult.final_price ?? Math.floor((discountResult.final_price_irr || 0) / 10)) : originalPriceToman;
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6">
@@ -160,7 +177,7 @@ function CheckoutContent() {
             <div className="flex justify-between">
               <span className="text-text-muted">{t('checkout.purchasedPlan')}</span>
               <span className="font-bold text-white">
-                {checkoutSuccess.tier_name || tier.name_fa || tier.name}
+                {checkoutSuccess.tier_name || tier.name_fa || tier.name} ({n(duration)} ماهه)
               </span>
             </div>
             <div className="flex justify-between">
@@ -212,14 +229,36 @@ function CheckoutContent() {
                 </span>
               </div>
 
+              {/* Duration Switcher */}
+              <div className="mb-6 p-1 rounded-2xl bg-white/5 flex gap-2">
+                {[1, 3, 6].map((dur) => (
+                  <button
+                    key={dur}
+                    type="button"
+                    onClick={() => {
+                      setDuration(dur);
+                      setDiscountResult(null);
+                    }}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      duration === dur
+                        ? 'bg-gradient-to-r from-cosmic-purple to-nebula-violet text-white shadow-neon-purple'
+                        : 'text-text-muted hover:text-white'
+                    }`}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{dur === 1 ? '۱ ماهه' : dur === 3 ? '۳ ماهه (۱۰٪ تخفیف)' : '۶ ماهه (۱۷٪ تخفیف)'}</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <span className="text-xs text-text-muted block mb-1">{t('checkout.quotaLabel')}</span>
-                  <span className="text-lg font-black text-white font-mono">{tier.quota_gb} {t('common.unit.gb')}</span>
+                  <span className="text-lg font-black text-white font-mono">{totalQuotaGb} {t('common.unit.gb')}</span>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <span className="text-xs text-text-muted block mb-1">{t('checkout.durationLabel')}</span>
-                  <span className="text-lg font-black text-white">{t('checkout.durationValue', { days: n(30) })}</span>
+                  <span className="text-lg font-black text-white">{t('checkout.durationValue', { days: n(durationDays) })}</span>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <span className="text-xs text-text-muted block mb-1">{t('checkout.speedLabel')}</span>
@@ -257,7 +296,7 @@ function CheckoutContent() {
                   <button
                     type="submit"
                     disabled={discountLoading || !discountCode.trim()}
-                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50"
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
                   >
                     {discountLoading ? t('checkout.checking') : t('checkout.apply')}
                   </button>
@@ -266,7 +305,9 @@ function CheckoutContent() {
                 {discountResult && (
                   <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>{t('checkout.discountApplied', { message: discountResult.message ?? '', percent: n(discountResult.discount_percent) })}</span>
+                    <span>
+                      کد تخفیف {discountResult.code} اعمال شد ({n(calculatedDiscountPercent)}٪ تخفیف)
+                    </span>
                   </div>
                 )}
 
@@ -291,12 +332,12 @@ function CheckoutContent() {
 
                 <div className="space-y-3 text-xs border-b border-white/5 pb-4 mb-4">
                   <div className="flex justify-between text-text-secondary">
-                    <span>{t('checkout.planAmount')}</span>
+                    <span>{t('checkout.planAmount')} ({n(duration)} ماهه)</span>
                     <span className="font-mono text-white">{price(originalPriceToman)}</span>
                   </div>
                   {discountResult && (
                     <div className="flex justify-between text-emerald-400">
-                      <span>{t('checkout.discountLine', { percent: n(discountResult.discount_percent) })}</span>
+                      <span>{t('checkout.discountLine', { percent: n(calculatedDiscountPercent) })}</span>
                       <span className="font-mono">- {price(discountToman)}</span>
                     </div>
                   )}
@@ -325,7 +366,7 @@ function CheckoutContent() {
                 <button
                   onClick={handleCheckout}
                   disabled={checkoutLoading}
-                  className="w-full py-3.5 rounded-2xl bg-cosmic-gradient hover:opacity-95 text-white font-black text-sm shadow-neon-purple transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl bg-cosmic-gradient hover:opacity-95 text-white font-black text-sm shadow-neon-purple transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Lock className="w-4 h-4" />
                   <span>{checkoutLoading ? t('checkout.connecting') : t('checkout.payNow')}</span>

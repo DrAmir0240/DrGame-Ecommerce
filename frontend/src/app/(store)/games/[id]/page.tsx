@@ -598,7 +598,7 @@ export default function GameDetailPage() {
           <h2 className="text-xl sm:text-2xl font-black text-white">{t('gameDetail.filesTitle')}</h2>
         </div>
 
-        <DownloadBox links={game.download_links} gameTitle={localizedField(game, 'title', locale) || game.title_fa || game.title_en} />
+        <DownloadBox gameId={game.id} links={game.download_links} gameTitle={localizedField(game, 'title', locale) || game.title_fa || game.title_en} />
       </section>
 
       {/* 5. SIMILAR & RECOMMENDED GAMES CAROUSEL */}

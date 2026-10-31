@@ -30,6 +30,13 @@ interface TicketListItem {
   updated_at: string;
 }
 
+interface TicketStats {
+  total: number;
+  open: number;
+  answered: number;
+  closed: number;
+}
+
 const TICKET_STATUS_KEY: Record<string, string> = {
   open: 'dashboardTickets.status.open',
   in_progress: 'dashboardTickets.status.inProgress',
@@ -48,18 +55,26 @@ export default function MyTicketsPage() {
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
   const { t, n, d } = useTranslation();
   const [tickets, setTickets] = useState<TicketListItem[]>([]);
+  const [ticketStats, setTicketStats] = useState<TicketStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [activeTicketId, setActiveTicketId] = useState<number | null>(null);
 
-  const fetchTickets = async () => {
+  const fetchTicketsAndStats = async () => {
     if (!isAuthenticated) return;
     try {
       setLoading(true);
-      const data = await apiRequest<TicketListItem[]>('/tickets/me');
-      setTickets(data || []);
+      const [ticketsData, statsData] = await Promise.all([
+        apiRequest<TicketListItem[]>('/tickets/me'),
+        apiRequest<TicketStats>('/tickets/me/stats').catch(() => null),
+      ]);
+      setTickets(ticketsData || []);
+      if (statsData) {
+        setTicketStats(statsData);
+      }
     } catch (err) {
       console.error('Failed to load tickets:', err);
     } finally {
@@ -69,19 +84,20 @@ export default function MyTicketsPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchTickets();
+      fetchTicketsAndStats();
     } else {
       setLoading(false);
     }
   }, [isAuthenticated]);
 
-  const filteredTickets = tickets.filter((t) => {
+  const filteredTickets = tickets.filter((tk) => {
     const term = search.toLowerCase();
     const matchesSearch =
-      t.subject.toLowerCase().includes(term) ||
-      t.tracking_code.toLowerCase().includes(term);
+      tk.subject.toLowerCase().includes(term) ||
+      tk.tracking_code.toLowerCase().includes(term);
 
-    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+    if (statusFilter !== 'all' && tk.status !== statusFilter) return false;
+    if (departmentFilter !== 'all' && tk.department !== departmentFilter) return false;
     return matchesSearch;
   });
 
@@ -119,10 +135,10 @@ export default function MyTicketsPage() {
     }
   };
 
-  // Stats calculation
-  const totalCount = tickets.length;
-  const openCount = tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length;
-  const answeredCount = tickets.filter((t) => t.status === 'answered').length;
+  // Stats calculation: prefer backend stats endpoint
+  const totalCount = ticketStats?.total ?? tickets.length;
+  const openCount = ticketStats?.open ?? tickets.filter((tk) => tk.status === 'open' || tk.status === 'in_progress').length;
+  const answeredCount = ticketStats?.answered ?? tickets.filter((tk) => tk.status === 'answered').length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-vazir text-start">
@@ -164,7 +180,7 @@ export default function MyTicketsPage() {
               setIsNewModalOpen(true);
             }
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>{t('dashboardTickets.newTicket')}</span>
@@ -217,19 +233,35 @@ export default function MyTicketsPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 self-stretch sm:self-auto">
-          <Filter className="w-4 h-4 text-slate-400" />
+        <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto">
+          {/* Department Filter */}
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-[#141b2d] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+            value={departmentFilter}
+            onChange={(e) => setDepartmentFilter(e.target.value)}
+            className="bg-[#141b2d] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 cursor-pointer"
           >
-            <option value="all">{t('dashboardTickets.filter.all')}</option>
-            <option value="open">{t('dashboardTickets.filter.open')}</option>
-            <option value="in_progress">{t('dashboardTickets.filter.inProgress')}</option>
-            <option value="answered">{t('dashboardTickets.filter.answered')}</option>
-            <option value="closed">{t('dashboardTickets.filter.closed')}</option>
+            <option value="all">تمام دپارتمان‌ها</option>
+            <option value="technical">{t('dashboardTickets.department.technical')}</option>
+            <option value="downloads">{t('dashboardTickets.department.downloads')}</option>
+            <option value="financial">{t('dashboardTickets.department.financial')}</option>
+            <option value="general">{t('dashboardTickets.department.general')}</option>
           </select>
+
+          {/* Status Filter */}
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-[#141b2d] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 cursor-pointer"
+            >
+              <option value="all">{t('dashboardTickets.filter.all')}</option>
+              <option value="open">{t('dashboardTickets.filter.open')}</option>
+              <option value="in_progress">{t('dashboardTickets.filter.inProgress')}</option>
+              <option value="answered">{t('dashboardTickets.filter.answered')}</option>
+              <option value="closed">{t('dashboardTickets.filter.closed')}</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -298,14 +330,14 @@ export default function MyTicketsPage() {
       <NewTicketModal
         isOpen={isNewModalOpen}
         onClose={() => setIsNewModalOpen(false)}
-        onTicketCreated={fetchTickets}
+        onTicketCreated={fetchTicketsAndStats}
       />
 
       <TicketConversationModal
         ticketId={activeTicketId}
         isOpen={Boolean(activeTicketId)}
         onClose={() => setActiveTicketId(null)}
-        onRefreshList={fetchTickets}
+        onRefreshList={fetchTicketsAndStats}
       />
     </div>
   );

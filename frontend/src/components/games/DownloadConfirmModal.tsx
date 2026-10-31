@@ -16,6 +16,7 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { GameDownloadLink } from '@/types/game';
+import { apiRequest } from '@/lib/apiClient';
 import { useTranslation } from '@/i18n';
 
 interface DownloadConfirmModalProps {
@@ -23,6 +24,7 @@ interface DownloadConfirmModalProps {
   onClose: () => void;
   link: GameDownloadLink | null;
   gameTitle: string;
+  gameId?: number;
 }
 
 export default function DownloadConfirmModal({
@@ -30,12 +32,14 @@ export default function DownloadConfirmModal({
   onClose,
   link,
   gameTitle,
+  gameId,
 }: DownloadConfirmModalProps) {
   const { t, n, size } = useTranslation();
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   if (!isOpen || !link) return null;
 
@@ -46,10 +50,35 @@ export default function DownloadConfirmModal({
 
   const handleConfirmDownload = async () => {
     setIsProcessing(true);
+    setDownloadError(null);
     try {
+      let finalDownloadUrl = link.download_url;
+
+      // Call backend API to deduct quota and generate signed download link
+      if (gameId && link.id) {
+        try {
+          const genRes = await apiRequest<{
+            status: string;
+            download_url: string;
+            remaining_quota_gb: number;
+            message?: string;
+          }>(`/games/${gameId}/downloads/${link.id}/generate`, {
+            method: 'POST',
+          });
+          if (genRes?.download_url) {
+            finalDownloadUrl = genRes.download_url;
+          }
+        } catch (err: any) {
+          console.error('Failed to generate download link via API:', err);
+          setDownloadError(err.message || 'خطا در صدور لینک دانلود امن و کسر سهمیه');
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       // Trigger native browser download
       const a = document.createElement('a');
-      a.href = link.download_url;
+      a.href = finalDownloadUrl;
       a.download = `${gameTitle}-${link.part_name || 'download'}`;
       a.target = '_blank';
       document.body.appendChild(a);
@@ -57,17 +86,19 @@ export default function DownloadConfirmModal({
       document.body.removeChild(a);
 
       setDownloadStarted(true);
-      // Refresh quota in background
+      // Immediately refresh quota and again shortly after
+      fetchQuota();
       setTimeout(() => {
         fetchQuota();
-      }, 1000);
+      }, 1500);
 
       setTimeout(() => {
         setDownloadStarted(false);
         onClose();
       }, 2000);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Download trigger error:', e);
+      setDownloadError(e.message || 'خطا در دانلود فایل');
     } finally {
       setIsProcessing(false);
     }
@@ -164,6 +195,14 @@ export default function DownloadConfirmModal({
         ) : (
           /* Normal Confirmation with Quota Breakdown */
           <div className="space-y-4">
+            {/* Error message alert if API call failed */}
+            {downloadError && (
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{downloadError}</span>
+              </div>
+            )}
+
             {/* File Info */}
             <div className="p-3.5 rounded-2xl bg-[#141b2d] border border-white/5 space-y-2">
               <div className="flex justify-between items-center text-xs">

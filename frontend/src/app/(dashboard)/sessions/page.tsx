@@ -23,31 +23,7 @@ export default function SessionsPage() {
       setSessions(data || []);
     } catch (e) {
       console.error('Failed to fetch sessions:', e);
-      // Fallback demo sessions if backend isn't populated yet
-      setSessions([
-        {
-          id: 1,
-          device_name: t('sessions.demoDeviceDesktop'),
-          device_type: 'desktop',
-          ip_address: '192.168.1.100',
-          is_active: true,
-          is_current: true,
-          is_primary: false,
-          last_active_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          device_name: t('sessions.demoDeviceConsole'),
-          device_type: 'console',
-          ip_address: '192.168.1.105',
-          is_active: true,
-          is_current: false,
-          is_primary: true,
-          last_active_at: new Date(Date.now() - 3600000).toISOString(),
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      setSessions([]);
     } finally {
       setLoading(false);
     }
@@ -178,7 +154,7 @@ export default function SessionsPage() {
                   <button
                     onClick={() => handleRevoke(s.id)}
                     disabled={revokingId === s.id}
-                    className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all self-end sm:self-center disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all self-end sm:self-center disabled:opacity-50 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>{revokingId === s.id ? t('sessions.revoking') : t('sessions.revoke')}</span>

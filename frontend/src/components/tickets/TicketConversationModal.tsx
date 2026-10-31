@@ -11,6 +11,7 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
+  CheckCheck,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
 import { useTranslation } from '@/i18n';
@@ -61,6 +62,7 @@ export default function TicketConversationModal({
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +101,8 @@ export default function TicketConversationModal({
     try {
       setSending(true);
       setError(null);
-      const sent = await apiRequest<TicketMessage>(`/tickets/me/${ticketId}/messages`, {
+      // Corrected API endpoint: /tickets/me/{ticket_id}/reply
+      const sent = await apiRequest<TicketMessage>(`/tickets/me/${ticketId}/reply`, {
         method: 'POST',
         body: JSON.stringify({ message: newMessage.trim() }),
       });
@@ -119,6 +122,23 @@ export default function TicketConversationModal({
       setError(err.message || t('ticketUI.errorSend'));
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleCloseTicket = async () => {
+    if (!ticketId || closing) return;
+    try {
+      setClosing(true);
+      setError(null);
+      await apiRequest(`/tickets/me/${ticketId}/close`, {
+        method: 'PATCH',
+      });
+      setTicket((prev) => (prev ? { ...prev, status: 'closed' } : null));
+      if (onRefreshList) onRefreshList();
+    } catch (err: any) {
+      setError(err.message || 'خطا در بستن تیکت');
+    } finally {
+      setClosing(false);
     }
   };
 
@@ -154,12 +174,24 @@ export default function TicketConversationModal({
       <div className="relative w-full max-w-2xl h-[85vh] rounded-3xl bg-[#0b0e17] border border-white/10 flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-white/10 bg-[#0e121e] flex items-center justify-between shrink-0">
-          <div className="space-y-1 max-w-[80%]">
+          <div className="space-y-1 max-w-[75%]">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20" dir="ltr">
                 {ticket?.tracking_code}
               </span>
               {ticket && getStatusBadge(ticket.status)}
+              {ticket && ticket.status !== 'closed' && (
+                <button
+                  type="button"
+                  onClick={handleCloseTicket}
+                  disabled={closing}
+                  className="text-[10px] px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  title="بستن و اتمام تیکت"
+                >
+                  <CheckCheck className="w-3 h-3" />
+                  <span>{closing ? 'در حال بستن...' : 'بستن تیکت'}</span>
+                </button>
+              )}
             </div>
             <h3 className="text-sm sm:text-base font-bold text-white truncate">
               {ticket?.subject || t('ticketUI.loadingTicket')}

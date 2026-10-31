@@ -23,17 +23,33 @@ import {
   CheckCircle2,
   Layers,
   Sparkles,
+  Clock,
+  CheckCircle,
+  XCircle,
+  ArrowDownLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
 
+interface WithdrawalHistoryItem {
+  id: number;
+  settlement_account_id: number;
+  amount_toman: number;
+  status: 'pending' | 'approved' | 'rejected' | string;
+  tx_hash?: string | null;
+  admin_note?: string | null;
+  created_at: string;
+  processed_at?: string | null;
+}
+
 export default function ReferralDashboardPage() {
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
-  const { t, n } = useTranslation();
+  const { t, n, price, d } = useTranslation();
 
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [accounts, setAccounts] = useState<SettlementAccount[]>([]);
   const [transactions, setTransactions] = useState<CommissionTransaction[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawalHistoryItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalTx, setTotalTx] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,15 +62,17 @@ export default function ReferralDashboardPage() {
   const loadAllData = async () => {
     try {
       const layerParam = selectedLayer !== 'all' ? `&layer=${selectedLayer}` : '';
-      const [statsData, accountsData, txData] = await Promise.all([
+      const [statsData, accountsData, txData, withdrawalsData] = await Promise.all([
         apiRequest<ReferralStats>('/referral/stats'),
         apiRequest<SettlementAccount[]>('/referral/settlement-accounts'),
         apiRequest<CommissionTransactionListResponse>(`/referral/transactions?page=${page}&page_size=15${layerParam}`),
+        apiRequest<WithdrawalHistoryItem[]>('/referral/withdrawals').catch(() => []),
       ]);
       setStats(statsData);
-      setAccounts(accountsData);
-      setTransactions(txData.items);
-      setTotalTx(txData.total);
+      setAccounts(accountsData || []);
+      setTransactions(txData.items || []);
+      setTotalTx(txData.total || 0);
+      setWithdrawals(withdrawalsData || []);
     } catch (err) {
       console.error('Failed to load referral data:', err);
     } finally {
@@ -70,16 +88,17 @@ export default function ReferralDashboardPage() {
     }
   }, [isAuthenticated, page, selectedLayer]);
 
-  const SAMPLE_STATS: ReferralStats = {
-    referral_code: 'DRGAME-VIP',
-    withdrawable_balance_toman: 1850000,
-    total_earned_toman: 4850000,
-    total_withdrawn_toman: 3000000,
-    direct_referrals_count: 14,
-    active_subscriptions_count: 9,
+  // Clean empty state instead of fake demo data
+  const emptyStats: ReferralStats = {
+    referral_code: '...',
+    withdrawable_balance_toman: 0,
+    total_earned_toman: 0,
+    total_withdrawn_toman: 0,
+    direct_referrals_count: 0,
+    active_subscriptions_count: 0,
   };
 
-  const activeStats = stats || SAMPLE_STATS;
+  const activeStats = stats || emptyStats;
 
   return (
     <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10">
@@ -91,7 +110,7 @@ export default function ReferralDashboardPage() {
           </div>
           <button
             onClick={() => setAuthModalOpen(true, 'otp')}
-            className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shrink-0"
+            className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shrink-0 cursor-pointer"
           >
             {t('referral.loginButton')}
           </button>
@@ -115,7 +134,7 @@ export default function ReferralDashboardPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAccountsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card border border-white/10 hover:border-white/20 text-white text-xs font-bold transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card border border-white/10 hover:border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
           >
             <CreditCard className="w-4 h-4 text-cosmic-purple" />
             <span>{t('referral.accountsButton', { count: n(accounts.length) })}</span>
@@ -124,7 +143,7 @@ export default function ReferralDashboardPage() {
           <button
             onClick={() => setIsWithdrawModalOpen(true)}
             disabled={!stats || stats.withdrawable_balance_toman < 50000}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white text-xs font-bold transition-all shadow-neon-purple disabled:opacity-40"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white text-xs font-bold transition-all shadow-neon-purple disabled:opacity-40 cursor-pointer"
           >
             <span>{t('referral.withdraw')}</span>
           </button>
@@ -204,6 +223,69 @@ export default function ReferralDashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Withdrawals Request History Table */}
+      {withdrawals.length > 0 && (
+        <div className="rounded-3xl bg-[#0d121f] border border-white/10 p-6 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <ArrowDownLeft className="w-5 h-5 text-emerald-400" />
+              <span>تاریخچه درخواست‌های تسویه و برداشت</span>
+            </h3>
+            <span className="text-xs text-slate-400">{n(withdrawals.length)} درخواست ثبت‌شده</span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-start">
+              <thead>
+                <tr className="border-b border-white/5 text-slate-400 text-[11px]">
+                  <th className="py-3 px-4 text-start font-bold">شناسه</th>
+                  <th className="py-3 px-4 text-start font-bold">مبلغ تسویه</th>
+                  <th className="py-3 px-4 text-start font-bold">وضعیت</th>
+                  <th className="py-3 px-4 text-start font-bold">تاریخ ثبت</th>
+                  <th className="py-3 px-4 text-start font-bold">رسید / توضیحات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {withdrawals.map((w) => (
+                  <tr key={w.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-white">#{w.id}</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-400 font-roboto">{price(w.amount_toman)}</td>
+                    <td className="py-3.5 px-4">
+                      {w.status === 'approved' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>واریز شد</span>
+                        </span>
+                      ) : w.status === 'rejected' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                          <XCircle className="w-3 h-3" />
+                          <span>رد شد</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          <Clock className="w-3 h-3" />
+                          <span>در حال بررسی</span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-400 font-roboto dir-ltr text-start">
+                      {d(w.created_at, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-300">
+                      {w.tx_hash ? (
+                        <span className="font-mono text-[11px] text-cyan-400">{w.tx_hash}</span>
+                      ) : (
+                        w.admin_note || '—'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Transactions Table */}
       <TransactionsTable
