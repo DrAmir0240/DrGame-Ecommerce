@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { GameCardItem } from '@/types/game';
 import { getMediaUrl } from '@/lib/media';
-import { useTranslation, localizedField } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 
 interface GameCardProps {
   game: GameCardItem;
@@ -23,8 +23,6 @@ function getPlatformBadgeText(plat: string): string {
 
 export default function GameCard({ game }: GameCardProps) {
   const { locale, dir, t, n, size } = useTranslation();
-  // Backend-localized title: title_i18n → title_fa/en/ar → title
-  const title = localizedField(game, 'title', locale) || game.title_en || game.title_fa;
 
   // Normalize platforms list
   const platforms = (game.platforms && game.platforms.length > 0)
@@ -45,7 +43,7 @@ export default function GameCard({ game }: GameCardProps) {
         {game.cover_image_url ? (
           <img
             src={getMediaUrl(game.cover_image_url)}
-            alt={title}
+            alt={game.title_en || game.title_fa}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
@@ -76,7 +74,11 @@ export default function GameCard({ game }: GameCardProps) {
       {/* Card Info Section */}
       <div className={`p-3 flex flex-col justify-between flex-1 gap-2 ${dir === 'rtl' ? 'text-start' : 'text-left'}`}>
         <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
-          {title}
+          {locale === 'en' && game.title_en ? (
+            game.title_en
+          ) : (
+            <DynamicText text={game.title_fa || game.title_en} />
+          )}
         </h3>
 
         {/* Bottom Row: Platform Text Badges + Status Badge */}

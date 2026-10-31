@@ -13,7 +13,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 
 interface BannerItem {
   id: number;
@@ -124,7 +124,7 @@ export default function DoubleHeroBanners() {
               {/* Badge & Platforms */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full border text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
-                  {activeGame.badge}
+                  <DynamicText text={activeGame.badge} />
                 </span>
 
                 {activeGame.platforms?.map((plat, idx) => (
@@ -140,7 +140,7 @@ export default function DoubleHeroBanners() {
               {/* Titles */}
               <div className="space-y-0.5">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                  {locale === 'en' && activeGame.title_en ? activeGame.title_en : activeGame.title_fa}
+                  {locale === 'en' && activeGame.title_en ? activeGame.title_en : <DynamicText text={activeGame.title_fa} />}
                 </h2>
                 {activeGame.title_en && locale !== 'en' && (
                   <p className="text-xs sm:text-sm text-slate-400 font-roboto" dir="ltr">
@@ -151,7 +151,7 @@ export default function DoubleHeroBanners() {
 
               {/* Description */}
               <p className="text-xs text-slate-300/90 leading-relaxed line-clamp-2 max-w-xl">
-                {activeGame.description}
+                <DynamicText text={activeGame.description} />
               </p>
             </div>
 
@@ -162,7 +162,7 @@ export default function DoubleHeroBanners() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
-                <span>{activeGame.cta_text || t('hero.startBrowsing')}</span>
+                <span><DynamicText text={activeGame.cta_text || t('hero.startBrowsing')} /></span>
               </Link>
 
               {/* Arrows */}
@@ -234,7 +234,7 @@ export default function DoubleHeroBanners() {
               {/* Service Badge */}
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full border text-[11px] font-bold bg-amber-500/20 text-amber-300 border-amber-500/30">
-                  {activeService.badge}
+                  <DynamicText text={activeService.badge} />
                 </span>
                 <span className="flex items-center gap-1 text-[11px] text-slate-400">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -244,12 +244,12 @@ export default function DoubleHeroBanners() {
 
               {/* Title */}
               <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                {locale === 'en' && activeService.title_en ? activeService.title_en : activeService.title_fa}
+                {locale === 'en' && activeService.title_en ? activeService.title_en : <DynamicText text={activeService.title_fa} />}
               </h3>
 
               {/* Description */}
               <p className="text-xs text-slate-300/90 leading-relaxed line-clamp-2 max-w-xl">
-                {activeService.description}
+                <DynamicText text={activeService.description} />
               </p>
             </div>
 
@@ -260,7 +260,7 @@ export default function DoubleHeroBanners() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 <Zap className="w-4 h-4 fill-slate-950 stroke-none" />
-                <span>{activeService.cta_text || t('subscription.buyNow')}</span>
+                <span><DynamicText text={activeService.cta_text || t('subscription.buyNow')} /></span>
               </Link>
 
               {/* Arrows */}

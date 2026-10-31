@@ -160,5 +160,17 @@
       "invalidConsoleCode": "The 7-digit console code is invalid.",
       "testCode": "SMS code (test environment):"
     }
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "subtitle": "Instant experience settings",
+    "open": "Open quick actions",
+    "close": "Close quick actions",
+    "consoleTitle": "Console mode",
+    "consoleDesc": "10-foot UI for TV & gamepad",
+    "paymentTitle": "Payment method",
+    "paymentDesc": "Domestic gateway or crypto",
+    "domestic": "Shaparak / IRT",
+    "international": "Crypto / Global"
   }
 }

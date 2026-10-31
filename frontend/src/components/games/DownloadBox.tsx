@@ -23,7 +23,7 @@ import { GameDownloadLink } from '@/types/game';
 import { MySubscriptionStatus } from '@/types/subscription';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 import DownloadConfirmModal from './DownloadConfirmModal';
 
 interface DownloadBoxProps {
@@ -251,7 +251,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
         {isAuthenticated && mySubStatus?.has_active_subscription && mySubStatus.tier && (
           <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-xs">
             <span className="text-text-muted">{t('downloadBox.plan')}</span>
-            <span className="font-bold text-cyan-400">{mySubStatus.tier.name_fa}</span>
+            <span className="font-bold text-cyan-400"><DynamicText text={mySubStatus.tier.name_fa} /></span>
             <span className="text-slate-600">|</span>
             <span className="text-text-muted">{t('downloadBox.remainingQuota')}</span>
             <span className="font-bold text-emerald-400 font-roboto" dir="ltr">
@@ -338,7 +338,7 @@ export default function DownloadBox({ links, gameTitle }: DownloadBoxProps) {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className={`text-xs sm:text-sm font-bold ${eligibility.allowed ? 'text-white' : 'text-slate-400'}`}>
-                        {link.part_name}
+                        <DynamicText text={link.part_name} />
                       </h4>
                       {getTierBadge(link.required_tier)}
 

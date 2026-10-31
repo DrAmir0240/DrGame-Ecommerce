@@ -15,6 +15,7 @@
  */
 
 import { SupportedLocale, DEFAULT_LOCALE } from './config';
+import { getInstantDynamicTranslation } from '@/lib/dynamicTranslator';
 
 export type LocalizedDict = Partial<Record<SupportedLocale, string>>;
 export type Localizable = string | LocalizedDict | null | undefined;
@@ -68,7 +69,14 @@ export function localizedField<T extends Record<string, any>>(
   // 2. Column-per-language style: { title_fa, title_en, title_ar }
   for (const candidate of fallbackChain(locale)) {
     const column = entity[`${field}_${candidate}`];
-    if (typeof column === 'string' && column.trim() !== '') return column;
+    if (typeof column === 'string' && column.trim() !== '') {
+      if (candidate === locale) return column;
+      if (locale !== DEFAULT_LOCALE) {
+        const instant = getInstantDynamicTranslation(column, locale);
+        if (instant) return instant;
+      }
+      return column;
+    }
   }
 
   // 3. Nested translations map: { translations: { en: { title } } }
@@ -83,7 +91,12 @@ export function localizedField<T extends Record<string, any>>(
   }
 
   // 4. Plain value or locale dictionary: { title: 'God of War' | { fa, en } }
-  return localize(entity[field] as Localizable, locale);
+  const plain = localize(entity[field] as Localizable, locale);
+  if (locale !== DEFAULT_LOCALE && plain && typeof plain === 'string') {
+    const instant = getInstantDynamicTranslation(plain, locale);
+    if (instant) return instant;
+  }
+  return plain;
 }
 
 /** True when the API had no translation for the requested locale. */

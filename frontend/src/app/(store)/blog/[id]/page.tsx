@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { apiRequest } from '@/lib/apiClient';
 import { BlogPostDetail } from '@/types/blog';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 import {
   ArrowRight,
   Clock,
@@ -14,14 +14,12 @@ import {
   ThumbsUp,
   ThumbsDown,
   User,
-  Share2,
   Calendar,
-  Sparkles,
   BookOpen,
 } from 'lucide-react';
 
 export default function BlogDetailPage() {
-  const { t, n } = useTranslation();
+  const { t, n, d, locale } = useTranslation();
   const params = useParams();
   const idOrSlug = params.id as string;
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
@@ -109,22 +107,26 @@ export default function BlogDetailPage() {
           href="/blog"
           className="inline-flex items-center gap-2 hover:text-white transition-colors"
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
           <span>{t('blogPage.detail.backToMagazine')}</span>
         </Link>
 
         <span className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-cyan-300 font-bold">
-          {post.category_name}
+          <DynamicText text={post.category_name} />
         </span>
       </div>
 
       {/* Hero Header */}
       <div className="space-y-4">
         <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug">
-          {post.title_fa}
+          {locale === 'en' && post.title_en ? (
+            post.title_en
+          ) : (
+            <DynamicText text={post.title_fa} />
+          )}
         </h1>
 
-        {post.title_en && (
+        {post.title_en && locale === 'fa' && (
           <span className="block text-xs sm:text-sm text-text-muted font-mono tracking-wider">
             {post.title_en}
           </span>
@@ -139,7 +141,7 @@ export default function BlogDetailPage() {
 
           <span className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-amber-400" />
-            <span className="font-mono">{new Date(post.created_at).toLocaleDateString('fa-IR')}</span>
+            <span className="font-mono">{d(post.created_at)}</span>
           </span>
 
           <span className="flex items-center gap-1.5">
@@ -166,9 +168,13 @@ export default function BlogDetailPage() {
 
       {/* Main Content Body */}
       <div className="glass-card rounded-3xl border border-white/10 p-6 sm:p-10 leading-relaxed text-sm sm:text-base text-text-secondary space-y-6">
-        <p className="whitespace-pre-line leading-loose text-white/90">
-          {post.content_fa}
-        </p>
+        <div className="whitespace-pre-line leading-loose text-white/90">
+          {locale === 'en' && post.content_en ? (
+            post.content_en
+          ) : (
+            <DynamicText text={post.content_fa} />
+          )}
+        </div>
       </div>
 
       {/* Interactive Voting Bar (Green Like / Red Dislike) */}

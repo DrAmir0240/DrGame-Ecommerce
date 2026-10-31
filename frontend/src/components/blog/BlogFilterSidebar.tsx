@@ -3,7 +3,7 @@
 import React from 'react';
 import { BlogCategory } from '@/types/blog';
 import { Search, Filter, Flame, Clock, Eye, Layers } from 'lucide-react';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 
 const SORT_OPTIONS = [
   { id: 'newest', key: 'blogUI.sort.newest', icon: Clock },
@@ -30,7 +30,7 @@ export default function BlogFilterSidebar({
   sort,
   onSortChange,
 }: BlogFilterSidebarProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Search Box */}
@@ -103,7 +103,11 @@ export default function BlogFilterSidebar({
                   : 'text-text-muted hover:bg-white/5 hover:text-white'
               }`}
             >
-              {cat.name_fa}
+              {locale === 'en' && cat.name_en ? (
+                cat.name_en
+              ) : (
+                <DynamicText text={cat.name_fa} />
+              )}
             </button>
           ))}
         </div>

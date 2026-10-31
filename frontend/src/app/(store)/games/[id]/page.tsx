@@ -8,7 +8,7 @@ import DownloadBox from '@/components/games/DownloadBox';
 import SimilarGamesCarousel from '@/components/games/SimilarGamesCarousel';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getMediaUrl } from '@/lib/media';
-import { useTranslation, localizedField } from '@/i18n';
+import { useTranslation, localizedField, DynamicText } from '@/i18n';
 import {
   Star,
   ThumbsUp,
@@ -183,7 +183,7 @@ export default function GameDetailPage() {
                     key={g}
                     className="px-2.5 py-1 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold"
                   >
-                    {g}
+                    <DynamicText text={g} />
                   </span>
                 ))}
 
@@ -221,7 +221,7 @@ export default function GameDetailPage() {
               {/* Game Main Titles */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                  {localizedField(game, 'title', locale) || game.title_fa || game.title_en}
+                  {locale === 'en' && game.title_en ? game.title_en : <DynamicText text={game.title_fa || game.title_en} />}
                 </h1>
                 <p className="text-base sm:text-lg text-slate-400 font-roboto font-medium tracking-wide" dir="ltr">
                   {game.title_en}
@@ -383,7 +383,7 @@ export default function GameDetailPage() {
                     game.awards.map((award, i) => (
                       <div key={i} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
-                        <span className="leading-relaxed">{award}</span>
+                        <span className="leading-relaxed"><DynamicText text={award} /></span>
                       </div>
                     ))
                   ) : (
@@ -543,7 +543,7 @@ export default function GameDetailPage() {
 
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-line space-y-3 font-normal">
                 <p>
-                  {localizedField(game, 'storyline', locale) || game.storyline_fa || game.description_fa || game.description_en}
+                  {locale === 'en' && game.description_en ? game.description_en : <DynamicText text={game.storyline_fa || game.description_fa || game.description_en} />}
                 </p>
                 {!game.storyline_fa && (
                   <p className="text-text-muted text-xs">

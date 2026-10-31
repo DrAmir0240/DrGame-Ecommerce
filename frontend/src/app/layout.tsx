@@ -20,6 +20,7 @@ import Footer from '@/components/layout/Footer';
 import AuthModal from '@/components/auth/AuthModal';
 import GamepadNavigationListener from '@/components/layout/GamepadNavigationListener';
 import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
+import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
 import TvModeHost from '@/components/layout/TvModeHost';
 import { I18nProvider } from '@/i18n';
 
@@ -52,6 +53,7 @@ export default function RootLayout({
             <GamepadNavigationListener />
             <TvModeHost />
             <GeoLanguageModal />
+            <FloatingQuickActions />
           </div>
         </I18nProvider>
       </body>

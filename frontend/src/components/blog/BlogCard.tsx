@@ -3,15 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { BlogPostCard } from '@/types/blog';
-import { Clock, Eye, ThumbsUp, ArrowLeft } from 'lucide-react';
-import { useTranslation } from '@/i18n';
+import { Clock, Eye, ThumbsUp } from 'lucide-react';
+import { useTranslation, DynamicText } from '@/i18n';
 
 interface BlogCardProps {
   post: BlogPostCard;
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
-  const { tp, n, d } = useTranslation();
+  const { tp, n, d, locale } = useTranslation();
   return (
     <Link
       href={`/blog/${post.slug || post.id}`}
@@ -31,7 +31,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           {/* Category Badge & Reading Time */}
           <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
             <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-cyan-300">
-              {post.category_name}
+              <DynamicText text={post.category_name} />
             </span>
 
             <span className="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-text-muted flex items-center gap-1">
@@ -43,11 +43,15 @@ export default function BlogCard({ post }: BlogCardProps) {
           {/* Bottom Card Content */}
           <div className="absolute bottom-0 inset-x-0 p-4 space-y-2 text-start">
             <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cosmic-purple transition-colors line-clamp-2 leading-snug">
-              {post.title_fa}
+              {locale === 'en' && post.title_en ? (
+                post.title_en
+              ) : (
+                <DynamicText text={post.title_fa} />
+              )}
             </h3>
 
             <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed">
-              {post.summary}
+              <DynamicText text={post.summary} />
             </p>
 
             <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px] text-text-muted">

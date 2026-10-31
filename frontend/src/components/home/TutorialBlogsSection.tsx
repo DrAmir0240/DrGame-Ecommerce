@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Clock, ArrowLeft, Loader2 } from 'lucide-react';
 import { apiRequest } from '@/lib/apiClient';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 
 interface BlogPostItem {
   id: number;
@@ -20,7 +20,7 @@ interface BlogPostItem {
 }
 
 export default function TutorialBlogsSection() {
-  const { t, locale } = useTranslation();
+  const { t, locale, n } = useTranslation();
   const [posts, setPosts] = useState<BlogPostItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -104,22 +104,26 @@ export default function TutorialBlogsSection() {
             <div className="relative z-10 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold">
-                  {featured.category_name}
+                  <DynamicText text={featured.category_name} />
                 </span>
                 <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
                   <Clock className="w-3 h-3" />
                   <span>
-                    {featured.reading_time_min} {t('blog.minutes')}
+                    {n(featured.reading_time_min)} {t('blog.minutes')}
                   </span>
                 </span>
               </div>
 
               <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-300 transition-colors leading-snug">
-                {locale === 'en' && featured.title_en ? featured.title_en : featured.title_fa}
+                {locale === 'en' && featured.title_en ? (
+                  featured.title_en
+                ) : (
+                  <DynamicText text={featured.title_fa} />
+                )}
               </h3>
 
               <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
-                {featured.summary}
+                <DynamicText text={featured.summary} />
               </p>
             </div>
           </Link>
@@ -135,16 +139,22 @@ export default function TutorialBlogsSection() {
             >
               <div>
                 <div className="flex items-center justify-between text-[11px] mb-2">
-                  <span className="text-cyan-400 font-bold">{item.category_name}</span>
+                  <span className="text-cyan-400 font-bold">
+                    <DynamicText text={item.category_name} />
+                  </span>
                   <span className="text-slate-400 font-mono flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     <span>
-                      {item.reading_time_min} {t('blog.minutes')}
+                      {n(item.reading_time_min)} {t('blog.minutes')}
                     </span>
                   </span>
                 </div>
                 <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-relaxed">
-                  {locale === 'en' && item.title_en ? item.title_en : item.title_fa}
+                  {locale === 'en' && item.title_en ? (
+                    item.title_en
+                  ) : (
+                    <DynamicText text={item.title_fa} />
+                  )}
                 </h4>
               </div>
 

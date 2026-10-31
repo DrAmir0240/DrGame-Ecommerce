@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Genre } from '@/types/game';
 import PlatformIcon from './PlatformIcons';
-import { useTranslation } from '@/i18n';
+import { useTranslation, DynamicText } from '@/i18n';
 
 export interface FilterState {
   search: string;
@@ -210,7 +210,7 @@ export default function FilterSidebar({
                         : 'bg-[#141b2d] border-white/5 text-text-secondary hover:text-white hover:border-white/15'
                     }`}
                   >
-                    {g.name_fa}
+                    <DynamicText text={g.name_fa} />
                   </button>
                 );
               })}

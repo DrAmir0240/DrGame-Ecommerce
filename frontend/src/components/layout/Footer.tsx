@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -16,12 +16,17 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import { useRegionStore } from '@/stores/useRegionStore';
 
 export default function Footer() {
   const pathname = usePathname();
   const { t } = useTranslation();
-  // 'domestic' (Iran) or 'international'
-  const [footerMode, setFooterMode] = useState<'domestic' | 'international'>('domestic');
+  // 'domestic' (Iran) or 'international' — shared with the floating quick-actions panel
+  const { mode: footerMode, setMode: setFooterMode, initRegion } = useRegionStore();
+
+  useEffect(() => {
+    initRegion();
+  }, [initRegion]);
 
   // Do not render storefront footer inside the admin panel
   if (pathname?.startsWith('/admin')) {
