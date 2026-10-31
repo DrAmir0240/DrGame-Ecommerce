@@ -66,3 +66,41 @@ class BlogInteractionResponse(BaseModel):
     current_state: str | None
     likes_count: int
     dislikes_count: int
+
+
+class BlogPostCreate(BaseModel):
+    title_fa: str
+    title_en: str | None = None
+    slug: str | None = None
+    category_id: int
+    content_fa: str
+    content_en: str | None = None
+    cover_image_url: str
+    author_name: str = "تیم تحریریه دکتر گیم"
+    reading_time_min: int = 5
+    is_published: bool = True
+
+
+class BlogPostUpdate(BaseModel):
+    title_fa: str | None = None
+    title_en: str | None = None
+    slug: str | None = None
+    category_id: int | None = None
+    content_fa: str | None = None
+    content_en: str | None = None
+    cover_image_url: str | None = None
+    author_name: str | None = None
+    reading_time_min: int | None = None
+    is_published: bool | None = None
+
+
+class BlogCategoryCreate(BaseModel):
+    name_fa: str
+    name_en: str
+    slug: str
+
+
+class BlogCategoryUpdate(BaseModel):
+    name_fa: str | None = None
+    name_en: str | None = None
+    slug: str | None = None

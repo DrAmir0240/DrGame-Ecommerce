@@ -331,7 +331,7 @@ class WalletService:
     ) -> dict:
         """Process referral commission for a paid order payment."""
         paid_amount = order_payment.final_price
-        amount_toman = paid_amount // 10 if paid_amount >= 10000 else paid_amount
+        amount_toman = int(paid_amount)
         if amount_toman <= 0:
             return {"status": "zero_amount"}
 
@@ -527,3 +527,130 @@ class WalletService:
         await db.commit()
         await db.refresh(withdrawal)
         return withdrawal
+
+    @staticmethod
+    async def list_user_withdrawals(
+        db: AsyncSession, user_id: int, page: int = 1, page_size: int = 20
+    ) -> list[dict]:
+        """Fetch withdrawal history for user dashboard."""
+        stmt = (
+            select(WithdrawalRequest, SettlementAccount)
+            .outerjoin(SettlementAccount, WithdrawalRequest.settlement_account_id == SettlementAccount.id)
+            .where(WithdrawalRequest.user_id == user_id)
+            .order_by(desc(WithdrawalRequest.created_at))
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        rows = (await db.execute(stmt)).all()
+
+        results = []
+        for w, acc in rows:
+            card_or_sheba = None
+            settlement_title = "حساب پیش‌فرض"
+            account_type = "bank_iran"
+            if acc:
+                account_type = acc.account_type
+                if acc.account_type == "bank_iran":
+                    settlement_title = f"{acc.bank_name or 'بانک'} - {acc.account_holder or ''}"
+                    card_or_sheba = acc.sheba_number or acc.card_number
+                else:
+                    settlement_title = f"کیف پول {acc.crypto_network or 'USDT'}"
+                    card_or_sheba = acc.crypto_wallet_address
+
+            results.append({
+                "id": w.id,
+                "amount_toman": w.amount_toman,
+                "settlement_account_id": w.settlement_account_id,
+                "settlement_title": settlement_title,
+                "account_type": account_type,
+                "card_or_sheba": card_or_sheba,
+                "status": w.status,
+                "admin_note": getattr(w, "admin_note", None),
+                "created_at": w.created_at,
+                "processed_at": getattr(w, "processed_at", None),
+            })
+        return results
+
+    @staticmethod
+    async def update_settlement_account(
+        db: AsyncSession, user_id: int, account_id: int, data
+    ) -> SettlementAccount:
+        """Update settlement account details."""
+        stmt = select(SettlementAccount).where(
+            SettlementAccount.id == account_id,
+            SettlementAccount.user_id == user_id,
+        )
+        acc = (await db.execute(stmt)).scalar_one_or_none()
+        if not acc:
+            raise NotFoundException("حساب تسویه مورد نظر یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None:
+                setattr(acc, k, v)
+
+        await db.commit()
+        await db.refresh(acc)
+        return acc
+
+    @staticmethod
+    async def delete_settlement_account(db: AsyncSession, user_id: int, account_id: int) -> dict:
+        """Deactivate or remove user settlement account."""
+        stmt = select(SettlementAccount).where(
+            SettlementAccount.id == account_id,
+            SettlementAccount.user_id == user_id,
+        )
+        acc = (await db.execute(stmt)).scalar_one_or_none()
+        if not acc:
+            raise NotFoundException("حساب تسویه مورد نظر یافت نشد.")
+
+        # Check for pending withdrawals
+        pending = (await db.execute(
+            select(func.count(WithdrawalRequest.id)).where(
+                WithdrawalRequest.settlement_account_id == account_id,
+                WithdrawalRequest.status == "pending",
+            )
+        )).scalar() or 0
+        if pending > 0:
+            raise BadRequestException("امکان حذف حسابی که درخواست تسویه در صف انتظار دارد وجود ندارد.")
+
+        acc.is_active = False
+        await db.commit()
+        return {"status": "success", "message": "حساب با موفقیت غیرفعال و حذف شد."}
+
+    @staticmethod
+    async def list_all_settlement_accounts_admin(
+        db: AsyncSession, status_filter: str | None = None, page: int = 1, page_size: int = 50
+    ) -> list[dict]:
+        """List all settlement accounts for admin panel verification."""
+        stmt = select(SettlementAccount, User).join(User, SettlementAccount.user_id == User.id)
+        if status_filter == "verified":
+            stmt = stmt.where(SettlementAccount.is_verified == True)
+        elif status_filter == "pending":
+            stmt = stmt.where(SettlementAccount.is_verified == False)
+
+        stmt = stmt.order_by(desc(SettlementAccount.created_at)).offset((page - 1) * page_size).limit(page_size)
+        rows = (await db.execute(stmt)).all()
+
+        results = []
+        for acc, user in rows:
+            results.append({
+                "id": acc.id,
+                "user_id": acc.user_id,
+                "user_name": user.full_name or user.username,
+                "user_phone": user.phone,
+                "account_type": acc.account_type,
+                "sheba_number": acc.sheba_number,
+                "card_number": acc.card_number,
+                "account_holder": acc.account_holder,
+                "bank_name": acc.bank_name,
+                "national_code": acc.national_code,
+                "phone": acc.phone,
+                "crypto_wallet_address": acc.crypto_wallet_address,
+                "crypto_network": acc.crypto_network,
+                "is_verified": acc.is_verified,
+                "is_active": acc.is_active,
+                "created_at": acc.created_at,
+            })
+        return results
+

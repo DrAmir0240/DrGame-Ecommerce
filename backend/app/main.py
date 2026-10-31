@@ -14,14 +14,28 @@ logger = logging.getLogger("drgame.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: connect to Redis
+    # Startup: connect to Redis and start background scheduler
     try:
         await redis_manager.connect()
         logger.info("Connected to Redis successfully.")
     except Exception as e:
         logger.warning(f"Could not connect to Redis on startup: {e}")
+
+    try:
+        from app.tasks.scheduler import start_scheduler, stop_scheduler
+        start_scheduler()
+    except Exception as e:
+        logger.warning(f"Could not start background scheduler: {e}")
+
     yield
-    # Shutdown: close Redis
+
+    # Shutdown: stop scheduler and close Redis
+    try:
+        from app.tasks.scheduler import stop_scheduler
+        stop_scheduler()
+    except Exception:
+        pass
+
     await redis_manager.close()
     logger.info("Closed Redis connection.")
 
@@ -137,8 +151,9 @@ except ImportError:
     pass
 
 try:
-    from app.modules.news.router import router as news_router
+    from app.modules.news.router import router as news_router, admin_blog_router
     app.include_router(news_router, prefix="/api/blog", tags=["Blog"])
+    app.include_router(admin_blog_router, prefix="/api", tags=["Admin Blog"])
 except ImportError:
     pass
 

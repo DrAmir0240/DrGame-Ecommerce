@@ -81,13 +81,13 @@ async def test_commission_waterfall_calculation(test_db: AsyncSession):
     test_db.add(sub_b)
     await test_db.commit()
 
-    # User C makes a purchase: 1,000,000 Toman (10,000,000 IRR)
+    # User C makes a purchase: 1,000,000 Toman
     payment = OrderPayment(
         user_id=user_c.id,
         tier_code="gold",
-        original_price=10000000,
+        original_price=1000000,
         discount_amount=0,
-        final_price=10000000,
+        final_price=1000000,
         transaction_ref="TEST-TX-100",
         status="paid",
     )

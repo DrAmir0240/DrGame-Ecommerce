@@ -39,6 +39,7 @@ class UserSessionOut(BaseModel):
     user_agent: str | None = None
     is_active: bool
     is_primary: bool = False
+    is_current: bool = False
     last_active_at: datetime
     created_at: datetime
 

@@ -1,6 +1,8 @@
 """Game catalog router: list, filters, details, likes, and wishlist."""
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, Request, HTTPException
+from fastapi.responses import RedirectResponse
+from app.core.security import decode_token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
@@ -159,4 +161,52 @@ async def generate_game_download_link(
         game_id=game_id,
         file_id=file_id,
     )
+
+
+@router.get("/{game_id}/downloads/{file_id}/stream", status_code=status.HTTP_302_FOUND)
+async def stream_game_download(
+    game_id: int,
+    file_id: int,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+    token: Optional[str] = Query(None),
+):
+    """
+    Direct stream & quota deduction endpoint.
+    Extracts user from Authorization header, token query param, or cookies.
+    Deducts quota atomically, logs download history, and 302 redirects to direct file URL.
+    """
+    user_id = None
+    auth_header = request.headers.get("authorization")
+    raw_token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        raw_token = auth_header.split(" ")[1]
+    elif token:
+        raw_token = token
+    elif "drgame_access_token" in request.cookies:
+        raw_token = request.cookies.get("drgame_access_token")
+
+    if raw_token:
+        try:
+            payload = decode_token(raw_token)
+            user_id = int(payload.get("sub"))
+        except Exception:
+            pass
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="برای دانلود دیتای بازی لطفاً وارد حساب خود شوید.",
+        )
+
+    res = await GamesService.generate_download_file_link(
+        db=db,
+        redis=redis,
+        user_id=user_id,
+        game_id=game_id,
+        file_id=file_id,
+    )
+    return RedirectResponse(url=res["download_url"], status_code=status.HTTP_302_FOUND)
+
 

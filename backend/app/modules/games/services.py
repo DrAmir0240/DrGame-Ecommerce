@@ -163,6 +163,8 @@ class GamesService:
         links_stmt = select(GameDownloadLink).where(GameDownloadLink.game_id == game.id, GameDownloadLink.is_active == True).order_by(GameDownloadLink.part_number.asc())
         links_res = await db.execute(links_stmt)
         download_links = [GameDownloadLinkOut.model_validate(l) for l in links_res.scalars().all()]
+        for dl in download_links:
+            dl.download_url = f"/api/games/{game.id}/downloads/{dl.id}/stream"
 
         # User interaction
         user_interaction = None
@@ -445,7 +447,32 @@ class GamesService:
         )
         file = (await db.execute(stmt)).scalar_one_or_none()
         if not file:
-            raise NotFoundException("فایل دانلودی مورد نظر یافت نشد یا غیرفعال است.")
+            # Fallback to GameDownloadLink
+            link_stmt = select(GameDownloadLink).where(
+                GameDownloadLink.id == file_id,
+                GameDownloadLink.game_id == game_id,
+                GameDownloadLink.is_active == True,
+            )
+            g_link = (await db.execute(link_stmt)).scalar_one_or_none()
+            if g_link:
+                file = GameDownloadFile(
+                    id=g_link.id,
+                    game_id=g_link.game_id,
+                    file_type="data",
+                    title=g_link.part_name,
+                    file_size_gb=g_link.file_size_gb,
+                    download_url=g_link.download_url,
+                    allowed_tiers=["free", "bronze", "silver", "gold"],
+                    is_active=True,
+                )
+            else:
+                raise NotFoundException("فایل دانلودی مورد نظر یافت نشد یا غیرفعال است.")
+
+        # Check if game is in free tier allowed list
+        from app.modules.subscriptions.models import FreeTierAllowedGame
+        is_free_game = (await db.execute(
+            select(FreeTierAllowedGame).where(FreeTierAllowedGame.game_id == game_id)
+        )).scalar_one_or_none() is not None
 
         # 2. Check user's active subscription tier & feature permissions
         from app.modules.subscriptions.models import SubscriptionTier
@@ -461,8 +488,9 @@ class GamesService:
             .limit(1)
         )
         active_sub = (await db.execute(sub_stmt)).scalar_one_or_none()
-        if not active_sub:
+        if not active_sub and not is_free_game:
             raise ForbiddenException("برای دانلود این فایل نیاز به اشتراک فعال دارید.")
+
 
         user_tier = active_sub.tier_code
         tier_obj = (await db.execute(

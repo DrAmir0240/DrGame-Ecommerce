@@ -221,7 +221,7 @@ class AdminService:
         """Read-only monitoring of domestic Tomans and global crypto transactions."""
         payments = (await db.execute(select(OrderPayment).order_by(desc(OrderPayment.created_at)).limit(50))).scalars().all()
 
-        total_rial_toman = sum(p.final_price // 10 for p in payments if p.payment_method != "crypto_usdt")
+        total_rial_toman = sum(p.final_price for p in payments if p.payment_method != "crypto_usdt")
         total_crypto_count = sum(1 for p in payments if p.payment_method == "crypto_usdt")
 
         return {
@@ -233,7 +233,7 @@ class AdminService:
                     "id": p.id,
                     "user_id": p.user_id,
                     "tier_code": p.tier_code,
-                    "amount_toman": p.final_price // 10 if p.final_price >= 10000 else p.final_price,
+                    "amount_toman": p.final_price,
                     "payment_method": p.payment_method,
                     "transaction_ref": p.transaction_ref,
                     "status": p.status,
@@ -345,7 +345,7 @@ class AdminService:
             "active_subscriptions": active_subs,
             "total_games": total_games,
             "pending_payouts": pending_payouts,
-            "total_revenue_toman": int(total_payments // 10) if total_payments >= 10000 else int(total_payments),
+            "total_revenue_toman": int(total_payments),
         }
 
     @staticmethod
@@ -787,3 +787,128 @@ class AdminService:
                 res = await SubscriptionService.update_tier(db, code, data)
                 updated.append(res)
         return updated
+
+    @staticmethod
+    async def update_user_basic(db: AsyncSession, user_id: int, data) -> dict:
+        """Update user basic profile information from admin."""
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None:
+                setattr(user, k, v)
+
+        await db.commit()
+        await db.refresh(user)
+        return {"status": "success", "message": "اطلاعات کاربر با موفقیت ویرایش شد."}
+
+    @staticmethod
+    async def toggle_user_status(db: AsyncSession, user_id: int, is_active: bool) -> dict:
+        """Activate or ban user account from admin."""
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+
+        user.is_active = is_active
+        await db.commit()
+        state_str = "فعال" if is_active else "مسدود"
+        return {"status": "success", "message": f"حساب کاربری با موفقیت {state_str} شد."}
+
+    @staticmethod
+    async def grant_manual_subscription(db: AsyncSession, user_id: int, data) -> dict:
+        """Manually issue subscription and allocate quota for a user."""
+        from app.modules.subscriptions.models import SubscriptionTier, UserSubscription
+        from app.modules.quota.models import UserQuota
+        from datetime import timedelta
+
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+
+        tier = (await db.execute(select(SubscriptionTier).where(SubscriptionTier.code == data.tier_code))).scalar_one_or_none()
+        if not tier:
+            raise NotFoundException("پلن اشتراک مورد نظر یافت نشد.")
+
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(days=data.duration_months * 30)
+
+        # 1. Create or update UserSubscription
+        existing_sub = (await db.execute(
+            select(UserSubscription).where(UserSubscription.user_id == user_id, UserSubscription.status == "active")
+        )).scalar_one_or_none()
+
+        if existing_sub:
+            existing_sub.status = "expired"
+
+        new_sub = UserSubscription(
+            user_id=user_id,
+            tier_id=tier.id,
+            status="active",
+            starts_at=now,
+            expires_at=expires_at,
+            auto_renew=False,
+        )
+        db.add(new_sub)
+
+        # 2. Allocate quota
+        quota_gb = data.quota_gb_override if data.quota_gb_override is not None else (tier.monthly_quota_gb * data.duration_months)
+        quota_bytes = int(quota_gb * 1024 * 1024 * 1024)
+
+        user_quota = (await db.execute(select(UserQuota).where(UserQuota.user_id == user_id))).scalar_one_or_none()
+        if user_quota:
+            user_quota.total_quota_bytes = quota_bytes
+            user_quota.remaining_quota_bytes = quota_bytes
+            user_quota.used_quota_bytes = 0
+            user_quota.expires_at = expires_at
+        else:
+            user_quota = UserQuota(
+                user_id=user_id,
+                total_quota_bytes=quota_bytes,
+                remaining_quota_bytes=quota_bytes,
+                used_quota_bytes=0,
+                expires_at=expires_at,
+            )
+            db.add(user_quota)
+
+        await db.commit()
+        return {
+            "status": "success",
+            "message": f"اشتراک {tier.name_fa} ({data.duration_months} ماهه) با موفقیت برای کاربر فعال شد.",
+            "quota_gb": quota_gb,
+            "expires_at": expires_at.isoformat(),
+        }
+
+    @staticmethod
+    async def update_user_subscription(db: AsyncSession, sub_id: int, data) -> dict:
+        """Edit existing user subscription (expiration, status)."""
+        from app.modules.subscriptions.models import UserSubscription
+        sub = (await db.execute(select(UserSubscription).where(UserSubscription.id == sub_id))).scalar_one_or_none()
+        if not sub:
+            raise NotFoundException("اشتراک مورد نظر یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None and hasattr(sub, k):
+                setattr(sub, k, v)
+
+        await db.commit()
+        return {"status": "success", "message": "اشتراک کاربر با موفقیت به‌روزرسانی شد."}
+
+    @staticmethod
+    async def update_discount_code(db: AsyncSession, discount_id: int, data) -> dict:
+        """Edit existing discount code."""
+        from app.modules.subscriptions.models import DiscountCode
+        disc = (await db.execute(select(DiscountCode).where(DiscountCode.id == discount_id))).scalar_one_or_none()
+        if not disc:
+            raise NotFoundException("کد تخفیف مورد نظر یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None and hasattr(disc, k):
+                setattr(disc, k, v)
+
+        await db.commit()
+        return {"status": "success", "message": "کد تخفیف با موفقیت به‌روزرسانی شد."}
+

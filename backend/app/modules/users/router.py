@@ -1,6 +1,6 @@
 """User management router: profile, sessions, avatar selection."""
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
@@ -39,6 +39,16 @@ async def update_profile(
     """Update profile details (name, avatar, hero banner)."""
     return await UserService.update_user_profile(db, current_user.id, payload)
 
+@router.post("/profile/upload-avatar", status_code=status.HTTP_200_OK)
+async def upload_profile_avatar(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    file: UploadFile = File(...),
+):
+    """Upload custom avatar image directly to S3 / local storage."""
+    url = await UserService.upload_user_avatar(db, current_user.id, file)
+    return {"status": "success", "avatar_url": url}
+
 @router.post("/change-password", response_model=MessageResponse, status_code=status.HTTP_200_OK)
 async def change_password(
     payload: ChangePasswordRequest,
@@ -55,7 +65,8 @@ async def list_sessions(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """List all active sessions for current user."""
-    return await UserService.get_user_sessions(db, current_user.id)
+    current_jti = getattr(current_user, "_current_jti", None)
+    return await UserService.get_user_sessions(db, current_user.id, current_jti=current_jti)
 
 @router.delete("/sessions/{session_id}", response_model=MessageResponse, status_code=status.HTTP_200_OK)
 async def revoke_session(
