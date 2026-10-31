@@ -27,6 +27,11 @@ from app.modules.admin.schemas import (
     GameUpdateRequest,
     SetFreeTierGamesRequest,
     DiscountCreateRequest,
+    AdminUserUpdate,
+    AdminUserStatusUpdate,
+    AdminManualSubscriptionGrant,
+    AdminSubscriptionUpdate,
+    AdminDiscountUpdate,
 )
 from app.modules.subscriptions.schemas import (
     SubscriptionTierOut,
@@ -34,6 +39,7 @@ from app.modules.subscriptions.schemas import (
     SubscriptionTiersBatchUpdate,
 )
 from app.modules.games.schemas import GenreOut, GenreCreate, GenreUpdate
+from app.modules.wallet.services import WalletService
 
 router = APIRouter(tags=["Admin Panel"])
 
@@ -111,6 +117,40 @@ async def adjust_user_quota(
     )
 
 
+@router.put("/users/{user_id}", status_code=status.HTTP_200_OK)
+async def update_user(
+    user_id: int,
+    payload: AdminUserUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update user basic profile details."""
+    return await AdminService.update_user_basic(db, user_id=user_id, data=payload)
+
+
+@router.patch("/users/{user_id}/status", status_code=status.HTTP_200_OK)
+async def toggle_user_status(
+    user_id: int,
+    payload: AdminUserStatusUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Activate or suspend user account."""
+    return await AdminService.toggle_user_status(db, user_id=user_id, is_active=payload.is_active)
+
+
+@router.post("/users/{user_id}/subscriptions", status_code=status.HTTP_201_CREATED)
+async def grant_user_subscription(
+    user_id: int,
+    payload: AdminManualSubscriptionGrant,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Manually assign subscription and quota to user."""
+    return await AdminService.grant_manual_subscription(db, user_id=user_id, data=payload)
+
+
+
 # --- Financial Monitoring ---
 
 @router.get("/finance/overview", response_model=FinanceOverviewResponse, status_code=status.HTTP_200_OK)
@@ -160,6 +200,20 @@ async def verify_settlement_account(
 ):
     """Approve or reject user settlement bank/crypto account."""
     return await AdminService.verify_settlement_account(db, account_id=account_id, is_verified=payload.is_verified)
+
+
+@router.get("/settlement-accounts", status_code=status.HTTP_200_OK)
+@router.get("/bank-accounts", status_code=status.HTTP_200_OK)
+async def list_all_settlement_accounts(
+    status: Optional[str] = Query(None, description="verified, pending, or all"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all registered settlement accounts for admin verification."""
+    return await WalletService.list_all_settlement_accounts_admin(db, status_filter=status, page=page, page_size=page_size)
+
 
 
 # --- Game Catalog Management ---
@@ -277,6 +331,18 @@ async def list_subscriptions(
     return await AdminService.list_subscriptions(db, page=page, page_size=page_size)
 
 
+@router.put("/subscriptions/{subscription_id}", status_code=status.HTTP_200_OK)
+async def update_user_subscription(
+    subscription_id: int,
+    payload: AdminSubscriptionUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update or extend a user's subscription."""
+    return await AdminService.update_user_subscription(db, sub_id=subscription_id, data=payload)
+
+
+
 @router.get("/subscription-tiers", response_model=List[SubscriptionTierOut], status_code=status.HTTP_200_OK)
 async def list_admin_subscription_tiers(
     current_admin: AdminUser = Depends(get_current_admin),
@@ -342,6 +408,18 @@ async def delete_discount(
 ):
     """Delete a discount code."""
     return await AdminService.delete_discount_code(db, discount_id)
+
+
+@router.put("/discounts/{discount_id}", status_code=status.HTTP_200_OK)
+async def update_discount(
+    discount_id: int,
+    payload: AdminDiscountUpdate,
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing discount code."""
+    return await AdminService.update_discount_code(db, discount_id=discount_id, data=payload)
+
 
 
 # --- Referral Tree & Treasury Pool Management ---

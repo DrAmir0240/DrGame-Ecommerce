@@ -21,6 +21,11 @@ class PasswordLoginRequest(BaseModel):
     login: str = Field(..., description="Username, email or phone")
     password: str = Field(..., min_length=6)
 
+class OTPLoginRequest(BaseModel):
+    target: str = Field(..., description="Phone number or email address", min_length=5, max_length=255)
+    code: str = Field(..., description="OTP verification code received", min_length=4, max_length=8)
+
+
 class ConsoleLoginRequest(BaseModel):
     console_code: str = Field(..., min_length=6, max_length=10, description="7-digit alphanumeric console code")
 

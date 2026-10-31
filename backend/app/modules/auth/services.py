@@ -158,6 +158,45 @@ class AuthService:
         return await AuthService.create_user_session(db, user, client_info)
 
     @staticmethod
+    async def login_with_otp(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        data,
+        client_info: dict,
+    ) -> TokenResponse:
+        """Authenticate existing user with verified OTP code, or auto-create account if not found."""
+        clean_target = data.target.strip().lower()
+        await AuthService.verify_otp(redis, clean_target, data.code)
+
+        is_email = "@" in clean_target
+        if is_email:
+            user = await db.scalar(select(User).where(User.email == clean_target))
+        else:
+            user = await db.scalar(select(User).where(User.phone == clean_target))
+
+        if not user:
+            # Auto-register new user seamlessly
+            default_username = f"user_{uuid.uuid4().hex[:8]}"
+            user = User(
+                full_name="کاربر دکتر گیم",
+                username=default_username,
+                email=clean_target if is_email else None,
+                phone=None if is_email else clean_target,
+                password_hash=hash_password(uuid.uuid4().hex),
+                is_active=True,
+                is_verified=True,
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+
+        if not user.is_active:
+            raise AuthorizationError("حساب کاربری شما مسدود شده است.")
+
+        return await AuthService.create_user_session(db, user, client_info)
+
+
+    @staticmethod
     async def login_with_console_code(
         db: AsyncSession,
         console_code: str,

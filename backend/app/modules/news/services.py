@@ -1,12 +1,14 @@
 """Blog, news and tutorial articles service with Redis caching and user interactions."""
 import json
+import uuid
 from datetime import datetime, timezone
 from sqlalchemy import select, func, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
-from app.core.exceptions import NotFoundException, BadRequestException
+from app.core.exceptions import NotFoundException, BadRequestException, ConflictException
 from app.modules.news.models import BlogCategory, BlogPost, BlogInteraction
+from app.modules.news.schemas import BlogPostCreate, BlogPostUpdate, BlogCategoryCreate, BlogCategoryUpdate
 
 
 INITIAL_CATEGORIES = [
@@ -335,3 +337,258 @@ class NewsService:
             "likes_count": post.likes_count,
             "dislikes_count": post.dislikes_count,
         }
+
+    # ── Admin CRUD Endpoints ───────────────────────────────────────────────────
+
+    @classmethod
+    async def admin_list_posts(
+        cls,
+        db: AsyncSession,
+        search: str | None = None,
+        category_id: int | None = None,
+        is_published: bool | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> dict:
+        """List blog posts for admin panel with filters and pagination."""
+        stmt = select(BlogPost)
+        if search and search.strip():
+            term = f"%{search.strip()}%"
+            stmt = stmt.where(or_(BlogPost.title_fa.ilike(term), BlogPost.title_en.ilike(term)))
+        if category_id:
+            stmt = stmt.where(BlogPost.category_id == category_id)
+        if is_published is not None:
+            stmt = stmt.where(BlogPost.is_published == is_published)
+
+        count_stmt = select(func.count(BlogPost.id))
+        if search and search.strip():
+            term = f"%{search.strip()}%"
+            count_stmt = count_stmt.where(or_(BlogPost.title_fa.ilike(term), BlogPost.title_en.ilike(term)))
+        if category_id:
+            count_stmt = count_stmt.where(BlogPost.category_id == category_id)
+        if is_published is not None:
+            count_stmt = count_stmt.where(BlogPost.is_published == is_published)
+
+        total = (await db.execute(count_stmt)).scalar() or 0
+
+        stmt = stmt.order_by(BlogPost.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
+        posts = (await db.execute(stmt)).scalars().all()
+
+        # Fetch category map
+        cat_res = await db.execute(select(BlogCategory))
+        cat_map = {c.id: c.name_fa for c in cat_res.scalars().all()}
+
+        items = []
+        for p in posts:
+            items.append({
+                "id": p.id,
+                "title_fa": p.title_fa,
+                "title_en": p.title_en,
+                "slug": p.slug,
+                "category_id": p.category_id,
+                "category_name": cat_map.get(p.category_id, "عمومی"),
+                "cover_image_url": p.cover_image_url,
+                "author_name": p.author_name,
+                "reading_time_min": p.reading_time_min,
+                "likes_count": p.likes_count,
+                "dislikes_count": p.dislikes_count,
+                "views_count": p.views_count,
+                "is_published": p.is_published,
+                "created_at": p.created_at,
+            })
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+        }
+
+    @classmethod
+    async def create_post(
+        cls,
+        db: AsyncSession,
+        data: BlogPostCreate,
+        redis: aioredis.Redis | None = None,
+    ) -> BlogPost:
+        """Create a new blog post as admin."""
+        # Check category existence
+        cat = (await db.execute(select(BlogCategory).where(BlogCategory.id == data.category_id))).scalar_one_or_none()
+        if not cat:
+            raise NotFoundException("دسته‌بندی مقاله یافت نشد.")
+
+        slug = data.slug.strip() if data.slug and data.slug.strip() else f"post-{uuid.uuid4().hex[:8]}"
+        # Ensure unique slug
+        existing = (await db.execute(select(BlogPost).where(BlogPost.slug == slug))).scalar_one_or_none()
+        if existing:
+            slug = f"{slug}-{uuid.uuid4().hex[:6]}"
+
+        post = BlogPost(
+            title_fa=data.title_fa,
+            title_en=data.title_en or data.title_fa,
+            slug=slug,
+            category_id=data.category_id,
+            content_fa=data.content_fa,
+            content_en=data.content_en,
+            cover_image_url=data.cover_image_url,
+            author_name=data.author_name or "تیم تحریریه دکتر گیم",
+            reading_time_min=data.reading_time_min,
+            is_published=data.is_published,
+        )
+        db.add(post)
+        await db.commit()
+        await db.refresh(post)
+
+        if redis:
+            try:
+                # Invalidate blog caches
+                async for key in redis.scan_iter("drgame:blog:*"):
+                    await redis.delete(key)
+            except Exception:
+                pass
+
+        return post
+
+    @classmethod
+    async def update_post(
+        cls,
+        db: AsyncSession,
+        post_id: int,
+        data: BlogPostUpdate,
+        redis: aioredis.Redis | None = None,
+    ) -> BlogPost:
+        """Update an existing blog post."""
+        post = (await db.execute(select(BlogPost).where(BlogPost.id == post_id))).scalar_one_or_none()
+        if not post:
+            raise NotFoundException("مقاله مورد نظر یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None:
+                setattr(post, k, v)
+
+        await db.commit()
+        await db.refresh(post)
+
+        if redis:
+            try:
+                await redis.delete(f"drgame:blog:post:{post.id}")
+                await redis.delete(f"drgame:blog:post:{post.slug}")
+                async for key in redis.scan_iter("drgame:blog:posts:*"):
+                    await redis.delete(key)
+            except Exception:
+                pass
+
+        return post
+
+    @classmethod
+    async def delete_post(
+        cls,
+        db: AsyncSession,
+        post_id: int,
+        redis: aioredis.Redis | None = None,
+    ) -> dict:
+        """Delete a blog post."""
+        post = (await db.execute(select(BlogPost).where(BlogPost.id == post_id))).scalar_one_or_none()
+        if not post:
+            raise NotFoundException("مقاله مورد نظر یافت نشد.")
+
+        await db.delete(post)
+        await db.commit()
+
+        if redis:
+            try:
+                await redis.delete(f"drgame:blog:post:{post.id}")
+                await redis.delete(f"drgame:blog:post:{post.slug}")
+                async for key in redis.scan_iter("drgame:blog:posts:*"):
+                    await redis.delete(key)
+            except Exception:
+                pass
+
+        return {"status": "success", "message": "مقاله با موفقیت حذف شد."}
+
+    @classmethod
+    async def create_category(
+        cls,
+        db: AsyncSession,
+        data: BlogCategoryCreate,
+        redis: aioredis.Redis | None = None,
+    ) -> BlogCategory:
+        """Create blog category."""
+        existing = (await db.execute(select(BlogCategory).where(BlogCategory.slug == data.slug))).scalar_one_or_none()
+        if existing:
+            raise ConflictException("دسته‌بندی با این اسلاگ قبلاً ثبت شده است.")
+
+        cat = BlogCategory(
+            name_fa=data.name_fa,
+            name_en=data.name_en,
+            slug=data.slug,
+        )
+        db.add(cat)
+        await db.commit()
+        await db.refresh(cat)
+
+        if redis:
+            try:
+                await redis.delete("drgame:blog:categories")
+            except Exception:
+                pass
+
+        return cat
+
+    @classmethod
+    async def update_category(
+        cls,
+        db: AsyncSession,
+        category_id: int,
+        data: BlogCategoryUpdate,
+        redis: aioredis.Redis | None = None,
+    ) -> BlogCategory:
+        """Update category details."""
+        cat = (await db.execute(select(BlogCategory).where(BlogCategory.id == category_id))).scalar_one_or_none()
+        if not cat:
+            raise NotFoundException("دسته‌بندی یافت نشد.")
+
+        update_dict = data.model_dump(exclude_unset=True)
+        for k, v in update_dict.items():
+            if v is not None:
+                setattr(cat, k, v)
+
+        await db.commit()
+        await db.refresh(cat)
+
+        if redis:
+            try:
+                await redis.delete("drgame:blog:categories")
+            except Exception:
+                pass
+
+        return cat
+
+    @classmethod
+    async def delete_category(
+        cls,
+        db: AsyncSession,
+        category_id: int,
+        redis: aioredis.Redis | None = None,
+    ) -> dict:
+        """Delete blog category if no posts attached."""
+        posts_count = (await db.execute(select(func.count(BlogPost.id)).where(BlogPost.category_id == category_id))).scalar() or 0
+        if posts_count > 0:
+            raise ConflictException("امکان حذف دسته‌بندی دارای مقاله وجود ندارد.")
+
+        cat = (await db.execute(select(BlogCategory).where(BlogCategory.id == category_id))).scalar_one_or_none()
+        if not cat:
+            raise NotFoundException("دسته‌بندی یافت نشد.")
+
+        await db.delete(cat)
+        await db.commit()
+
+        if redis:
+            try:
+                await redis.delete("drgame:blog:categories")
+            except Exception:
+                pass
+
+        return {"status": "success", "message": "دسته‌بندی با موفقیت حذف شد."}
+

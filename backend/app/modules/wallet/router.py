@@ -11,8 +11,10 @@ from app.modules.wallet.schemas import (
     CommissionTransactionListResponse,
     SettlementAccountCreate,
     SettlementAccountResponse,
+    SettlementAccountUpdate,
     WithdrawalRequestCreate,
     WithdrawalRequestResponse,
+    WithdrawalHistoryItem,
     SendPhoneOtpRequest,
     SendPhoneOtpResponse,
 )
@@ -96,3 +98,36 @@ async def request_withdrawal(
         settlement_account_id=data.settlement_account_id,
         amount_toman=data.amount_toman,
     )
+
+
+@router.get("/withdrawals", response_model=List[WithdrawalHistoryItem], status_code=status.HTTP_200_OK)
+async def get_user_withdrawals(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+):
+    """Retrieve user withdrawal request history."""
+    return await WalletService.list_user_withdrawals(db, current_user.id, page, page_size)
+
+
+@router.put("/settlement-accounts/{account_id}", response_model=SettlementAccountResponse, status_code=status.HTTP_200_OK)
+async def update_settlement_account(
+    account_id: int,
+    data: SettlementAccountUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Update user settlement account details."""
+    return await WalletService.update_settlement_account(db, current_user.id, account_id, data)
+
+
+@router.delete("/settlement-accounts/{account_id}", status_code=status.HTTP_200_OK)
+async def delete_settlement_account(
+    account_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Deactivate or delete user settlement account."""
+    return await WalletService.delete_settlement_account(db, current_user.id, account_id)
+

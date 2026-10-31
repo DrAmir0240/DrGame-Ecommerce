@@ -64,9 +64,10 @@ class UserService:
     @staticmethod
     async def get_user_sessions(
         db: AsyncSession,
-        user_id: int
+        user_id: int,
+        current_jti: str | None = None,
     ) -> list[UserSessionOut]:
-        """Fetch all active sessions for the user."""
+        """Fetch all active sessions for the user with is_current determination."""
         stmt = (
             select(UserSession)
             .where(UserSession.user_id == user_id, UserSession.is_active == True)
@@ -74,7 +75,31 @@ class UserService:
         )
         result = await db.execute(stmt)
         sessions = result.scalars().all()
-        return [UserSessionOut.model_validate(s) for s in sessions]
+        out_list = []
+        for idx, s in enumerate(sessions):
+            model_out = UserSessionOut.model_validate(s)
+            if current_jti and s.jti == current_jti:
+                model_out.is_current = True
+            elif not current_jti and idx == 0:
+                model_out.is_current = True
+            out_list.append(model_out)
+        return out_list
+
+    @staticmethod
+    async def upload_user_avatar(db: AsyncSession, user_id: int, file) -> str:
+        """Upload user avatar to Liara S3 or local storage and update profile."""
+        from app.core.storage import save_uploaded_file
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر یافت نشد.")
+
+        url = await save_uploaded_file(file, prefix=f"user_{user_id}_avatar", folder="avatars")
+        user.avatar_url = url
+        user.is_preset_avatar = False
+        await db.commit()
+        await db.refresh(user)
+        return url
+
 
     @staticmethod
     async def revoke_session(

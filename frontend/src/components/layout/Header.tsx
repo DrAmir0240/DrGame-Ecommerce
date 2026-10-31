@@ -175,7 +175,7 @@ export default function Header() {
               </div>
               <div className="text-start">
                 <span className="text-base sm:text-lg font-black tracking-tight text-white block leading-tight">
-                  دکتر گیم
+                  {t('chrome.brandName')}
                 </span>
                 <span className="block text-[9px] sm:text-[10px] text-slate-300 font-roboto font-bold tracking-wider">
                   DRGAME.IR
@@ -294,7 +294,7 @@ export default function Header() {
                     <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <span className="text-base font-black text-white block">دکتر گیم</span>
+                    <span className="text-base font-black text-white block">{t('chrome.brandName')}</span>
                     <span className="text-[10px] text-slate-400 font-mono">DRGAME.IR</span>
                   </div>
                 </div>

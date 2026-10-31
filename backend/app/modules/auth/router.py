@@ -12,6 +12,7 @@ from app.modules.auth.schemas import (
     OTPRequest,
     RegisterRequest,
     PasswordLoginRequest,
+    OTPLoginRequest,
     ConsoleLoginRequest,
     RefreshTokenRequest,
     TokenResponse,
@@ -71,6 +72,18 @@ async def login(
     """Authenticate with username/email/phone and password."""
     client_info = extract_client_info(request)
     return await AuthService.login_with_password(db, payload, client_info)
+
+@router.post("/login/otp", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+async def login_otp(
+    payload: OTPLoginRequest,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """Authenticate with verified OTP code (passwordless login)."""
+    client_info = extract_client_info(request)
+    return await AuthService.login_with_otp(db, redis, payload, client_info)
+
 
 @router.post("/login/console", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def login_console(

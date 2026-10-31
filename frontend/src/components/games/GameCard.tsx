@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { GameCardItem } from '@/types/game';
 import { getMediaUrl } from '@/lib/media';
-import { useTranslation } from '@/i18n';
+import { useTranslation, localizedField } from '@/i18n';
 
 interface GameCardProps {
   game: GameCardItem;
@@ -23,7 +23,8 @@ function getPlatformBadgeText(plat: string): string {
 
 export default function GameCard({ game }: GameCardProps) {
   const { locale, dir, t, n, size } = useTranslation();
-  const title = locale === 'en' ? (game.title_en || game.title_fa) : (game.title_fa || game.title_en);
+  // Backend-localized title: title_i18n → title_fa/en/ar → title
+  const title = localizedField(game, 'title', locale) || game.title_en || game.title_fa;
 
   // Normalize platforms list
   const platforms = (game.platforms && game.platforms.length > 0)

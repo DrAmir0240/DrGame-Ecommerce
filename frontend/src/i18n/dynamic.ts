@@ -61,9 +61,17 @@ export function localizedField<T extends Record<string, any>>(
 ): string {
   if (!entity) return '';
 
+  // 1. JSONB style: { title_i18n: { fa, en, ar } }
   const direct = localize(entity[`${field}_i18n`] as Localizable, locale);
   if (direct) return direct;
 
+  // 2. Column-per-language style: { title_fa, title_en, title_ar }
+  for (const candidate of fallbackChain(locale)) {
+    const column = entity[`${field}_${candidate}`];
+    if (typeof column === 'string' && column.trim() !== '') return column;
+  }
+
+  // 3. Nested translations map: { translations: { en: { title } } }
   const translations = entity.translations as
     | Partial<Record<SupportedLocale, Record<string, any>>>
     | undefined;
@@ -74,6 +82,7 @@ export function localizedField<T extends Record<string, any>>(
     }
   }
 
+  // 4. Plain value or locale dictionary: { title: 'God of War' | { fa, en } }
   return localize(entity[field] as Localizable, locale);
 }
 

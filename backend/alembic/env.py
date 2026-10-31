@@ -55,6 +55,7 @@ except ImportError:
 
 try:
     from app.modules.tickets.models import *
+    from app.modules.core.models import *
 except ImportError:
     pass
 

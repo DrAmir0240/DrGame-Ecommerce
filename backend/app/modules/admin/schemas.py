@@ -176,3 +176,36 @@ class DiscountCreateRequest(BaseModel):
     usage_limit: Optional[int] = 100
     expires_at: Optional[datetime] = None
     is_active: Optional[bool] = True
+
+
+class AdminUserUpdate(BaseModel):
+    username: Optional[str] = None
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+
+class AdminUserStatusUpdate(BaseModel):
+    is_active: bool
+
+
+class AdminManualSubscriptionGrant(BaseModel):
+    tier_code: str = Field(..., description="bronze, silver, gold, or free")
+    duration_months: int = Field(default=1, ge=1, le=12)
+    quota_gb_override: Optional[float] = None
+
+
+class AdminSubscriptionUpdate(BaseModel):
+    status: Optional[str] = None  # active, expired, cancelled
+    expires_at: Optional[datetime] = None
+    remaining_quota_gb: Optional[float] = None
+
+
+class AdminDiscountUpdate(BaseModel):
+    discount_percent: Optional[int] = None
+    max_discount_toman: Optional[int] = None
+    fixed_discount_toman: Optional[int] = None
+    usage_limit: Optional[int] = None
+    expires_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
+

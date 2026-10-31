@@ -90,3 +90,26 @@ class WithdrawalRequestResponse(BaseModel):
     amount_toman: int
     status: str
     created_at: datetime
+
+
+class SettlementAccountUpdate(BaseModel):
+    account_holder: str | None = None
+    bank_name: str | None = None
+    card_number: str | None = None
+    sheba_number: str | None = None
+    crypto_wallet_address: str | None = None
+    crypto_network: str | None = None
+
+
+class WithdrawalHistoryItem(BaseModel):
+    id: int
+    amount_toman: int
+    settlement_account_id: int
+    settlement_title: str
+    account_type: str
+    card_or_sheba: str | None = None
+    status: str
+    admin_note: str | None = None
+    created_at: datetime
+    processed_at: datetime | None = None
+
