@@ -78,6 +78,11 @@ services:
       - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
       - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:-drgame_webhook_hmac_secret_key_2026}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000","http://localhost:8000"]}
+      - LIARA_ENDPOINT=${LIARA_ENDPOINT:-https://storage.c2.liara.site}
+      - LIARA_BUCKET_NAME=${LIARA_BUCKET_NAME:-drgame-storage}
+      - LIARA_ACCESS_KEY=${LIARA_ACCESS_KEY:-m9rvoec258l68eek}
+      - LIARA_SECRET_KEY=${LIARA_SECRET_KEY:-fb10fbac-cdd6-4ded-b574-4b297c1c678a}
+      - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://drgame-storage.storage.c2.liara.site}
     ports:
       - "${BACKEND_HOST_PORT:-8000}:8000"
     depends_on:
