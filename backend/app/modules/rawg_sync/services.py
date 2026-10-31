@@ -7,6 +7,7 @@ import redis.asyncio as aioredis
 
 from app.modules.games.models import Game, Genre, GameDownloadLink
 from app.modules.rawg_sync.client import RawgClient
+from app.core.storage import download_and_save_image
 
 logger = logging.getLogger("drgame.rawg_sync")
 
@@ -111,8 +112,32 @@ class RawgSyncService:
         # Genres
         genres_list = [g.get("name") for g in item.get("genres", []) if g.get("name")]
 
-        # Screenshots
-        screenshots = [s.get("image") for s in item.get("short_screenshots", []) if s.get("image")]
+        # Deterministic source identifier (src_id) for collision-free object storage
+        src_id = str(rawg_id)
+
+        # Localize cover and banner to Object Storage / local storage
+        cover_image = item.get("background_image")
+        cover_image_url = cover_image
+        if cover_image:
+            cover_image_url = await download_and_save_image(
+                cover_image, exact_key=f"games/src_{src_id}/cover.jpg"
+            )
+
+        banner_image = item.get("background_image_additional") or cover_image
+        banner_image_url = cover_image_url
+        if banner_image and banner_image != cover_image:
+            banner_image_url = await download_and_save_image(
+                banner_image, exact_key=f"games/src_{src_id}/banner.jpg"
+            )
+
+        # Localize screenshots to Object Storage (games/src_{src_id}/screenshots/{index}.jpg)
+        raw_screenshots = [s.get("image") for s in item.get("short_screenshots", []) if s.get("image")]
+        screenshots = []
+        for idx, s_url in enumerate(raw_screenshots[:6]):
+            s3_sc = await download_and_save_image(
+                s_url, exact_key=f"games/src_{src_id}/screenshots/{idx+1}.jpg"
+            )
+            screenshots.append(s3_sc)
 
         # Download size estimate (GB)
         base_size = 45.0 + (float(rawg_id % 45))
@@ -138,8 +163,8 @@ class RawgSyncService:
                 has_vr=has_vr,
                 platforms=platforms,
                 genres=genres_list,
-                cover_image_url=cover_image,
-                banner_image_url=cover_image,
+                cover_image_url=cover_image_url,
+                banner_image_url=banner_image_url,
                 screenshots=screenshots,
                 is_active=True
             )
@@ -161,7 +186,12 @@ class RawgSyncService:
         else:
             game.rating = rating
             game.metacritic = metacritic
-            game.cover_image_url = cover_image or game.cover_image_url
+            if cover_image_url:
+                game.cover_image_url = cover_image_url
+            if banner_image_url:
+                game.banner_image_url = banner_image_url
+            if screenshots:
+                game.screenshots = screenshots
 
         return game
 

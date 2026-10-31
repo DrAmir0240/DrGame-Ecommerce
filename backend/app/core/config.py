@@ -47,6 +47,20 @@ class Settings(BaseSettings):
     RAWG_API_KEY: str = "91c0c1c9c30c4796bbff63a7471fdfdd"
     RAWG_BASE_URL: str = "https://api.rawg.io/api"
 
+    # Liara S3 Object Storage
+    LIARA_ENDPOINT: str = "https://storage.c2.liara.site"
+    LIARA_BUCKET_NAME: str = "drgame-storage"
+    LIARA_ACCESS_KEY: str = "m9rvoec258l68eek"
+    LIARA_SECRET_KEY: str = "fb10fbac-cdd6-4ded-b574-4b297c1c678a"
+    LIARA_PUBLIC_URL: str | None = "https://drgame-storage.storage.c2.liara.site"
+
+    @property
+    def S3_PUBLIC_BASE_URL(self) -> str:
+        if self.LIARA_PUBLIC_URL:
+            return self.LIARA_PUBLIC_URL.rstrip("/")
+        clean_endpoint = self.LIARA_ENDPOINT.replace("https://", "").replace("http://", "").strip("/")
+        return f"https://{self.LIARA_BUCKET_NAME}.{clean_endpoint}"
+
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

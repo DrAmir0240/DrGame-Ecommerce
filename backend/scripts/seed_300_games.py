@@ -166,7 +166,108 @@ async def fetch_game_detail(client: httpx.AsyncClient, rawg_id: int) -> dict | N
         logger.warning(f"Error fetching RAWG detail for game {rawg_id}: {e}")
     return None
 
-async def seed_games_pipeline(target_count: int = 300, download_images: bool = True) -> int:
+async def enrich_and_localize_existing_games(
+    db: AsyncSession,
+    games: list[Game],
+    download_images: bool = True,
+    client: httpx.AsyncClient = None,
+    max_games: int | None = None,
+):
+    """Ensure all existing games have their screenshots and covers in Object Storage / local storage."""
+    if not download_images:
+        return
+
+    logger.info(f"Checking media and gallery screenshots for {len(games)} existing games in database...")
+    updated_count = 0
+    # Filter to games that actually need screenshots or media update
+    candidates = [
+        g for g in games
+        if not g.screenshots
+        or any(
+            s.startswith("http") and not (settings.LIARA_PUBLIC_URL and s.startswith(settings.LIARA_PUBLIC_URL))
+            for s in g.screenshots
+        )
+    ]
+    target_games = candidates[:max_games] if max_games else candidates
+    logger.info(f"Identified {len(candidates)} games needing gallery screenshots. Processing {len(target_games)} games in this run...")
+
+    for idx, g in enumerate(target_games):
+        needs_update = False
+        src_id = str(g.rawg_id or g.id)
+
+        # 1. Check screenshots: if empty or contains remote non-storage URLs
+        needs_screenshots = (
+            not g.screenshots
+            or any(
+                s.startswith("http") and not (settings.LIARA_PUBLIC_URL and s.startswith(settings.LIARA_PUBLIC_URL))
+                for s in g.screenshots
+            )
+        )
+
+        if needs_screenshots:
+            remote_urls = []
+            if g.screenshots:
+                remote_urls = [s for s in g.screenshots if s.startswith("http")]
+
+            if not remote_urls and g.rawg_id and client:
+                try:
+                    await asyncio.sleep(0.2)
+                    sc_res = await client.get(
+                        f"https://api.rawg.io/api/games/{g.rawg_id}/screenshots",
+                        params={"key": settings.RAWG_API_KEY},
+                        timeout=10.0,
+                    )
+                    if sc_res.status_code == 200:
+                        sc_data = sc_res.json().get("results", [])
+                        remote_urls = [s.get("image") for s in sc_data if s.get("image")]
+                except Exception as e:
+                    logger.warning(f"Failed to fetch screenshots for {g.title_en}: {e}")
+
+            if remote_urls:
+                new_screenshots = []
+                for s_idx, s_url in enumerate(remote_urls[:6]):
+                    saved_url = await download_and_save_image(
+                        s_url, exact_key=f"games/src_{src_id}/screenshots/{s_idx+1}.jpg"
+                    )
+                    new_screenshots.append(saved_url)
+                g.screenshots = new_screenshots
+                needs_update = True
+
+        # 2. Check cover and banner
+        if g.cover_image_url and g.cover_image_url.startswith("http") and not (
+            settings.LIARA_PUBLIC_URL and g.cover_image_url.startswith(settings.LIARA_PUBLIC_URL)
+        ):
+            g.cover_image_url = await download_and_save_image(
+                g.cover_image_url, exact_key=f"games/src_{src_id}/cover.jpg"
+            )
+            needs_update = True
+
+        if g.banner_image_url and g.banner_image_url.startswith("http") and not (
+            settings.LIARA_PUBLIC_URL and g.banner_image_url.startswith(settings.LIARA_PUBLIC_URL)
+        ):
+            g.banner_image_url = await download_and_save_image(
+                g.banner_image_url, exact_key=f"games/src_{src_id}/banner.jpg"
+            )
+            needs_update = True
+
+        if needs_update:
+            updated_count += 1
+            if updated_count % 10 == 0:
+                await db.commit()
+                logger.info(f"Enrichment checkpoint: {updated_count} games updated ({idx+1}/{len(target_games)}).")
+
+    if updated_count > 0:
+        await db.commit()
+        logger.info(f"Enrichment completed! Total games updated with screenshots: {updated_count}")
+    else:
+        logger.info("All existing games already have localized gallery screenshots.")
+
+async def seed_games_pipeline(
+    target_count: int = 300,
+    download_images: bool = True,
+    enrich_existing: bool = True,
+    enrich_limit: int | None = None,
+) -> int:
     """Main ingestion pipeline to reach target_count games in the catalog with 100% localized media."""
     logger.info(f"Starting DrGame Catalog Seeder - Target: {target_count} games...")
 
@@ -184,20 +285,30 @@ async def seed_games_pipeline(target_count: int = 300, download_images: bool = T
             await db.commit()
             logger.info(f"Created {added_files} missing download files for existing games.")
 
-        if existing_count >= target_count:
-            logger.info(f"Catalog already contains {existing_count} games >= target {target_count}. Done!")
-            return existing_count
-
-        total_saved = existing_count
-        rawg_ids_seen = {g.rawg_id for g in existing_games}
-        slugs_seen = {g.slug for g in existing_games}
-
-        # 2. Ingest from RAWG API
-        orderings = ["-rating", "-added", "-metacritic", "-released"]
-        ord_idx = 0
-        page = 1
-
         async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+            # 2. Enrich existing games with screenshots and localized media
+            if enrich_existing and existing_games:
+                await enrich_and_localize_existing_games(
+                    db,
+                    existing_games,
+                    download_images=download_images,
+                    client=client,
+                    max_games=enrich_limit,
+                )
+
+            if existing_count >= target_count:
+                logger.info(f"Catalog already contains {existing_count} games >= target {target_count}. All games enriched. Done!")
+                return existing_count
+
+            total_saved = existing_count
+            rawg_ids_seen = {g.rawg_id for g in existing_games}
+            slugs_seen = {g.slug for g in existing_games}
+
+            # 3. Ingest from RAWG API
+            orderings = ["-rating", "-added", "-metacritic", "-released"]
+            ord_idx = 0
+            page = 1
+
             while total_saved < target_count and ord_idx < len(orderings):
                 current_ordering = orderings[ord_idx]
                 results = await fetch_rawg_games_page(client, page=page, ordering=current_ordering)
@@ -275,23 +386,30 @@ async def seed_games_pipeline(target_count: int = 300, download_images: bool = T
                     cover_remote = detail.get("background_image") or item.get("background_image")
                     banner_remote = detail.get("background_image_additional") or cover_remote
 
+                    src_id = str(rawg_id)
                     cover_url = cover_remote
                     banner_url = banner_remote
                     if download_images:
                         if cover_remote:
-                            cover_url = await download_and_save_image(cover_remote, prefix=f"g{rawg_id}_cover")
+                            cover_url = await download_and_save_image(
+                                cover_remote, exact_key=f"games/src_{src_id}/cover.jpg"
+                            )
                         if banner_remote:
-                            banner_url = await download_and_save_image(banner_remote, prefix=f"g{rawg_id}_banner")
+                            banner_url = await download_and_save_image(
+                                banner_remote, exact_key=f"games/src_{src_id}/banner.jpg"
+                            )
 
-                    # Localize up to 3 screenshots
+                    # Localize up to 6 screenshots to games/src_{src_id}/screenshots/{index}.jpg
                     raw_screens = [s.get("image") for s in detail.get("short_screenshots", []) if s.get("image")]
                     screenshots = []
                     if download_images and raw_screens:
-                        for idx, s_url in enumerate(raw_screens[:3]):
-                            local_s = await download_and_save_image(s_url, prefix=f"g{rawg_id}_sc{idx+1}")
+                        for idx, s_url in enumerate(raw_screens[:6]):
+                            local_s = await download_and_save_image(
+                                s_url, exact_key=f"games/src_{src_id}/screenshots/{idx+1}.jpg"
+                            )
                             screenshots.append(local_s)
                     else:
-                        screenshots = raw_screens[:3]
+                        screenshots = raw_screens[:6]
 
                     # Create Game ORM
                     new_game = Game(
@@ -385,54 +503,8 @@ async def seed_games_pipeline(target_count: int = 300, download_images: bool = T
                 total_saved += 1
                 logger.info(f"[{total_saved}/{target_count}] Catalog seeded: {new_game.title_en}")
 
-            # If still needed to reach target_count, synthesize variations of classic PS titles
-            variant_counter = 1
-            while total_saved < target_count:
-                base = BACKUP_PLAYSTATION_GAMES[variant_counter % len(BACKUP_PLAYSTATION_GAMES)]
-                synth_slug = f"{base['slug']}-edition-{variant_counter}"
-                synth_id = 900000 + variant_counter
-                variant_counter += 1
-
-                if synth_slug in slugs_seen:
-                    continue
-                slugs_seen.add(synth_slug)
-
-                new_game = Game(
-                    rawg_id=synth_id,
-                    title_fa=f"{base['name']} - نسخه ویژه {variant_counter}",
-                    title_en=f"{base['name']} Special Edition {variant_counter}",
-                    slug=synth_slug,
-                    description_fa=f"نسخه کامل بازی {base['name']} به همراه کلیه الحاقات داستانی و ارتقای گرافیکی ۴K.",
-                    description_en=f"Complete Edition of {base['name']} with all bonus packs.",
-                    storyline_fa=base.get("storyline_fa", ""),
-                    released="2024-03-15",
-                    rating=base["rating"],
-                    metacritic=base["metacritic"],
-                    download_size_gb=round(float(base["playtime"] * 1.8 + 25), 1),
-                    is_two_player=variant_counter % 2 == 0,
-                    has_vr=variant_counter % 3 == 0,
-                    platforms=base["platforms"],
-                    genres=base["genres"],
-                    developer=base["developer"],
-                    publisher=base["publisher"],
-                    awards=["نسخه ویژه پلی‌استیشن با بالاترین امتیاز کاربران"],
-                    cover_image_url="/media/games/cover_default.jpg",
-                    banner_image_url="/media/games/banner_default.jpg",
-                    screenshots=[],
-                    is_active=True,
-                )
-                db.add(new_game)
-                await db.flush()
-
-                files = generate_download_files_for_game(new_game)
-                db.add_all(files)
-
-                total_saved += 1
-                if total_saved % 20 == 0:
-                    await db.commit()
-                    logger.info(f"[{total_saved}/{target_count}] Total games reached: {total_saved}")
-
             await db.commit()
+            logger.info(f"Catalog seeding completed. Total authentic games in database: {total_saved}")
 
         logger.info(f"Successfully reached {total_saved} games in catalog with 100% 5-part download files!")
         return total_saved
@@ -441,6 +513,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Seed 300 PlayStation games with local media and 5 download files")
     parser.add_argument("--target", type=int, default=300, help="Target number of games (default: 300)")
     parser.add_argument("--no-images", action="store_true", help="Skip remote image downloading")
+    parser.add_argument("--skip-enrich", action="store_true", help="Skip enriching screenshots for existing games")
+    parser.add_argument("--enrich-limit", type=int, default=None, help="Limit number of existing games to enrich in this run")
     args = parser.parse_args()
 
-    asyncio.run(seed_games_pipeline(target_count=args.target, download_images=not args.no_images))
+    asyncio.run(
+        seed_games_pipeline(
+            target_count=args.target,
+            download_images=not args.no_images,
+            enrich_existing=not args.skip_enrich,
+            enrich_limit=args.enrich_limit,
+        )
+    )
