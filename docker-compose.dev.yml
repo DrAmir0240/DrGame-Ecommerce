@@ -1,15 +1,32 @@
 # =============================================================================
-# docker-compose.dev.yml — DrGame E-Commerce Platform | Development
+# docker-compose.dev.yml — DrGame E-Commerce Platform | Development Environment
 # =============================================================================
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build
 
+x-logging-dev: &logging-dev
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "3"
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
 networks:
   drgame_network:
     driver: bridge
 
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
 volumes:
   drgame_pgdata_dev:
   drgame_redisdata_dev:
 
+# ---------------------------------------------------------------------------
+# Services
+# ---------------------------------------------------------------------------
 services:
 
   # ── PostgreSQL 16 Database ──────────────────────────────────────────────────
@@ -29,11 +46,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-drgame_user} -d ${POSTGRES_DB:-drgame_db}"]
       interval: 5s
-      timeout: 5s
-      retries: 5
+      timeout: 3s
+      retries: 10
       start_period: 5s
     networks:
       - drgame_network
+    logging: *logging-dev
     restart: unless-stopped
 
   # ── Redis 7 In-Memory Cache ────────────────────────────────────────────────
@@ -47,12 +65,36 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 5
       start_period: 3s
     networks:
       - drgame_network
+    logging: *logging-dev
     restart: unless-stopped
+
+  # ── Alembic Migrations (one-shot init container) ──────────────────────────
+  migrate:
+    container_name: drgame-migrate-dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://${POSTGRES_USER:-drgame_user}:${POSTGRES_PASSWORD:-drgame_secure_pass_2026}@db:5432/${POSTGRES_DB:-drgame_db}}
+      PYTHONPATH: /app
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: ["alembic", "upgrade", "head"]
+    networks:
+      - drgame_network
+    logging: *logging-dev
+    restart: "no"
 
   # ── FastAPI Backend ────────────────────────────────────────────────────────
   backend:
@@ -90,13 +132,22 @@ services:
       - 185.51.200.2
       - 8.8.8.8
       - 1.1.1.1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       cache:
         condition: service_healthy
     networks:
       - drgame_network
+    logging: *logging-dev
     restart: unless-stopped
 
   # ── Next.js 14 Frontend ────────────────────────────────────────────────────
@@ -115,10 +166,52 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=1
     ports:
       - "${FRONTEND_HOST_PORT:-3000}:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - drgame_network
+    logging: *logging-dev
+    restart: unless-stopped
+
+  # ── Django Database Admin Microservice (Port 8007) ────────────────────────
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+      target: dev
+    container_name: drgame-admin-panel
+    volumes:
+      - ./admin-panel:/app
+      - /app/staticfiles
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-drgame_db}
+      - POSTGRES_USER=${POSTGRES_USER:-drgame_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-drgame_secure_pass_2026}
+      - DJANGO_ADMIN_PORT=${DJANGO_ADMIN_PORT:-8007}
+      - DJANGO_ADMIN_USERNAME=${DJANGO_ADMIN_USERNAME:-superadmin}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:-drgame_superadmin_secure_2026}
+      - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL:-superadmin@drgame.local}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-drgame_django_admin_secret_key_prod_2026_isolated}
+      - DJANGO_DB_SCHEMA=${DJANGO_DB_SCHEMA:-django_admin}
+      - DJANGO_DEBUG=false
+      - DJANGO_ALLOWED_HOSTS=*
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8007,http://127.0.0.1:8007,http://localhost:3000,http://62.60.191.67:8007,https://62.60.191.67:8007}
+      - DJANGO_SECURE_COOKIES=false
+    ports:
+      - "${DJANGO_ADMIN_PORT:-8007}:8007"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - drgame_network
+    logging: *logging-dev
     restart: unless-stopped

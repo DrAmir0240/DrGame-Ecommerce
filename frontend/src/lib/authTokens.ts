@@ -269,3 +269,33 @@ export function clearAdminTokens(): void {
     localStorage.removeItem('drgame_admin_profile');
   }
 }
+
+/**
+ * Isolated Department Admin Token Accessors (Zero-Trust)
+ */
+export type DepartmentType = 'content' | 'finance' | 'support' | 'report' | 'referral';
+
+export function getDepartmentAdminToken(dept: DepartmentType): string | null {
+  if (typeof window === 'undefined') return null;
+  return (
+    getCookie(`drgame_${dept}_admin_token`) ||
+    (window.localStorage ? localStorage.getItem(`drgame_${dept}_admin_token`) : null)
+  );
+}
+
+export function setDepartmentAdminToken(dept: DepartmentType, token: string): void {
+  if (!token || typeof window === 'undefined') return;
+  setCookie(`drgame_${dept}_admin_token`, token, 7);
+  if (window.localStorage) {
+    localStorage.setItem(`drgame_${dept}_admin_token`, token);
+  }
+}
+
+export function clearDepartmentAdminToken(dept: DepartmentType): void {
+  deleteCookie(`drgame_${dept}_admin_token`);
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.removeItem(`drgame_${dept}_admin_token`);
+    localStorage.removeItem(`drgame_${dept}_admin_profile`);
+  }
+}
+

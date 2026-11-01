@@ -7,7 +7,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.admin_dependencies import get_current_admin
 from app.modules.users.models import User
-from app.modules.auth.admin_models import AdminUser
+
 from app.modules.tickets.schemas import (
     TicketCreate,
     TicketReply,
@@ -121,7 +121,7 @@ async def close_my_ticket(
 
 @admin_tickets_router.get("", response_model=List[TicketOut], status_code=status.HTTP_200_OK)
 async def list_admin_tickets(
-    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    current_admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     status: Optional[str] = Query(None, description="Filter by status"),
     department: Optional[str] = Query(None, description="Filter by department"),
@@ -139,7 +139,7 @@ async def list_admin_tickets(
 @admin_tickets_router.get("/{ticket_id}", response_model=TicketDetailOut, status_code=status.HTTP_200_OK)
 async def get_admin_ticket_detail(
     ticket_id: int,
-    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    current_admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Admin: get ticket detail and conversation messages."""
@@ -154,11 +154,11 @@ async def get_admin_ticket_detail(
 async def reply_admin_ticket(
     ticket_id: int,
     payload: TicketReply,
-    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    current_admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Admin: reply to ticket and notify user."""
-    admin_name = current_admin.username or "پشتیبانی دکتر گیم"
+    admin_name = current_admin.get("username", "پشتیبانی دکتر گیم") if isinstance(current_admin, dict) else (getattr(current_admin, "username", None) or "پشتیبانی دکتر گیم")
     return await TicketService.reply_ticket_admin(
         db=db,
         ticket_id=ticket_id,
@@ -172,7 +172,7 @@ async def reply_admin_ticket(
 async def update_ticket_status(
     ticket_id: int,
     payload: TicketStatusUpdate,
-    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    current_admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Admin: update status of a ticket."""

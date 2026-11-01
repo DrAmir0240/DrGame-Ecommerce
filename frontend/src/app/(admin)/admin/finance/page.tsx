@@ -1,191 +1,107 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  DollarSign,
-  TrendingUp,
-  CreditCard,
-  Shield,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
-import { FinanceOverview } from "@/types/admin";
+import Link from "next/link";
+import { DollarSign, CreditCard, Layers, Tag, ArrowLeft, ShieldCheck } from "lucide-react";
 import { apiRequest } from "@/lib/apiClient";
-import { useTranslation } from "@/i18n";
 
-const FINANCE_STATUS_KEY: Record<string, string> = {
-  paid: "admin.finance.transactions.status.paid",
-  pending: "admin.finance.transactions.status.pending",
-  failed: "admin.finance.transactions.status.failed",
-};
-
-export default function AdminFinancePage() {
-  const { t, n, price } = useTranslation();
-  const [finance, setFinance] = useState<FinanceOverview | null>(null);
+export default function FinanceDashboardPage() {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFinance = async () => {
-      try {
-        setLoading(true);
-        const data = await apiRequest<FinanceOverview>("/admin/finance/overview");
-        setFinance(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
+    apiRequest("/admin-finance/overview")
+      .then((res) => {
+        setData(res);
         setLoading(false);
-      }
-    };
-
-    fetchFinance();
+      })
+      .catch(() => {
+        setData({
+          total_revenue_toman: 0,
+          total_transactions: 0,
+          active_plans_count: 0,
+          active_discounts_count: 0,
+        });
+        setLoading(false);
+      });
   }, []);
+
+  const cards = [
+    {
+      title: "مجموع درآمد پلتفرم",
+      value: `${(data?.total_revenue_toman || 0).toLocaleString()} تومان`,
+      icon: <DollarSign className="w-6 h-6 text-amber-400" />,
+      href: "/admin/finance/transactions",
+    },
+    {
+      title: "تراکنش‌های موفق",
+      value: `${(data?.total_transactions || 0).toLocaleString()} تراکنش`,
+      icon: <CreditCard className="w-6 h-6 text-amber-400" />,
+      href: "/admin/finance/transactions",
+    },
+    {
+      title: "پلن‌های اشتراک تعریف‌شده",
+      value: `${data?.active_plans_count || 0} پلن`,
+      icon: <Layers className="w-6 h-6 text-amber-400" />,
+      href: "/admin/finance/plans",
+    },
+    {
+      title: "کدهای تخفیف فعال",
+      value: `${data?.active_discounts_count || 0} کد`,
+      icon: <Tag className="w-6 h-6 text-amber-400" />,
+      href: "/admin/finance/discounts",
+    },
+  ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-white mb-1">
-            {t("admin.finance.title")}
-          </h1>
-          <p className="text-xs text-slate-400">
-            {t("admin.finance.subtitle")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs border border-slate-700 flex items-center gap-1.5 font-mono">
-            <Shield className="w-3.5 h-3.5 text-emerald-400" />
-            {t("admin.finance.auditLocked")}
-          </span>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-white">داشبورد دپارتمان مالی و اشتراک</h1>
+        <p className="text-xs text-slate-400 mt-1">
+          نظارت بر درآمدهای سامانه، گردش تراکنش‌های بانکی، پلن‌های اشتراک و کدهای تخفیف
+        </p>
       </div>
 
-      {/* Dual Currency KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-500/10 to-transparent bg-[#0c1017] border border-emerald-500/20 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">{t("admin.finance.kpis.domestic.label")}</span>
-            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
-              <CreditCard className="w-5 h-5" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {cards.map((c) => (
+          <Link
+            key={c.title}
+            href={c.href}
+            className="p-5 rounded-2xl bg-[#0c1017] border border-slate-800 hover:border-amber-500/40 transition-all hover:-translate-y-0.5 group"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                {c.icon}
+              </div>
+              <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:text-amber-400 group-hover:-translate-x-1 transition-all" />
             </div>
-          </div>
-          <div className="text-2xl font-black text-white">
-            {loading ? "..." : price(finance?.total_domestic_volume_toman || 0)}
-          </div>
-          <span className="text-[11px] text-emerald-400/80 block">
-            {t("admin.finance.kpis.domestic.hint")}
-          </span>
-        </div>
-
-        <div className="p-6 rounded-3xl bg-gradient-to-br from-cyan-500/10 to-transparent bg-[#0c1017] border border-cyan-500/20 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">{t("admin.finance.kpis.crypto.label")}</span>
-            <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400">
-              <DollarSign className="w-5 h-5" />
+            <div className="text-xl font-extrabold text-white font-mono">
+              {loading ? "..." : c.value}
             </div>
-          </div>
-          <div className="text-2xl font-black text-white">
-            {loading
-              ? "..."
-              : t("admin.finance.kpis.crypto.value", {
-                  count: n(finance?.total_crypto_orders_count || 0),
-                })}
-          </div>
-          <span className="text-[11px] text-cyan-400/80 block">
-            {t("admin.finance.kpis.crypto.hint")}
-          </span>
-        </div>
-
-        <div className="p-6 rounded-3xl bg-gradient-to-br from-purple-500/10 to-transparent bg-[#0c1017] border border-purple-500/20 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">{t("admin.finance.kpis.orders.label")}</span>
-            <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-white">
-            {loading
-              ? "..."
-              : t("admin.finance.kpis.orders.value", {
-                  count: n(finance?.total_orders_count || 0),
-                })}
-          </div>
-          <span className="text-[11px] text-purple-400/80 block">
-            {t("admin.finance.kpis.orders.hint")}
-          </span>
-        </div>
+            <div className="text-xs text-slate-400 mt-1">{c.title}</div>
+          </Link>
+        ))}
       </div>
 
-      {/* Transactions Table */}
-      <div className="bg-[#0c1017] border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-slate-800 bg-[#121721] flex items-center justify-between">
-          <h2 className="text-xs font-bold text-slate-200 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-400" />
-            {t("admin.finance.transactions.title")}
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            {t("admin.finance.transactions.latest", { count: n(50) })}
-          </span>
+      {/* Grant Manual Subscription Helper Card */}
+      <div className="p-6 rounded-2xl bg-[#0c1017] border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white">اعطای اشتراک دستی به کاربر</h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              مدیران مالی با دسترسی کامل می‌توانند برای تایید پرداخت‌های کارت‌به‌کارت مستقیماً اشتراک کاربر را فعال نمایند.
+            </p>
+          </div>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-start text-xs">
-            <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
-              <tr>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.orderCode")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.userId")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.plan")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.amount")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.paymentMethod")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.reference")}</th>
-                <th className="py-3 px-4 font-semibold">{t("admin.finance.transactions.table.status")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {!finance || finance.recent_transactions.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-500">
-                    {t("admin.finance.transactions.empty")}
-                  </td>
-                </tr>
-              ) : (
-                finance.recent_transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-slate-800/20">
-                    <td className="py-3 px-4 font-mono text-slate-400">#{tx.id}</td>
-                    <td className="py-3 px-4 font-mono text-slate-300">
-                      {t("admin.finance.transactions.userRef", { id: tx.user_id })}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
-                        {tx.tier_code.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-emerald-400">
-                      {price(tx.amount_toman)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-slate-300 font-mono text-[11px]">
-                        {tx.payment_method === "crypto_usdt"
-                          ? "USDT TRC20"
-                          : t("admin.finance.transactions.paymentBank")}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 font-mono text-slate-500 text-[11px]" dir="ltr">
-                      {tx.transaction_ref || "AUTO_REF"}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                        {FINANCE_STATUS_KEY[tx.status]
-                          ? t(FINANCE_STATUS_KEY[tx.status])
-                          : tx.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Link
+          href="/admin/finance/transactions"
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white whitespace-nowrap transition-colors"
+        >
+          مشاهده تراکنش‌ها و اعطای اشتراک
+        </Link>
       </div>
     </div>
   );

@@ -151,17 +151,26 @@ except ImportError:
     pass
 
 try:
-    from app.modules.news.router import router as news_router, admin_blog_router
+    from app.modules.news.router import router as news_router
     app.include_router(news_router, prefix="/api/blog", tags=["Blog"])
-    app.include_router(admin_blog_router, prefix="/api", tags=["Admin Blog"])
 except ImportError:
     pass
 
 try:
-    from app.modules.admin.router import router as admin_router
-    app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
-except ImportError:
-    pass
+    from app.modules.admin.routers import (
+        content_admin_router,
+        finance_admin_router,
+        support_admin_router,
+        report_admin_router,
+        referral_admin_router,
+    )
+    app.include_router(content_admin_router)
+    app.include_router(finance_admin_router)
+    app.include_router(support_admin_router)
+    app.include_router(report_admin_router)
+    app.include_router(referral_admin_router)
+except ImportError as e:
+    logger.warning(f"Could not load department admin routers: {e}")
 
 try:
     from app.modules.home.router import router as home_router
@@ -177,11 +186,11 @@ except ImportError:
     pass
 
 try:
-    from app.modules.tickets.router import user_tickets_router, admin_tickets_router
+    from app.modules.tickets.router import user_tickets_router
     app.include_router(user_tickets_router, prefix="/api", tags=["Tickets"])
-    app.include_router(admin_tickets_router, prefix="/api", tags=["Admin Tickets"])
 except ImportError:
     pass
+
 
 @app.get("/api/genres", tags=["Genres"])
 async def get_direct_genres(

@@ -13,6 +13,26 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/hub',
+        permanent: false,
+      },
+      {
+        source: '/admin/dashboard',
+        destination: '/admin/hub',
+        permanent: false,
+      },
+      {
+        source: '/admin/login',
+        destination: '/admin/hub',
+        permanent: false,
+      },
+    ];
+  },
+
   webpack: (config, { dev }) => {
     // Only use polling if running in Docker/WSL where filesystem events don't pass through
     if (dev && process.env.WATCHPACK_POLLING === 'true') {

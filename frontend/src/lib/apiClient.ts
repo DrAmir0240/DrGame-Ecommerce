@@ -3,7 +3,14 @@
  * Uses secure in-memory and cookie-based authentication (NO localStorage credentials for customers).
  */
 
-import { getAccessToken, getAdminToken, clearAdminTokens, getCookie } from './authTokens';
+import {
+  getAccessToken,
+  getAdminToken,
+  getDepartmentAdminToken,
+  clearAdminTokens,
+  getCookie,
+  DepartmentType,
+} from './authTokens';
 import { i18n } from '@/i18n';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://62.60.191.67:8000/api';
@@ -32,31 +39,49 @@ export async function apiRequest<T = any>(
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${BASE_URL}${cleanEndpoint}`;
 
-  // Determine if this is an administrative request
-  const isAdminEndpoint =
-    cleanEndpoint.startsWith('/admin') ||
-    cleanEndpoint.includes('/admin/') ||
-    cleanEndpoint.startsWith('/home/admin');
-
   // Public authentication endpoints should never send an Authorization header
   const isPublicAuthEndpoint =
     cleanEndpoint === '/auth/login' ||
     cleanEndpoint === '/auth/register' ||
     cleanEndpoint === '/auth/otp/send' ||
     cleanEndpoint === '/auth/login/console' ||
-    cleanEndpoint === '/admin/auth/login';
+    cleanEndpoint === '/admin/auth/login' ||
+    cleanEndpoint.endsWith('/auth/login');
+
+  const isAdminEndpoint =
+    cleanEndpoint.startsWith('/admin') ||
+    cleanEndpoint.includes('/admin/') ||
+    cleanEndpoint.startsWith('/home/admin');
 
   // Read appropriate token securely without touching customer localStorage
   let token: string | null = null;
   if (!isPublicAuthEndpoint && typeof window !== 'undefined') {
-    const isAdminPage = window.location.pathname.startsWith('/admin');
+    const pathname = window.location.pathname;
 
-    if (isAdminEndpoint || isAdminPage) {
-      token = getAdminToken();
+    // Check Department isolation first:
+    const departments: DepartmentType[] = ['content', 'finance', 'support', 'report', 'referral'];
+    let matchedDept: DepartmentType | null = null;
+
+    for (const d of departments) {
+      if (cleanEndpoint.startsWith(`/admin-${d}`) || pathname.startsWith(`/admin/${d}`)) {
+        matchedDept = d;
+        break;
+      }
+    }
+
+    if (matchedDept) {
+      token = getDepartmentAdminToken(matchedDept);
     } else {
-      token = getAccessToken();
+      const isAdminPage = pathname.startsWith('/admin');
+
+      if (isAdminEndpoint || isAdminPage) {
+        token = getAdminToken();
+      } else {
+        token = getAccessToken();
+      }
     }
   }
+
 
   // Build headers safely supporting Headers object, FormData, and custom headers
   const requestHeaders = new Headers(options.headers);

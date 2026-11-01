@@ -32,6 +32,10 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 
+# Django staticfiles
+admin-panel/staticfiles/
+staticfiles/
+
 # Docker volumes & local data
 volumes/
 *.log
