@@ -14,13 +14,13 @@
  *   4. { "title": "God of War" }              → single-language fallback
  */
 
-import { SupportedLocale, DEFAULT_LOCALE } from './config';
+import { SupportedLocale, DEFAULT_LOCALE, ALL_LOCALES } from './config';
 import { getInstantDynamicTranslation } from '@/lib/dynamicTranslator';
 
 export type LocalizedDict = Partial<Record<SupportedLocale, string>>;
 export type Localizable = string | LocalizedDict | null | undefined;
 
-const LOCALES: SupportedLocale[] = ['fa', 'en', 'ar'];
+const LOCALES: SupportedLocale[] = ALL_LOCALES;
 
 /** Locale fallback chain: requested → English → Persian (source language). */
 export function fallbackChain(locale: SupportedLocale): SupportedLocale[] {

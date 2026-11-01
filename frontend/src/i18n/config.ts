@@ -1,12 +1,27 @@
 /**
  * DrGame i18n Core Configuration
- * Supports Persian (fa), English (en), and Arabic (ar).
- * Handles bidirectional layout switching (RTL for fa/ar, LTR for en).
+ * Supports 15 locales: fa, en, ar (hand-maintained) plus de, es, fr, ru, zh, ja,
+ * ko, tr, it, pt, hi, nl (generated from the English source — see
+ * `scripts/i18n/generate-locales.mjs`).
+ * Handles bidirectional layout switching (RTL for fa/ar, LTR for the rest).
+ *
+ * Codes, the default locale and the RTL set live in `locale-codes.ts` so that
+ * server-side callers can validate a locale without importing this module
+ * (and therefore without bundling every catalog).
  */
 
 import { MESSAGES } from './messages';
+import {
+  LOCALE_CODES,
+  DEFAULT_LOCALE,
+  RTL_LOCALES,
+  isRtlLocale,
+  isSupportedLocale,
+  type SupportedLocale,
+} from './locale-codes';
 
-export type SupportedLocale = 'fa' | 'en' | 'ar';
+export type { SupportedLocale };
+export { DEFAULT_LOCALE, RTL_LOCALES, isRtlLocale, isSupportedLocale };
 
 export interface LocaleMeta {
   code: SupportedLocale;
@@ -38,15 +53,96 @@ export const SUPPORTED_LOCALES: Record<SupportedLocale, LocaleMeta> = {
     flag: '🇸🇦',
     dir: 'rtl',
   },
+  de: {
+    code: 'de',
+    name: 'German',
+    nativeName: 'Deutsch',
+    flag: '🇩🇪',
+    dir: 'ltr',
+  },
+  es: {
+    code: 'es',
+    name: 'Spanish',
+    nativeName: 'Español',
+    flag: '🇪🇸',
+    dir: 'ltr',
+  },
+  fr: {
+    code: 'fr',
+    name: 'French',
+    nativeName: 'Français',
+    flag: '🇫🇷',
+    dir: 'ltr',
+  },
+  ru: {
+    code: 'ru',
+    name: 'Russian',
+    nativeName: 'Русский',
+    flag: '🇷🇺',
+    dir: 'ltr',
+  },
+  zh: {
+    code: 'zh',
+    name: 'Chinese',
+    nativeName: '简体中文',
+    flag: '🇨🇳',
+    dir: 'ltr',
+  },
+  ja: {
+    code: 'ja',
+    name: 'Japanese',
+    nativeName: '日本語',
+    flag: '🇯🇵',
+    dir: 'ltr',
+  },
+  ko: {
+    code: 'ko',
+    name: 'Korean',
+    nativeName: '한국어',
+    flag: '🇰🇷',
+    dir: 'ltr',
+  },
+  tr: {
+    code: 'tr',
+    name: 'Turkish',
+    nativeName: 'Türkçe',
+    flag: '🇹🇷',
+    dir: 'ltr',
+  },
+  it: {
+    code: 'it',
+    name: 'Italian',
+    nativeName: 'Italiano',
+    flag: '🇮🇹',
+    dir: 'ltr',
+  },
+  pt: {
+    code: 'pt',
+    name: 'Portuguese',
+    nativeName: 'Português',
+    flag: '🇧🇷',
+    dir: 'ltr',
+  },
+  hi: {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+    dir: 'ltr',
+  },
+  nl: {
+    code: 'nl',
+    name: 'Dutch',
+    nativeName: 'Nederlands',
+    flag: '🇳🇱',
+    dir: 'ltr',
+  },
 };
 
-export const DEFAULT_LOCALE: SupportedLocale = 'fa';
+/** Every locale, in switcher order. */
+export const ALL_LOCALES = [...LOCALE_CODES] as SupportedLocale[];
 
 export const RESOURCES: Record<SupportedLocale, any> = MESSAGES;
-
-export function isRtlLocale(locale: string): boolean {
-  return locale === 'fa' || locale === 'ar';
-}
 
 export function getNestedTranslation(obj: any, path: string): string | null {
   if (!obj || typeof obj !== 'object') return null;

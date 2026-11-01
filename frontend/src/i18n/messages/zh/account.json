@@ -1,0 +1,249 @@
+{
+  "dashboard": {
+    "nav": {
+      "profile": "简介和索尼头像",
+      "downloads": "我的下载",
+      "tickets": "支持票",
+      "payments": "付款记录",
+      "notifications": "通知中心",
+      "referral": "钱包和推荐收入",
+      "sessions": "活动会话和设备",
+      "subscriptions": "升级和续订"
+    },
+    "userAlt": "用户",
+    "activeAccount": "活跃账户",
+    "defaultUserName": "DrGame用户",
+    "consoleCodeLabel": "7 位控制台登录代码：",
+    "copyConsoleCode": "复制控制台代码",
+    "quotaTitle": "流量配额",
+    "quotaRemaining": "还剩 {{size}}",
+    "quotaUsed": "Used: {{size}}",
+    "quotaTotal": "Total: {{size}}",
+    "logout": "退出帐户",
+    "userMenu": "用户菜单",
+    "drawerTitle": "DrGame 用户仪表板"
+  },
+  "downloads": {
+    "fileType": {
+      "cheat": "秘籍和训练师",
+      "dlc": "附加包 (DLC)",
+      "subtitle": "波斯语字幕",
+      "dubbing": "独家配音",
+      "official": "官方游戏数据"
+    },
+    "errorFetch": "无法从服务器加载您的下载历史记录。",
+    "loginPrompt": "登录以查看您的个人下载历史记录和配额使用情况。",
+    "loginButton": "登录帐户",
+    "eyebrow": "文件传送和流量配额使用历史记录",
+    "title": "我的下载",
+    "subtitle": "根据您当前订阅提供的游戏数据、补丁和文件的记录存档",
+    "catalogButton": "游戏目录",
+    "stats": {
+      "totalDownloads": "总下载量",
+      "totalVolume": "总使用量",
+      "remainingQuota": "剩余认购额度"
+    },
+    "unitFiles": "文件",
+    "unitGigabyte": "国标",
+    "historyTitle": "交付文件历史记录",
+    "showingRecords": "显示 {{count}} 条记录",
+    "loading": "正在加载您的下载历史记录...",
+    "emptyTitle": "还没有下载",
+    "emptyDescription": "前往目录页面开始下载游戏。",
+    "statusRecorded": "已登录使用历史记录"
+  },
+  "notifications": {
+    "loginPrompt": "登录以查看您帐户的通知和个人消息。",
+    "loginButton": "登录",
+    "eyebrow": "消息、事件和系统警报",
+    "title": "通知中心",
+    "subtitle": "订阅更新、推荐奖励、新版本和支持消息",
+    "markAllRead": "全部标记为已读",
+    "tabs": {
+      "all": "所有通知",
+      "unread": "未读",
+      "bonus": "奖励及佣金",
+      "warning": "警报和安全"
+    },
+    "loading": "正在加载通知...",
+    "emptyTitle": "没有找到通知",
+    "emptyDescription": "此类别中没有消息。",
+    "newBadge": "新",
+    "viewLink": "查看相关页面",
+    "deleteTitle": "删除通知"
+  },
+  "payments": {
+    "loginPrompt": "登录查看您的付款历史记录和正式发票。",
+    "loginButton": "登录",
+    "eyebrow": "交易历史和数字发票",
+    "title": "付款记录",
+    "subtitle": "订阅、钱包充值和高级服务付款的完整档案",
+    "buySubscription": "购买或续订订阅",
+    "stats": {
+      "totalPaid": "成功付款总数",
+      "successfulOrders": "成功订单",
+      "security": "支付安全及网关保障",
+      "securityValue": "Shaparak 支付网络采用安全 SSL 加密"
+    },
+    "unitToman": "托曼",
+    "unitOrders": "订单",
+    "searchPlaceholder": "通过跟踪代码、计划名称或网关进行搜索...",
+    "filter": {
+      "all": "所有交易",
+      "success": "仅付款成功",
+      "pending": "等待确认",
+      "failed": "付款失败"
+    },
+    "status": {
+      "success": "成功",
+      "failed": "失败",
+      "pending": "等待确认"
+    },
+    "loading": "正在加载付款历史记录...",
+    "table": {
+      "tracking": "追踪码",
+      "plan": "计划/服务",
+      "amount": "金额（托曼）",
+      "gateway": "网关",
+      "dateTime": "日期和时间",
+      "status": "状态",
+      "invoice": "正式发票"
+    },
+    "empty": "未发现任何交易。",
+    "defaultPlanName": "高级游戏服务订阅",
+    "defaultGateway": "银行网关",
+    "viewInvoice": "查看发票"
+  },
+  "dashboardTickets": {
+    "loginPrompt": "登录以查看并跟进您的支持票证。",
+    "loginButton": "登录",
+    "eyebrow": "专门的订户联系和支持中心",
+    "title": "支持票",
+    "subtitle": "直接与 DrGame 技术和计费团队交谈，报告问题并快速获得解决方案",
+    "newTicket": "开新票",
+    "stats": {
+      "total": "已开票总数",
+      "inProgress": "进行中",
+      "answered": "已回答"
+    },
+    "unitTickets": "门票",
+    "searchPlaceholder": "按主题或跟踪代码搜索...",
+    "filter": {
+      "all": "所有状态",
+      "open": "等待回复",
+      "inProgress": "审核中",
+      "answered": "已回答",
+      "closed": "关闭"
+    },
+    "status": {
+      "open": "等待回复",
+      "inProgress": "审核中",
+      "answered": "已回答",
+      "closed": "关闭"
+    },
+    "department": {
+      "technical": "技术支持",
+      "downloads": "游戏数据下载",
+      "financial": "计费和订阅",
+      "general": "一般"
+    },
+    "priority": {
+      "high": "紧急",
+      "low": "正常",
+      "medium": "中等"
+    },
+    "loading": "正在加载门票...",
+    "emptyTitle": "没有找到票",
+    "emptyNoTickets": "您尚未开具任何支持票证。使用上面的按钮告诉我们您的问题。",
+    "emptyFiltered": "没有票证与此过滤器或搜索词匹配。",
+    "viewConversation": "查看对话"
+  },
+  "profile": {
+    "guestTitle": "登录查看您的个人资料",
+    "guestDescription": "请使用页面顶部的登录按钮。",
+    "avatarAlt": "游戏玩家",
+    "memberSince": "会员自：{{date}}",
+    "consoleCode": {
+      "title": "永久控制台快速登录代码",
+      "badge": "PS4 / PS5 准备就绪",
+      "description": "在控制台浏览器中输入此 7 位数代码即可立即登录，无需输入长密码。"
+    },
+    "referralCode": {
+      "title": "您的推荐码",
+      "badge": "以美元和托曼赚取",
+      "description": "与朋友分享您的个人代码，并在他们每次购买时自动赚取 3 个级别的佣金。"
+    },
+    "copyCode": "复制代码",
+    "copied": "已复制",
+    "form": {
+      "title": "编辑个人详细信息",
+      "fullName": "全名",
+      "username": "用户名（不可更改）",
+      "save": "保存更改",
+      "saving": "正在保存...",
+      "saveSuccess": "您的详细信息已成功更新。"
+    },
+    "password": {
+      "title": "更改密码",
+      "current": "当前密码",
+      "new": "新密码",
+      "submit": "更新密码",
+      "success": "您的密码已成功更新。",
+      "error": "更改密码失败"
+    }
+  },
+  "referral": {
+    "loginPrompt": "您正在查看示例营销仪表板。登录以访问您的个人链接并提取佣金。",
+    "loginButton": "登录",
+    "title": "推荐营销和钱包仪表板",
+    "settlementBadge": "直接结算",
+    "subtitle": "从最多 10 个级别的推荐网络中的每次订阅购买中赚取稳定的收入",
+    "accountsButton": "结算账户（{{count}}）",
+    "withdraw": "提取资金",
+    "layerFilterLabel": "过滤引用网络层：",
+    "layers": {
+      "one": "第 1 层（直接 - 10% 佣金）- 默认",
+      "two": "第 2 层（间接 - 5% 佣金）",
+      "three": "第 3 层（间接 - 2.5% 佣金）",
+      "all": "所有网络层"
+    },
+    "formula": {
+      "title": "阶梯式减半佣金公式",
+      "description": "在DrGame盈利模型中，系统设定了基本佣金率，并且在链条上的每一层都减半：",
+      "layer1Label": "第 1 层（直接引荐来源网址）",
+      "layer1Value": "购买金额的10%",
+      "layer1Note": "20% 基本佣金的一半",
+      "layer2Label": "第 2 层（上线引荐来源网址 2）",
+      "layer2Value": "购买金额的5%",
+      "layer2Note": "第一层佣金的一半",
+      "layer3Label": "第 3 层（上线引荐来源网址 3）",
+      "layer3Value": "购买金额的2.5%",
+      "layer3Note": "Layer 2 佣金的一半（无限期持续）"
+    },
+    "terms": {
+      "title": "条款、支付条件和法律免责声明：",
+      "item1": "1. 只有在受邀用户成功完成付款并激活订阅后，营销佣金才会计算并添加到您的可提取余额中。",
+      "item2": "2. DrGame保留持续监控交易完整性、可疑行为和自我推荐链的权利，如果发现欺诈行为，将封锁账户和余额。"
+    }
+  },
+  "sessions": {
+    "title": "会话和连接的设备",
+    "subtitle": "管理有权访问您的帐户和主要设备的设备",
+    "loading": "正在加载设备列表...",
+    "empty": "未找到活动设备。",
+    "currentBadge": "当前会话",
+    "primaryBadge": "主设备",
+    "consoleBadge": "控制台",
+    "ip": "IP：{{ip}}",
+    "lastActive": "最后活跃时间：{{time}}",
+    "currentTitle": "您无法从此处退出当前会话",
+    "primaryTitle": "已注册的主控制台受系统保护",
+    "currentButton": "当前会话",
+    "primaryButton": "主控制台",
+    "revoking": "正在退出...",
+    "revoke": "撤销访问权限",
+    "revokeSuccess": "设备已成功注销。",
+    "demoDeviceDesktop": "Chrome浏览器（本系统）",
+    "demoDeviceConsole": "PlayStation 5 游戏机"
+  }
+}

@@ -245,13 +245,13 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
       : t('tv.login');
 
   const mainTitle = activeGame
-    ? locale === 'en'
+    ? locale !== 'fa'
       ? activeGame.title_en || activeGame.title_fa
       : activeGame.title_fa || activeGame.title_en
     : '';
 
   const subtitleEn = activeGame
-    ? locale === 'en'
+    ? locale !== 'fa'
       ? activeGame.title_fa !== activeGame.title_en ? activeGame.title_fa : null
       : activeGame.title_en
     : null;
@@ -519,7 +519,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
                 ? getMediaUrl(game.cover_image_url)
                 : '/logo.png';
               const cardTitle =
-                locale === 'en'
+                locale !== 'fa'
                   ? game.title_en || game.title_fa
                   : game.title_fa || game.title_en;
 

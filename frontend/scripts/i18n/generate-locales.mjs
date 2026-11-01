@@ -72,6 +72,10 @@ const HAS_LETTER = /\p{L}/u;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const MAX_ATTEMPTS = 6;
+/** Delay between batches — the public endpoint throttles aggressively above ~2 req/s. */
+const BATCH_DELAY = 450;
+
 async function requestTranslation(text, target, attempt = 0) {
   const body = new URLSearchParams({
     client: 'gtx',
@@ -91,13 +95,20 @@ async function requestTranslation(text, target, attempt = 0) {
       body,
       signal: AbortSignal.timeout(30_000),
     });
+    if (response.status === 429) {
+      const error = new Error('HTTP 429');
+      error.rateLimited = true;
+      throw error;
+    }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     if (!Array.isArray(data?.[0])) throw new Error('unexpected payload');
     return data[0].map((chunk) => (Array.isArray(chunk) ? chunk[0] : '')).join('');
   } catch (error) {
-    if (attempt >= 3) throw error;
-    await sleep(600 * (attempt + 1) ** 2);
+    if (attempt >= MAX_ATTEMPTS) throw error;
+    // Throttling needs a much longer cool-off than a transient network blip.
+    const wait = error.rateLimited ? 8000 * (attempt + 1) : 700 * (attempt + 1) ** 2;
+    await sleep(wait);
     return requestTranslation(text, target, attempt + 1);
   }
 }
@@ -123,12 +134,9 @@ async function translateBatch(sources, target) {
   }
 
   const joined = sources.join(SEP);
-  let raw;
-  try {
-    raw = await requestTranslation(joined, target);
-  } catch {
-    raw = null;
-  }
+  // If the batched request cannot be served, fail loudly — the caller saves the
+  // cache and moves on, instead of firing 30 doomed single requests.
+  const raw = await requestTranslation(joined, target);
 
   const pieces = raw ? raw.split(/\n*<<<\s*999\s*>>>\n*/).map((s) => s.trim()) : [];
   if (pieces.length !== sources.length) {
@@ -220,12 +228,19 @@ async function generateLocale(locale, source, { force }) {
     `${locale}: ${unique.size} strings, ${pending.length} to translate (${batches} batches)`,
   );
 
+  let done = 0;
   for (let index = 0; index < pending.length; index += BATCH_SIZE) {
     const slice = pending.slice(index, index + BATCH_SIZE);
     const translated = await translateBatch(slice, locale);
     slice.forEach((source_, i) => cache.set(source_, translated[i]));
-    if ((index / BATCH_SIZE) % 10 === 0) process.stdout.write('.');
-    await sleep(120);
+    done += 1;
+
+    // Persist regularly: a throttled run resumes instead of starting over.
+    if (done % 5 === 0) {
+      await saveCache(locale, cache);
+      process.stdout.write('.');
+    }
+    await sleep(BATCH_DELAY);
   }
 
   await saveCache(locale, cache);
@@ -258,9 +273,21 @@ async function main() {
   }
 
   const source = await loadSource();
+  const failed = [];
   for (const locale of locales) {
     if (!TARGETS.includes(locale)) continue;
-    await generateLocale(locale, source, { force });
+    try {
+      await generateLocale(locale, source, { force });
+    } catch (error) {
+      // The per-locale cache is already on disk — re-running resumes from there.
+      console.error(`\n${locale}: aborted (${error.message}) — cache saved, re-run to resume`);
+      failed.push(locale);
+    }
+  }
+
+  if (failed.length) {
+    console.error(`\nincomplete: ${failed.join(' ')}`);
+    process.exitCode = 1;
   }
 }
 

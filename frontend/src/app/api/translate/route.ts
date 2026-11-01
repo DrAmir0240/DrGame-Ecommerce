@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale } from '@/i18n/locale-codes';
+import { translateWithLexicon } from '@/lib/dynamicLexicon';
 
 // Server-side in-memory cache to prevent redundant external fetches across all users
 const SERVER_CACHE = new Map<string, string>();
@@ -59,14 +61,15 @@ async function fetchTranslationWithTimeout(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { texts, targetLang, sourceLang = 'fa' } = body || {};
+    const { texts, targetLang, sourceLang = DEFAULT_LOCALE } = body || {};
 
     if (!Array.isArray(texts) || !targetLang) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
-    // Only allow supported target languages
-    if (!['en', 'ar'].includes(targetLang)) {
+    // Only allow supported target languages — unknown or source-language targets
+    // are echoed back so the client keeps the original text.
+    if (!isSupportedLocale(targetLang) || targetLang === DEFAULT_LOCALE) {
       return NextResponse.json({
         translations: Object.fromEntries(texts.map((t) => [t, t])),
       });
@@ -75,16 +78,25 @@ export async function POST(req: NextRequest) {
     const results: Record<string, string> = {};
     const missingTexts: string[] = [];
 
-    // 1. Check server cache first
+    // 1. Check server cache and lexicon first (0ms latency)
     for (const text of texts) {
       if (!text || typeof text !== 'string') continue;
       const key = getCacheKey(text, targetLang);
       const cached = SERVER_CACHE.get(key);
       if (cached && cached !== text) {
         results[text] = cached;
-      } else {
-        missingTexts.push(text);
+        continue;
       }
+
+      // Check gaming lexicon for all 15 supported locales
+      const lex = translateWithLexicon(text, targetLang as SupportedLocale);
+      if (lex.translated && lex.translated.trim() !== text.trim()) {
+        results[text] = lex.translated;
+        SERVER_CACHE.set(key, lex.translated);
+        continue;
+      }
+
+      missingTexts.push(text);
     }
 
     // 2. Translate missing items
@@ -119,7 +131,13 @@ export async function POST(req: NextRequest) {
         const pieces = translatedCombined.split(/\n*<<<\s*999\s*>>>\n*/).map((s) => s.trim());
 
         shortTexts.forEach((orig, idx) => {
-          const trans = pieces[idx] || orig;
+          let trans = pieces[idx] || orig;
+          if ((!trans || trans === orig) && targetLang !== DEFAULT_LOCALE) {
+            const fallbackLex = translateWithLexicon(orig, targetLang as SupportedLocale);
+            if (fallbackLex.translated && fallbackLex.translated !== orig) {
+              trans = fallbackLex.translated;
+            }
+          }
           results[orig] = trans;
 
           if (trans && trans !== orig) {

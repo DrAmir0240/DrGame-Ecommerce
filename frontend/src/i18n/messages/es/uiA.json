@@ -1,0 +1,160 @@
+{
+  "filters": {
+    "title": "Filtros avanzados",
+    "clearAllTitle": "Limpiar todos los filtros",
+    "clear": "Borrar",
+    "closeFilters": "Cerrar filtros",
+    "platforms": "Plataformas",
+    "platformNames": {
+      "ps5": "PlayStation 5",
+      "ps4": "Estación de juegos 4",
+      "xbox": "xbox",
+      "switch": "interruptor de nintendo"
+    },
+    "genres": "Géneros",
+    "selectedCount": "{{count}} seleccionado",
+    "showAll": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "genre": {
+      "action": "acción",
+      "adventure": "Aventura",
+      "rpg": "juego de rol",
+      "shooter": "tirador",
+      "racing": "carreras",
+      "strategy": "Estrategia",
+      "puzzle": "rompecabezas",
+      "sports": "deportes"
+    },
+    "gameMode": "Modo de juego",
+    "singlePlayer": "Un jugador",
+    "multiPlayer": "Multijugador (2+ jugadores)",
+    "vr": "Realidad virtual",
+    "vrOnly": "solo juegos de realidad virtual",
+    "active": "encendido",
+    "releaseStatus": "Estado de lanzamiento",
+    "released": "liberado",
+    "earlyAccess": "Acceso temprano",
+    "dataSize": "Tamaño de datos",
+    "sizeAll": "Todos",
+    "sizeUnder": "< {{size}}",
+    "sizeRange": "{{min}}-{{max}} GB",
+    "sizeOver": "> {{size}}",
+    "minRating": "Calificación mínima:",
+    "ratingValue": "{{value}} / 5"
+  },
+  "downloadBox": {
+    "title": "Caja de descarga multiusos a mitad de precio de DrGame",
+    "subtitle": "Servidores en la nube locales de alta velocidad facturados con un 50 % de descuento en las tarifas de tráfico de telecomunicaciones estándar",
+    "plan": "Plano:",
+    "remainingQuota": "Cuota restante:",
+    "loginBanner": "Inicia sesión en tu cuenta para descargar",
+    "emptyTitle": "Aún no se han subido archivos a esta categoría",
+    "emptyBody": "El equipo técnico de DrGame subirá los archivos de esta sección pronto, una vez que hayan pasado las comprobaciones completas de estado del servidor.",
+    "tabs": {
+      "data": "Datos oficiales del juego",
+      "cheat": "Trucos y entrenadores",
+      "dlc": "DLC y expansiones",
+      "subtitle": "Subtítulos en persa",
+      "dubbing": "Doblaje Exclusivo"
+    },
+    "features": {
+      "other": "Esta sección",
+      "data": "Datos oficiales del juego",
+      "cheat": "Trucos y entrenadores",
+      "dlc": "DLC y expansiones",
+      "subtitle": "subtítulos en persa",
+      "dubbing": "Doblaje persa"
+    },
+    "eligibility": {
+      "loginBadge": "Es necesario iniciar sesión",
+      "loginButton": "Inicia sesión para descargar",
+      "subscriptionBadge": "Se requiere suscripción activa",
+      "subscriptionButton": "Comprar suscripción",
+      "featureBadge": "No disponible en el plan {{plan}}",
+      "upgradeButton": "Actualiza tu plan",
+      "quotaBadge": "No hay suficiente cuota (queda {{remaining}})",
+      "quotaButton": "Agregar más cuota de descarga",
+      "readyBadge": "Listo para descargar",
+      "downloadButton": "Descarga directa"
+    },
+    "tiers": {
+      "free": "Gratis",
+      "bronze": "Bronce+",
+      "silver": "Plata+",
+      "gold": "oro"
+    },
+    "sizeLabel": "Size: {{size}}",
+    "partNumber": "#{{number}}",
+    "copyTitle": "Copie el enlace del archivo directo",
+    "copyDisabledTitle": "La descarga no está disponible para ti.",
+    "copyLink": "Copiar enlace"
+  },
+  "downloadModal": {
+    "title": "Confirmar descarga y deducción de cuota",
+    "loginTitle": "Es necesario iniciar sesión",
+    "loginBody": "Para descargar con tráfico a mitad de precio y utilizar su cuota de suscripción, primero inicie sesión en su cuenta.",
+    "loginButton": "Iniciar sesión / Regístrate en DrGame",
+    "quotaTitle": "No hay suficiente cuota restante",
+    "quotaBody": "El archivo seleccionado es {{size}}, mientras que su cuota restante es solo {{remaining}}.",
+    "upgradeButton": "Actualiza y compra más datos de descarga",
+    "successTitle": "La descarga comenzó exitosamente",
+    "successBody": "Redirigiendo a tu administrador de descargas...",
+    "fileName": "Nombre de pieza/archivo:",
+    "fileSize": "Tamaño del archivo:",
+    "partFallback": "Part #{{number}}",
+    "currentQuota": "Cuota actual:",
+    "quotaAfter": "Cuota después de la deducción:",
+    "warningTitle": "Nota:",
+    "warningBody": "Al confirmar e iniciar la descarga, {{size}} se deducirá de su cuota de suscripción y se registrará en su historial de descargas.",
+    "confirm": "Confirmar e iniciar la descarga",
+    "processing": "Procesando..."
+  },
+  "quotaWidget": {
+    "cta": "Compra una suscripción y descarga juegos.",
+    "remainingTime": "Tiempo restante de suscripción:",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "remainingQuota": "Cuota de descarga restante:",
+    "gigabytes": "{{value}} GB"
+  },
+  "similarGames": {
+    "titleLoading": "Juegos similares y sugeridos",
+    "title": "Juegos similares y títulos recomendados",
+    "subtitle": "{{count}} títulos populares del mismo género",
+    "viewAll": "Ver todos los juegos"
+  },
+  "gameCard": {
+    "released": "liberado",
+    "earlyAccess": "Acceso temprano"
+  },
+  "showcase": {
+    "vrSupported": "Compatible con realidad virtual",
+    "twoPlayer": "2 jugadores (cooperativo)",
+    "downloadCta": "Descargar datos del juego",
+    "detailsCta": "Ver detalles y piezas",
+    "prevSlide": "Diapositiva anterior",
+    "nextSlide": "Siguiente diapositiva",
+    "consoles": {
+      "ps5": "PlayStation 5",
+      "ps4": "Estación de juegos 4",
+      "psvr2": "PSVR",
+      "switch": "interruptor de nintendo",
+      "xbox360": "xbox",
+      "xbox": "xbox"
+    },
+    "slides": {
+      "godOfWar": {
+        "title": "Dios de la guerra: Ragnarök",
+        "description": "Únete a Kratos y Atreus en un viaje mítico a través de los nueve reinos de Escandinavia, mientras las fuerzas de Asgard se preparan para una batalla predicha."
+      },
+      "spiderMan": {
+        "title": "Marvel's Spider-Man 2",
+        "description": "Peter Parker y Miles Morales regresan para luchar contra los terroríficos Venom y Kraven the Hunter en las calles de Nueva York. Experimente la extraordinaria carga SSD casi instantánea de PlayStation 5."
+      },
+      "horizon": {
+        "title": "Horizonte: La llamada de la montaña VR",
+        "description": "Inmersión total en el mundo de Horizon con los auriculares PSVR2: tensa el arco, escala picos imponentes y enfréntate a máquinas colosales."
+      }
+    }
+  }
+}

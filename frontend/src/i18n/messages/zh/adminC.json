@@ -1,0 +1,236 @@
+{
+  "admin": {
+    "subscriptions": {
+      "title": "计划定价、九级配额和下载访问设置",
+      "subtitle": "动态设置每个计划的 1、3 和 6 个月期限的价格和下载配额，并为每种游戏内容类型授予下载权限",
+      "units": {
+        "gigabyte": "国标",
+        "terabyte": "结核病"
+      },
+      "messages": {
+        "saved": "所有价格、九级配额和下载权限均已成功保存并更新到数据库中。",
+        "saveError": "无法保存更改"
+      },
+      "pricing": {
+        "title": "计划定价和配额配置（1、3 和 6 个月期限）",
+        "subtitle": "调整每个计费期限的托曼价格和千兆字节配额",
+        "period1": "1 个月（基础）",
+        "period3": "3个月",
+        "period6": "6个月",
+        "periodBadge": "{{months}}个月期限",
+        "priceLabel": "本学期价格（托曼）：",
+        "quotaLabel": "下载配额（GB）："
+      },
+      "tiers": {
+        "free": "免费计划",
+        "bronze": "铜牌计划",
+        "silver": "白银计划",
+        "gold": "黄金贵宾计划"
+      },
+      "features": {
+        "title": "按游戏内容类型下载功能（三个订阅级别）",
+        "subtitle": "选择每个计划是否可以下载游戏数据、秘籍、DLC、波斯语字幕和独家配音",
+        "badge": "下载权限",
+        "bronze": "铜牌订阅",
+        "silver": "白银认购",
+        "gold": "黄金 VIP 订阅",
+        "saving": "保存到数据库...",
+        "save": "保存所有价格、配额和订阅功能",
+        "items": {
+          "data": {
+            "label": "基础游戏数据",
+            "desc": "下载核心数据部分"
+          },
+          "cheat": {
+            "label": "秘籍和训练师",
+            "desc": "保存游戏和专属训练师"
+          },
+          "dlc": {
+            "label": "可下载内容 (DLC)",
+            "desc": "扩展和额外的可下载内容"
+          },
+          "subtitles": {
+            "label": "波斯语游戏字幕",
+            "desc": "独家菜单和字幕翻译"
+          },
+          "dubbing": {
+            "label": "波斯语游戏配音",
+            "desc": "由波斯配音艺术家配音"
+          }
+        }
+      },
+      "free": {
+        "title": "配置免费套餐中允许的 5 款游戏",
+        "subtitle": "免费计划用户只能下载这些选定标题的数据。",
+        "selected": "{{count}} / 已选择 5 场比赛",
+        "selectPlaceholder": "从目录中选择一个游戏...",
+        "add": "添加到免费计划",
+        "remove": "从免费中删除",
+        "empty": "尚未为免费计划选择任何标题。",
+        "noImage": "无图像",
+        "maxAlert": "免费计划最多可以注册 5 款游戏。",
+        "duplicateAlert": "该游戏已在允许列表中。",
+        "saved": "免费计划允许的游戏列表已成功保存。",
+        "saveError": "免费计划游戏更新失败"
+      },
+      "table": {
+        "title": "已发布的用户订阅",
+        "recent": "最新交易",
+        "id": "身份证号",
+        "user": "用户",
+        "plan": "计划",
+        "startsAt": "开始日期",
+        "expiresAt": "有效期",
+        "status": "状态",
+        "empty": "未找到订阅。",
+        "defaultUser": "用户",
+        "active": "活跃",
+        "expired": "已过期"
+      }
+    },
+    "users": {
+      "title": "用户和下载配额管理",
+      "subtitle": "查看完整的档案和交易，并手动调整用户的下载配额",
+      "searchPlaceholder": "搜索姓名、手机、电子邮件...",
+      "units": {
+        "gigabyte": "国标"
+      },
+      "loading": "正在加载用户列表...",
+      "empty": "没有用户符合搜索条件。",
+      "status": {
+        "active": "活跃",
+        "blocked": "被阻止"
+      },
+      "table": {
+        "user": "用户",
+        "contact": "联系方式",
+        "referralCode": "推荐码",
+        "totalQuota": "总配额",
+        "usedQuota": "二手",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "actions": {
+        "quota": "配额",
+        "quotaTitle": "手动调整配额",
+        "dossier": "档案",
+        "dossierTitle": "查看用户档案"
+      },
+      "pagination": {
+        "showing": "显示 {{shown}} 个用户（共 {{total}} 个）",
+        "prev": "上一页",
+        "next": "下一页",
+        "page": "Page {{page}}"
+      },
+      "quotaModal": {
+        "title": "编辑用户配额：{{name}}",
+        "current": "目前名额：",
+        "amountLabel": "配额变更量（GB）",
+        "amountPlaceholder": "例如10或-5",
+        "hint": "使用负值（例如-5）来扣除配额。",
+        "reasonLabel": "审计日志的原因",
+        "defaultReason": "总行手动充值",
+        "cancel": "取消",
+        "submitting": "正在保存...",
+        "submit": "应用配额变更",
+        "success": "记录的新用户配额：{{quota}}。",
+        "error": "无法到达服务器"
+      },
+      "dossier": {
+        "title": "数字档案：{{name}}",
+        "loading": "正在检索用户档案...",
+        "userId": "用户ID",
+        "referralCode": "推荐码",
+        "referralBalance": "推荐余额",
+        "totalCommission": "佣金总额",
+        "quotaStatus": "下载流量配额状态",
+        "recentPurchases": "最近的购买历史",
+        "noPurchases": "该用户没有购买记录。",
+        "plan": "Plan: {{plan}}",
+        "amount": "Amount: {{amount}}"
+      }
+    },
+    "discounts": {
+      "title": "折扣代码和促销优惠券管理",
+      "subtitle": "创建具有支出上限和使用限制的百分比和固定金额折扣活动",
+      "create": "创建新的折扣代码",
+      "loading": "正在加载折扣代码...",
+      "empty": "尚未创建折扣代码。",
+      "unlimited": "无限",
+      "deleteTitle": "删除折扣代码",
+      "confirmDelete": "您确定要删除此折扣代码吗？",
+      "codeRequired": "请输入折扣代码名称。",
+      "created": "折扣码创建成功。",
+      "createError": "创建折扣码失败",
+      "status": {
+        "active": "活跃",
+        "inactive": "不活跃"
+      },
+      "table": {
+        "id": "身份证号",
+        "code": "折扣码",
+        "percent": "折扣%",
+        "maxDiscount": "折扣上限",
+        "usage": "允许/使用",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "modal": {
+        "title": "创建新的折扣优惠券",
+        "codeLabel": "折扣代码名称",
+        "codePlaceholder": "例如DRGAME20",
+        "percentLabel": "折扣百分比",
+        "maxDiscountLabel": "折扣上限（托曼）",
+        "usageLabel": "最大使用次数",
+        "cancel": "取消",
+        "submitting": "正在保存...",
+        "submit": "创建折扣代码"
+      }
+    },
+    "tickets": {
+      "title": "支持票证管理和响应台",
+      "subtitle": "查看技术和计费问题，并通过连接到数据库的实时双向聊天来跟进用户",
+      "loading": "正在加载门票...",
+      "empty": "此部分未找到门票。",
+      "defaultUser": "用户",
+      "openAndReply": "查看并回复",
+      "filters": {
+        "all": "所有门票",
+        "open": "等待回复",
+        "answered": "已回答",
+        "closed": "关闭"
+      },
+      "status": {
+        "open": "等待回复",
+        "inProgress": "审核中",
+        "answered": "已回答",
+        "closed": "关闭"
+      },
+      "table": {
+        "trackingCode": "追踪码",
+        "user": "用户",
+        "subject": "门票主题",
+        "department": "部门",
+        "date": "日期",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "errors": {
+        "load": "无法从服务器加载票证列表。",
+        "loadMessages": "无法加载票证消息。",
+        "send": "无法发送回复。",
+        "close": "无法关闭票证。"
+      },
+      "modal": {
+        "sentBy": "由{{name}}（{{phone}}）发送",
+        "closeTicket": "关闭票证",
+        "loadingMessages": "正在加载消息...",
+        "noMessages": "此票证中没有任何消息。",
+        "adminReply": "DrGame 支持回复",
+        "replyPlaceholder": "给用户写正式回复...",
+        "send": "发送回复",
+        "closedNotice": "此票证已关闭，无法发送新的回复。"
+      }
+    }
+  }
+}

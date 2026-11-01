@@ -1,0 +1,158 @@
+{
+  "admin": {
+    "layout": {
+      "brand": "管理控制面板",
+      "toggleSidebar": "切换侧边栏大小",
+      "verifyingSession": "正在验证管理员凭据...",
+      "viewStore": "查看 DrGame 商店",
+      "sessionActive": "管理会话处于活动状态",
+      "defaultAdminName": "行政主管",
+      "logout": "退出管理员帐户",
+      "logoutShort": "退出",
+      "nav": {
+        "dashboard": "执行仪表板",
+        "banners": "主横幅管理",
+        "users": "用户和配额管理",
+        "games": "游戏目录",
+        "genres": "游戏类型管理",
+        "subscriptions": "计划和免费游戏",
+        "referrals": "推荐链监控",
+        "finance": "财务监控（内部收益率/外汇）",
+        "payouts": "推荐付款台",
+        "bankAccounts": "银行账户审批",
+        "tickets": "支持票",
+        "discounts": "折扣码",
+        "blog": "博客和新闻管理",
+        "settings": "站点全局设置"
+      }
+    },
+    "login": {
+      "title": "登录管理门户",
+      "subtitle": "访问权限仅限经过验证的 DrGame 管理员",
+      "usernameLabel": "管理员用户名或电子邮件",
+      "passwordLabel": "安全密码",
+      "submit": "进入指挥中心",
+      "errors": {
+        "required": "请输入您的用户名和密码。",
+        "invalidCredentials": "管理员用户名或密码不正确。",
+        "noToken": "未从服务器收到有效令牌。",
+        "network": "无法连接到服务器。"
+      }
+    },
+    "dashboard": {
+      "title": "平台监控管理中心",
+      "subtitle": "DrGame 的性能指标、收入和实时运营摘要",
+      "coreStatus": "核心状态：运营",
+      "errors": {
+        "loadFailed": "无法加载仪表板统计信息"
+      },
+      "cards": {
+        "users": "注册用户",
+        "activeSubscriptions": "活跃订阅数",
+        "games": "游戏名称",
+        "pendingPayouts": "付款请求",
+        "totalRevenue": "总收入"
+      },
+      "quickActions": {
+        "title": "关键操作和快速操作",
+        "users": {
+          "title": "充值用户额度",
+          "description": "手动增加或减少用户下载限额"
+        },
+        "payouts": {
+          "title": "推荐付款台",
+          "description": "批准 SHEBA 银行转账和 USDT 钱包付款"
+        },
+        "games": {
+          "title": "管理游戏目录",
+          "description": "添加标题、下载链接和编辑标签"
+        },
+        "freeGames": {
+          "title": "免费级别游戏",
+          "description": "动态选择 {{count}} 个符合免费计划条件的游戏"
+        }
+      },
+      "security": {
+        "title": "安全与基础设施",
+        "authLevel": "认证级别",
+        "quotaCache": "配额查询缓存",
+        "database": "数据库模型",
+        "commissionEngine": "佣金引擎"
+      }
+    },
+    "banners": {
+      "title": "主页双英雄横幅管理",
+      "subtitle": "配置第一个横幅（特色游戏）和第二个横幅（平台服务和计划），与数据库同步",
+      "addSlide": "添加新幻灯片",
+      "loading": "正在加载横幅...",
+      "empty": "本节没有幻灯片。",
+      "defaults": {
+        "ctaText": "查看并采取行动",
+        "badgeGame": "特色游戏",
+        "badgeService": "黄金服务",
+        "ctaGame": "查看和下载",
+        "ctaSubscription": "购买订阅"
+      },
+      "tabs": {
+        "games": "横幅 1：精选 AAA 游戏 ({{count}})",
+        "services": "横幅 2：服务和订阅优惠 ({{count}})"
+      },
+      "table": {
+        "priority": "订单",
+        "preview": "图像预览",
+        "title": "幻灯片标题",
+        "badge": "徽章/标签",
+        "link": "目标链接",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "status": {
+        "active": "活跃",
+        "inactive": "不活跃"
+      },
+      "actions": {
+        "edit": "编辑",
+        "delete": "删除"
+      },
+      "confirm": {
+        "delete": "您确定要删除这张幻灯片吗？"
+      },
+      "feedback": {
+        "deleted": "幻灯片删除成功。",
+        "updated": "幻灯片更新成功。",
+        "created": "新幻灯片添加成功。"
+      },
+      "errors": {
+        "fetchFailed": "无法从服务器加载横幅。",
+        "deleteFailed": "无法删除幻灯片。",
+        "toggleFailed": "无法更改幻灯片状态。",
+        "requiredFields": "请输入标题和图像 URL。",
+        "saveFailed": "无法保存幻灯片。"
+      },
+      "modal": {
+        "editTitle": "编辑横幅幻灯片",
+        "addTitle": "添加新幻灯片",
+        "cancel": "取消",
+        "save": "保存幻灯片"
+      },
+      "form": {
+        "titleFa": "波斯语幻灯片标题：",
+        "titleEn": "英文标题（可选）：",
+        "badge": "徽章/小标签：",
+        "displayOrder": "显示优先级（顺序）：",
+        "backdropUrl": "背景图片网址：",
+        "description": "幻灯片简短说明：",
+        "platforms": "平台（逗号分隔）：",
+        "ctaText": "按钮文本 (CTA)：",
+        "linkHref": "按钮链接（参考）："
+      },
+      "placeholders": {
+        "titleFa": "例如战神诸神黄昏",
+        "badge": "本月最佳游戏",
+        "backdropUrl": "https://... 或 /uploads/...",
+        "description": "一条短短的引人入胜的线...",
+        "ctaText": "查看详情并下载"
+      }
+    }
+  }
+}

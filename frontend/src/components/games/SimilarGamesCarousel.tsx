@@ -24,7 +24,7 @@ interface SimilarGamesCarouselProps {
 }
 
 export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselProps) {
-  const { t, n } = useTranslation();
+  const { t, n, locale } = useTranslation();
   const [similarGames, setSimilarGames] = useState<SimilarGameItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -128,7 +128,7 @@ export default function SimilarGamesCarousel({ gameId }: SimilarGamesCarouselPro
             {/* Game Info */}
             <div className="p-3.5 space-y-1">
               <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-1 leading-snug">
-                {game.title_fa || game.title_en}
+                {locale !== 'fa' && game.title_en ? game.title_en : (game.title_fa || game.title_en)}
               </h3>
               {game.title_en && (
                 <p className="text-[10px] text-slate-400 font-roboto line-clamp-1" dir="ltr">

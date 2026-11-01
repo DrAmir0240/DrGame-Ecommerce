@@ -1,0 +1,192 @@
+{
+  "admin": {
+    "finance": {
+      "title": "Monitoreo financiero de doble moneda (Rial / FX)",
+      "subtitle": "Informe de solo lectura de todas las transacciones de pasarela nacionales e internacionales, tanto Shetab como cripto",
+      "auditLocked": "Bloqueado por auditoría (solo lectura)",
+      "kpis": {
+        "domestic": {
+          "label": "Facturación de riales (Shaparak / Shetab)",
+          "hint": "Pasarelas de pago bancarias nacionales"
+        },
+        "crypto": {
+          "label": "Transacciones Internacionales (USDT)",
+          "hint": "Tether TRC20 / red criptográfica",
+          "value": "{{count}} pedidos"
+        },
+        "orders": {
+          "label": "Total de pedidos pagados",
+          "hint": "Agregar pedidos de plataforma exitosos",
+          "value": "{{count}} transacciones"
+        }
+      },
+      "transactions": {
+        "title": "Transacciones recientes del sistema",
+        "latest": "Últimos {{count}} registros",
+        "empty": "No se encontraron transacciones.",
+        "userRef": "Usuario #{{id}}",
+        "paymentBank": "Transferencia bancaria (Shetab)",
+        "table": {
+          "orderCode": "Código de pedido",
+          "userId": "ID de usuario",
+          "plan": "Plan comprado",
+          "amount": "Cantidad",
+          "paymentMethod": "Método de pago",
+          "reference": "Código de seguimiento/hash",
+          "status": "Estado"
+        },
+        "status": {
+          "paid": "Pagado",
+          "pending": "En espera de pago",
+          "failed": "Fallido"
+        }
+      }
+    },
+    "payouts": {
+      "title": "Mesa de pago de comisiones por referencias",
+      "subtitle": "Revise y apruebe solicitudes de retiro, registre códigos de seguimiento y reembolse automáticamente cuando se rechace una solicitud.",
+      "filters": {
+        "all": "Todos",
+        "pending": "Pendiente de revisión",
+        "approved": "Pagado",
+        "rejected": "Rechazado"
+      },
+      "loading": "Cargando mesa de pagos...",
+      "empty": "No se encontraron solicitudes de pago.",
+      "defaultUser": "Usuario",
+      "shebaLabel": "IBAN:",
+      "cardLabel": "Número de tarjeta:",
+      "cryptoLabel": "USDT {{network}}:",
+      "status": {
+        "pending": "En espera de acción",
+        "approved": "Pagado",
+        "rejected": "Rechazado (reembolsado)"
+      },
+      "actions": {
+        "approve": "Aprobar pago",
+        "reject": "Rechazar solicitud",
+        "processed": "Procesado"
+      },
+      "table": {
+        "id": "identificación",
+        "user": "Usuario",
+        "amount": "Monto solicitado",
+        "destination": "Cuenta de destino",
+        "date": "Fecha de solicitud",
+        "status": "Estado",
+        "actions": "Acción administrativa"
+      },
+      "modal": {
+        "approveTitle": "Aprobar el pago del acuerdo",
+        "rejectTitle": "Rechazar solicitud de liquidación",
+        "userLabel": "Usuario:",
+        "amountLabel": "Monto del pago:",
+        "rejectWarning": "Nota: rechazar esta solicitud devuelve el importe a la billetera del usuario inmediatamente.",
+        "receiptLabel": "URL o enlace de la imagen del recibo",
+        "notesLabel": "nota administrativa",
+        "cancel": "Cancelar",
+        "submitting": "Enviando...",
+        "submitApprove": "Confirmar pago",
+        "submitReject": "Enviar rechazo"
+      },
+      "defaultNotes": {
+        "approved": "Liquidación transferida con éxito",
+        "rejected": "Los datos de la cuenta no son válidos"
+      },
+      "messages": {
+        "approved": "Solicitud aprobada exitosamente.",
+        "rejected": "Solicitud rechazada y el monto fue reembolsado a la billetera del usuario."
+      }
+    },
+    "referrals": {
+      "title": "Red de referencia completa y seguimiento de comisiones",
+      "subtitle": "Realice un seguimiento de cinco indicadores financieros y de rendimiento de la red de marketing, administre referencias y controle el interruptor Ocultar/Mostrar",
+      "kpis": {
+        "users": {
+          "label": "Total de miembros de la red",
+          "hint": "En los 3 niveles",
+          "unit": "usuarios"
+        },
+        "commissions": {
+          "label": "Comisiones totales ganadas",
+          "hint": "Calculado en toda la cadena"
+        },
+        "pending": {
+          "label": "Pendiente de liquidación (saldo)",
+          "hint": "Saldo activo de la billetera"
+        },
+        "activeReferrers": {
+          "label": "Comercializadores activos de nivel 1",
+          "hint": "Con al menos una línea descendente",
+          "unit": "usuarios"
+        },
+        "treasury": {
+          "label": "Saldo de tesorería de la plataforma",
+          "hint": "Depósitos excedentes de niveles sin referente"
+        }
+      },
+      "searchPlaceholder": "Buscar nombre, teléfono o código de referencia...",
+      "visibilityLabel": "Visibilidad:",
+      "visibility": {
+        "all": "Todos los usuarios",
+        "visible": "Sólo visible (normal)",
+        "hidden": "Sólo oculto"
+      },
+      "loading": "Cargando datos de la red de referencias...",
+      "empty": "No se encontraron usuarios en la red.",
+      "noCode": "Ninguno",
+      "status": {
+        "hidden": "Oculto del ranking",
+        "active": "Activo en la clasificación"
+      },
+      "table": {
+        "referrer": "referente",
+        "code": "código de referencia",
+        "layer1": "Nivel 1",
+        "layer2": "Nivel 2",
+        "layer3": "Nivel 3",
+        "totalNetwork": "red total",
+        "totalEarned": "Ganancias totales (Toman)",
+        "balance": "Saldo de billetera",
+        "status": "Estado de referencia",
+        "actions": "Ocultar acción"
+      },
+      "actions": {
+        "show": "Mostrar",
+        "hide": "Ocultar",
+        "showTitle": "Mostrar este usuario nuevamente en las estadísticas públicas",
+        "hideTitle": "Ocultar este usuario sin afectar las relaciones de red o las ganancias"
+      },
+      "feedback": {
+        "hidden": "El usuario «{{name}}» se ocultó sin eliminar los enlaces de red.",
+        "visible": "El usuario «{{name}}» ya no está oculto."
+      },
+      "errors": {
+        "load": "No se pudieron cargar los datos de monitoreo de referencias desde el servidor.",
+        "toggle": "No se pudo cambiar el estado oculto del usuario."
+      }
+    },
+    "bankAccounts": {
+      "title": "Mostrador de verificación de IBAN, tarjetas bancarias y billeteras criptográficas",
+      "subtitle": "Valide los datos bancarios y las direcciones de la billetera Tether para evitar errores en el pago de comisiones por referencias.",
+      "loading": "Cargando cuentas de liquidación...",
+      "empty": "No hay cuentas de liquidación para mostrar.",
+      "userRef": "Usuario #{{id}}",
+      "verified": "Verificado",
+      "pending": "Pendiente de verificación",
+      "defaultBankName": "sistema bancario",
+      "actions": {
+        "revoke": "Revocar verificación",
+        "verify": "Verificar cuenta"
+      },
+      "table": {
+        "id": "identificación",
+        "user": "Usuario",
+        "accountType": "Tipo de cuenta",
+        "accountValue": "Número de cuenta/dirección de billetera",
+        "verifyStatus": "Estado de verificación",
+        "toggle": "Cambiar estado"
+      }
+    }
+  }
+}

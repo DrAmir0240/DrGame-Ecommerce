@@ -1,0 +1,160 @@
+{
+  "filters": {
+    "title": "高级过滤器",
+    "clearAllTitle": "清除所有过滤器",
+    "clear": "清除",
+    "closeFilters": "关闭过滤器",
+    "platforms": "平台",
+    "platformNames": {
+      "ps5": "游戏机5",
+      "ps4": "游戏机4",
+      "xbox": "Xbox",
+      "switch": "任天堂开关"
+    },
+    "genres": "流派",
+    "selectedCount": "已选择 {{count}} 个",
+    "showAll": "显示更多",
+    "showLess": "显示较少",
+    "genre": {
+      "action": "行动",
+      "adventure": "冒险",
+      "rpg": "角色扮演游戏",
+      "shooter": "射手",
+      "racing": "赛车",
+      "strategy": "策略",
+      "puzzle": "拼图",
+      "sports": "体育运动"
+    },
+    "gameMode": "游戏模式",
+    "singlePlayer": "单人游戏",
+    "multiPlayer": "多人游戏（2 名以上玩家）",
+    "vr": "虚拟现实",
+    "vrOnly": "仅限 VR 游戏",
+    "active": "开",
+    "releaseStatus": "发布状态",
+    "released": "已发布",
+    "earlyAccess": "抢先体验",
+    "dataSize": "数据大小",
+    "sizeAll": "全部",
+    "sizeUnder": "< {{size}}",
+    "sizeRange": "{{min}}-{{max}} GB",
+    "sizeOver": "> {{size}}",
+    "minRating": "最低评级：",
+    "ratingValue": "{{value}} / 5"
+  },
+  "downloadBox": {
+    "title": "DrGame多用途半价下载盒",
+    "subtitle": "高速本地云服务器按标准电信流量费率 50% 计费",
+    "plan": "计划：",
+    "remainingQuota": "剩余名额：",
+    "loginBanner": "登录您的帐户即可下载",
+    "emptyTitle": "还没有文件上传到该类别",
+    "emptyBody": "一旦通过了服务器上的全面健康检查，DrGame 技术团队将很快上传这部分的文件。",
+    "tabs": {
+      "data": "官方游戏数据",
+      "cheat": "秘籍和训练师",
+      "dlc": "DLC 和扩展包",
+      "subtitle": "波斯语字幕",
+      "dubbing": "独家配音"
+    },
+    "features": {
+      "other": "本节",
+      "data": "官方游戏数据",
+      "cheat": "秘籍和训练师",
+      "dlc": "DLC 和扩展包",
+      "subtitle": "波斯语字幕",
+      "dubbing": "波斯语配音"
+    },
+    "eligibility": {
+      "loginBadge": "需要登录",
+      "loginButton": "登录才能下载",
+      "subscriptionBadge": "需要主动订阅",
+      "subscriptionButton": "购买订阅",
+      "featureBadge": "不适用于 {{plan}} 计划",
+      "upgradeButton": "升级您的计划",
+      "quotaBadge": "配额不足（还剩{{remaining}}）",
+      "quotaButton": "添加更多下载配额",
+      "readyBadge": "准备下载",
+      "downloadButton": "直接下载"
+    },
+    "tiers": {
+      "free": "免费",
+      "bronze": "铜牌+",
+      "silver": "银+",
+      "gold": "黄金"
+    },
+    "sizeLabel": "Size: {{size}}",
+    "partNumber": "#{{number}}",
+    "copyTitle": "复制直接文件链接",
+    "copyDisabledTitle": "您无法下载",
+    "copyLink": "复制链接"
+  },
+  "downloadModal": {
+    "title": "确认下载并扣除配额",
+    "loginTitle": "需要登录",
+    "loginBody": "如需半价流量下载并使用订阅配额，请先登录您的帐户。",
+    "loginButton": "登录/注册 DrGame",
+    "quotaTitle": "剩余配额不足",
+    "quotaBody": "The selected file is {{size}}, while your remaining quota is only {{remaining}}.",
+    "upgradeButton": "升级并购买更多下载数据",
+    "successTitle": "下载开始成功",
+    "successBody": "正在重定向到您的下载管理器...",
+    "fileName": "零件/文件名称：",
+    "fileSize": "文件大小：",
+    "partFallback": "第#{{number}}部分",
+    "currentQuota": "目前名额：",
+    "quotaAfter": "扣除后额度：",
+    "warningTitle": "注意：",
+    "warningBody": "确认并开始下载后，将从您的订阅配额中扣除 {{size}} 并记录在您的下载历史记录中。",
+    "confirm": "确认并开始下载",
+    "processing": "处理中..."
+  },
+  "quotaWidget": {
+    "cta": "购买订阅并下载游戏",
+    "remainingTime": "剩余订阅时间：",
+    "days_one": "{{count}}天",
+    "days_other": "{{count}} 天",
+    "remainingQuota": "剩余下载配额：",
+    "gigabytes": "{{value}} GB"
+  },
+  "similarGames": {
+    "titleLoading": "类似和推荐的游戏",
+    "title": "类似游戏和推荐游戏",
+    "subtitle": "{{count}} 部同类型热门作品",
+    "viewAll": "查看所有游戏"
+  },
+  "gameCard": {
+    "released": "已发布",
+    "earlyAccess": "抢先体验"
+  },
+  "showcase": {
+    "vrSupported": "支持虚拟现实",
+    "twoPlayer": "2 人（合作）",
+    "downloadCta": "下载游戏数据",
+    "detailsCta": "查看详细信息和零件",
+    "prevSlide": "上一张幻灯片",
+    "nextSlide": "下一张幻灯片",
+    "consoles": {
+      "ps5": "游戏机5",
+      "ps4": "游戏机4",
+      "psvr2": "虚拟现实",
+      "switch": "任天堂开关",
+      "xbox360": "Xbox",
+      "xbox": "Xbox"
+    },
+    "slides": {
+      "godOfWar": {
+        "title": "战神：诸神黄昏",
+        "description": "与奎托斯和阿特柔斯一起踏上穿越斯堪的纳维亚半岛九个王国的神话之旅，而阿斯加德的军队正在为一场预言中的战斗做准备。"
+      },
+      "spiderMan": {
+        "title": "漫威蜘蛛侠 2",
+        "description": "彼得·帕克和迈尔斯·莫拉莱斯回归，在纽约街头与可怕的毒液和猎人克莱文战斗。体验 PlayStation 5 非凡的近乎即时 SSD 加载。"
+      },
+      "horizon": {
+        "title": "地平线：山的呼唤 VR",
+        "description": "佩戴 PSVR2 耳机，完全沉浸在《地平线》的世界中 — 拉开弓，攀登高耸的山峰，面对巨大的机器。"
+      }
+    }
+  }
+}

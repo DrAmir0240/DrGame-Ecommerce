@@ -1,0 +1,236 @@
+{
+  "admin": {
+    "subscriptions": {
+      "title": "Precios del plan, cuotas de nueve niveles y configuración de acceso a descargas",
+      "subtitle": "Establezca dinámicamente el precio y la cuota de descarga de cada plan para períodos de 1, 3 y 6 meses, y otorgue permisos de descarga para cada tipo de contenido de juego.",
+      "units": {
+        "gigabyte": "ES",
+        "terabyte": "tuberculosis"
+      },
+      "messages": {
+        "saved": "Todos los precios, cuotas de nueve niveles y permisos de descarga se guardaron y actualizaron exitosamente en la base de datos.",
+        "saveError": "No se pudieron guardar los cambios"
+      },
+      "pricing": {
+        "title": "Configuración de precios y cuotas del plan (términos de 1, 3 y 6 meses)",
+        "subtitle": "Ajustar el precio de Toman y la cuota de gigabytes para cada término de facturación",
+        "period1": "1 mes (base)",
+        "period3": "3 meses",
+        "period6": "6 meses",
+        "periodBadge": "{{months}}-month term",
+        "priceLabel": "Precio para este término (Toman):",
+        "quotaLabel": "Cuota de descarga (GB):"
+      },
+      "tiers": {
+        "free": "Plan gratuito",
+        "bronze": "Plan Bronce",
+        "silver": "Plan Plata",
+        "gold": "Plan VIP Oro"
+      },
+      "features": {
+        "title": "Funciones de descarga por tipo de contenido del juego (tres niveles de suscripción)",
+        "subtitle": "Elige si cada plan puede descargar datos del juego, trucos, DLC, subtítulos en persa y doblaje exclusivo.",
+        "badge": "Descargar permisos",
+        "bronze": "Suscripción Bronce",
+        "silver": "Suscripción Plata",
+        "gold": "Suscripción VIP Oro",
+        "saving": "Guardando en la base de datos...",
+        "save": "Guarde todos los precios, cuotas y funciones de suscripción.",
+        "items": {
+          "data": {
+            "label": "Datos básicos del juego",
+            "desc": "Descargue las partes de datos principales"
+          },
+          "cheat": {
+            "label": "Trucos y entrenadores",
+            "desc": "Guarda partidas y entrenadores exclusivos."
+          },
+          "dlc": {
+            "label": "Contenido descargable (DLC)",
+            "desc": "Ampliaciones y contenido extra descargable"
+          },
+          "subtitles": {
+            "label": "Subtítulos de juegos persas",
+            "desc": "Traducción exclusiva de menús y subtítulos."
+          },
+          "dubbing": {
+            "label": "Doblaje de juegos persa",
+            "desc": "Voces en off de artistas de doblaje persas"
+          }
+        }
+      },
+      "free": {
+        "title": "Configura los 5 juegos permitidos en el plan gratuito",
+        "subtitle": "Los usuarios del plan gratuito sólo podrán descargar los datos de estos títulos seleccionados.",
+        "selected": "{{count}} / 5 juegos seleccionados",
+        "selectPlaceholder": "Elige un juego del catálogo...",
+        "add": "Añadir al plan gratuito",
+        "remove": "Quitar de gratis",
+        "empty": "Aún no se ha seleccionado ningún título para el plan gratuito.",
+        "noImage": "Sin imagen",
+        "maxAlert": "Se pueden registrar un máximo de 5 juegos en el plan gratuito.",
+        "duplicateAlert": "Este juego ya está en la lista permitida.",
+        "saved": "La lista de juegos permitidos del plan gratuito se guardó correctamente.",
+        "saveError": "No se pudieron actualizar los juegos del plan gratuito"
+      },
+      "table": {
+        "title": "Suscripciones de usuario emitidas",
+        "recent": "Últimas transacciones",
+        "id": "identificación",
+        "user": "Usuario",
+        "plan": "Planificar",
+        "startsAt": "Fecha de inicio",
+        "expiresAt": "Fecha de caducidad",
+        "status": "Estado",
+        "empty": "No se encontraron suscripciones.",
+        "defaultUser": "Usuario",
+        "active": "Activo",
+        "expired": "Caducado"
+      }
+    },
+    "users": {
+      "title": "Gestión de cuotas de usuarios y descargas",
+      "subtitle": "Revise expedientes y transacciones completos y ajuste las cuotas de descarga de los usuarios manualmente",
+      "searchPlaceholder": "Buscar nombre, móvil, correo electrónico...",
+      "units": {
+        "gigabyte": "ES"
+      },
+      "loading": "Cargando lista de usuarios...",
+      "empty": "Ningún usuario coincidió con los criterios de búsqueda.",
+      "status": {
+        "active": "Activo",
+        "blocked": "Bloqueado"
+      },
+      "table": {
+        "user": "Usuario",
+        "contact": "Contacto",
+        "referralCode": "código de referencia",
+        "totalQuota": "Cuota total",
+        "usedQuota": "Usado",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "quota": "Cuota",
+        "quotaTitle": "Ajustar cuota manualmente",
+        "dossier": "Dossier",
+        "dossierTitle": "Ver expediente de usuario"
+      },
+      "pagination": {
+        "showing": "Mostrando {{shown}} de {{total}} usuarios",
+        "prev": "Pagina anterior",
+        "next": "Página siguiente",
+        "page": "Page {{page}}"
+      },
+      "quotaModal": {
+        "title": "Editar cuota de usuario: {{name}}",
+        "current": "Cuota actual:",
+        "amountLabel": "Monto del cambio de cuota (GB)",
+        "amountPlaceholder": "por ej. 10 o -5",
+        "hint": "Utilice valores negativos (como -5) para deducir la cuota.",
+        "reasonLabel": "Motivo del registro de auditoría",
+        "defaultReason": "Recarga manual por central",
+        "cancel": "Cancelar",
+        "submitting": "Guardando...",
+        "submit": "Aplicar cambio de cuota",
+        "success": "Nueva cuota de usuario registrada: {{quota}}.",
+        "error": "No se pudo llegar al servidor"
+      },
+      "dossier": {
+        "title": "Dossier digital: {{name}}",
+        "loading": "Recuperando expediente de usuario...",
+        "userId": "ID de usuario",
+        "referralCode": "código de referencia",
+        "referralBalance": "Saldo de referencia",
+        "totalCommission": "comisión total",
+        "quotaStatus": "Descargar el estado de la cuota de tráfico",
+        "recentPurchases": "Historial de compras recientes",
+        "noPurchases": "No se ha registrado ninguna compra para este usuario.",
+        "plan": "Plan: {{plan}}",
+        "amount": "Amount: {{amount}}"
+      }
+    },
+    "discounts": {
+      "title": "Gestión de códigos de descuento y cupones promocionales",
+      "subtitle": "Cree campañas de descuento porcentual y de cantidad fija con límites de gasto y de uso.",
+      "create": "Crear nuevo código de descuento",
+      "loading": "Cargando códigos de descuento...",
+      "empty": "Aún no se ha creado ningún código de descuento.",
+      "unlimited": "Ilimitado",
+      "deleteTitle": "Eliminar código de descuento",
+      "confirmDelete": "¿Estás seguro de que deseas eliminar este código de descuento?",
+      "codeRequired": "Introduzca un nombre de código de descuento.",
+      "created": "Código de descuento creado exitosamente.",
+      "createError": "No se pudo crear el código de descuento",
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      },
+      "table": {
+        "id": "identificación",
+        "code": "Código de descuento",
+        "percent": "% de descuento",
+        "maxDiscount": "Límite de descuento",
+        "usage": "Permitido / usado",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "modal": {
+        "title": "Crear un nuevo cupón de descuento",
+        "codeLabel": "Nombre del código de descuento",
+        "codePlaceholder": "por ej. DRGAME20",
+        "percentLabel": "Porcentaje de descuento",
+        "maxDiscountLabel": "Límite de descuento (Toman)",
+        "usageLabel": "Número máximo de usos",
+        "cancel": "Cancelar",
+        "submitting": "Guardando...",
+        "submit": "Crear código de descuento"
+      }
+    },
+    "tickets": {
+      "title": "Soporte de gestión de tickets y mesa de respuesta",
+      "subtitle": "Revise preguntas técnicas y de facturación y realice un seguimiento de los usuarios en un chat bidireccional en vivo conectado a la base de datos.",
+      "loading": "Cargando billetes...",
+      "empty": "No se encontraron entradas en esta sección.",
+      "defaultUser": "Usuario",
+      "openAndReply": "Ver y responder",
+      "filters": {
+        "all": "Todas las entradas",
+        "open": "esperando respuesta",
+        "answered": "Respondido",
+        "closed": "Cerrado"
+      },
+      "status": {
+        "open": "esperando respuesta",
+        "inProgress": "En revisión",
+        "answered": "Respondido",
+        "closed": "Cerrado"
+      },
+      "table": {
+        "trackingCode": "Código de seguimiento",
+        "user": "Usuario",
+        "subject": "Asunto del billete",
+        "department": "Departamento",
+        "date": "Fecha",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "errors": {
+        "load": "No se pudo cargar la lista de tickets desde el servidor.",
+        "loadMessages": "No se pudieron cargar los mensajes del ticket.",
+        "send": "No se pudo enviar la respuesta.",
+        "close": "No se pudo cerrar el ticket."
+      },
+      "modal": {
+        "sentBy": "Sent by {{name}} ({{phone}})",
+        "closeTicket": "Cerrar ticket",
+        "loadingMessages": "Cargando mensajes...",
+        "noMessages": "No hay mensajes en este ticket.",
+        "adminReply": "Respuesta de soporte de DrGame",
+        "replyPlaceholder": "Escribe la respuesta oficial al usuario...",
+        "send": "Enviar respuesta",
+        "closedNotice": "Este ticket está cerrado y no se pueden enviar nuevas respuestas."
+      }
+    }
+  }
+}

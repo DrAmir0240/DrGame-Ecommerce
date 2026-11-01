@@ -221,7 +221,7 @@ export default function GameDetailPage() {
               {/* Game Main Titles */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                  {locale === 'en' && game.title_en ? game.title_en : <DynamicText text={game.title_fa || game.title_en} />}
+                  {locale !== 'fa' && game.title_en ? game.title_en : <DynamicText text={game.title_fa || game.title_en} />}
                 </h1>
                 <p className="text-base sm:text-lg text-slate-400 font-roboto font-medium tracking-wide" dir="ltr">
                   {game.title_en}
@@ -543,7 +543,7 @@ export default function GameDetailPage() {
 
               <div className="text-xs sm:text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-line space-y-3 font-normal">
                 <p>
-                  {locale === 'en' && game.description_en ? game.description_en : <DynamicText text={game.storyline_fa || game.description_fa || game.description_en} />}
+                  {locale !== 'fa' && game.description_en ? game.description_en : <DynamicText text={game.storyline_fa || game.description_fa || game.description_en} />}
                 </p>
                 {!game.storyline_fa && (
                   <p className="text-text-muted text-xs">

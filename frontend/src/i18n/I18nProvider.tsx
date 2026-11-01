@@ -5,6 +5,7 @@ import {
   SupportedLocale,
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  ALL_LOCALES,
   isRtlLocale,
   translate,
   translatePlural,
@@ -58,8 +59,7 @@ export function getInitialLocale(): SupportedLocale {
   // 3. Check browser language
   if (typeof navigator !== 'undefined' && navigator.language) {
     const nav = navigator.language.slice(0, 2).toLowerCase();
-    if (nav === 'ar') return 'ar';
-    if (nav === 'en') return 'en';
+    if (SUPPORTED_LOCALES[nav as SupportedLocale]) return nav as SupportedLocale;
   }
 
   return DEFAULT_LOCALE;
@@ -191,7 +191,7 @@ export function useTranslation() {
       percent: (value: number | null | undefined) => formatPercent(value, DEFAULT_LOCALE),
       i18n: {
         language: DEFAULT_LOCALE,
-        languages: ['fa', 'en', 'ar'] as SupportedLocale[],
+        languages: ALL_LOCALES,
         dir: () => 'rtl' as const,
         changeLanguage: async () => {},
       },
