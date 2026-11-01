@@ -60,6 +60,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.modules.dpop.models import *
+except ImportError:
+    pass
+
 config = context.config
 
 if config.config_file_name is not None:

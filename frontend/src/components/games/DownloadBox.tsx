@@ -25,6 +25,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
 import { useTranslation, DynamicText } from '@/i18n';
 import DownloadConfirmModal from './DownloadConfirmModal';
+import ConsoleStorageWidget from '@/components/console/ConsoleStorageWidget';
 
 interface DownloadBoxProps {
   links: GameDownloadLink[];
@@ -292,6 +293,9 @@ export default function DownloadBox({ links, gameTitle, gameId }: DownloadBoxPro
           </div>
         )}
       </div>
+
+      {/* Live PS5 Console Storage Widget (displayed when opened via PS5 Browser Handoff) */}
+      <ConsoleStorageWidget requiredGameSizeGb={effectiveLinks[0]?.file_size_gb} />
 
       {/* 5 Distinct Category Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-white/10 custom-scrollbar">

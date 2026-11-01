@@ -15,7 +15,14 @@ export const metadata: Metadata = {
   },
 };
 
-import AppShell from '@/components/layout/AppShell';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import AuthModal from '@/components/auth/AuthModal';
+import GamepadNavigationListener from '@/components/layout/GamepadNavigationListener';
+import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
+import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
+import TvModeHost from '@/components/layout/TvModeHost';
+import Ps5HandoffListener from '@/components/layout/Ps5HandoffListener';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout({
@@ -39,7 +46,21 @@ export default function RootLayout({
       </head>
       <body className="bg-oled text-text-primary selection:bg-cosmic-purple selection:text-white antialiased">
         <I18nProvider>
-          <AppShell>{children}</AppShell>
+          <div className="relative min-h-screen flex flex-col">
+            {/* Subtle cosmic background glow */}
+            <div className="pointer-events-none fixed inset-0 z-0 bg-dark-radial opacity-60" />
+            {/* Vector dark gaming pattern */}
+            <div className="pointer-events-none fixed inset-0 z-0 bg-[url('/bg-pattern-dark.svg')] bg-repeat opacity-[0.04]" />
+            <Header />
+            <main className="relative z-10 flex-1 pb-16 md:pb-6">{children}</main>
+            <Footer />
+            <AuthModal />
+            <GamepadNavigationListener />
+            <Ps5HandoffListener />
+            <TvModeHost />
+            <GeoLanguageModal />
+            <FloatingQuickActions />
+          </div>
         </I18nProvider>
       </body>
     </html>
