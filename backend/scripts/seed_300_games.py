@@ -285,7 +285,7 @@ async def seed_games_pipeline(
             await db.commit()
             logger.info(f"Created {added_files} missing download files for existing games.")
 
-        async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=25.0, follow_redirects=True, trust_env=True) as client:
             # 2. Enrich existing games with screenshots and localized media
             if enrich_existing and existing_games:
                 await enrich_and_localize_existing_games(

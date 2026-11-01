@@ -248,7 +248,7 @@ async def download_and_save_image(
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
-        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True, trust_env=True, headers=headers) as client:
             res = await client.get(remote_url)
             if res.status_code == 200 and len(res.content) > 100:
                 # 1. Try uploading to Liara S3
