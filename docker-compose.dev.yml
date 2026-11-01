@@ -85,6 +85,11 @@ services:
       - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://drgame-storage.storage.c2.liara.site}
     ports:
       - "${BACKEND_HOST_PORT:-8000}:8000"
+    dns:
+      - 178.22.122.100
+      - 185.51.200.2
+      - 8.8.8.8
+      - 1.1.1.1
     depends_on:
       db:
         condition: service_healthy
@@ -108,7 +113,7 @@ services:
     env_file:
       - .env
     environment:
-      - NODE_ENV=${ENVIRONMENT:-development}
+      - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
     ports:
       - "${FRONTEND_HOST_PORT:-3000}:3000"
