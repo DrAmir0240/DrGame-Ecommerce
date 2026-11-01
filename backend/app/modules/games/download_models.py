@@ -1,6 +1,6 @@
 """5-type download files and user download history models."""
 from datetime import datetime, timezone
-from sqlalchemy import String, Boolean, DateTime, Integer, Float, JSON
+from sqlalchemy import String, Boolean, DateTime, Integer, Float, JSON, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base
 
@@ -14,6 +14,8 @@ class GameDownloadFile(Base):
     file_type: Mapped[str] = mapped_column(String(20), index=True, nullable=False)  # "data", "cheat", "dlc", "subtitle", "dubbing"
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     file_size_gb: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    size_bytes: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    sha256_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     download_url: Mapped[str] = mapped_column(String(1000), nullable=False)
     allowed_tiers: Mapped[list] = mapped_column(JSON, default=lambda: ["gold", "silver", "bronze"])
     version: Mapped[str | None] = mapped_column(String(50), nullable=True)

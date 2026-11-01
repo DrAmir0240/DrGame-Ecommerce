@@ -22,6 +22,7 @@ import GamepadNavigationListener from '@/components/layout/GamepadNavigationList
 import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
 import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
 import TvModeHost from '@/components/layout/TvModeHost';
+import Ps5HandoffListener from '@/components/layout/Ps5HandoffListener';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout({
@@ -55,6 +56,7 @@ export default function RootLayout({
             <Footer />
             <AuthModal />
             <GamepadNavigationListener />
+            <Ps5HandoffListener />
             <TvModeHost />
             <GeoLanguageModal />
             <FloatingQuickActions />

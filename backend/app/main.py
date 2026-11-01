@@ -191,6 +191,18 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.modules.dpop.router import (
+        dpop_router,
+        account_dpop_router,
+        download_router,
+    )
+    app.include_router(dpop_router)
+    app.include_router(account_dpop_router)
+    app.include_router(download_router)
+except ImportError as e:
+    logger.warning(f"Could not load DPoP routers: {e}")
+
 
 @app.get("/api/genres", tags=["Genres"])
 async def get_direct_genres(

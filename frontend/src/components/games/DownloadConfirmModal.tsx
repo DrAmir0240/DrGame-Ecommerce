@@ -12,12 +12,16 @@ import {
   ShieldAlert,
   Zap,
   CheckCircle2,
+  Gamepad2,
+  Send,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { GameDownloadLink } from '@/types/game';
 import { apiRequest } from '@/lib/apiClient';
 import { useTranslation } from '@/i18n';
+import { usePs5Handoff } from '@/hooks/usePs5Handoff';
+import ConsoleStorageWidget from '@/components/console/ConsoleStorageWidget';
 
 interface DownloadConfirmModalProps {
   isOpen: boolean;
@@ -37,8 +41,11 @@ export default function DownloadConfirmModal({
   const { t, n, size } = useTranslation();
   const { isAuthenticated, setAuthModalOpen } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
+  const { handoffSecret, isPs5Device, clearHandoff } = usePs5Handoff();
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
+  const [ps5DirectSuccess, setPs5DirectSuccess] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   if (!isOpen || !link) return null;
@@ -47,6 +54,40 @@ export default function DownloadConfirmModal({
   const currentQuota = quota?.remaining_quota_gb || 0;
   const remainingAfter = Math.max(0, currentQuota - fileSize);
   const hasEnoughQuota = currentQuota >= fileSize;
+
+  const handleSendToPs5 = async () => {
+    if (!handoffSecret) {
+      setDownloadError('نشست اتصال به کنسول PS5 یافت نشد. لطفاً سایت را از داخل اپلیکیشن کنسول باز کنید.');
+      return;
+    }
+    setIsProcessing(true);
+    setDownloadError(null);
+    try {
+      const jobId = `job_${link.id}`;
+      const res = await apiRequest<{ ok: boolean; job_id: string }>('/account/dpop/handoff', {
+        method: 'POST',
+        body: JSON.stringify({
+          handoff: handoffSecret,
+          job_id: jobId,
+        }),
+      });
+
+      if (res?.ok) {
+        clearHandoff();
+        setPs5DirectSuccess(true);
+        fetchQuota();
+        setTimeout(() => {
+          setPs5DirectSuccess(false);
+          onClose();
+        }, 3000);
+      }
+    } catch (err: any) {
+      console.error('PS5 handoff error:', err);
+      setDownloadError(err.message || 'خطا در برقراری ارتباط با کنسول PS5');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleConfirmDownload = async () => {
     setIsProcessing(true);
@@ -183,6 +224,23 @@ export default function DownloadConfirmModal({
               </Link>
             </div>
           </div>
+        ) : ps5DirectSuccess ? (
+          /* PS5 Direct Success Feedback */
+          <div className="py-8 text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 rounded-3xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mx-auto shadow-neon-purple">
+              <Gamepad2 className="w-8 h-8 animate-pulse" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-base font-black text-white">دستور دانلود به کنسول PS5 ارسال شد!</h4>
+              <p className="text-xs text-purple-200/80 max-w-sm mx-auto leading-relaxed">
+                لطفاً به اپلیکیشن <strong>Download32</strong> در کنسول پلی‌استیشن ۵ خود برگردید. فرآیند دانلود موازی با ۳۲ اتصال به صورت خودکار آغاز خواهد شد.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>مجوز امن DPoP فعال شد</span>
+            </div>
+          </div>
         ) : downloadStarted ? (
           /* Success Feedback */
           <div className="py-8 text-center space-y-3">
@@ -195,6 +253,9 @@ export default function DownloadConfirmModal({
         ) : (
           /* Normal Confirmation with Quota Breakdown */
           <div className="space-y-4">
+            {/* Live Console Storage Widget (if on PS5) */}
+            <ConsoleStorageWidget requiredGameSizeGb={fileSize} className="mb-1" />
+
             {/* Error message alert if API call failed */}
             {downloadError && (
               <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
@@ -243,7 +304,7 @@ export default function DownloadConfirmModal({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/10">
+            <div className="flex flex-wrap items-center justify-end gap-2.5 pt-3 border-t border-white/10">
               <button
                 type="button"
                 onClick={onClose}
@@ -252,11 +313,24 @@ export default function DownloadConfirmModal({
               >
                 {t('common.cancel')}
               </button>
+
+              {isPs5Device && (
+                <button
+                  type="button"
+                  onClick={handleSendToPs5}
+                  disabled={isProcessing}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-black text-xs shadow-neon-purple transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Gamepad2 className="w-4 h-4" />
+                  <span>دانلود مستقیم روی PS5</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleConfirmDownload}
                 disabled={isProcessing}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
                 <span>{isProcessing ? t('downloadModal.processing') : t('downloadModal.confirm')}</span>
