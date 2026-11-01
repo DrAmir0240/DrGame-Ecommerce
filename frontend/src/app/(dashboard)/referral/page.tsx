@@ -50,6 +50,8 @@ export default function ReferralDashboardPage() {
   const [accounts, setAccounts] = useState<SettlementAccount[]>([]);
   const [transactions, setTransactions] = useState<CommissionTransaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalHistoryItem[]>([]);
+  const [withdrawalsPage, setWithdrawalsPage] = useState(1);
+  const [withdrawalsTotal, setWithdrawalsTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalTx, setTotalTx] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

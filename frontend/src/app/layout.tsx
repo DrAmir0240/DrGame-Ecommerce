@@ -15,13 +15,7 @@ export const metadata: Metadata = {
   },
 };
 
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import AuthModal from '@/components/auth/AuthModal';
-import GamepadNavigationListener from '@/components/layout/GamepadNavigationListener';
-import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
-import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
-import TvModeHost from '@/components/layout/TvModeHost';
+import AppShell from '@/components/layout/AppShell';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout({
@@ -32,6 +26,17 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className="dark" suppressHydrationWarning>
       <head>
+        {/*
+          Fonts are loaded via <link> and NOT via CSS @import:
+          a remote @import inside globals.css breaks `next build`
+          ("Module parse failed: Unexpected character '@'").
+        */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap"
+        />
         {/* Apply the stored locale before first paint so lang/dir never flash or drift from the UI copy */}
         <script
           dangerouslySetInnerHTML={{
@@ -41,20 +46,7 @@ export default function RootLayout({
       </head>
       <body className="bg-oled text-text-primary selection:bg-cosmic-purple selection:text-white antialiased">
         <I18nProvider>
-          <div className="relative min-h-screen flex flex-col">
-            {/* Subtle cosmic background glow */}
-            <div className="pointer-events-none fixed inset-0 z-0 bg-dark-radial opacity-60" />
-            {/* Vector dark gaming pattern */}
-            <div className="pointer-events-none fixed inset-0 z-0 bg-[url('/bg-pattern-dark.svg')] bg-repeat opacity-[0.04]" />
-            <Header />
-            <main className="relative z-10 flex-1 pb-16 md:pb-6">{children}</main>
-            <Footer />
-            <AuthModal />
-            <GamepadNavigationListener />
-            <TvModeHost />
-            <GeoLanguageModal />
-            <FloatingQuickActions />
-          </div>
+          <AppShell>{children}</AppShell>
         </I18nProvider>
       </body>
     </html>

@@ -28,7 +28,7 @@ export default function ToolsHubPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
         {/* Tool 1: Gamepad Tester */}
         <Link
-          href="/tools/gamepad"
+          href="/gamepad"
           className="group relative rounded-3xl glass-card border border-white/10 hover:border-cosmic-purple/50 p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 shadow-xl bg-surface-card/60"
         >
           <div>
