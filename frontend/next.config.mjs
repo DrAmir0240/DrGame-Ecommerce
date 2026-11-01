@@ -33,6 +33,19 @@ const nextConfig = {
     ];
   },
 
+  // The DualSense glb is ~12 MB — cache it hard so the tester loads instantly
+  // on repeat visits.
+  async headers() {
+    return [
+      {
+        source: '/models/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
+
   webpack: (config, { dev }) => {
     // Only use polling if running in Docker/WSL where filesystem events don't pass through
     if (dev && process.env.WATCHPACK_POLLING === 'true') {

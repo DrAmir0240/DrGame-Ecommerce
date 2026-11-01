@@ -1,0 +1,249 @@
+{
+  "dashboard": {
+    "nav": {
+      "profile": "Profil und Sony-Avatar",
+      "downloads": "Meine Downloads",
+      "tickets": "Support-Tickets",
+      "payments": "Zahlungshistorie",
+      "notifications": "Benachrichtigungscenter",
+      "referral": "Wallet- und Empfehlungseinnahmen",
+      "sessions": "Aktive Sitzungen und Geräte",
+      "subscriptions": "Abonnement upgraden und erneuern"
+    },
+    "userAlt": "Benutzer",
+    "activeAccount": "Aktives Konto",
+    "defaultUserName": "DrGame-Benutzer",
+    "consoleCodeLabel": "7-stelliger Konsolen-Anmeldecode:",
+    "copyConsoleCode": "Konsolencode kopieren",
+    "quotaTitle": "Verkehrskontingent",
+    "quotaRemaining": "{{size}} übrig",
+    "quotaUsed": "Verwendet: {{size}}",
+    "quotaTotal": "Gesamt: {{size}}",
+    "logout": "Melden Sie sich vom Konto ab",
+    "userMenu": "Benutzermenü",
+    "drawerTitle": "DrGame-Benutzer-Dashboard"
+  },
+  "downloads": {
+    "fileType": {
+      "cheat": "Cheats & Trainer",
+      "dlc": "Add-on-Paket (DLC)",
+      "subtitle": "Persische Untertitel",
+      "dubbing": "Exklusive Synchronisation",
+      "official": "Offizielle Spieldaten"
+    },
+    "errorFetch": "Ihr Download-Verlauf konnte nicht vom Server geladen werden.",
+    "loginPrompt": "Melden Sie sich an, um Ihren persönlichen Download-Verlauf und die Kontingentnutzung anzuzeigen.",
+    "loginButton": "Melden Sie sich bei Ihrem Konto an",
+    "eyebrow": "Dateiübermittlungs- und Datenverkehrskontingent-Nutzungsverlauf",
+    "title": "Meine Downloads",
+    "subtitle": "Ein aufgezeichnetes Archiv mit Spieldaten, Patches und Dateien, die im Rahmen Ihres aktuellen Abonnements bereitgestellt werden",
+    "catalogButton": "Spielekatalog",
+    "stats": {
+      "totalDownloads": "Gesamtzahl der Downloads",
+      "totalVolume": "Gesamtvolumen verbraucht",
+      "remainingQuota": "Verbleibendes Abonnementkontingent"
+    },
+    "unitFiles": "Dateien",
+    "unitGigabyte": "GB",
+    "historyTitle": "Verlauf der gelieferten Dateien",
+    "showingRecords": "Es werden {{count}} Datensätze angezeigt",
+    "loading": "Lade deinen Download-Verlauf...",
+    "emptyTitle": "Noch keine Downloads",
+    "emptyDescription": "Gehen Sie zur Katalogseite, um mit dem Herunterladen von Spielen zu beginnen.",
+    "statusRecorded": "Angemeldeter Nutzungsverlauf"
+  },
+  "notifications": {
+    "loginPrompt": "Melden Sie sich an, um Benachrichtigungen und persönliche Nachrichten für Ihr Konto anzuzeigen.",
+    "loginButton": "Melden Sie sich an",
+    "eyebrow": "Nachrichten, Ereignisse und Systemwarnungen",
+    "title": "Benachrichtigungscenter",
+    "subtitle": "Abonnementaktualisierungen, Empfehlungsprämien, Neuerscheinungen und Supportnachrichten",
+    "markAllRead": "Alle als gelesen markieren",
+    "tabs": {
+      "all": "Alle Benachrichtigungen",
+      "unread": "Ungelesen",
+      "bonus": "Belohnungen und Provisionen",
+      "warning": "Warnungen und Sicherheit"
+    },
+    "loading": "Benachrichtigungen werden geladen...",
+    "emptyTitle": "Keine Benachrichtigungen gefunden",
+    "emptyDescription": "In dieser Kategorie sind keine Nachrichten vorhanden.",
+    "newBadge": "Neu",
+    "viewLink": "Verwandte Seite anzeigen",
+    "deleteTitle": "Benachrichtigung löschen"
+  },
+  "payments": {
+    "loginPrompt": "Melden Sie sich an, um Ihren Zahlungsverlauf und Ihre offiziellen Rechnungen anzuzeigen.",
+    "loginButton": "Melden Sie sich an",
+    "eyebrow": "Transaktionshistorie und digitale Rechnungen",
+    "title": "Zahlungshistorie",
+    "subtitle": "Ein vollständiges Archiv der Zahlungen für Abonnements, Guthabenaufladungen und Premiumdienste",
+    "buySubscription": "Abonnement kaufen oder verlängern",
+    "stats": {
+      "totalPaid": "Insgesamt erfolgreiche Zahlungen",
+      "successfulOrders": "Erfolgreiche Bestellungen",
+      "security": "Zahlungssicherheit und Gateway-Garantie",
+      "securityValue": "Shaparak-Zahlungsnetzwerk mit sicherer SSL-Verschlüsselung"
+    },
+    "unitToman": "Toman",
+    "unitOrders": "Bestellungen",
+    "searchPlaceholder": "Suchen Sie nach Tracking-Code, Planname oder Gateway ...",
+    "filter": {
+      "all": "Alle Transaktionen",
+      "success": "Nur erfolgreiche Zahlungen",
+      "pending": "Warten auf Bestätigung",
+      "failed": "Fehlgeschlagene Zahlungen"
+    },
+    "status": {
+      "success": "Erfolgreich",
+      "failed": "Fehlgeschlagen",
+      "pending": "Warten auf Bestätigung"
+    },
+    "loading": "Zahlungshistorie wird geladen...",
+    "table": {
+      "tracking": "Tracking-Code",
+      "plan": "Plan / Service",
+      "amount": "Betrag (Toman)",
+      "gateway": "Tor",
+      "dateTime": "Datum und Uhrzeit",
+      "status": "Status",
+      "invoice": "Offizielle Rechnung"
+    },
+    "empty": "Keine Transaktionen gefunden.",
+    "defaultPlanName": "Premium-Spieleservice-Abonnement",
+    "defaultGateway": "Bank-Gateway",
+    "viewInvoice": "Rechnung ansehen"
+  },
+  "dashboardTickets": {
+    "loginPrompt": "Melden Sie sich an, um Ihre Support-Tickets anzuzeigen und zu verfolgen.",
+    "loginButton": "Melden Sie sich an",
+    "eyebrow": "Spezielles Kontakt- und Supportcenter für Abonnenten",
+    "title": "Support-Tickets",
+    "subtitle": "Sprechen Sie direkt mit dem Technik- und Abrechnungsteam von DrGame, melden Sie Probleme und erhalten Sie schnelle Lösungen",
+    "newTicket": "Neues Ticket öffnen",
+    "stats": {
+      "total": "Gesamtzahl der geöffneten Tickets",
+      "inProgress": "In Bearbeitung",
+      "answered": "Beantwortet"
+    },
+    "unitTickets": "Tickets",
+    "searchPlaceholder": "Suche nach Betreff oder Tracking-Code...",
+    "filter": {
+      "all": "Alle Status",
+      "open": "Warte auf Antwort",
+      "inProgress": "Wird überprüft",
+      "answered": "Beantwortet",
+      "closed": "Geschlossen"
+    },
+    "status": {
+      "open": "Warte auf Antwort",
+      "inProgress": "Wird überprüft",
+      "answered": "Beantwortet",
+      "closed": "Geschlossen"
+    },
+    "department": {
+      "technical": "Technischer Support",
+      "downloads": "Spieldaten-Downloads",
+      "financial": "Abrechnung und Abonnements",
+      "general": "Allgemein"
+    },
+    "priority": {
+      "high": "Dringend",
+      "low": "Normal",
+      "medium": "Mittel"
+    },
+    "loading": "Tickets werden geladen...",
+    "emptyTitle": "Keine Tickets gefunden",
+    "emptyNoTickets": "Sie haben noch keine Support-Tickets geöffnet. Nutzen Sie die Schaltfläche oben, um uns Ihr Problem mitzuteilen.",
+    "emptyFiltered": "Keine Tickets stimmten mit diesem Filter oder Suchbegriff überein.",
+    "viewConversation": "Konversation ansehen"
+  },
+  "profile": {
+    "guestTitle": "Melden Sie sich an, um Ihr Profil anzuzeigen",
+    "guestDescription": "Bitte nutzen Sie den Anmelde-Button oben auf der Seite.",
+    "avatarAlt": "Spieler",
+    "memberSince": "Mitglied seit: {{date}}",
+    "consoleCode": {
+      "title": "Permanenter Konsolen-Schnellanmeldecode",
+      "badge": "PS4/PS5 bereit",
+      "description": "Geben Sie diesen 7-stelligen Code in Ihren Konsolenbrowser ein, um sich sofort anzumelden, ohne ein langes Passwort eingeben zu müssen."
+    },
+    "referralCode": {
+      "title": "Ihr Empfehlungscode",
+      "badge": "Verdienen Sie in USD und Toman",
+      "description": "Teilen Sie Ihren persönlichen Code mit Freunden und verdienen Sie bei jedem Einkauf automatisch Provisionen in drei Stufen."
+    },
+    "copyCode": "Code kopieren",
+    "copied": "Kopiert",
+    "form": {
+      "title": "Persönliche Daten bearbeiten",
+      "fullName": "Vollständiger Name",
+      "username": "Benutzername (kann nicht geändert werden)",
+      "save": "Änderungen speichern",
+      "saving": "Sparen...",
+      "saveSuccess": "Ihre Daten wurden erfolgreich aktualisiert."
+    },
+    "password": {
+      "title": "Passwort ändern",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "submit": "Passwort aktualisieren",
+      "success": "Ihr Passwort wurde erfolgreich aktualisiert.",
+      "error": "Das Passwort konnte nicht geändert werden"
+    }
+  },
+  "referral": {
+    "loginPrompt": "Sie sehen ein Beispiel-Marketing-Dashboard. Melden Sie sich an, um auf Ihren persönlichen Link zuzugreifen und Provisionen abzuheben.",
+    "loginButton": "Melden Sie sich an",
+    "title": "Empfehlungsmarketing und Wallet-Dashboard",
+    "settlementBadge": "Direkte Abrechnung",
+    "subtitle": "Verdienen Sie mit jedem Abonnementkauf ein regelmäßiges Einkommen auf bis zu 10 Ebenen Ihres Empfehlungsnetzwerks",
+    "accountsButton": "Abrechnungskonten ({{count}})",
+    "withdraw": "Geld abheben",
+    "layerFilterLabel": "Filtern Sie die Verweisnetzwerkschicht:",
+    "layers": {
+      "one": "Ebene 1 (direkt – 10 % Provision) – Standard",
+      "two": "Ebene 2 (indirekt – 5 % Provision)",
+      "three": "Schicht 3 (indirekt – 2,5 % Provision)",
+      "all": "Alle Netzwerkschichten"
+    },
+    "formula": {
+      "title": "Formel der abgestuften Halbierungsprovision",
+      "description": "Im DrGame-Ertragsmodell legt das System den Basisprovisionssatz fest und dieser wird auf jeder Ebene in der Kette halbiert:",
+      "layer1Label": "Schicht 1 (direkter Referrer)",
+      "layer1Value": "10 % des Kaufbetrags",
+      "layer1Note": "Die Hälfte der Grundprovision von 20 %",
+      "layer2Label": "Schicht 2 (Upline-Referrer 2)",
+      "layer2Value": "5 % des Kaufbetrages",
+      "layer2Note": "Die Hälfte der Layer-1-Provision",
+      "layer3Label": "Schicht 3 (Upline-Referrer 3)",
+      "layer3Value": "2,5 % des Kaufbetrags",
+      "layer3Note": "Die Hälfte der Layer-2-Provision (fortläuft auf unbestimmte Zeit)"
+    },
+    "terms": {
+      "title": "AGB, Auszahlungsbedingungen und rechtlicher Haftungsausschluss:",
+      "item1": "1. Marketingprovisionen werden erst berechnet und Ihrem auszahlbaren Guthaben hinzugefügt, nachdem der eingeladene Benutzer eine erfolgreiche Zahlung abgeschlossen und ein Abonnement aktiviert hat.",
+      "item2": "2. DrGame behält sich das Recht vor, die Transaktionsintegrität, verdächtiges Verhalten und Selbstreferenzketten kontinuierlich zu überwachen und das Konto und den Kontostand zu sperren, wenn Betrug festgestellt wird."
+    }
+  },
+  "sessions": {
+    "title": "Sitzungen und verbundene Geräte",
+    "subtitle": "Verwalten Sie die Geräte mit Zugriff auf Ihr Konto und Ihre primären Geräte",
+    "loading": "Geräteliste wird geladen...",
+    "empty": "Keine aktiven Geräte gefunden.",
+    "currentBadge": "Aktuelle Sitzung",
+    "primaryBadge": "Primäres Gerät",
+    "consoleBadge": "Konsole",
+    "ip": "IP: {{ip}}",
+    "lastActive": "Zuletzt aktiv: {{time}}",
+    "currentTitle": "Sie können sich von hier aus nicht von der aktuellen Sitzung abmelden",
+    "primaryTitle": "Die registrierte Primärkonsole ist vom System geschützt",
+    "currentButton": "Aktuelle Sitzung",
+    "primaryButton": "Primäre Konsole",
+    "revoking": "Abmelden...",
+    "revoke": "Zugriff widerrufen",
+    "revokeSuccess": "Das Gerät wurde erfolgreich abgemeldet.",
+    "demoDeviceDesktop": "Chrome-Browser (dieses System)",
+    "demoDeviceConsole": "PlayStation 5-Konsole"
+  }
+}

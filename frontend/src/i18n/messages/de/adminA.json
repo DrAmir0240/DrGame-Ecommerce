@@ -1,0 +1,158 @@
+{
+  "admin": {
+    "layout": {
+      "brand": "Admin-Kontrollfeld",
+      "toggleSidebar": "Seitenleistengröße umschalten",
+      "verifyingSession": "Administratoranmeldeinformationen werden überprüft...",
+      "viewStore": "DrGame Store ansehen",
+      "sessionActive": "Admin-Sitzung aktiv",
+      "defaultAdminName": "Hauptadministrator",
+      "logout": "Melden Sie sich vom Administratorkonto ab",
+      "logoutShort": "Abmelden",
+      "nav": {
+        "dashboard": "Executive-Dashboard",
+        "banners": "Hauptbannerverwaltung",
+        "users": "Benutzer- und Kontingentverwaltung",
+        "games": "Spielekatalog",
+        "genres": "Spielgenre-Management",
+        "subscriptions": "Pläne und kostenlose Spiele",
+        "referrals": "Überwachung der Empfehlungskette",
+        "finance": "Finanzüberwachung (IRR / FX)",
+        "payouts": "Auszahlungsschalter für Empfehlungen",
+        "bankAccounts": "Bankkontogenehmigungen",
+        "tickets": "Support-Tickets",
+        "discounts": "Rabattcodes",
+        "blog": "Blog- und Nachrichtenmanagement",
+        "settings": "Globale Site-Einstellungen"
+      }
+    },
+    "login": {
+      "title": "Melden Sie sich beim Admin-Portal an",
+      "subtitle": "Der Zugriff ist auf verifizierte DrGame-Administratoren beschränkt",
+      "usernameLabel": "Admin-Benutzername oder E-Mail",
+      "passwordLabel": "Sicherheitspasswort",
+      "submit": "Betreten Sie das Command Center",
+      "errors": {
+        "required": "Bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein.",
+        "invalidCredentials": "Falscher Admin-Benutzername oder Passwort.",
+        "noToken": "Vom Server wurde kein gültiges Token empfangen.",
+        "network": "Es konnte keine Verbindung zum Server hergestellt werden."
+      }
+    },
+    "dashboard": {
+      "title": "Plattformüberwachungs- und Verwaltungszentrum",
+      "subtitle": "Zusammenfassung der Leistungskennzahlen, des Umsatzes und des Live-Betriebs bei DrGame",
+      "coreStatus": "Kernstatus: betriebsbereit",
+      "errors": {
+        "loadFailed": "Dashboard-Statistiken konnten nicht geladen werden"
+      },
+      "cards": {
+        "users": "Registrierte Benutzer",
+        "activeSubscriptions": "Aktive Abonnements",
+        "games": "Spieltitel",
+        "pendingPayouts": "Auszahlungsanfragen",
+        "totalRevenue": "Gesamtumsatz"
+      },
+      "quickActions": {
+        "title": "Wichtige Operationen und Schnellaktionen",
+        "users": {
+          "title": "Benutzerkontingent aufladen",
+          "description": "Erhöhen oder verringern Sie die Download-Zulassung des Benutzers manuell"
+        },
+        "payouts": {
+          "title": "Auszahlungsschalter für Empfehlungen",
+          "description": "Genehmigen Sie SHEBA-Banküberweisungen und USDT-Wallet-Auszahlungen"
+        },
+        "games": {
+          "title": "Spielekatalog verwalten",
+          "description": "Fügen Sie Titel hinzu, laden Sie Links herunter und bearbeiten Sie Tags"
+        },
+        "freeGames": {
+          "title": "Kostenlose Spiele",
+          "description": "Wählen Sie dynamisch {{count}} berechtigte Spiele für den kostenlosen Plan aus"
+        }
+      },
+      "security": {
+        "title": "Sicherheit und Infrastruktur",
+        "authLevel": "Authentifizierungsebene",
+        "quotaCache": "Kontingent-Abfrage-Cache",
+        "database": "Datenbankmodell",
+        "commissionEngine": "Kommissionsmotor"
+      }
+    },
+    "banners": {
+      "title": "Homepage Dual Hero Banner-Management",
+      "subtitle": "Konfigurieren Sie das erste Banner (vorgestellte Spiele) und das zweite Banner (Plattformdienste und -pläne), synchronisiert mit der Datenbank",
+      "addSlide": "Neue Folie hinzufügen",
+      "loading": "Banner werden geladen...",
+      "empty": "In diesem Abschnitt gibt es keine Folien.",
+      "defaults": {
+        "ctaText": "Ansehen & Handeln",
+        "badgeGame": "Empfohlenes Spiel",
+        "badgeService": "Goldener Service",
+        "ctaGame": "Ansehen und herunterladen",
+        "ctaSubscription": "Abonnement kaufen"
+      },
+      "tabs": {
+        "games": "Banner 1: Empfohlene AAA-Spiele ({{count}})",
+        "services": "Banner 2: Services und Abonnementangebote ({{count}})"
+      },
+      "table": {
+        "priority": "Bestellen",
+        "preview": "Bildvorschau",
+        "title": "Folientitel",
+        "badge": "Abzeichen/Tag",
+        "link": "Ziellink",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
+      "actions": {
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      },
+      "confirm": {
+        "delete": "Möchten Sie diese Folie wirklich löschen?"
+      },
+      "feedback": {
+        "deleted": "Folie erfolgreich gelöscht.",
+        "updated": "Folie erfolgreich aktualisiert.",
+        "created": "Neue Folie erfolgreich hinzugefügt."
+      },
+      "errors": {
+        "fetchFailed": "Banner konnten nicht vom Server geladen werden.",
+        "deleteFailed": "Die Folie konnte nicht gelöscht werden.",
+        "toggleFailed": "Der Folienstatus konnte nicht geändert werden.",
+        "requiredFields": "Bitte geben Sie einen Titel und eine Bild-URL ein.",
+        "saveFailed": "Die Folie konnte nicht gespeichert werden."
+      },
+      "modal": {
+        "editTitle": "Bannerfolie bearbeiten",
+        "addTitle": "Neue Folie hinzufügen",
+        "cancel": "Abbrechen",
+        "save": "Folie speichern"
+      },
+      "form": {
+        "titleFa": "Persischer Folientitel:",
+        "titleEn": "Englischer Titel (optional):",
+        "badge": "Abzeichen / kleines Etikett:",
+        "displayOrder": "Anzeigepriorität (Reihenfolge):",
+        "backdropUrl": "Hintergrundbild-URL:",
+        "description": "Kurze Folienbeschreibung:",
+        "platforms": "Plattformen (durch Kommas getrennt):",
+        "ctaText": "Schaltflächentext (CTA):",
+        "linkHref": "Schaltflächenlink (Href):"
+      },
+      "placeholders": {
+        "titleFa": "z.B. Gott des Krieges Ragnarok",
+        "badge": "Spiel des Monats",
+        "backdropUrl": "https://... oder /uploads/...",
+        "description": "Eine kurze, spannende Zeile...",
+        "ctaText": "Details ansehen und herunterladen"
+      }
+    }
+  }
+}

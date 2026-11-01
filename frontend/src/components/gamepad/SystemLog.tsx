@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal, Trash2 } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export type LogLevel = 'info' | 'ok' | 'warn' | 'error';
 
@@ -40,6 +41,7 @@ function clock(totalSeconds: number): string {
 }
 
 export default function SystemLog({ logs, startedAt, onClear }: SystemLogProps) {
+  const { t, dir } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +61,7 @@ export default function SystemLog({ logs, startedAt, onClear }: SystemLogProps) 
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="h-4 w-4 text-violet-400" />
-          <h2 className="text-sm font-bold text-white">گزارش سیستم</h2>
+          <h2 className="text-sm font-bold text-white">{t('gamepad.log.title')}</h2>
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[10px] text-slate-400" dir="ltr">
@@ -72,7 +74,7 @@ export default function SystemLog({ logs, startedAt, onClear }: SystemLogProps) 
             className="flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-slate-400 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30"
           >
             <Trash2 className="h-3 w-3" />
-            پاک‌سازی
+            {t('gamepad.log.clear')}
           </button>
         </div>
       </div>
@@ -83,8 +85,8 @@ export default function SystemLog({ logs, startedAt, onClear }: SystemLogProps) 
         dir="ltr"
       >
         {logs.length === 0 ? (
-          <p className="py-4 text-center font-sans text-[11px] text-slate-600" dir="rtl">
-            در انتظار عملیات…
+          <p className="py-4 text-center font-sans text-[11px] text-slate-600" dir={dir}>
+            {t('gamepad.log.waiting')}
           </p>
         ) : (
           logs.map((entry) => (

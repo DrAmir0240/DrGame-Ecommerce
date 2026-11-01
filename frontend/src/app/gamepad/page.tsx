@@ -16,14 +16,14 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useGamepad, type DriftSample } from '@/components/gamepad/useGamepad';
-import ControllerDiagram from '@/components/gamepad/ControllerDiagram';
+import ControllerViewer from '@/components/gamepad/ControllerViewer';
 import StickPad from '@/components/gamepad/StickPad';
 import MicTestPanel, { type LogLevel } from '@/components/gamepad/MicTestPanel';
 import SystemLog, { type LogEntry } from '@/components/gamepad/SystemLog';
 
 export default function GamepadPage() {
   const { t } = useTranslation();
-  const { pad, rumble, measureDrift } = useGamepad();
+  const { pad, controller, rumble, measureDrift } = useGamepad();
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -47,11 +47,11 @@ export default function GamepadPage() {
   useEffect(() => {
     const onConnect = (e: Event) => {
       const gp = (e as GamepadEvent).gamepad;
-      pushLog('ok', `دسته متصل شد — ${gp.id}`);
+      pushLog('ok', t('gamepad.events.connected', { id: gp.id }));
     };
     const onDisconnect = (e: Event) => {
       const gp = (e as GamepadEvent).gamepad;
-      pushLog('warn', `دسته قطع شد — ${gp.id}`);
+      pushLog('warn', t('gamepad.events.disconnected', { id: gp.id }));
     };
     window.addEventListener('gamepadconnected', onConnect);
     window.addEventListener('gamepaddisconnected', onDisconnect);
@@ -59,17 +59,17 @@ export default function GamepadPage() {
       window.removeEventListener('gamepadconnected', onConnect);
       window.removeEventListener('gamepaddisconnected', onDisconnect);
     };
-  }, [pushLog]);
+  }, [pushLog, t]);
 
   // log transitions once, not on every poll
   useEffect(() => {
     if (pad.connected && !wasConnected.current) {
       wasConnected.current = true;
-      pushLog('info', `شناسه دستگاه: ${pad.id || 'ناشناس'}`);
+      pushLog('info', t('gamepad.events.deviceId', { id: pad.id || t('gamepad.events.unknown') }));
     } else if (!pad.connected && wasConnected.current) {
       wasConnected.current = false;
     }
-  }, [pad.connected, pad.id, pushLog]);
+  }, [pad.connected, pad.id, pushLog, t]);
 
   useEffect(() => {
     const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -92,26 +92,27 @@ export default function GamepadPage() {
     const ok = await rumble(700, 1, 0.7);
     if (!ok) {
       setRumbleState('unsupported');
-      pushLog('error', 'دسته گزارش لرزش را نپذیرفت. اتصال USB را امتحان کنید.');
+      pushLog('error', t('gamepad.events.rumbleUnsupported'));
     } else {
       setRumbleState('idle');
-      pushLog('ok', 'لرزش آزمایشی ارسال شد');
+      pushLog('ok', t('gamepad.events.rumbleSent'));
     }
     window.setTimeout(() => setRumbleState('idle'), 900);
-  }, [pad.connected, rumble, pushLog]);
+  }, [pad.connected, rumble, pushLog, t]);
 
   const handleMeasureDrift = useCallback(async () => {
     if (!pad.connected || measuring) return;
     setMeasuring(true);
-    pushLog('info', 'اندازه‌گیری دریفت آغاز شد — شوکرها را رها کنید');
+    pushLog('info', t('gamepad.events.driftStart'));
     const sample = await measureDrift(2500);
     setDrift(sample);
     setMeasuring(false);
     const worst = Math.max(sample.leftMax, sample.rightMax) * 100;
-    if (worst > 12) pushLog('error', `دریفت بالا تشخیص داده شد — ${worst.toFixed(0)}%`);
-    else if (worst > 6) pushLog('warn', `دریفت جزئی — ${worst.toFixed(0)}%`);
-    else pushLog('ok', `شوکرها سالم — دریفت ${worst.toFixed(0)}%`);
-  }, [pad.connected, measuring, measureDrift, pushLog]);
+    const percent = worst.toFixed(0);
+    if (worst > 12) pushLog('error', t('gamepad.events.driftHigh', { percent }));
+    else if (worst > 6) pushLog('warn', t('gamepad.events.driftSlight', { percent }));
+    else pushLog('ok', t('gamepad.events.driftHealthy', { percent }));
+  }, [pad.connected, measuring, measureDrift, pushLog, t]);
 
   const lx = pad.axes[0] ?? 0;
   const ly = pad.axes[1] ?? 0;
@@ -123,8 +124,8 @@ export default function GamepadPage() {
 
   const btn = (i: number) => pad.buttons[i] ?? { pressed: false, value: 0 };
   const connectionType = /bluetooth|wireless|bt/i.test(pad.id)
-    ? { label: 'بی‌سیم / بلوتوث', Icon: Wifi }
-    : { label: 'سیمی / USB', Icon: Cable };
+    ? { label: t('gamepad.connection.wireless'), Icon: Wifi }
+    : { label: t('gamepad.connection.wired'), Icon: Cable };
 
   return (
     <div className="h-[100dvh] w-full overflow-y-auto bg-oled">
@@ -143,7 +144,7 @@ export default function GamepadPage() {
 
           <div className="flex items-center gap-1.5 px-1.5">
             <Gamepad2 className="h-3.5 w-3.5 text-violet-400" />
-            <span className="text-[11px] font-bold text-white">تست سلامت دسته</span>
+            <span className="text-[11px] font-bold text-white">{t('gamepad.page.title')}</span>
           </div>
 
           <span className="h-4 w-px bg-white/10" />
@@ -160,13 +161,17 @@ export default function GamepadPage() {
                 pad.connected ? 'bg-emerald-400' : 'bg-slate-500'
               }`}
             />
-            {pad.connected ? 'متصل' : 'در انتظار اتصال'}
+            {pad.connected ? t('gamepad.page.connected') : t('gamepad.page.waiting')}
           </span>
 
           <button
             type="button"
             onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}
+            aria-label={
+              isFullscreen
+                ? t('gamepad.page.exitFullscreen')
+                : t('gamepad.page.enterFullscreen')
+            }
             className="grid h-7 w-7 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
           >
             {isFullscreen ? (
@@ -196,10 +201,12 @@ export default function GamepadPage() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-white">
-                    {pad.connected ? 'دسته متصل است' : 'دسته‌ی خود را وصل کنید'}
+                    {pad.connected
+                      ? t('gamepad.connection.titleConnected')
+                      : t('gamepad.connection.titleDisconnected')}
                   </p>
-                  <p className="truncate font-mono text-[10px] text-slate-500" dir="ltr">
-                    {pad.connected ? pad.id : 'یک دکمه از دسته را فشار دهید'}
+                  <p className="truncate font-mono text-[10px] text-slate-500" dir="auto">
+                    {pad.connected ? pad.id : t('gamepad.connection.hintPressButton')}
                   </p>
                 </div>
               </div>
@@ -218,7 +225,9 @@ export default function GamepadPage() {
                   className="flex items-center gap-1.5 rounded-xl bg-violet-600 px-3 py-2 text-[11px] font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-40"
                 >
                   <Vibrate className={`h-3.5 w-3.5 ${rumbleState === 'sending' ? 'animate-spin' : ''}`} />
-                  تست لرزش
+                  {rumbleState === 'sending'
+                    ? t('gamepad.connection.rumbleBusy')
+                    : t('gamepad.connection.rumbleTest')}
                 </button>
                 <button
                   type="button"
@@ -227,7 +236,9 @@ export default function GamepadPage() {
                   className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold text-slate-200 transition-colors hover:bg-white/10 disabled:opacity-40"
                 >
                   <Gauge className="h-3.5 w-3.5" />
-                  {measuring ? 'در حال سنجش…' : 'سنجش دریفت'}
+                  {measuring
+                    ? t('gamepad.connection.driftBusy')
+                    : t('gamepad.connection.driftMeasure')}
                 </button>
               </div>
             </div>
@@ -235,23 +246,13 @@ export default function GamepadPage() {
             {!pad.connected && (
               <p className="mt-3 flex items-start gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3 text-[11px] leading-relaxed text-slate-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-400" />
-                دسته را با کابل USB یا بلوتوث به دستگاه وصل کنید، سپس یکی از دکمه‌ها را فشار دهید تا
-                مرورگر آن را شناسایی کند. برای دسته‌های DualSense در ویندوز، Chrome یا Edge را
-                ترجیح دهید.
+                {t('gamepad.connection.help')}
               </p>
             )}
           </section>
 
-          {/* diagram */}
-          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-white">نقشه زنده دکمه‌ها</h2>
-              <span className="font-mono text-[10px] text-slate-500" dir="ltr">
-                {pad.buttons.length} buttons
-              </span>
-            </div>
-            <ControllerDiagram buttons={pad.buttons} axes={pad.axes} connected={pad.connected} />
-          </section>
+          {/* controller display: 3D shell + live 2D map */}
+          <ControllerViewer pad={pad} controller={controller} />
 
           {/* triggers */}
           <section className="grid grid-cols-2 gap-4">
@@ -283,7 +284,9 @@ export default function GamepadPage() {
                           : 'bg-white/5 text-slate-500'
                       }`}
                     >
-                      {btn(tr.bump).pressed ? 'PRESS' : 'RELEASE'}
+                      {btn(tr.bump).pressed
+                        ? t('gamepad.triggers.pressed')
+                        : t('gamepad.triggers.released')}
                     </span>
                   </div>
                 </div>
@@ -298,12 +301,12 @@ export default function GamepadPage() {
           <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <Activity className="h-4 w-4 text-cyan-400" />
-              <h2 className="text-sm font-bold text-white">آنالوگ‌ها و دریفت</h2>
+              <h2 className="text-sm font-bold text-white">{t('gamepad.sticks.title')}</h2>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <StickPad
-                label="شوکر چپ"
+                label={t('gamepad.sticks.left')}
                 x={lx}
                 y={ly}
                 pressed={btn(10).pressed}
@@ -312,7 +315,7 @@ export default function GamepadPage() {
                 color="violet"
               />
               <StickPad
-                label="شوکر راست"
+                label={t('gamepad.sticks.right')}
                 x={rx}
                 y={ry}
                 pressed={btn(11).pressed}
@@ -324,10 +327,10 @@ export default function GamepadPage() {
 
             <p className="mt-3 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-[10px] leading-relaxed text-slate-400">
               {!drift
-                ? 'برای عدد دقیق دریفت، دکمه «سنجش دریفت» را بزنید و ۲.۵ ثانیه شوکرها را رها کنید.'
+                ? t('gamepad.sticks.hintIdle')
                 : Math.max(drift.leftMax, drift.rightMax) * 100 > 12
-                  ? 'دریفت بالای ۱۲٪ طبیعی نیست؛ احتمال فرسودگی پتانسیومتر یا گردوغبار داخلی وجود دارد.'
-                  : 'مقدار دریفت در محدوده سالم است.'}
+                  ? t('gamepad.sticks.hintHigh')
+                  : t('gamepad.sticks.hintHealthy')}
             </p>
           </section>
 

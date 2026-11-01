@@ -1,0 +1,160 @@
+{
+  "filters": {
+    "title": "Erweiterte Filter",
+    "clearAllTitle": "Alle Filter löschen",
+    "clear": "Klar",
+    "closeFilters": "Filter schließen",
+    "platforms": "Plattformen",
+    "platformNames": {
+      "ps5": "PlayStation 5",
+      "ps4": "PlayStation 4",
+      "xbox": "Xbox",
+      "switch": "Nintendo-Switch"
+    },
+    "genres": "Genres",
+    "selectedCount": "{{count}} ausgewählt",
+    "showAll": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "genre": {
+      "action": "Aktion",
+      "adventure": "Abenteuer",
+      "rpg": "Rollenspiel",
+      "shooter": "Schütze",
+      "racing": "Rennen",
+      "strategy": "Strategie",
+      "puzzle": "Rätsel",
+      "sports": "Sport"
+    },
+    "gameMode": "Spielmodus",
+    "singlePlayer": "Einzelspieler",
+    "multiPlayer": "Mehrspieler (2+ Spieler)",
+    "vr": "Virtuelle Realität",
+    "vrOnly": "Nur VR-Spiele",
+    "active": "Auf",
+    "releaseStatus": "Release-Status",
+    "released": "Freigegeben",
+    "earlyAccess": "Früher Zugriff",
+    "dataSize": "Datengröße",
+    "sizeAll": "Alle",
+    "sizeUnder": "< {{size}}",
+    "sizeRange": "{{min}}-{{max}} GB",
+    "sizeOver": "> {{size}}",
+    "minRating": "Mindestbewertung:",
+    "ratingValue": "{{value}} / 5"
+  },
+  "downloadBox": {
+    "title": "DrGame Mehrzweck-Downloadbox zum halben Preis",
+    "subtitle": "Lokale Hochgeschwindigkeits-Cloud-Server werden mit 50 % der Standardtarife für den Telekommunikationsverkehr abgerechnet",
+    "plan": "Planen:",
+    "remainingQuota": "Verbleibendes Kontingent:",
+    "loginBanner": "Melden Sie sich zum Herunterladen in Ihrem Konto an",
+    "emptyTitle": "Es wurden noch keine Dateien in diese Kategorie hochgeladen",
+    "emptyBody": "Das technische Team von DrGame wird die Dateien dieses Abschnitts bald hochladen, sobald sie die vollständigen Gesundheitsprüfungen auf dem Server bestanden haben.",
+    "tabs": {
+      "data": "Offizielle Spieldaten",
+      "cheat": "Cheats & Trainer",
+      "dlc": "DLC und Erweiterungen",
+      "subtitle": "Persische Untertitel",
+      "dubbing": "Exklusive Synchronisation"
+    },
+    "features": {
+      "other": "Dieser Abschnitt",
+      "data": "Offizielle Spieldaten",
+      "cheat": "Cheats & Trainer",
+      "dlc": "DLC und Erweiterungen",
+      "subtitle": "Persische Untertitel",
+      "dubbing": "Persische Synchronisation"
+    },
+    "eligibility": {
+      "loginBadge": "Anmeldung erforderlich",
+      "loginButton": "Zum Herunterladen anmelden",
+      "subscriptionBadge": "Aktives Abonnement erforderlich",
+      "subscriptionButton": "Abonnement kaufen",
+      "featureBadge": "Nicht verfügbar im {{plan}}-Plan",
+      "upgradeButton": "Aktualisieren Sie Ihren Plan",
+      "quotaBadge": "Nicht genügend Kontingent ({{remaining}} übrig)",
+      "quotaButton": "Fügen Sie mehr Download-Kontingent hinzu",
+      "readyBadge": "Bereit zum Download",
+      "downloadButton": "Direkter Download"
+    },
+    "tiers": {
+      "free": "Kostenlos",
+      "bronze": "Bronze+",
+      "silver": "Silber+",
+      "gold": "Gold"
+    },
+    "sizeLabel": "Größe: {{size}}",
+    "partNumber": "#{{number}}",
+    "copyTitle": "Kopieren Sie den direkten Dateilink",
+    "copyDisabledTitle": "Der Download ist für Sie nicht verfügbar",
+    "copyLink": "Link kopieren"
+  },
+  "downloadModal": {
+    "title": "Bestätigen Sie Download und Kontingentabzug",
+    "loginTitle": "Anmeldung erforderlich",
+    "loginBody": "Um den Traffic zum halben Preis herunterzuladen und Ihr Abonnementkontingent zu nutzen, melden Sie sich bitte zuerst bei Ihrem Konto an.",
+    "loginButton": "Anmelden / Registrieren bei DrGame",
+    "quotaTitle": "Nicht genügend verbleibendes Kontingent",
+    "quotaBody": "Die ausgewählte Datei hat die Größe {{size}}, während Ihr verbleibendes Kontingent nur {{remaining}} beträgt.",
+    "upgradeButton": "Upgraden und weitere Download-Daten kaufen",
+    "successTitle": "Der Download wurde erfolgreich gestartet",
+    "successBody": "Weiterleitung zu Ihrem Download-Manager...",
+    "fileName": "Teil-/Dateiname:",
+    "fileSize": "Dateigröße:",
+    "partFallback": "Part #{{number}}",
+    "currentQuota": "Aktuelles Kontingent:",
+    "quotaAfter": "Quote nach Abzug:",
+    "warningTitle": "Hinweis:",
+    "warningBody": "Durch Bestätigen und Starten des Downloads werden {{size}} von Ihrem Abonnementkontingent abgezogen und in Ihrem Download-Verlauf aufgezeichnet.",
+    "confirm": "Bestätigen und Download starten",
+    "processing": "Verarbeitung..."
+  },
+  "quotaWidget": {
+    "cta": "Kaufen Sie ein Abonnement und laden Sie Spiele herunter",
+    "remainingTime": "Verbleibende Abonnementlaufzeit:",
+    "days_one": "{{count}} Tag",
+    "days_other": "{{count}} Tage",
+    "remainingQuota": "Verbleibendes Download-Kontingent:",
+    "gigabytes": "{{value}} GB"
+  },
+  "similarGames": {
+    "titleLoading": "Ähnliche und empfohlene Spiele",
+    "title": "Ähnliche Spiele und empfohlene Titel",
+    "subtitle": "{{count}} beliebte Titel im gleichen Genre",
+    "viewAll": "Alle Spiele ansehen"
+  },
+  "gameCard": {
+    "released": "Freigegeben",
+    "earlyAccess": "Früher Zugriff"
+  },
+  "showcase": {
+    "vrSupported": "VR-unterstützt",
+    "twoPlayer": "2-Spieler (Koop)",
+    "downloadCta": "Spieldaten herunterladen",
+    "detailsCta": "Details und Teile anzeigen",
+    "prevSlide": "Vorherige Folie",
+    "nextSlide": "Nächste Folie",
+    "consoles": {
+      "ps5": "PlayStation 5",
+      "ps4": "PlayStation 4",
+      "psvr2": "PS VR",
+      "switch": "Nintendo-Switch",
+      "xbox360": "Xbox",
+      "xbox": "Xbox"
+    },
+    "slides": {
+      "godOfWar": {
+        "title": "Gott des Krieges: Ragnarök",
+        "description": "Begleiten Sie Kratos und Atreus auf einer mythischen Reise durch die neun Reiche Skandinaviens, während sich die Streitkräfte von Asgard auf eine vorhergesagte Schlacht vorbereiten."
+      },
+      "spiderMan": {
+        "title": "Marvels Spider-Man 2",
+        "description": "Peter Parker und Miles Morales kehren zurück, um auf den Straßen von New York gegen den furchterregenden Venom und Kraven the Hunter zu kämpfen. Erleben Sie das außergewöhnliche, nahezu sofortige SSD-Laden der PlayStation 5."
+      },
+      "horizon": {
+        "title": "Horizont: Ruf des Berges VR",
+        "description": "Tauchen Sie mit dem PSVR2-Headset vollständig in die Welt von Horizon ein – spannen Sie Ihren Bogen, erklimmen Sie hohe Gipfel und stellen Sie sich gigantischen Maschinen."
+      }
+    }
+  }
+}

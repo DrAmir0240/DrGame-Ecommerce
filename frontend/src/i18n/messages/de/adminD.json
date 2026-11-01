@@ -1,0 +1,192 @@
+{
+  "admin": {
+    "finance": {
+      "title": "Finanzüberwachung in zwei Währungen (Rial / FX)",
+      "subtitle": "Schreibgeschützter Bericht aller inländischen und internationalen Gateway-Transaktionen, sowohl Shetab als auch Krypto",
+      "auditLocked": "Audit-gesperrt (schreibgeschützt)",
+      "kpis": {
+        "domestic": {
+          "label": "Rial-Umsatz (Shaparak / Shetab)",
+          "hint": "Zahlungsgateways inländischer Banken"
+        },
+        "crypto": {
+          "label": "Internationale Transaktionen (USDT)",
+          "hint": "Tether TRC20 / Krypto-Netzwerk",
+          "value": "{{count}} Bestellungen"
+        },
+        "orders": {
+          "label": "Gesamtzahl der bezahlten Bestellungen",
+          "hint": "Sammeln Sie erfolgreiche Plattformbestellungen",
+          "value": "{{count}} Transaktionen"
+        }
+      },
+      "transactions": {
+        "title": "Aktuelle Systemtransaktionen",
+        "latest": "Neueste {{count}} Datensätze",
+        "empty": "Keine Transaktionen gefunden.",
+        "userRef": "Benutzer #{{id}}",
+        "paymentBank": "Banküberweisung (Shetab)",
+        "table": {
+          "orderCode": "Bestellcode",
+          "userId": "Benutzer-ID",
+          "plan": "Gekaufter Plan",
+          "amount": "Betrag",
+          "paymentMethod": "Zahlungsart",
+          "reference": "Tracking-Code/Hash",
+          "status": "Status"
+        },
+        "status": {
+          "paid": "Bezahlt",
+          "pending": "Warten auf Zahlung",
+          "failed": "Fehlgeschlagen"
+        }
+      }
+    },
+    "payouts": {
+      "title": "Auszahlungsschalter für Empfehlungsprovisionen",
+      "subtitle": "Überprüfen und genehmigen Sie Auszahlungsanträge, erfassen Sie Tracking-Codes und erstatten Sie automatisch, wenn ein Antrag abgelehnt wird",
+      "filters": {
+        "all": "Alle",
+        "pending": "Ausstehende Überprüfung",
+        "approved": "Ausgezahlt",
+        "rejected": "Abgelehnt"
+      },
+      "loading": "Auszahlungsschalter wird geladen...",
+      "empty": "Keine Auszahlungsanfragen gefunden.",
+      "defaultUser": "Benutzer",
+      "shebaLabel": "IBAN:",
+      "cardLabel": "Kartennummer:",
+      "cryptoLabel": "USDT {{network}}:",
+      "status": {
+        "pending": "Warten auf Aktion",
+        "approved": "Ausgezahlt",
+        "rejected": "Abgelehnt (erstattet)"
+      },
+      "actions": {
+        "approve": "Auszahlung genehmigen",
+        "reject": "Anfrage ablehnen",
+        "processed": "Verarbeitet"
+      },
+      "table": {
+        "id": "Ausweis",
+        "user": "Benutzer",
+        "amount": "Angeforderter Betrag",
+        "destination": "Zielkonto",
+        "date": "Datum anfordern",
+        "status": "Status",
+        "actions": "Admin-Aktion"
+      },
+      "modal": {
+        "approveTitle": "Abrechnungsauszahlung genehmigen",
+        "rejectTitle": "Vergleichsanfrage ablehnen",
+        "userLabel": "Benutzer:",
+        "amountLabel": "Auszahlungsbetrag:",
+        "rejectWarning": "Hinweis: Wenn Sie diese Anfrage ablehnen, wird der Betrag sofort auf das Guthaben des Benutzers zurückerstattet.",
+        "receiptLabel": "URL oder Link des Belegbilds",
+        "notesLabel": "Admin-Hinweis",
+        "cancel": "Abbrechen",
+        "submitting": "Einreichen...",
+        "submitApprove": "Auszahlung bestätigen",
+        "submitReject": "Ablehnung einreichen"
+      },
+      "defaultNotes": {
+        "approved": "Abrechnung erfolgreich übertragen",
+        "rejected": "Kontodaten sind ungültig"
+      },
+      "messages": {
+        "approved": "Antrag erfolgreich genehmigt.",
+        "rejected": "Die Anfrage wurde abgelehnt und der Betrag wurde auf das Wallet des Benutzers zurückerstattet."
+      }
+    },
+    "referrals": {
+      "title": "Vollständige Empfehlungsnetzwerk- und Provisionsüberwachung",
+      "subtitle": "Verfolgen Sie fünf Finanz- und Leistungsindikatoren des Marketingnetzwerks, verwalten Sie Referrer und steuern Sie den Ein-/Ausblenden-Schalter",
+      "kpis": {
+        "users": {
+          "label": "Gesamtzahl der Netzwerkmitglieder",
+          "hint": "Auf allen 3 Ebenen",
+          "unit": "Benutzer"
+        },
+        "commissions": {
+          "label": "Insgesamt verdiente Provisionen",
+          "hint": "Berechnet über die gesamte Kette"
+        },
+        "pending": {
+          "label": "Ausstehende Abrechnung (Saldo)",
+          "hint": "Aktives Wallet-Guthaben"
+        },
+        "activeReferrers": {
+          "label": "Aktive Tier-1-Vermarkter",
+          "hint": "Mit mindestens einer Downline",
+          "unit": "Benutzer"
+        },
+        "treasury": {
+          "label": "Treasury-Saldo der Plattform",
+          "hint": "Überschüssige Einzahlungen von Stufen ohne Empfehlungsgeber"
+        }
+      },
+      "searchPlaceholder": "Suchen Sie nach Name, Telefon oder Empfehlungscode...",
+      "visibilityLabel": "Sichtbarkeit:",
+      "visibility": {
+        "all": "Alle Benutzer",
+        "visible": "Nur sichtbar (normal)",
+        "hidden": "Nur versteckt"
+      },
+      "loading": "Daten zum Empfehlungsnetzwerk werden geladen...",
+      "empty": "Im Netzwerk wurden keine Benutzer gefunden.",
+      "noCode": "Keine",
+      "status": {
+        "hidden": "Aus der Rangliste ausgeblendet",
+        "active": "Aktiv in der Bestenliste"
+      },
+      "table": {
+        "referrer": "Referrer",
+        "code": "Empfehlungscode",
+        "layer1": "Stufe 1",
+        "layer2": "Stufe 2",
+        "layer3": "Stufe 3",
+        "totalNetwork": "Totales Netzwerk",
+        "totalEarned": "Gesamtverdienst (Toman)",
+        "balance": "Wallet-Guthaben",
+        "status": "Empfehlungsstatus",
+        "actions": "Aktion ausblenden"
+      },
+      "actions": {
+        "show": "Zeigen",
+        "hide": "Verstecken",
+        "showTitle": "Diesen Benutzer erneut in der öffentlichen Statistik anzeigen",
+        "hideTitle": "Blenden Sie diesen Benutzer aus, ohne die Netzwerkbeziehungen oder Einnahmen zu beeinträchtigen"
+      },
+      "feedback": {
+        "hidden": "Benutzer „{{name}}“ wurde ausgeblendet, ohne Netzwerklinks zu entfernen.",
+        "visible": "Benutzer „{{name}}“ ist nicht mehr ausgeblendet."
+      },
+      "errors": {
+        "load": "Das Laden der Empfehlungsüberwachungsdaten vom Server ist fehlgeschlagen.",
+        "toggle": "Der verborgene Status des Benutzers konnte nicht geändert werden."
+      }
+    },
+    "bankAccounts": {
+      "title": "IBAN-, Bankkarten- und Krypto-Wallet-Verifizierungsschalter",
+      "subtitle": "Überprüfen Sie Bankdaten und Tether-Wallet-Adressen, um Fehler bei der Auszahlung von Empfehlungsprovisionen zu vermeiden",
+      "loading": "Verrechnungskonten werden geladen...",
+      "empty": "Es sind keine Abrechnungskonten zum Anzeigen vorhanden.",
+      "userRef": "Benutzer #{{id}}",
+      "verified": "Verifiziert",
+      "pending": "Ausstehende Überprüfung",
+      "defaultBankName": "Bankensystem",
+      "actions": {
+        "revoke": "Verifizierung widerrufen",
+        "verify": "Konto bestätigen"
+      },
+      "table": {
+        "id": "Ausweis",
+        "user": "Benutzer",
+        "accountType": "Kontotyp",
+        "accountValue": "Kontonummer/Wallet-Adresse",
+        "verifyStatus": "Verifizierungsstatus",
+        "toggle": "Status ändern"
+      }
+    }
+  }
+}

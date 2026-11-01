@@ -1,0 +1,246 @@
+{
+  "admin": {
+    "games": {
+      "title": "Vollständige Verwaltung des Spielekatalogs",
+      "subtitle": "Bearbeiten Sie jeden Teil eines Spiels (Cover, Banner, Story, Auszeichnungen, Studio, Kritikerbewertungen, Plattformen und Download-Links).",
+      "searchPlaceholder": "Spieletitel suchen...",
+      "addGame": "Neues Spiel hinzufügen",
+      "table": {
+        "title": "Spieltitel",
+        "studio": "Studio & Verlag",
+        "size": "Datengröße",
+        "rating": "Bewertung & Metakritisch",
+        "platforms": "Plattformen",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "platforms": {
+        "ps5": "PS5",
+        "ps4": "PS4",
+        "xboxSeries": "Xbox Series X/S",
+        "nintendoSwitch": "Nintendo-Switch"
+      },
+      "loading": "Katalog wird geladen...",
+      "empty": "Keine Spiele gefunden.",
+      "noCover": "Keine Deckung",
+      "status": {
+        "published": "Veröffentlicht",
+        "draft": "Entwurf"
+      },
+      "actions": {
+        "editFull": "Vollständige Bearbeitung",
+        "editTitle": "Bearbeiten Sie alle Spieldetails",
+        "delete": "Spiel löschen"
+      },
+      "pagination": {
+        "showing": "Zeigt {{shown}} von {{total}} Spielen im System an",
+        "prev": "Vorherige Seite",
+        "next": "Nächste Seite",
+        "pageOf": "Seite {{page}} von {{pages}}"
+      },
+      "confirmDelete": "Möchten Sie dieses Spiel wirklich aus dem Katalog löschen?",
+      "errors": {
+        "fetch": "Der Katalog konnte nicht geladen werden",
+        "uploadImage": "Das Bild konnte nicht hochgeladen werden",
+        "upload": "Der Upload ist fehlgeschlagen",
+        "downloadAndSave": "Das Bild konnte nicht heruntergeladen und gespeichert werden",
+        "cache": "Das Bild konnte nicht zwischengespeichert werden",
+        "update": "Das Spiel konnte nicht aktualisiert werden",
+        "create": "Das Spiel konnte nicht erstellt werden",
+        "process": "Die Anfrage konnte nicht verarbeitet werden",
+        "required": "Bitte geben Sie sowohl den persischen als auch den englischen Titel des Spiels ein."
+      },
+      "messages": {
+        "coverUploaded": "Spielcover auf dem DrGame-Server gespeichert.",
+        "bannerUploaded": "Heldenbanner auf dem DrGame-Server gespeichert.",
+        "coverCached": "Abdeckung auf lokalem Hosting gespeichert.",
+        "bannerCached": "Banner auf lokalem Hosting gespeichert.",
+        "saved": "Spielinformationen wurden erfolgreich gespeichert und aktualisiert."
+      },
+      "defaults": {
+        "genres": "Action, Abenteuer",
+        "partName": "Part {{number}}"
+      },
+      "modal": {
+        "titleEdit": "Bearbeiten Sie alle Spieldetails",
+        "titleAdd": "Neuen Spieleintrag erstellen",
+        "subtitle": "Einheitliche Verwaltung von Bannern, Rezensionen, Studiodetails, Auszeichnungen und Spiele-Downloaddateien",
+        "loading": "Spieldetails werden aus der Datenbank geladen...",
+        "idLabel": "ID: {{id}}",
+        "tabs": {
+          "basic": "Grundlegende Informationen",
+          "media": "Kunstwerk und Heldenbanner",
+          "studio": "Studio & Auszeichnungen",
+          "story": "Geschichte und Herzstück des Spiels",
+          "features": "Plattformen und Funktionen",
+          "downloads": "Dateien und Teile ({{count}})"
+        },
+        "basic": {
+          "titleFa": "Persischer Spieltitel",
+          "titleEn": "Englischer Spieltitel",
+          "slug": "URL-Slug",
+          "released": "Erscheinungsdatum/-jahr",
+          "size": "Gesamtdatengröße (GB)",
+          "rating": "Benutzerbewertung (von 5)",
+          "metacritic": "Metakritische Bewertung (von 100)",
+          "status": "Spielveröffentlichungsstatus",
+          "activeLabel": "Aktiv und im Store veröffentlicht",
+          "placeholders": {
+            "titleFa": "z.B. Der Letzte von uns remastered",
+            "titleEn": "z.B. Der Letzte von uns remastered",
+            "released": "z.B. 2022 oder 29.07.2014",
+            "metacritic": "z.B. 95"
+          }
+        },
+        "media": {
+          "coverLabel": "Cover-Art der Spielebox",
+          "coverHint": "Standardverhältnis 3:4 oder 4:5",
+          "coverPlaceholder": "https://... oder /media/games/cover_...",
+          "coverCacheTitle": "Laden Sie das Bild herunter und speichern Sie es auf dem DrGame-Server",
+          "caching": "Caching...",
+          "cacheToServer": "Auf dem Server speichern",
+          "coverUploading": "Cover wird hochgeladen...",
+          "coverUpload": "Cover vom Gerät hochladen",
+          "coverUploaded": "Cover hochgeladen",
+          "coverPreviewAlt": "Cover-Vorschau",
+          "bannerLabel": "Filmischer Helden-Hintergrundbanner",
+          "bannerHint": "Breites Hintergrundbild oben auf der Seite (16:9)",
+          "bannerPlaceholder": "https://... oder /media/games/banner_...",
+          "bannerCacheTitle": "Laden Sie das Banner herunter und speichern Sie es auf dem DrGame-Server",
+          "bannerUploading": "Banner wird hochgeladen...",
+          "bannerUpload": "Laden Sie das Heldenbanner vom Gerät hoch",
+          "bannerUploaded": "Banner hochgeladen",
+          "bannerPreviewAlt": "Bannervorschau",
+          "screenshotsLabel": "Spiel-Screenshot-Galerie (ein Link pro Zeile)"
+        },
+        "studio": {
+          "developerLabel": "Entwicklerstudio",
+          "developerPlaceholder": "z.B. Naughty Dog oder Santa Monica Studio",
+          "publisherLabel": "Herausgeber",
+          "publisherPlaceholder": "z.B. Sony Interactive Entertainment",
+          "awardsLabel": "Spielpreise und Auszeichnungen (eine Auszeichnung pro Zeile)",
+          "awardsHint": "Wird auf der ersten Karte auf der Spieldetailseite angezeigt",
+          "awardsPlaceholder": "Gewinner von über 200 Auszeichnungen zum Spiel des Jahres\nBestes Storytelling bei den Game Awards\nEin unvergessliches Meisterwerk von Naughty Dog"
+        },
+        "story": {
+          "storylineLabel": "Story & Herzstück des Spiels (Storyline FA)",
+          "storylineHint": "Text der dritten Karte, „Heart of the Game“, auf der Spieldetailseite",
+          "storylinePlaceholder": "Eine fesselnde Zusammenfassung der Geschichte, der Welt des Spiels und der erzählerischen Atmosphäre in der speziellen Heart of the Game-Box ...",
+          "descriptionFaLabel": "Vollständige persische Beschreibung und Rezension (Vollständige Beschreibung FA)",
+          "descriptionFaPlaceholder": "Eine vollständige Rezension des Gameplays, der Grafik und der technischen Details des Spiels auf Persisch ...",
+          "descriptionEnLabel": "Englische Beschreibung",
+          "descriptionEnPlaceholder": "Originale englische Beschreibung des Spiels..."
+        },
+        "features": {
+          "platformsLabel": "Unterstützte Plattformen",
+          "genresLabel": "Spielgenres (durch Kommas trennen)",
+          "genresPlaceholder": "Action, Abenteuer, Rollenspiel, Überleben",
+          "title": "Besondere Merkmale und Fähigkeiten",
+          "coopLabel": "Zwei-Spieler-/Mehrspieler-Unterstützung (Koop)",
+          "coopHint": "Offline- oder Online-Multiplayer-Gameplay",
+          "vrLabel": "Virtual-Reality-Unterstützung (PS VR / PS VR2)",
+          "vrHint": "Fügt den Spieldetails ein spezielles VR-Abzeichen hinzu"
+        },
+        "downloads": {
+          "title": "Teile, Pakete und 5 herunterladbare Dateitypen",
+          "subtitle": "Definieren Sie Spieldaten, Cheats, DLC, Untertitel und Synchronisation sowie die erforderliche Abonnementstufe",
+          "empty": "Für dieses Spiel wurden noch keine Dateien hinzugefügt. Verwenden Sie die Schaltflächen oben, um den gewünschten Dateityp hinzuzufügen.",
+          "quickAdd": {
+            "data": "Offizielle Daten",
+            "cheat": "Cheats & Trainer",
+            "dlc": "Erweiterung (DLC)",
+            "subtitle": "Untertitel",
+            "dubbing": "Persische Synchronisation"
+          },
+          "fileTypeLabel": "Dateityp:",
+          "partNameLabel": "Teiltitel/Name:",
+          "partNamePlaceholder": "Teilename",
+          "sizeLabel": "Größe (GB):",
+          "sizePlaceholder": "Größe in GB",
+          "tierLabel": "Erlaubtes Abonnement:",
+          "urlLabel": "Download-Link-URL:",
+          "activeLabel": "Aktiv",
+          "removeTitle": "Entfernen Sie diesen Abschnitt",
+          "fileTypes": {
+            "data": "Offizielle Daten",
+            "cheat": "Cheats & Trainer",
+            "dlc": "Erweiterung (DLC)",
+            "subtitle": "Persische Untertitel",
+            "dubbing": "Exklusive Synchronisation"
+          },
+          "tiers": {
+            "free": "Kostenlos",
+            "bronze": "Bronze und höher",
+            "silver": "Silber und höher",
+            "gold": "Gold"
+          },
+          "defaults": {
+            "data": "Official data (Part {{number}})",
+            "cheat": "Exklusive Cheats und Trainer",
+            "dlc": "Erweiterungspaket (DLC)",
+            "subtitle": "Offizielle persische Untertitel",
+            "dubbing": "Exklusive persische Synchronisation",
+            "part": "Part {{number}}"
+          }
+        },
+        "footer": {
+          "note": "Alle Änderungen werden sofort nach dem Speichern im Store wirksam.",
+          "cancel": "Abbrechen",
+          "saving": "Sparen...",
+          "save": "Speichern Sie alle Spielinformationen"
+        }
+      }
+    },
+    "genres": {
+      "title": "Verwaltung von Spielkategorien und Genres",
+      "subtitle": "Definieren Sie Genres, ordnen Sie sie neu und präsentieren Sie die Top-8-Genres auf der Startseite – vollständig datenbankgesteuert",
+      "add": "Neues Genre hinzufügen",
+      "loading": "Genres werden geladen...",
+      "empty": "Es wurden noch keine Genres definiert.",
+      "table": {
+        "order": "Bestellen",
+        "nameFa": "Persischer Genrename",
+        "nameEn": "Englischer Name",
+        "slug": "Schnecke",
+        "top8": "Top 8 Genres",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "top8Active": "Top 8 aktiv",
+      "normal": "Standard",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "confirmDelete": "Möchten Sie dieses Genre wirklich löschen?",
+      "modal": {
+        "addTitle": "Neues Genre hinzufügen",
+        "editTitle": "Genre bearbeiten",
+        "nameFaLabel": "Persischer Genrename:",
+        "nameFaPlaceholder": "z.B. Action-Abenteuer",
+        "nameEnLabel": "Englischer Genrename:",
+        "nameEnPlaceholder": "Action-Abenteuer",
+        "slugLabel": "URL-Slug:",
+        "orderLabel": "Anzeigereihenfolge:",
+        "iconLabel": "Name des Lucide-Symbols (optional):",
+        "top8Label": "In den Top 8 Genres anzeigen",
+        "activeLabel": "Aktiv auf der Website",
+        "cancel": "Abbrechen",
+        "save": "Genre speichern"
+      },
+      "feedback": {
+        "deleted": "Genre erfolgreich gelöscht.",
+        "updated": "Genre erfolgreich aktualisiert.",
+        "created": "Neues Genre erfolgreich hinzugefügt."
+      },
+      "errors": {
+        "load": "Das Laden der Spielgenres vom Server ist fehlgeschlagen.",
+        "delete": "Das Genre konnte nicht gelöscht werden.",
+        "toggleActive": "Der Genrestatus konnte nicht geändert werden.",
+        "toggleTop8": "Das Top-8-Label konnte nicht geändert werden.",
+        "required": "Der persische Titel und das Genre-Slug sind erforderlich.",
+        "save": "Das Genre konnte nicht gespeichert werden."
+      }
+    }
+  }
+}

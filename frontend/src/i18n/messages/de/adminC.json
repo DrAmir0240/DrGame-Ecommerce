@@ -1,0 +1,236 @@
+{
+  "admin": {
+    "subscriptions": {
+      "title": "Planpreise, neunstufige Kontingente und Download-Zugriffseinstellungen",
+      "subtitle": "Legen Sie den Preis und das Download-Kontingent jedes Plans für Laufzeiten von 1, 3 und 6 Monaten dynamisch fest und erteilen Sie Download-Berechtigungen für jeden Spielinhaltstyp",
+      "units": {
+        "gigabyte": "GB",
+        "terabyte": "TB"
+      },
+      "messages": {
+        "saved": "Alle Preise, Neun-Stufen-Kontingente und Download-Berechtigungen wurden erfolgreich in der Datenbank gespeichert und aktualisiert.",
+        "saveError": "Änderungen konnten nicht gespeichert werden"
+      },
+      "pricing": {
+        "title": "Planpreise und Kontingentkonfiguration (Laufzeit 1, 3 und 6 Monate)",
+        "subtitle": "Passen Sie den Toman-Preis und das Gigabyte-Kontingent für jeden Abrechnungszeitraum an",
+        "period1": "1 Monat (Basis)",
+        "period3": "3 Monate",
+        "period6": "6 Monate",
+        "periodBadge": "{{months}}-monatige Laufzeit",
+        "priceLabel": "Preis für dieses Semester (Toman):",
+        "quotaLabel": "Download-Kontingent (GB):"
+      },
+      "tiers": {
+        "free": "Kostenloser Plan",
+        "bronze": "Bronzeplan",
+        "silver": "Silberplan",
+        "gold": "Gold-VIP-Plan"
+      },
+      "features": {
+        "title": "Download-Funktionen nach Spielinhaltstyp (drei Abonnementstufen)",
+        "subtitle": "Wählen Sie, ob jeder Plan Spieldaten, Cheats, DLC, persische Untertitel und exklusive Synchronisation herunterladen darf",
+        "badge": "Download-Berechtigungen",
+        "bronze": "Bronze-Abonnement",
+        "silver": "Silber-Abonnement",
+        "gold": "Gold-VIP-Abonnement",
+        "saving": "In der Datenbank speichern...",
+        "save": "Speichern Sie alle Preise, Kontingente und Abonnementfunktionen",
+        "items": {
+          "data": {
+            "label": "Basisspieldaten",
+            "desc": "Laden Sie die Kerndatenteile herunter"
+          },
+          "cheat": {
+            "label": "Cheats & Trainer",
+            "desc": "Speichern Sie Spiele und exklusive Trainer"
+          },
+          "dlc": {
+            "label": "Herunterladbare Inhalte (DLC)",
+            "desc": "Erweiterungen und zusätzliche herunterladbare Inhalte"
+          },
+          "subtitles": {
+            "label": "Untertitel für persische Spiele",
+            "desc": "Exklusive Menü- und Untertitelübersetzung"
+          },
+          "dubbing": {
+            "label": "Persische Spielsynchronisation",
+            "desc": "Voice-over von persischen Synchronkünstlern"
+          }
+        }
+      },
+      "free": {
+        "title": "Konfigurieren Sie die 5 erlaubten Spiele im kostenlosen Plan",
+        "subtitle": "Benutzer des kostenlosen Plans dürfen nur die Daten dieser ausgewählten Titel herunterladen.",
+        "selected": "{{count}} / 5 Spiele ausgewählt",
+        "selectPlaceholder": "Wählen Sie ein Spiel aus dem Katalog...",
+        "add": "Zum kostenlosen Plan hinzufügen",
+        "remove": "Aus der kostenlosen Version entfernen",
+        "empty": "Für den kostenlosen Plan wurde noch kein Titel ausgewählt.",
+        "noImage": "Kein Bild",
+        "maxAlert": "Im kostenlosen Plan können maximal 5 Spiele registriert werden.",
+        "duplicateAlert": "Dieses Spiel steht bereits auf der Zulassungsliste.",
+        "saved": "Die Liste der zulässigen Spiele des kostenlosen Plans wurde erfolgreich gespeichert.",
+        "saveError": "Die kostenlosen Planspiele konnten nicht aktualisiert werden"
+      },
+      "table": {
+        "title": "Ausgestellte Benutzerabonnements",
+        "recent": "Neueste Transaktionen",
+        "id": "Ausweis",
+        "user": "Benutzer",
+        "plan": "Planen",
+        "startsAt": "Startdatum",
+        "expiresAt": "Ablaufdatum",
+        "status": "Status",
+        "empty": "Keine Abonnements gefunden.",
+        "defaultUser": "Benutzer",
+        "active": "Aktiv",
+        "expired": "Abgelaufen"
+      }
+    },
+    "users": {
+      "title": "Benutzer- und Download-Kontingentverwaltung",
+      "subtitle": "Überprüfen Sie vollständige Dossiers und Transaktionen und passen Sie die Download-Kontingente der Benutzer manuell an",
+      "searchPlaceholder": "Suchen Sie nach Name, Handy, E-Mail...",
+      "units": {
+        "gigabyte": "GB"
+      },
+      "loading": "Benutzerliste wird geladen...",
+      "empty": "Kein Benutzer stimmte mit den Suchkriterien überein.",
+      "status": {
+        "active": "Aktiv",
+        "blocked": "Blockiert"
+      },
+      "table": {
+        "user": "Benutzer",
+        "contact": "Kontakt",
+        "referralCode": "Empfehlungscode",
+        "totalQuota": "Gesamtkontingent",
+        "usedQuota": "Gebraucht",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "actions": {
+        "quota": "Quote",
+        "quotaTitle": "Kontingent manuell anpassen",
+        "dossier": "Dossier",
+        "dossierTitle": "Benutzerdossier anzeigen"
+      },
+      "pagination": {
+        "showing": "Es werden {{shown}} von {{total}} Benutzern angezeigt",
+        "prev": "Vorherige Seite",
+        "next": "Nächste Seite",
+        "page": "Seite {{page}}"
+      },
+      "quotaModal": {
+        "title": "Benutzerkontingent bearbeiten: {{name}}",
+        "current": "Aktuelles Kontingent:",
+        "amountLabel": "Kontingentänderungsbetrag (GB)",
+        "amountPlaceholder": "z.B. 10 oder -5",
+        "hint": "Verwenden Sie negative Werte (z. B. -5), um das Kontingent abzuziehen.",
+        "reasonLabel": "Grund für das Audit-Protokoll",
+        "defaultReason": "Manuelle Aufladung durch die Zentrale",
+        "cancel": "Abbrechen",
+        "submitting": "Sparen...",
+        "submit": "Kontingentänderung anwenden",
+        "success": "Neue Benutzerquote erfasst: {{quota}}.",
+        "error": "Der Server konnte nicht erreicht werden"
+      },
+      "dossier": {
+        "title": "Digitales Dossier: {{name}}",
+        "loading": "Benutzerdossier wird abgerufen...",
+        "userId": "Benutzer-ID",
+        "referralCode": "Empfehlungscode",
+        "referralBalance": "Empfehlungssaldo",
+        "totalCommission": "Gesamtprovision",
+        "quotaStatus": "Laden Sie den Traffic-Kontingentstatus herunter",
+        "recentPurchases": "Aktuelle Kaufhistorie",
+        "noPurchases": "Für diesen Benutzer wurde kein Kauf registriert.",
+        "plan": "Plan: {{plan}}",
+        "amount": "Betrag: {{amount}}"
+      }
+    },
+    "discounts": {
+      "title": "Verwaltung von Rabattcodes und Aktionsgutscheinen",
+      "subtitle": "Erstellen Sie prozentuale und feste Rabattaktionen mit Ausgabenobergrenzen und Nutzungsbeschränkungen",
+      "create": "Neuen Rabattcode erstellen",
+      "loading": "Rabattcodes werden geladen...",
+      "empty": "Es wurde noch kein Rabattcode erstellt.",
+      "unlimited": "Unbegrenzt",
+      "deleteTitle": "Rabattcode löschen",
+      "confirmDelete": "Möchten Sie diesen Rabattcode wirklich löschen?",
+      "codeRequired": "Bitte geben Sie einen Rabattcodenamen ein.",
+      "created": "Rabattcode erfolgreich erstellt.",
+      "createError": "Der Rabattcode konnte nicht erstellt werden",
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
+      "table": {
+        "id": "Ausweis",
+        "code": "Rabattcode",
+        "percent": "Rabatt %",
+        "maxDiscount": "Rabattobergrenze",
+        "usage": "Erlaubt/verwendet",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "modal": {
+        "title": "Erstellen Sie einen neuen Rabattgutschein",
+        "codeLabel": "Name des Rabattcodes",
+        "codePlaceholder": "z.B. DRGAME20",
+        "percentLabel": "Rabattprozentsatz",
+        "maxDiscountLabel": "Rabattobergrenze (Toman)",
+        "usageLabel": "Maximale Anzahl an Nutzungen",
+        "cancel": "Abbrechen",
+        "submitting": "Sparen...",
+        "submit": "Rabattcode erstellen"
+      }
+    },
+    "tickets": {
+      "title": "Support Ticket Management & Response Desk",
+      "subtitle": "Überprüfen Sie technische Fragen und Fragen zur Abrechnung und setzen Sie sich mit den Benutzern in einem Live-Chat in Verbindung mit der Datenbank in Verbindung",
+      "loading": "Tickets werden geladen...",
+      "empty": "In diesem Abschnitt wurden keine Tickets gefunden.",
+      "defaultUser": "Benutzer",
+      "openAndReply": "Ansehen und antworten",
+      "filters": {
+        "all": "Alle Tickets",
+        "open": "Warte auf Antwort",
+        "answered": "Beantwortet",
+        "closed": "Geschlossen"
+      },
+      "status": {
+        "open": "Warte auf Antwort",
+        "inProgress": "Wird überprüft",
+        "answered": "Beantwortet",
+        "closed": "Geschlossen"
+      },
+      "table": {
+        "trackingCode": "Tracking-Code",
+        "user": "Benutzer",
+        "subject": "Betreff des Tickets",
+        "department": "Abteilung",
+        "date": "Datum",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "errors": {
+        "load": "Die Ticketliste konnte nicht vom Server geladen werden.",
+        "loadMessages": "Die Ticketnachrichten konnten nicht geladen werden.",
+        "send": "Die Antwort konnte nicht gesendet werden.",
+        "close": "Das Ticket konnte nicht geschlossen werden."
+      },
+      "modal": {
+        "sentBy": "Gesendet von {{name}} ({{phone}})",
+        "closeTicket": "Ticket schließen",
+        "loadingMessages": "Nachrichten werden geladen...",
+        "noMessages": "Dieses Ticket enthält keine Nachrichten.",
+        "adminReply": "Antwort des DrGame-Supports",
+        "replyPlaceholder": "Schreiben Sie die offizielle Antwort an den Benutzer ...",
+        "send": "Antwort senden",
+        "closedNotice": "Dieses Ticket ist geschlossen und es können keine neuen Antworten gesendet werden."
+      }
+    }
+  }
+}
