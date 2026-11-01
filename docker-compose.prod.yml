@@ -1,0 +1,265 @@
+# =============================================================================
+# docker-compose.prod.yml — DrGame E-Commerce Platform | Production Environment
+# =============================================================================
+# Usage:
+#   cp .env.prod.example .env
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Architecture:
+#   • Dual networks: internal (db + cache + backend + admin-panel) and app (backend + frontend)
+#   • Resource limits (CPU/Memory) on all production services
+#   • Hardened non-root user execution in all production containers
+#   • Migrations execute via dedicated one-shot container before backend starts
+#   • Multi-worker production runners (FastAPI: 4 workers, Django: Gunicorn 3 workers)
+#   • Next.js 14 optimized standalone production bundle
+# =============================================================================
+
+name: drgame-prod
+
+x-logging-prod: &logging-prod
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "5"
+
+x-restart-policy: &restart-unless-stopped
+  restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  # Internal network: db + cache + backend + migrate + admin-panel
+  internal:
+    driver: bridge
+
+  # App network: backend + frontend communicate here
+  app:
+    driver: bridge
+
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  drgame_pgdata_prod:
+  drgame_redisdata_prod:
+  drgame_media_prod:
+
+# ---------------------------------------------------------------------------
+# Services
+# ---------------------------------------------------------------------------
+services:
+
+  # ── PostgreSQL 16 Database ──────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: drgame-db-prod
+    <<: *restart-unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+    volumes:
+      - drgame_pgdata_prod:/var/lib/postgresql/data
+    ports:
+      - "${DB_HOST_PORT:-8020}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?} -d ${POSTGRES_DB:?}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPU_LIMIT:-1.0}"
+          memory: "${DB_MEM_LIMIT:-1024m}"
+    logging: *logging-prod
+    stop_grace_period: 30s
+
+  # ── Redis 7 In-Memory Cache ────────────────────────────────────────────────
+  cache:
+    image: redis:7-alpine
+    container_name: drgame-cache-prod
+    <<: *restart-unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - drgame_redisdata_prod:/data
+    ports:
+      - "${REDIS_HOST_PORT:-8021}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "${CACHE_CPU_LIMIT:-0.5}"
+          memory: "${CACHE_MEM_LIMIT:-256m}"
+    logging: *logging-prod
+    stop_grace_period: 10s
+
+  # ── Alembic Migrations (one-shot init container) ──────────────────────────
+  migrate:
+    container_name: drgame-migrate-prod
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set in .env}
+      PYTHONPATH: /app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+    networks:
+      - internal
+    logging: *logging-prod
+    restart: "no"
+
+  # ── FastAPI Backend (Production Multi-Worker) ─────────────────────────────
+  backend:
+    container_name: drgame-backend-prod
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    <<: *restart-unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME:-DrGame E-Commerce Platform}
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set in .env}
+      - REDIS_URL=${REDIS_URL:?REDIS_URL must be set in .env}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in .env}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
+      - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
+      - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:?WEBHOOK_SECRET_KEY must be set in .env}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000"]}
+      - LIARA_ENDPOINT=${LIARA_ENDPOINT:-https://storage.c2.liara.site}
+      - LIARA_BUCKET_NAME=${LIARA_BUCKET_NAME:-drgame-storage}
+      - LIARA_ACCESS_KEY=${LIARA_ACCESS_KEY:-m9rvoec258l68eek}
+      - LIARA_SECRET_KEY=${LIARA_SECRET_KEY:-fb10fbac-cdd6-4ded-b574-4b297c1c678a}
+      - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://drgame-storage.storage.c2.liara.site}
+    volumes:
+      - drgame_media_prod:/app/media
+    ports:
+      - "${BACKEND_HOST_PORT:-8000}:8000"
+    dns:
+      - 178.22.122.100
+      - 185.51.200.2
+      - 8.8.8.8
+      - 1.1.1.1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      cache:
+        condition: service_healthy
+    networks:
+      - internal
+      - app
+    deploy:
+      resources:
+        limits:
+          cpus: "${BACKEND_CPU_LIMIT:-1.5}"
+          memory: "${BACKEND_MEM_LIMIT:-1024m}"
+    logging: *logging-prod
+    stop_grace_period: 15s
+
+  # ── Next.js 14 Frontend (Production Bundle) ────────────────────────────────
+  frontend:
+    container_name: drgame-frontend-prod
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://62.60.191.67:8000/api}
+    <<: *restart-unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.60.191.67:8000/api}
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app
+    deploy:
+      resources:
+        limits:
+          cpus: "${FRONTEND_CPU_LIMIT:-1.0}"
+          memory: "${FRONTEND_MEM_LIMIT:-1024m}"
+    logging: *logging-prod
+    stop_grace_period: 10s
+
+  # ── Django Database Admin Microservice (Gunicorn Production) ──────────────
+  admin-panel:
+    container_name: drgame-admin-panel-prod
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+      target: prod
+    <<: *restart-unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:?POSTGRES_DB must be set in .env}
+      - POSTGRES_USER=${POSTGRES_USER:?POSTGRES_USER must be set in .env}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      - DJANGO_ADMIN_PORT=${DJANGO_ADMIN_PORT:-8007}
+      - DJANGO_ADMIN_USERNAME=${DJANGO_ADMIN_USERNAME:-superadmin}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:?DJANGO_ADMIN_PASSWORD must be set in .env}
+      - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL:-superadmin@drgame.local}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:?DJANGO_SECRET_KEY must be set in .env}
+      - DJANGO_DB_SCHEMA=${DJANGO_DB_SCHEMA:-django_admin}
+      - DJANGO_DEBUG=false
+      - DJANGO_ALLOWED_HOSTS=*
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      - DJANGO_SECURE_COOKIES=false
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-3}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
+    ports:
+      - "${DJANGO_ADMIN_PORT:-8007}:8007"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "${ADMIN_PANEL_CPU_LIMIT:-0.5}"
+          memory: "${ADMIN_PANEL_MEM_LIMIT:-512m}"
+    logging: *logging-prod
+    stop_grace_period: 10s

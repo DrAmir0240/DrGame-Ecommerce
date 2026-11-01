@@ -35,6 +35,9 @@ RUN addgroup --system --gid 1001 appgroup && \
 
 COPY --chown=appuser:appgroup . .
 
+RUN mkdir -p /app/static /app/media && \
+    chown -R appuser:appgroup /app/media /app/static
+
 USER appuser
 
 EXPOSE 8000
