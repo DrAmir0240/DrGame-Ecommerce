@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTvModeStore } from '@/stores/useTvModeStore';
+import { useSiteSettingsStore } from '@/stores/useSiteSettingsStore';
 import { useTranslation } from '@/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import NotificationDropdown from './NotificationDropdown';
@@ -32,11 +33,13 @@ export default function Header() {
   const { t } = useTranslation();
   const { user, isAuthenticated, setAuthModalOpen, logout, fetchCurrentUser } = useAuthStore();
   const { isTvMode, toggleTvMode } = useTvModeStore();
+  const { settings, fetchSettings } = useSiteSettingsStore();
   const [showDnsWarning, setShowDnsWarning] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser();
+    fetchSettings();
   }, []);
 
   // Close drawer on navigation
@@ -76,6 +79,8 @@ export default function Header() {
     { href: '/blog', label: t('nav.blog'), icon: BookOpen, activeColor: 'text-emerald-400' },
   ];
 
+  const primaryDns = settings?.header_dns_primary || settings?.primary_dns || '165.227.83.145';
+
   return (
     <>
       {/* Top DNS Warning Banner (Yellow / Amber) */}
@@ -92,7 +97,7 @@ export default function Header() {
                 className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
                 dir="ltr"
               >
-                165.227.83.145
+                {primaryDns}
               </span>
             </div>
 

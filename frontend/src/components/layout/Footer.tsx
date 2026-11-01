@@ -17,21 +17,34 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useRegionStore } from '@/stores/useRegionStore';
+import { useSiteSettingsStore } from '@/stores/useSiteSettingsStore';
 
 export default function Footer() {
   const pathname = usePathname();
   const { t } = useTranslation();
   // 'domestic' (Iran) or 'international' — shared with the floating quick-actions panel
   const { mode: footerMode, setMode: setFooterMode, initRegion } = useRegionStore();
+  const { settings, fetchSettings } = useSiteSettingsStore();
 
   useEffect(() => {
     initRegion();
+    fetchSettings();
   }, [initRegion]);
 
   // Do not render storefront footer inside the admin panel
   if (pathname?.startsWith('/admin')) {
     return null;
   }
+
+  const phone = settings?.contact_phone || t('footer.phone');
+  const email = settings?.contact_email || t('footer.email');
+  const address = settings?.contact_address || t('footer.address');
+  const telegramUrl = settings?.social_telegram || settings?.telegram_url || 'https://t.me/drgame';
+  const instagramUrl = settings?.social_instagram || settings?.instagram_url || 'https://instagram.com/drgame';
+  const twitterUrl = settings?.twitter_url || 'https://x.com/drgame';
+  const footerMessage = settings?.footer_message || t('footer.description');
+  const enamadUrl = settings?.enamad_url || 'https://enamad.ir';
+  const samandehiUrl = settings?.samandehi_url || 'https://samandehi.ir';
 
   return (
     <footer className="w-full border-t border-white/5 bg-surface-base/90 backdrop-blur-2xl relative z-20 mt-20">
@@ -83,11 +96,11 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-xs text-text-secondary leading-relaxed">
-            {t('footer.description')}
+            {footerMessage}
           </p>
           <div className="flex items-center gap-3 text-text-muted">
             <a
-              href="https://t.me/drgame"
+              href={telegramUrl}
               target="_blank"
               rel="noreferrer"
               className="p-2 rounded-xl glass-card hover:text-cyan-400 hover:border-cyan-400/40 transition-all"
@@ -96,7 +109,7 @@ export default function Footer() {
             </a>
             {footerMode === 'domestic' ? (
               <a
-                href="https://instagram.com/drgame"
+                href={instagramUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="p-2 rounded-xl glass-card hover:text-pink-400 hover:border-pink-400/40 transition-all"
@@ -105,7 +118,7 @@ export default function Footer() {
               </a>
             ) : (
               <a
-                href="https://x.com/drgame"
+                href={twitterUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="p-2 rounded-xl glass-card hover:text-white hover:border-white/40 transition-all"
@@ -140,6 +153,11 @@ export default function Footer() {
                 {t('footer.tutorialsAndNews')}
               </Link>
             </li>
+            <li>
+              <Link href="/faq" className="hover:text-white transition-colors">
+                سوالات متداول (FAQ)
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -150,15 +168,15 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-text-secondary">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="font-mono dir-ltr">{t('footer.phone')}</span>
+                <span className="font-mono dir-ltr">{phone}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-cosmic-purple shrink-0" />
-                <span className="font-mono">{t('footer.email')}</span>
+                <span className="font-mono">{email}</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{t('footer.address')}</span>
+                <span>{address}</span>
               </li>
             </ul>
           </div>
@@ -168,7 +186,7 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-text-secondary">
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span className="font-mono">global@drgame.ir</span>
+                <span className="font-mono">{email}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Coins className="w-4 h-4 text-amber-400 shrink-0" />
@@ -187,18 +205,28 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-bold text-white mb-4">{t('footer.licensesAndGateways')}</h4>
             <div className="grid grid-cols-2 gap-3">
-              {/* Enamad Placeholder */}
-              <div className="p-3 rounded-2xl glass-card border border-white/10 text-center flex flex-col items-center justify-center">
+              {/* Enamad */}
+              <a
+                href={enamadUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 rounded-2xl glass-card border border-white/10 hover:border-cyan-400/40 text-center flex flex-col items-center justify-center transition-all"
+              >
                 <ShieldCheck className="w-8 h-8 text-cyan-400 mb-1" />
                 <span className="text-[11px] font-bold text-white">{t('footer.enamad')}</span>
                 <span className="text-[9px] text-emerald-400">{t('footer.enamadSub')}</span>
-              </div>
-              {/* Samandehi Placeholder */}
-              <div className="p-3 rounded-2xl glass-card border border-white/10 text-center flex flex-col items-center justify-center">
+              </a>
+              {/* Samandehi */}
+              <a
+                href={samandehiUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 rounded-2xl glass-card border border-white/10 hover:border-amber-400/40 text-center flex flex-col items-center justify-center transition-all"
+              >
                 <ShieldCheck className="w-8 h-8 text-amber-400 mb-1" />
                 <span className="text-[11px] font-bold text-white">{t('footer.samandehi')}</span>
                 <span className="text-[9px] text-text-muted">{t('footer.samandehiSub')}</span>
-              </div>
+              </a>
             </div>
             <div className="mt-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-[11px] text-text-muted">
               <span>{t('footer.shaparakGateway')}</span>

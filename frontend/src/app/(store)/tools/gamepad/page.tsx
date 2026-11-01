@@ -3,15 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import GamepadVisualizer from '@/components/tools/GamepadVisualizer';
-import { ArrowRight, Sparkles, HelpCircle } from 'lucide-react';
+import GamepadTester from '@/components/tools/GamepadTester';
+import { ArrowRight, Sparkles, HelpCircle, LayoutGrid, Monitor } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
 export default function GamepadTesterPage() {
   const { t } = useTranslation();
+  const [view, setView] = React.useState<'3d' | 'classic'>('3d');
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
       {/* Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <Link
           href="/tools"
           className="inline-flex items-center gap-2 text-xs text-text-muted hover:text-white transition-colors"
@@ -20,9 +23,27 @@ export default function GamepadTesterPage() {
           <span>{t('tools.backToTools')}</span>
         </Link>
 
+        {/* View Toggle */}
+        <div className="flex items-center p-1 bg-white/5 rounded-xl border border-white/10">
+          <button
+            onClick={() => setView('3d')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${view === '3d' ? 'bg-cosmic-purple text-white shadow-neon-purple' : 'text-text-muted hover:text-white'}`}
+          >
+            <Monitor className="w-3.5 h-3.5" />
+            <span>{t('tools.gamepad.view3d')}</span>
+          </button>
+          <button
+            onClick={() => setView('classic')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${view === 'classic' ? 'bg-cyan-500 text-black shadow-neon-cyan' : 'text-text-muted hover:text-white'}`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>{t('tools.gamepad.viewClassic')}</span>
+          </button>
+        </div>
+
         <div className="flex items-center gap-1.5 text-xs text-text-muted">
           <Sparkles className="w-3.5 h-3.5 text-cosmic-purple" />
-          <span>Gamepad API Standard v2</span>
+          <span>{view === '3d' ? 'WebHID Advanced Mode' : 'Gamepad API Standard v2'}</span>
         </div>
       </div>
 
@@ -36,8 +57,15 @@ export default function GamepadTesterPage() {
         </p>
       </div>
 
-      {/* Gamepad Visualizer Component */}
-      <GamepadVisualizer />
+      {/* Gamepad Components */}
+      <div className="w-full min-h-[600px] relative">
+        <div className={view === '3d' ? 'block' : 'hidden'}>
+          <GamepadTester active={view === '3d'} />
+        </div>
+        <div className={view === 'classic' ? 'block' : 'hidden'}>
+          <GamepadVisualizer />
+        </div>
+      </div>
 
       {/* Guide & Calibration FAQs */}
       <div className="glass-card rounded-3xl border border-white/10 p-6 sm:p-8 max-w-4xl mx-auto mt-12 space-y-4">

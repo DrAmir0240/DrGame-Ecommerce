@@ -1,15 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Cpu, ArrowRight, CheckCircle2, Terminal, Play } from 'lucide-react';
+import { Cpu, ArrowRight, CheckCircle2, Terminal, Play, ShieldAlert } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import { useSiteSettingsStore } from '@/stores/useSiteSettingsStore';
 
 export default function JailbreakHubPage() {
   const { t } = useTranslation();
+  const { settings, fetchSettings } = useSiteSettingsStore();
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectionSuccess, setInjectionSuccess] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const primaryDns =
+    settings?.jailbreak_dns ||
+    settings?.header_dns_primary ||
+    settings?.primary_dns ||
+    '165.227.83.145';
+
+  const secondaryDns =
+    settings?.header_dns_secondary ||
+    settings?.secondary_dns ||
+    '192.241.221.79';
+
+  const supportedFirmwares =
+    settings?.jailbreak_supported_firmwares ||
+    settings?.jailbreak_config?.supported_firmwares ||
+    ['9.00', '9.60', '10.01', '11.00'];
 
   const handleLaunchJailbreak = () => {
     setIsInjecting(true);
@@ -50,6 +72,19 @@ export default function JailbreakHubPage() {
         <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
           {t('tools.jailbreak.pageDescription')}
         </p>
+
+        {/* Dynamic Supported Firmwares Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+          <span className="text-xs text-text-muted font-medium">فریمورهای پشتیبانی‌شده:</span>
+          {supportedFirmwares.map((fw) => (
+            <span
+              key={fw}
+              className="px-2.5 py-0.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold"
+            >
+              FW {fw}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* DNS Configuration Banner */}
@@ -62,15 +97,15 @@ export default function JailbreakHubPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
             <span className="text-xs text-text-muted block">{t('tools.jailbreak.primaryDns')}</span>
-            <span className="text-lg font-black text-emerald-400 font-mono tracking-wider">
-              165.227.83.145
+            <span className="text-lg font-black text-emerald-400 font-mono tracking-wider" dir="ltr">
+              {primaryDns}
             </span>
           </div>
 
           <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
             <span className="text-xs text-text-muted block">{t('tools.jailbreak.secondaryDns')}</span>
-            <span className="text-lg font-black text-cyan-400 font-mono tracking-wider">
-              192.241.221.79
+            <span className="text-lg font-black text-cyan-400 font-mono tracking-wider" dir="ltr">
+              {secondaryDns}
             </span>
           </div>
         </div>
@@ -94,13 +129,12 @@ export default function JailbreakHubPage() {
           <button
             onClick={handleLaunchJailbreak}
             disabled={isInjecting}
-            className="w-full sm:w-auto px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-cosmic-purple to-pink-500 hover:opacity-95 text-white font-black text-sm shadow-neon-purple transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50"
+            className="w-full sm:w-auto px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-cosmic-purple to-pink-500 hover:opacity-95 text-white font-black text-sm shadow-neon-purple transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 cursor-pointer"
           >
             <Play className={`w-5 h-5 fill-current ${isInjecting ? 'animate-spin' : ''}`} />
             <span>{isInjecting ? t('tools.jailbreak.injecting') : t('tools.jailbreak.startButton')}</span>
           </button>
         </div>
-
 
         {/* Logs Terminal Output */}
         {logs.length > 0 && (

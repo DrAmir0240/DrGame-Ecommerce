@@ -21,7 +21,9 @@
         "payouts": "Referral Payout Desk",
         "bankAccounts": "Bank Account Approvals",
         "tickets": "Support Tickets",
-        "discounts": "Discount Codes"
+        "discounts": "Discount Codes",
+        "blog": "Blog & News Management",
+        "settings": "Site Global Settings"
       }
     },
     "login": {

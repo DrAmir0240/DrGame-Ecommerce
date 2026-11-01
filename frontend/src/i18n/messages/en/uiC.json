@@ -74,6 +74,14 @@
       "jin": "Jin Sakai (Ghost of Tsushima)",
       "joel": "Joel (The Last of Us)",
       "astro": "Astro Bot"
+    },
+    "upload": {
+      "title": "Upload Image",
+      "uploading": "Uploading...",
+      "custom": "Custom Avatar",
+      "invalidType": "Only image files (JPEG, PNG, WebP) are allowed.",
+      "tooLarge": "File size must not exceed 5 MB.",
+      "error": "Failed to upload image. Please try again."
     }
   },
   "notificationsUI": {

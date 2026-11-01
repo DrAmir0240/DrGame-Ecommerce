@@ -157,6 +157,9 @@
     "gamepad": {
       "pageTitle": "Online controller health & stick drift tester",
       "pageDescription": "Connect your DualSense or DualShock controller and check every button, trigger sensitivity and rumble motor.",
+      "view3d": "Advanced WebHID Test",
+      "viewClassic": "Standard Gamepad API Test",
+      "launchFull": "Enter Fullscreen Tester",
       "faqTitle": "Key notes on controller health testing and fixing drift:",
       "tip1Title": "Drift error:",
       "tip1Body": "If the drift percentage exceeds 15% without touching the sticks, the controller has a faulty potentiometer or internal dust.",

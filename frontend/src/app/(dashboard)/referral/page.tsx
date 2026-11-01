@@ -66,13 +66,14 @@ export default function ReferralDashboardPage() {
         apiRequest<ReferralStats>('/referral/stats'),
         apiRequest<SettlementAccount[]>('/referral/settlement-accounts'),
         apiRequest<CommissionTransactionListResponse>(`/referral/transactions?page=${page}&page_size=15${layerParam}`),
-        apiRequest<WithdrawalHistoryItem[]>('/referral/withdrawals').catch(() => []),
+        apiRequest<{items: WithdrawalHistoryItem[]; total: number; page: number; page_size: number}>(`/referral/withdrawals?page=${withdrawalsPage}&page_size=10`).catch(() => ({items: [], total: 0, page: 1, page_size: 10})),
       ]);
       setStats(statsData);
       setAccounts(accountsData || []);
       setTransactions(txData.items || []);
       setTotalTx(txData.total || 0);
-      setWithdrawals(withdrawalsData || []);
+      setWithdrawals(withdrawalsData.items || []);
+      setWithdrawalsTotal(withdrawalsData.total || 0);
     } catch (err) {
       console.error('Failed to load referral data:', err);
     } finally {
@@ -86,7 +87,7 @@ export default function ReferralDashboardPage() {
     } else {
       setIsLoading(false);
     }
-  }, [isAuthenticated, page, selectedLayer]);
+  }, [isAuthenticated, page, selectedLayer, withdrawalsPage]);
 
   // Clean empty state instead of fake demo data
   const emptyStats: ReferralStats = {
@@ -252,10 +253,15 @@ export default function ReferralDashboardPage() {
                     <td className="py-3.5 px-4 font-mono font-bold text-white">#{w.id}</td>
                     <td className="py-3.5 px-4 font-bold text-emerald-400 font-roboto">{price(w.amount_toman)}</td>
                     <td className="py-3.5 px-4">
-                      {w.status === 'approved' ? (
+                      {w.status === 'completed' ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                           <CheckCircle className="w-3 h-3" />
                           <span>واریز شد</span>
+                        </span>
+                      ) : w.status === 'approved' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>تایید شده (در نوبت حواله)</span>
                         </span>
                       ) : w.status === 'rejected' ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
@@ -265,7 +271,7 @@ export default function ReferralDashboardPage() {
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                           <Clock className="w-3 h-3" />
-                          <span>در حال بررسی</span>
+                          <span>در انتظار بررسی</span>
                         </span>
                       )}
                     </td>
@@ -284,6 +290,27 @@ export default function ReferralDashboardPage() {
               </tbody>
             </table>
           </div>
+          {withdrawalsTotal > 10 && (
+            <div className="flex items-center justify-center gap-2 py-3 border-t border-white/5">
+              <button
+                onClick={() => setWithdrawalsPage((p) => Math.max(1, p - 1))}
+                disabled={withdrawalsPage === 1}
+                className="px-3 py-1.5 rounded-lg bg-white/5 text-xs disabled:opacity-30 text-white"
+              >
+                قبلی
+              </button>
+              <span className="text-xs text-text-muted">
+                صفحه {withdrawalsPage} از {Math.ceil(withdrawalsTotal / 10)}
+              </span>
+              <button
+                onClick={() => setWithdrawalsPage((p) => p + 1)}
+                disabled={withdrawalsPage >= Math.ceil(withdrawalsTotal / 10)}
+                className="px-3 py-1.5 rounded-lg bg-white/5 text-xs disabled:opacity-30 text-white"
+              >
+                بعدی
+              </button>
+            </div>
+          )}
         </div>
       )}
 

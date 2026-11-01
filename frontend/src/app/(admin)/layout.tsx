@@ -19,6 +19,8 @@ import {
   ChevronLeft,
   Sliders,
   Share2,
+  BookOpen,
+  Settings,
 } from "lucide-react";
 import { AdminProfile } from "@/types/admin";
 import { apiRequest, ApiError } from "@/lib/apiClient";
@@ -44,6 +46,8 @@ const navItems: NavItem[] = [
   { labelKey: "admin.layout.nav.bankAccounts", href: "/admin/bank-accounts", icon: <CheckCircle className="w-5 h-5" /> },
   { labelKey: "admin.layout.nav.tickets", href: "/admin/tickets", icon: <MessageSquare className="w-5 h-5" /> },
   { labelKey: "admin.layout.nav.discounts", href: "/admin/discounts", icon: <Tag className="w-5 h-5" /> },
+  { labelKey: "admin.layout.nav.blog", href: "/admin/blog", icon: <BookOpen className="w-5 h-5 text-indigo-400" /> },
+  { labelKey: "admin.layout.nav.settings", href: "/admin/settings", icon: <Settings className="w-5 h-5 text-purple-400" /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -101,94 +105,99 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .finally(() => {
         setLoading(false);
       });
-  }, [pathname, isLoginPage, router]);
+  }, [isLoginPage, router]);
 
   const handleLogout = () => {
     clearAdminTokens();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("drgame_admin_profile");
+    }
     router.replace("/admin/login");
   };
 
   if (isLoginPage) {
-    return <main className="min-h-screen bg-[#07090e] text-slate-100">{children}</main>;
+    return <>{children}</>;
   }
 
-  if (loading) {
+  if (loading && !admin) {
     return (
       <div className="min-h-screen bg-[#07090e] flex items-center justify-center text-slate-400">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm">{t("admin.layout.verifyingSession")}</span>
+          <div className="w-8 h-8 border-2 border-cosmic-purple border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm font-medium">{t("admin.layout.verifyingSession")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col md:flex-row antialiased">
-      {/* Right Sidebar (RTL) */}
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-row overflow-hidden font-vazir">
+      {/* Sidebar */}
       <aside
-        className={`bg-[#0c1017] border-l border-slate-800/80 transition-all duration-300 flex flex-col z-20 ${
+        className={`${
           collapsed ? "w-20" : "w-64"
-        }`}
+        } bg-[#0c1017] border-l border-slate-800/80 transition-all duration-300 flex flex-col justify-between shrink-0 z-20`}
       >
-        {/* Brand Header */}
-        <div className="h-16 px-4 border-b border-slate-800 flex items-center justify-between">
-          {!collapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <Shield className="w-5 h-5" />
+        <div>
+          {/* Brand */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800/80">
+            {!collapsed && (
+              <div className="flex items-center gap-2">
+                <Shield className="w-6 h-6 text-cosmic-purple" />
+                <span className="font-bold text-sm tracking-wide text-white">
+                  {t("admin.layout.brand")}
+                </span>
               </div>
-              <span className="font-bold text-base bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                {t("admin.layout.brand")}
-              </span>
-            </div>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors mx-auto"
-            title={t("admin.layout.toggleSidebar")}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+            )}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors mx-auto"
+              title={t("admin.layout.toggleSidebar")}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-8rem)]">
+            {navItems.map((item) => {
+              const active = pathname === item.href;
+              const label = t(item.labelKey);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                    active
+                      ? "bg-cosmic-purple text-white shadow-lg shadow-purple-900/30"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/40"
+                  }`}
+                  title={collapsed ? label : undefined}
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  {!collapsed && <span className="truncate">{label}</span>}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-                }`}
-                title={collapsed ? t(item.labelKey) : undefined}
-              >
-                <div className="flex-shrink-0">{item.icon}</div>
-                {!collapsed && <span>{t(item.labelKey)}</span>}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Admin User Quick Profile & Logout */}
-        <div className="p-3 border-t border-slate-800/80 bg-[#090d13]">
+        {/* User Card & Logout */}
+        <div className="p-3 border-t border-slate-800/80">
           {!collapsed ? (
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col truncate">
-                <span className="text-xs font-semibold text-slate-200 truncate">
+            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div className="overflow-hidden pr-1">
+                <p className="text-xs font-bold text-white truncate">
                   {admin?.username || t("admin.layout.defaultAdminName")}
-                </span>
-                <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-mono">
-                  ● {admin?.role || "superadmin"}
-                </span>
+                </p>
+                <p className="text-[10px] text-slate-500 font-mono uppercase truncate">
+                  {admin?.role || "super_admin"}
+                </p>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors"
+                className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                 title={t("admin.layout.logout")}
               >
                 <LogOut className="w-4 h-4" />

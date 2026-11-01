@@ -74,6 +74,14 @@
       "jin": "جين ساكاي (Ghost of Tsushima)",
       "joel": "جويل (The Last of Us)",
       "astro": "أسترو بوت (Astro Bot)"
+    },
+    "upload": {
+      "title": "رفع صورة",
+      "uploading": "جارٍ الرفع...",
+      "custom": "صورة رمزية مخصصة",
+      "invalidType": "يُسمح فقط بملفات الصور (JPEG، PNG، WebP).",
+      "tooLarge": "يجب ألا يتجاوز حجم الملف 5 ميغابايت.",
+      "error": "فشل في رفع الصورة. يرجى المحاولة مرة أخرى."
     }
   },
   "notificationsUI": {

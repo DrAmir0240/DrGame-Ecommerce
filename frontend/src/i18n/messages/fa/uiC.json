@@ -74,6 +74,14 @@
       "jin": "جین ساکای (Ghost of Tsushima)",
       "joel": "جوئل (The Last of Us)",
       "astro": "استرو بات (Astro Bot)"
+    },
+    "upload": {
+      "title": "آپلود تصویر",
+      "uploading": "در حال آپلود...",
+      "custom": "آواتار سفارشی",
+      "invalidType": "فقط فایل‌های تصویری (JPEG، PNG، WebP) مجاز هستند.",
+      "tooLarge": "حجم فایل نباید بیشتر از ۵ مگابایت باشد.",
+      "error": "خطا در آپلود تصویر. لطفاً دوباره تلاش کنید."
     }
   },
   "notificationsUI": {

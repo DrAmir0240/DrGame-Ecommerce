@@ -54,22 +54,32 @@ export default function DownloadConfirmModal({
     try {
       let finalDownloadUrl = link.download_url;
 
-      // Call backend API to deduct quota and generate signed download link
+      // Step 14: Use stream endpoint for atomic quota deduction + 302 redirect
       if (gameId && link.id) {
         try {
-          const genRes = await apiRequest<{
-            status: string;
-            download_url: string;
-            remaining_quota_gb: number;
-            message?: string;
-          }>(`/games/${gameId}/downloads/${link.id}/generate`, {
-            method: 'POST',
-          });
-          if (genRes?.download_url) {
-            finalDownloadUrl = genRes.download_url;
+          const streamRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || 'http://62.60.191.67:8000/api'}/games/${gameId}/downloads/${link.id}/stream`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('drgame_access_token') || ''}`,
+                'Accept-Language': (typeof window !== 'undefined' && localStorage.getItem('drgame_lang')) || 'fa',
+              },
+              redirect: 'manual',
+            }
+          );
+
+          if (streamRes.status === 302 || streamRes.status === 307) {
+            const location = streamRes.headers.get('Location');
+            if (location) {
+              finalDownloadUrl = location;
+            }
+          } else if (!streamRes.ok) {
+            const errData = await streamRes.json().catch(() => ({}));
+            throw new Error(errData.detail || 'خطا در صدور لینک دانلود');
           }
         } catch (err: any) {
-          console.error('Failed to generate download link via API:', err);
+          console.error('Failed to stream download via API:', err);
           setDownloadError(err.message || 'خطا در صدور لینک دانلود امن و کسر سهمیه');
           setIsProcessing(false);
           return;
@@ -81,6 +91,7 @@ export default function DownloadConfirmModal({
       a.href = finalDownloadUrl;
       a.download = `${gameTitle}-${link.part_name || 'download'}`;
       a.target = '_blank';
+      a.rel = 'noopener noreferrer';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
