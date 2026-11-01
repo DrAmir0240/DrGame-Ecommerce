@@ -8,23 +8,6 @@ from app.core.exceptions import AuthenticationError, NotFoundException, BadReque
 
 
 @pytest.mark.asyncio
-async def test_seed_and_login_superadmin(test_db):
-    """AdminService can seed superadmin and log in."""
-    admin = await AdminService.seed_superadmin(test_db)
-    assert admin.username == "admin"
-    assert admin.role == "superadmin"
-
-    # Login success
-    res = await AdminService.login(test_db, "admin", "DrGame@Admin2026!")
-    assert "access_token" in res
-    assert res["admin"]["username"] == "admin"
-
-    # Login failure
-    with pytest.raises(AuthenticationError):
-        await AdminService.login(test_db, "admin", "wrong_pass")
-
-
-@pytest.mark.asyncio
 async def test_adjust_user_quota(test_db, mock_redis):
     """Admin can adjust user quota up and down."""
     user = User(

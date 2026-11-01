@@ -1,7 +1,7 @@
 """Pydantic V2 schemas for Admin management, authentication, user quotas, finance and payouts."""
 from datetime import datetime
 from typing import Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class AdminLoginRequest(BaseModel):
@@ -208,4 +208,79 @@ class AdminDiscountUpdate(BaseModel):
     usage_limit: Optional[int] = None
     expires_at: Optional[datetime] = None
     is_active: Optional[bool] = None
+
+
+# --- 5 Department Admin Schemas & Audit Log Schemas ---
+
+class DepartmentAdminLoginRequest(BaseModel):
+    username_or_email: Optional[str] = None
+    username: Optional[str] = None
+    password: str = Field(..., min_length=4, description="کلمه عبور")
+
+    @model_validator(mode="after")
+    def resolve_username(self):
+        if not self.username_or_email and not self.username:
+            raise ValueError("username or username_or_email is required")
+        if not self.username_or_email and self.username:
+            self.username_or_email = self.username
+        return self
+
+
+
+class DepartmentAdminInfo(BaseModel):
+    id: int
+    username: str
+    email: str
+    mobile: Optional[str] = None
+    full_name: str
+    access_level: str
+    department: str
+    is_active: bool
+    created_at: datetime
+    last_login_at: Optional[datetime] = None
+
+
+class DepartmentAdminTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    admin: DepartmentAdminInfo
+
+
+class DepartmentStaffCreate(BaseModel):
+    username: str = Field(..., min_length=3, max_length=60)
+    email: str = Field(..., max_length=255)
+    password: str = Field(..., min_length=6, max_length=100)
+    full_name: str = Field(..., min_length=2, max_length=100)
+    mobile: Optional[str] = None
+    access_level: str = Field(default="read_only", description="read_only or full_crud")
+
+
+class DepartmentStaffUpdate(BaseModel):
+    full_name: Optional[str] = None
+    mobile: Optional[str] = None
+    password: Optional[str] = None
+    access_level: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class AdminAuditLogItem(BaseModel):
+    id: int
+    department: str
+    admin_id: int
+    admin_username: str
+    action: str
+    target_entity: Optional[str] = None
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
+    details: dict = {}
+    created_at: datetime
+
+
+class AdminAuditLogListResponse(BaseModel):
+    items: list[AdminAuditLogItem]
+    total: int
+    page: int
+    page_size: int
+
 

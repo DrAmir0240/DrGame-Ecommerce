@@ -7,7 +7,6 @@ import redis.asyncio as aioredis
 from app.core.security import hash_password, verify_password
 from app.core.exceptions import NotFoundException, BadRequestException, AuthenticationError
 from app.core.admin_dependencies import create_admin_token
-from app.modules.auth.admin_models import AdminUser
 from app.modules.users.models import User
 from app.modules.quota.models import UserQuota, QuotaConsumptionLog
 from app.modules.quota.services import QuotaService
@@ -17,57 +16,7 @@ from app.modules.games.models import Game, GameDownloadLink
 
 
 class AdminService:
-    @staticmethod
-    async def seed_superadmin(db: AsyncSession) -> AdminUser:
-        """Seed initial superadmin if table is empty."""
-        stmt = select(AdminUser).limit(1)
-        existing = (await db.execute(stmt)).scalar_one_or_none()
-        if not existing:
-            admin = AdminUser(
-                username="admin",
-                email="admin@drgame.ir",
-                password_hash=hash_password("DrGame@Admin2026!"),
-                role="superadmin",
-                is_active=True,
-            )
-            db.add(admin)
-            await db.commit()
-            await db.refresh(admin)
-            return admin
-        return existing
 
-    @classmethod
-    async def login(cls, db: AsyncSession, username_or_email: str, password: str) -> dict:
-        """Authenticate admin user and issue admin token."""
-        await cls.seed_superadmin(db)
-
-        stmt = select(AdminUser).where(
-            or_(
-                AdminUser.username == username_or_email.strip(),
-                AdminUser.email == username_or_email.strip().lower(),
-            )
-        )
-        admin = (await db.execute(stmt)).scalar_one_or_none()
-
-        if not admin or not verify_password(password, admin.password_hash):
-            raise AuthenticationError("نام کاربری یا کلمه عبور مدیر اشتباه است.")
-
-        if not admin.is_active:
-            raise BadRequestException("حساب مدیریت غیرفعال شده است.")
-
-        token, jti, exp = create_admin_token(admin.id, admin.username, admin.role)
-
-        return {
-            "access_token": token,
-            "token_type": "bearer",
-            "expires_in": int(exp.timestamp()),
-            "admin": {
-                "id": admin.id,
-                "username": admin.username,
-                "email": admin.email,
-                "role": admin.role,
-            },
-        }
 
     @staticmethod
     async def list_users(

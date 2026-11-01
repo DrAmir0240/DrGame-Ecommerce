@@ -7,7 +7,7 @@ import redis.asyncio as aioredis
 from app.core.database import get_db
 from app.core.redis_client import get_redis
 from app.core.admin_dependencies import get_current_admin
-from app.modules.auth.admin_models import AdminUser
+
 from app.modules.core.geoip_service import GeoIPService, GeoIPResult
 from app.modules.core.schemas import SiteSettingsOut, SiteSettingsUpdate
 from app.modules.core.services import CoreSettingsService
@@ -54,7 +54,7 @@ async def get_site_settings(
 @router.put("/admin/settings", response_model=SiteSettingsOut, status_code=status.HTTP_200_OK, tags=["Admin Settings"])
 async def update_site_settings(
     data: SiteSettingsUpdate,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):

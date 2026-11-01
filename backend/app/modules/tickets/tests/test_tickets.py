@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.main import app
 from app.modules.users.models import User
-from app.modules.auth.admin_models import AdminUser
 from app.modules.tickets.models import Ticket, TicketMessage
 from app.modules.tickets.services import TicketService
 from app.modules.tickets.schemas import TicketCreate

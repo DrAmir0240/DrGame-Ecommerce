@@ -14,9 +14,10 @@ except ImportError:
     pass
 
 try:
-    from app.modules.auth.admin_models import *
+    from app.modules.admin.models import *
 except ImportError:
     pass
+
 
 try:
     from app.modules.users.models import *

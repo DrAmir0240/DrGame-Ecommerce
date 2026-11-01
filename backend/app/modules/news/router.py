@@ -104,7 +104,7 @@ async def dislike_post(
 # ── Admin Blog Router ──────────────────────────────────────────────────────────
 
 from app.core.admin_dependencies import get_current_admin
-from app.modules.auth.admin_models import AdminUser
+
 from app.modules.news.schemas import (
     BlogPostCreate,
     BlogPostUpdate,
@@ -117,7 +117,7 @@ admin_blog_router = APIRouter(prefix="/admin/blog", tags=["Admin Blog"])
 
 @admin_blog_router.get("/posts", status_code=status.HTTP_200_OK)
 async def admin_list_posts(
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     search: str | None = Query(None),
     category_id: int | None = Query(None),
@@ -139,7 +139,7 @@ async def admin_list_posts(
 @admin_blog_router.post("/posts", status_code=status.HTTP_201_CREATED)
 async def admin_create_post(
     data: BlogPostCreate,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -151,7 +151,7 @@ async def admin_create_post(
 @admin_blog_router.get("/posts/{post_id}", status_code=status.HTTP_200_OK)
 async def admin_get_post(
     post_id: int,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -163,7 +163,7 @@ async def admin_get_post(
 async def admin_update_post(
     post_id: int,
     data: BlogPostUpdate,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -175,7 +175,7 @@ async def admin_update_post(
 @admin_blog_router.delete("/posts/{post_id}", status_code=status.HTTP_200_OK)
 async def admin_delete_post(
     post_id: int,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -186,7 +186,7 @@ async def admin_delete_post(
 @admin_blog_router.post("/categories", status_code=status.HTTP_201_CREATED)
 async def admin_create_category(
     data: BlogCategoryCreate,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -199,7 +199,7 @@ async def admin_create_category(
 async def admin_update_category(
     category_id: int,
     data: BlogCategoryUpdate,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
@@ -211,7 +211,7 @@ async def admin_update_category(
 @admin_blog_router.delete("/categories/{category_id}", status_code=status.HTTP_200_OK)
 async def admin_delete_category(
     category_id: int,
-    admin: Annotated[AdminUser, Depends(get_current_admin)],
+    admin: Annotated[dict, Depends(get_current_admin)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
