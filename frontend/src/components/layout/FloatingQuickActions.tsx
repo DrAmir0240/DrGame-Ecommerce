@@ -230,7 +230,7 @@ export default function FloatingQuickActions() {
         title={open ? t('quickActions.close') : t('quickActions.open')}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-gradient-to-br from-cosmic-purple via-nebula-violet to-fuchsia-500 text-white shadow-[0_10px_35px_-6px_rgba(168,85,247,0.8)] outline-none focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        className="relative flex h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-white/15 bg-gradient-to-br from-cosmic-purple via-nebula-violet to-fuchsia-500 text-white shadow-[0_8px_25px_-4px_rgba(168,85,247,0.7)] md:shadow-[0_10px_35px_-6px_rgba(168,85,247,0.8)] outline-none focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       >
         {/* pulse ring while closed */}
         {!open && (
@@ -245,7 +245,7 @@ export default function FloatingQuickActions() {
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.18 }}
             >
-              <X className="h-6 w-6" strokeWidth={2.5} />
+              <X className="h-5 w-5 md:h-6 md:w-6" strokeWidth={2.5} />
             </motion.span>
           ) : (
             <motion.span
@@ -255,7 +255,7 @@ export default function FloatingQuickActions() {
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.18 }}
             >
-              <Sparkles className="h-6 w-6" strokeWidth={2.2} />
+              <Sparkles className="h-5 w-5 md:h-6 md:w-6" strokeWidth={2.2} />
             </motion.span>
           )}
         </AnimatePresence>
