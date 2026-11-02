@@ -61,9 +61,11 @@ async def test_save_uploaded_file_fallback_to_local():
 
 @pytest.mark.asyncio
 async def test_download_and_save_image_local_or_s3():
-    # If URL is already local or S3, should return immediately
+    # If URL is already local, should return as is
     existing_local = "/media/games/test.jpg"
     assert await download_and_save_image(existing_local) == existing_local
 
+    # If URL is on Liara default .liara.site domain, it normalizes to /media/... to prevent browser 404s
     existing_s3 = f"{settings.S3_PUBLIC_BASE_URL}/games/test.jpg"
-    assert await download_and_save_image(existing_s3) == existing_s3
+    resolved = await download_and_save_image(existing_s3)
+    assert resolved == "/media/games/test.jpg"

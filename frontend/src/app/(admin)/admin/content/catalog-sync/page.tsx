@@ -20,6 +20,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { apiRequest } from "@/lib/apiClient";
+import { getMediaUrl } from "@/lib/media";
 
 interface CatalogGame {
   id: number;
@@ -508,7 +509,7 @@ export default function CatalogSyncPage() {
                 <div className="relative aspect-[3/4] bg-black/60 overflow-hidden">
                   {game.cover_image_url ? (
                     <img
-                      src={game.cover_image_url}
+                      src={getMediaUrl(game.cover_image_url)}
                       alt={game.title_en}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

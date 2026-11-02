@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { apiRequest, ApiError } from "@/lib/apiClient";
 import { getDepartmentAdminToken } from "@/lib/authTokens";
+import { getMediaUrl } from "@/lib/media";
 import { DepartmentAdminProfile } from "@/components/admin/DepartmentLayout";
 
 export default function ContentGamesPage() {
@@ -261,7 +262,7 @@ export default function ContentGamesPage() {
                     <td className="py-3 px-4">
                       {g.cover_image_url ? (
                         <img
-                          src={g.cover_image_url}
+                          src={getMediaUrl(g.cover_image_url)}
                           alt={g.title_fa}
                           className="w-10 h-10 object-cover rounded-lg border border-slate-700"
                         />

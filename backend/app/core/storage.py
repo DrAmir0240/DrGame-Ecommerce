@@ -156,6 +156,24 @@ class LiaraS3Storage:
         except Exception:
             return False
 
+    async def download_bytes(self, key: str) -> Optional[bytes]:
+        """Download raw bytes of an object from Liara S3 in a threadpool."""
+        if not self.is_configured:
+            return None
+
+        clean_key = key.lstrip("/")
+
+        def _sync_download():
+            client = self._get_client()
+            response = client.get_object(Bucket=self.bucket_name, Key=clean_key)
+            return response["Body"].read()
+
+        try:
+            return await asyncio.to_thread(_sync_download)
+        except Exception as e:
+            logger.error(f"Liara S3 download failed for key {clean_key}: {e}")
+            return None
+
     async def delete_file(self, key: str) -> bool:
         """Delete an object from Liara S3."""
         if not self.is_configured:
@@ -186,42 +204,57 @@ async def download_and_save_image(
 ) -> str:
     """
     Downloads a remote image and saves it to Liara S3 (or local disk fallback).
-    If exact_key is provided (e.g. 'games/src_1234/screenshots/1.jpg'), checks if it already
-    exists in Liara S3 / disk first to avoid duplicate downloads and uploads (Idempotency).
+    Ensures dual-persistence (cloud backup in S3 + local cache on disk).
+    Returns a web-accessible URL (custom domain if configured, or /media/... proxy to avoid browser 404s).
     """
     if not remote_url:
         return remote_url
 
+    # Helper to determine public URL: use S3 public domain only if it is a real custom domain (not .liara.site)
+    def _resolve_public_url(key_path: str) -> str:
+        clean = key_path.lstrip("/")
+        if settings.LIARA_PUBLIC_URL and ".liara.site" not in settings.LIARA_PUBLIC_URL:
+            return f"{settings.S3_PUBLIC_BASE_URL}/{clean}"
+        return f"/media/{clean}"
+
     # 1. If exact_key is specified, check if already uploaded to S3 or local disk
     if exact_key:
         clean_key = exact_key.lstrip("/")
+        local_exact_path = os.path.join(MEDIA_DIR, clean_key)
+
         if liara_storage.is_configured and await liara_storage.file_exists(clean_key):
             logger.info(f"Liara S3: Object '{clean_key}' already exists in bucket. Reusing.")
-            return f"{settings.S3_PUBLIC_BASE_URL}/{clean_key}"
-        local_exact_path = os.path.join(MEDIA_DIR, clean_key)
-        if not liara_storage.is_configured and os.path.isfile(local_exact_path):
-            return f"/media/{clean_key}"
+            # Cache locally if not on disk
+            if not os.path.isfile(local_exact_path):
+                s3_bytes = await liara_storage.download_bytes(clean_key)
+                if s3_bytes:
+                    os.makedirs(os.path.dirname(local_exact_path), exist_ok=True)
+                    with open(local_exact_path, "wb") as f:
+                        f.write(s3_bytes)
+            return _resolve_public_url(clean_key)
 
-    # 2. If already hosted on our S3, return as is
+        if os.path.isfile(local_exact_path):
+            return _resolve_public_url(clean_key)
+
+    # 2. If already hosted on our S3 or local /media/, normalize
     if settings.LIARA_PUBLIC_URL and remote_url.startswith(settings.LIARA_PUBLIC_URL):
-        return remote_url
+        rel = remote_url.replace(settings.LIARA_PUBLIC_URL, "").lstrip("/")
+        return _resolve_public_url(rel)
 
-    # 3. If it is a local /media/ path and Liara S3 is configured, try uploading it to Liara S3
+    # 3. If it is a local /media/ path and Liara S3 is configured, ensure uploaded to Liara S3
     if remote_url.startswith("/media/"):
-        rel_path = remote_url.replace("/media/", "")
+        rel_path = remote_url.replace("/media/", "").lstrip("/")
         local_disk_path = os.path.join(MEDIA_DIR, rel_path)
         if os.path.isfile(local_disk_path) and liara_storage.is_configured:
             try:
-                with open(local_disk_path, "rb") as lf:
-                    data = lf.read()
-                s3_key = exact_key.lstrip("/") if exact_key else f"{folder}/{os.path.basename(rel_path)}"
-                content_type = mimetypes.guess_type(local_disk_path)[0] or "image/jpeg"
-                s3_url = await liara_storage.upload_bytes(data, s3_key, content_type)
-                if s3_url:
-                    return s3_url
+                if not await liara_storage.file_exists(rel_path):
+                    with open(local_disk_path, "rb") as lf:
+                        data = lf.read()
+                    content_type = mimetypes.guess_type(local_disk_path)[0] or "image/jpeg"
+                    await liara_storage.upload_bytes(data, rel_path, content_type)
             except Exception as e:
-                logger.warning(f"Failed to migrate local file {remote_url} to Liara: {e}")
-        return remote_url
+                logger.warning(f"Failed to sync local file {remote_url} to Liara: {e}")
+        return _resolve_public_url(rel_path)
 
     try:
         ext = ".jpg"
@@ -251,23 +284,21 @@ async def download_and_save_image(
         async with httpx.AsyncClient(timeout=15.0, follow_redirects=True, trust_env=True, headers=headers) as client:
             res = await client.get(remote_url)
             if res.status_code == 200 and len(res.content) > 100:
-                # 1. Try uploading to Liara S3
-                if liara_storage.is_configured:
-                    content_type = res.headers.get("content-type") or mimetypes.guess_type(filename)[0] or "image/jpeg"
-                    s3_url = await liara_storage.upload_bytes(res.content, s3_key, content_type)
-                    if s3_url:
-                        logger.info(f"Liara S3: Uploaded {remote_url} -> {s3_url}")
-                        return s3_url
+                content_type = res.headers.get("content-type") or mimetypes.guess_type(filename)[0] or "image/jpeg"
 
-                # 2. Fallback to local disk storage
+                # 1. Dual persistence: Save to local disk cache
                 target_dir = os.path.join(MEDIA_DIR, target_rel_dir)
                 os.makedirs(target_dir, exist_ok=True)
                 filepath = os.path.join(target_dir, filename)
-
                 with open(filepath, "wb") as f:
                     f.write(res.content)
-                logger.info(f"Local fallback: Saved {remote_url} -> /media/{s3_key}")
-                return f"/media/{s3_key}"
+
+                # 2. Upload to Liara S3 (Cloud backup)
+                if liara_storage.is_configured:
+                    await liara_storage.upload_bytes(res.content, s3_key, content_type)
+                    logger.info(f"Liara S3: Cloud synced {remote_url} -> {s3_key}")
+
+                return _resolve_public_url(s3_key)
             else:
                 logger.warning(f"Failed to fetch remote image: {remote_url}, status: {res.status_code}")
                 return remote_url
