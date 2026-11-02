@@ -1,0 +1,246 @@
+{
+  "admin": {
+    "games": {
+      "title": "完整的游戏目录管理",
+      "subtitle": "编辑游戏的每个部分（封面、横幅、故事、奖项、工作室、评论家评分、平台和下载链接）",
+      "searchPlaceholder": "搜索游戏名称...",
+      "addGame": "添加新游戏",
+      "table": {
+        "title": "游戏名称",
+        "studio": "工作室及出版商",
+        "size": "数据大小",
+        "rating": "评级与元批评",
+        "platforms": "平台",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "platforms": {
+        "ps5": "PS5",
+        "ps4": "PS4",
+        "xboxSeries": "Xbox 系列 X/S",
+        "nintendoSwitch": "任天堂开关"
+      },
+      "loading": "正在加载目录...",
+      "empty": "没有找到游戏。",
+      "noCover": "无盖",
+      "status": {
+        "published": "已发表",
+        "draft": "吃水"
+      },
+      "actions": {
+        "editFull": "完整编辑",
+        "editTitle": "编辑所有游戏详细信息",
+        "delete": "删除游戏"
+      },
+      "pagination": {
+        "showing": "系统中显示 {{shown}} 个游戏（共 {{total}} 个）",
+        "prev": "上一页",
+        "next": "下一页",
+        "pageOf": "第 {{page}} 页，共 {{pages}} 页"
+      },
+      "confirmDelete": "您确定要从目录中删除该游戏吗？",
+      "errors": {
+        "fetch": "加载目录失败",
+        "uploadImage": "图片上传失败",
+        "upload": "上传失败",
+        "downloadAndSave": "无法下载并保存图像",
+        "cache": "缓存图片失败",
+        "update": "游戏更新失败",
+        "create": "创建游戏失败",
+        "process": "无法处理请求",
+        "required": "请输入游戏的波斯语和英语标题。"
+      },
+      "messages": {
+        "coverUploaded": "游戏封面保存到 DrGame 服务器。",
+        "bannerUploaded": "英雄横幅保存到 DrGame 服务器。",
+        "coverCached": "封面保存到本地托管。",
+        "bannerCached": "横幅保存到本地托管。",
+        "saved": "游戏信息保存并更新成功。"
+      },
+      "defaults": {
+        "genres": "动作、冒险",
+        "partName": "第 {{number}} 部分"
+      },
+      "modal": {
+        "titleEdit": "编辑所有游戏详细信息",
+        "titleAdd": "创建新游戏条目",
+        "subtitle": "统一管理banner、评论、工作室详情、奖项、游戏下载文件",
+        "loading": "正在从数据库加载游戏详细信息...",
+        "idLabel": "身份证号：{{id}}",
+        "tabs": {
+          "basic": "基本信息",
+          "media": "艺术品和英雄横幅",
+          "studio": "工作室及奖项",
+          "story": "故事和游戏核心",
+          "features": "平台和功能",
+          "downloads": "文件和部分 ({{count}})"
+        },
+        "basic": {
+          "titleFa": "波斯语游戏名称",
+          "titleEn": "英文游戏名称",
+          "slug": "网址段",
+          "released": "发售日期/年份",
+          "size": "总数据大小 (GB)",
+          "rating": "用户评分（满分 5 分）",
+          "metacritic": "Metacritic 评分（满分 100 分）",
+          "status": "游戏发布状态",
+          "activeLabel": "活跃并在商店中发布",
+          "placeholders": {
+            "titleFa": "例如最后生还者重制版",
+            "titleEn": "例如最后生还者重制版",
+            "released": "例如2022年或2014年7月29日",
+            "metacritic": "例如95"
+          }
+        },
+        "media": {
+          "coverLabel": "游戏盒封面艺术",
+          "coverHint": "标准 3:4 或 4:5 比例",
+          "coverPlaceholder": "https://... 或 /media/games/cover_...",
+          "coverCacheTitle": "下载镜像并将其存储在DrGame服务器上",
+          "caching": "缓存...",
+          "cacheToServer": "保存到服务器",
+          "coverUploading": "正在上传封面...",
+          "coverUpload": "从设备上传封面",
+          "coverUploaded": "封面已上传",
+          "coverPreviewAlt": "封面预览",
+          "bannerLabel": "电影英雄背景横幅",
+          "bannerHint": "页面顶部的宽背景图像 (16:9)",
+          "bannerPlaceholder": "https://... 或 /media/games/banner_...",
+          "bannerCacheTitle": "下载横幅并将其存储在 DrGame 服务器上",
+          "bannerUploading": "正在上传横幅...",
+          "bannerUpload": "从设备上传英雄横幅",
+          "bannerUploaded": "横幅已上传",
+          "bannerPreviewAlt": "横幅预览",
+          "screenshotsLabel": "游戏截图库（每行一个链接）"
+        },
+        "studio": {
+          "developerLabel": "开发者工作室",
+          "developerPlaceholder": "例如顽皮狗或圣莫尼卡工作室",
+          "publisherLabel": "出版商",
+          "publisherPlaceholder": "例如索尼互动娱乐",
+          "awardsLabel": "游戏奖项和荣誉（每行一个奖项）",
+          "awardsHint": "显示在游戏详情页面的第一张卡牌中",
+          "awardsPlaceholder": "荣获 200 多个年度游戏奖项\n游戏奖最佳故事讲述奖\n顽皮狗令人难忘的杰作"
+        },
+        "story": {
+          "storylineLabel": "游戏的故事和核心（故事情节 FA）",
+          "storylineHint": "游戏详细信息页面上第三张卡片“游戏之心”的文本",
+          "storylinePlaceholder": "引人入胜的故事概要、游戏世界以及专用“游戏之心”盒子中展现的叙事氛围......",
+          "descriptionFaLabel": "完整的波斯语描述和评论（完整描述 FA）",
+          "descriptionFaPlaceholder": "对游戏的游戏玩法、图形和技术细节的波斯语完整回顾...",
+          "descriptionEnLabel": "英文说明",
+          "descriptionEnPlaceholder": "游戏的英文原版说明..."
+        },
+        "features": {
+          "platformsLabel": "支持的平台",
+          "genresLabel": "游戏类型（用逗号分隔）",
+          "genresPlaceholder": "动作, 冒险, 角色扮演, 生存",
+          "title": "特殊功能和功能",
+          "coopLabel": "两人/多人支持（合作）",
+          "coopHint": "离线或在线多人游戏",
+          "vrLabel": "虚拟现实支持（PS VR / PS VR2）",
+          "vrHint": "在游戏详细信息中添加专用的 VR 徽章"
+        },
+        "downloads": {
+          "title": "零件、包和 5 种可下载文件类型",
+          "subtitle": "定义游戏数据、作弊、DLC、字幕和配音以及所需的订阅等级",
+          "empty": "尚未为此游戏添加任何文件。使用上面的按钮添加您需要的文件类型。",
+          "quickAdd": {
+            "data": "官方数据",
+            "cheat": "秘籍和训练师",
+            "dlc": "扩展（DLC）",
+            "subtitle": "字幕",
+            "dubbing": "波斯语配音"
+          },
+          "fileTypeLabel": "文件类型：",
+          "partNameLabel": "部分标题/名称：",
+          "partNamePlaceholder": "零件名称",
+          "sizeLabel": "大小（GB）：",
+          "sizePlaceholder": "大小（GB）",
+          "tierLabel": "允许订阅：",
+          "urlLabel": "下载链接网址：",
+          "activeLabel": "活跃",
+          "removeTitle": "删除此部分",
+          "fileTypes": {
+            "data": "官方数据",
+            "cheat": "秘籍和训练师",
+            "dlc": "扩展（DLC）",
+            "subtitle": "波斯语字幕",
+            "dubbing": "独家配音"
+          },
+          "tiers": {
+            "free": "免费",
+            "bronze": "铜牌及以上",
+            "silver": "银牌及以上",
+            "gold": "黄金"
+          },
+          "defaults": {
+            "data": "官方数据（第 {{number}} 部分）",
+            "cheat": "独家秘籍和训练师",
+            "dlc": "扩展包（DLC）",
+            "subtitle": "官方波斯语字幕",
+            "dubbing": "独家波斯语配音",
+            "part": "第 {{number}} 部分"
+          }
+        },
+        "footer": {
+          "note": "所有更改在保存后立即在商店中生效。",
+          "cancel": "取消",
+          "saving": "正在保存...",
+          "save": "保存所有游戏信息"
+        }
+      }
+    },
+    "genres": {
+      "title": "游戏类别和流派管理",
+      "subtitle": "定义流派、重新排序，并在主页上展示前 8 种流派 — 完全由数据库驱动",
+      "add": "添加新类型",
+      "loading": "正在加载类型...",
+      "empty": "尚未定义任何类型。",
+      "table": {
+        "order": "订单",
+        "nameFa": "波斯语流派名称",
+        "nameEn": "英文名",
+        "slug": "蛞蝓",
+        "top8": "前 8 名流派",
+        "status": "状态",
+        "actions": "行动"
+      },
+      "top8Active": "活跃前 8 名",
+      "normal": "标准型",
+      "active": "活跃",
+      "inactive": "不活跃",
+      "edit": "编辑",
+      "delete": "删除",
+      "confirmDelete": "您确定要删除该类型吗？",
+      "modal": {
+        "addTitle": "添加新类型",
+        "editTitle": "编辑流派",
+        "nameFaLabel": "波斯语流派名称：",
+        "nameFaPlaceholder": "例如动作冒险",
+        "nameEnLabel": "英文流派名称：",
+        "nameEnPlaceholder": "动作冒险",
+        "slugLabel": "网址段：",
+        "orderLabel": "显示顺序：",
+        "iconLabel": "Lucide 图标名称（可选）：",
+        "top8Label": "显示前 8 名流派",
+        "activeLabel": "在网站上活跃",
+        "cancel": "取消",
+        "save": "保存类型"
+      },
+      "feedback": {
+        "deleted": "类型删除成功。",
+        "updated": "类型更新成功。",
+        "created": "新类型添加成功。"
+      },
+      "errors": {
+        "load": "无法从服务器加载游戏类型。",
+        "delete": "删除流派失败。",
+        "toggleActive": "无法更改流派状态。",
+        "toggleTop8": "更改前 8 名标签失败。",
+        "required": "需要波斯语标题和流派名称。",
+        "save": "无法保存类型。"
+      }
+    }
+  }
+}

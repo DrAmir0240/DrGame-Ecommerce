@@ -99,7 +99,7 @@ export default function DownloadConfirmModal({
       if (gameId && link.id) {
         try {
           const streamRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://62.60.191.67:8000/api'}/games/${gameId}/downloads/${link.id}/stream`,
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://store.gamedr.ir/api'}/games/${gameId}/downloads/${link.id}/stream`,
             {
               method: 'GET',
               headers: {

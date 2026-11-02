@@ -60,7 +60,7 @@ export default function LanguageSwitcher() {
             <span>انتخاب زبان / Language / اللغة</span>
           </div>
 
-          <div className="p-1 space-y-1">
+          <div className="p-1 space-y-1 max-h-60 sm:max-h-72 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
             {Object.values(SUPPORTED_LOCALES).map((item) => {
               const isActive = item.code === locale;
               return (

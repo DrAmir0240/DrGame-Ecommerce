@@ -1,0 +1,158 @@
+{
+  "admin": {
+    "layout": {
+      "brand": "Panel de control de administración",
+      "toggleSidebar": "Alternar tamaño de la barra lateral",
+      "verifyingSession": "Verificando credenciales de administrador...",
+      "viewStore": "Ver la tienda DrGame",
+      "sessionActive": "Sesión de administrador activa",
+      "defaultAdminName": "Administrador principal",
+      "logout": "Cerrar sesión en la cuenta de administrador",
+      "logoutShort": "Cerrar sesión",
+      "nav": {
+        "dashboard": "Panel ejecutivo",
+        "banners": "Gestión de banner principal",
+        "users": "Usuarios y gestión de cuotas",
+        "games": "Catálogo de juegos",
+        "genres": "Gestión de géneros de juegos",
+        "subscriptions": "Planes y juegos gratis",
+        "referrals": "Monitoreo de la cadena de referencias",
+        "finance": "Monitoreo Financiero (TIR/FX)",
+        "payouts": "Mesa de pago de referencias",
+        "bankAccounts": "Aprobaciones de cuentas bancarias",
+        "tickets": "Boletos de soporte",
+        "discounts": "Códigos de descuento",
+        "blog": "Gestión de blogs y noticias",
+        "settings": "Configuración global del sitio"
+      }
+    },
+    "login": {
+      "title": "Iniciar sesión en el portal de administración",
+      "subtitle": "El acceso está restringido a administradores DrGame verificados.",
+      "usernameLabel": "Nombre de usuario o correo electrónico del administrador",
+      "passwordLabel": "Contraseña de seguridad",
+      "submit": "Ingrese al centro de comando",
+      "errors": {
+        "required": "Por favor ingrese su nombre de usuario y contraseña.",
+        "invalidCredentials": "Nombre de usuario o contraseña de administrador incorrectos.",
+        "noToken": "No se recibió ningún token válido del servidor.",
+        "network": "No se pudo conectar con el servidor."
+      }
+    },
+    "dashboard": {
+      "title": "Centro de administración y monitoreo de plataforma",
+      "subtitle": "Resumen de métricas de rendimiento, ingresos y operaciones en vivo en DrGame",
+      "coreStatus": "Estado básico: operativo",
+      "errors": {
+        "loadFailed": "No se pudieron cargar las estadísticas del panel"
+      },
+      "cards": {
+        "users": "Usuarios registrados",
+        "activeSubscriptions": "Suscripciones activas",
+        "games": "Títulos de juegos",
+        "pendingPayouts": "Solicitudes de pago",
+        "totalRevenue": "Ingresos totales"
+      },
+      "quickActions": {
+        "title": "Operaciones clave y acciones rápidas",
+        "users": {
+          "title": "Recargar cuota de usuario",
+          "description": "Aumentar o disminuir manualmente la asignación de descargas de usuarios"
+        },
+        "payouts": {
+          "title": "Mesa de pago de referencias",
+          "description": "Aprobar transferencias bancarias SHEBA y pagos de billetera USDT"
+        },
+        "games": {
+          "title": "Administrar catálogo de juegos",
+          "description": "Agregue títulos, descargue enlaces y edite etiquetas"
+        },
+        "freeGames": {
+          "title": "Juegos de nivel gratuito",
+          "description": "Selecciona dinámicamente {{count}} juegos elegibles para el plan gratuito"
+        }
+      },
+      "security": {
+        "title": "Seguridad e infraestructura",
+        "authLevel": "Nivel de autenticación",
+        "quotaCache": "Caché de consultas de cuota",
+        "database": "Modelo de base de datos",
+        "commissionEngine": "Motor de comisión"
+      }
+    },
+    "banners": {
+      "title": "Página de inicio Gestión de banners de héroe dual",
+      "subtitle": "Configurar el primer banner (juegos destacados) y el segundo banner (servicios y planes de plataforma), sincronizados con la base de datos.",
+      "addSlide": "Agregar nueva diapositiva",
+      "loading": "Cargando pancartas...",
+      "empty": "No hay diapositivas en esta sección.",
+      "defaults": {
+        "ctaText": "Ver y actuar",
+        "badgeGame": "Juego destacado",
+        "badgeService": "Servicio dorado",
+        "ctaGame": "Ver y descargar",
+        "ctaSubscription": "Comprar suscripción"
+      },
+      "tabs": {
+        "games": "Banner 1: Juegos AAA destacados ({{count}})",
+        "services": "Banner 2: Ofertas de servicios y suscripción ({{count}})"
+      },
+      "table": {
+        "priority": "Orden",
+        "preview": "Vista previa de imagen",
+        "title": "Título de la diapositiva",
+        "badge": "Insignia / Etiqueta",
+        "link": "Enlace de destino",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      },
+      "actions": {
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "confirm": {
+        "delete": "¿Estás seguro de que deseas eliminar esta diapositiva?"
+      },
+      "feedback": {
+        "deleted": "Diapositiva eliminada exitosamente.",
+        "updated": "Diapositiva actualizada correctamente.",
+        "created": "Nueva diapositiva agregada exitosamente."
+      },
+      "errors": {
+        "fetchFailed": "No se pudieron cargar los banners desde el servidor.",
+        "deleteFailed": "No se pudo eliminar la diapositiva.",
+        "toggleFailed": "No se pudo cambiar el estado de la diapositiva.",
+        "requiredFields": "Introduzca un título y una URL de imagen.",
+        "saveFailed": "No se pudo guardar la diapositiva."
+      },
+      "modal": {
+        "editTitle": "Editar diapositiva de banner",
+        "addTitle": "Agregar nueva diapositiva",
+        "cancel": "Cancelar",
+        "save": "Guardar diapositiva"
+      },
+      "form": {
+        "titleFa": "Título de la diapositiva en persa:",
+        "titleEn": "Título en inglés (opcional):",
+        "badge": "Insignia/etiqueta pequeña:",
+        "displayOrder": "Prioridad de visualización (orden):",
+        "backdropUrl": "URL de la imagen de fondo:",
+        "description": "Breve descripción de la diapositiva:",
+        "platforms": "Plataformas (separadas por comas):",
+        "ctaText": "Texto del botón (CTA):",
+        "linkHref": "Enlace del botón (Href):"
+      },
+      "placeholders": {
+        "titleFa": "por ej. dios de la guerra ragnarok",
+        "badge": "Juego del mes",
+        "backdropUrl": "https://... o /uploads/...",
+        "description": "Una línea corta y atractiva...",
+        "ctaText": "Ver detalles y descargar"
+      }
+    }
+  }
+}

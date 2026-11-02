@@ -1,0 +1,283 @@
+{
+  "ticketUI": {
+    "title": "打开新的支持票",
+    "subtitle": "DrGame专家将尽快解答您的疑问并解决您的问题。",
+    "subjectLabel": "门票主题：",
+    "subjectPlaceholder": "例如帮助移动我的 PS5 数据",
+    "departmentLabel": "部门：",
+    "department": {
+      "technical": "技术支持和连接",
+      "downloads": "控制台下载和数据传输",
+      "financial": "计费、订阅和佣金",
+      "general": "一般问题和建议"
+    },
+    "priorityLabel": "优先级：",
+    "priority": {
+      "low": "正常（24小时内回复）",
+      "medium": "中（标准优先级）",
+      "high": "紧急且关键"
+    },
+    "messageLabel": "消息和完整详细信息：",
+    "messagePlaceholder": "详细描述您的问题或问题...",
+    "cancel": "取消",
+    "submit": "发送票",
+    "errorRequired": "请输入您的票证的主题和消息。",
+    "errorSubmit": "无法提交您的支持票证。",
+    "errorLoad": "无法加载票证详细信息。",
+    "errorSend": "无法发送您的消息。",
+    "status": {
+      "answered": "已回答",
+      "inProgress": "审核中",
+      "closed": "关闭",
+      "awaiting": "等待回复"
+    },
+    "loadingTicket": "正在加载票证详细信息...",
+    "loadingHistory": "正在加载消息历史记录...",
+    "empty": "此票证中还没有消息。",
+    "supportName": "DrGame支持",
+    "you": "你",
+    "closedNotice": "此票证已关闭，无法再收到回复。如果您需要更多帮助，请开具新票证。",
+    "replyPlaceholder": "写下你的回复...",
+    "reply": "发送回复"
+  },
+  "gamepad": {
+    "page": {
+      "title": "控制器健康测试",
+      "connected": "已连接",
+      "waiting": "等待连接",
+      "enterFullscreen": "全屏",
+      "exitFullscreen": "退出全屏"
+    },
+    "connection": {
+      "titleConnected": "控制器已连接",
+      "titleDisconnected": "连接您的控制器",
+      "hintPressButton": "按控制器上的任意按钮",
+      "wireless": "无线/蓝牙",
+      "wired": "有线/USB",
+      "rumbleTest": "测试隆隆声",
+      "rumbleBusy": "正在发送...",
+      "driftMeasure": "测量漂移",
+      "driftBusy": "测量…",
+      "help": "通过 USB 或蓝牙连接控制器，然后按任意按钮以便浏览器可以检测到它。在 Windows 上，首选 Chrome 或 Edge 作为 DualSense 控制器。"
+    },
+    "viewer": {
+      "title": "控制器布局",
+      "badgeUnknown": "未知型号",
+      "badgeNone": "无控制器",
+      "view3d": "3D",
+      "viewMap": "地图",
+      "view3dHint": "3D 模型仅适用于 DualSense",
+      "emptyTitle": "连接后就会出现控制器布局",
+      "emptyHint": "通过 USB 或蓝牙连接控制器并按任意按钮以便浏览器可以检测到它。",
+      "waiting": "等待控制器...",
+      "noButtons": "没有按下任何按钮"
+    },
+    "map": {
+      "ariaLabel": "控制器按钮图"
+    },
+    "model3d": {
+      "loading": "加载 3D 模型",
+      "loadError": "无法加载 3D 模型。",
+      "unsupported": "此浏览器不支持 3D 视图。"
+    },
+    "triggers": {
+      "pressed": "新闻",
+      "released": "发布"
+    },
+    "sticks": {
+      "title": "棍子和漂移",
+      "left": "左摇杆",
+      "right": "右摇杆",
+      "toneHigh": "高漂移",
+      "toneSlight": "轻微漂移",
+      "toneHealthy": "健康",
+      "measuring": "测量…",
+      "hintIdle": "要获得精确的漂移读数，请按“测量漂移”并保持两根摇杆不动 2.5 秒。",
+      "hintHigh": "漂移超过12%是不正常的；电位计可能已磨损或积满灰尘。",
+      "hintHealthy": "漂移在健康范围内。"
+    },
+    "mic": {
+      "title": "麦克风环回测试",
+      "deviceLabel": "输入设备",
+      "defaultDevice": "系统默认麦克风",
+      "deviceFallback": "麦克风 {{index}}",
+      "average": "平均",
+      "peak": "巅峰",
+      "loopback": "播放音频（通过扬声器收听）",
+      "volume": "体积",
+      "howlingWarning": "请勿使用耳机执行此操作；声反馈（啸叫）可能会损坏扬声器。",
+      "start": "开始测试",
+      "stop": "停止测试",
+      "starting": "正在连接…",
+      "error": "无法访问麦克风。检查浏览器权限和控制器连接。",
+      "health": {
+        "idle": {
+          "label": "准备好",
+          "advice": "按“开始测试”并允许麦克风访问。"
+        },
+        "silent": {
+          "label": "沉默",
+          "advice": "没有信号传入。请确保已选择控制器麦克风并且控制器上的静音键已关闭。"
+        },
+        "weak": {
+          "label": "弱",
+          "advice": "水平较低。靠近麦克风说话或提高 Windows 设置中的输入级别。"
+        },
+        "good": {
+          "label": "健康",
+          "advice": "信号电平在正常范围内；控制器麦克风看起来很健康。"
+        },
+        "hot": {
+          "label": "声音太大",
+          "advice": "信号太大并且可能失真。走远一点。"
+        },
+        "clipping": {
+          "label": "剪裁",
+          "advice": "信号正在削波。降低输入电平以消除失真。"
+        }
+      }
+    },
+    "log": {
+      "title": "系统日志",
+      "clear": "清除",
+      "waiting": "等待活动..."
+    },
+    "events": {
+      "connected": "控制器已连接 — {{id}}",
+      "disconnected": "控制器已断开连接 — {{id}}",
+      "deviceId": "设备 ID：{{id}}",
+      "unknown": "未知",
+      "rumbleUnsupported": "管制员拒绝了隆隆声报告。尝试 USB 连接。",
+      "rumbleSent": "已发送测试隆隆声",
+      "driftStart": "漂移测量开始 — 松开摇杆",
+      "driftHigh": "检测到高漂移 — {{percent}}%",
+      "driftSlight": "轻微漂移 — {{percent}}%",
+      "driftHealthy": "保持健康 — 漂移 {{percent}}%",
+      "micStart": "麦克风测试开始——以正常音量说话",
+      "micActive": "活动麦克风：{{label}}",
+      "micDenied": "麦克风访问被拒绝",
+      "micHealthy": "麦克风信号水平正常",
+      "micWeak": "麦克风电平低",
+      "micSilent": "麦克风未收到信号",
+      "micHot": "输入电平太大",
+      "micClipping": "信号被削波"
+    }
+  },
+  "avatar": {
+    "title": "官方索尼游戏机头像",
+    "subtitle": "根据轮廓图案 {{count}} 设计",
+    "preset": {
+      "kratos": "奎托斯（战神）",
+      "spidey": "蜘蛛侠（漫威）",
+      "aloy": "阿洛伊（地平线禁断西部）",
+      "jin": "酒井仁（对马岛之魂）",
+      "joel": "乔尔（最后生还者）",
+      "astro": "天文机器人"
+    },
+    "upload": {
+      "title": "上传图片",
+      "uploading": "正在上传...",
+      "custom": "自定义头像",
+      "invalidType": "仅允许图像文件（JPEG、PNG、WebP）。",
+      "tooLarge": "文件大小不得超过 5 MB。",
+      "error": "上传图片失败。请再试一次。"
+    }
+  },
+  "notificationsUI": {
+    "bellTitle": "通知",
+    "bellAria": "通知和消息",
+    "headerTitle": "通知和事件",
+    "markAllTitle": "全部标记为已读",
+    "markAll": "标记已读",
+    "loginPrompt": "请登录以查看您的通知。",
+    "loading": "正在加载通知...",
+    "empty": "您现在没有任何通知。",
+    "footer": "通知中心",
+    "newCount_one": "{{count}} 个新",
+    "newCount_other": "{{count}} 个新",
+    "justNow": "刚才",
+    "minutesAgo_one": "{{count}} 分钟前",
+    "minutesAgo_other": "{{count}} 分钟前",
+    "hoursAgo_one": "{{count}} 小时前",
+    "hoursAgo_other": "{{count}} 小时前",
+    "daysAgo_one": "{{count}} 天前",
+    "daysAgo_other": "{{count}} 天前"
+  },
+  "quotaPill": {
+    "title": "下载配额状态",
+    "currentPlan": "目前计划：",
+    "statusActive": "活跃",
+    "statusLow": "所剩无几",
+    "remaining": "剩余名额：",
+    "total": "总配额：",
+    "expires": "到期日：",
+    "upgrade": "升级和购买数据"
+  },
+  "blogUI": {
+    "searchTitle": "搜索文章",
+    "searchPlaceholder": "标题或主题...",
+    "sortTitle": "排序依据",
+    "sort": {
+      "newest": "最新文章",
+      "popular": "最受欢迎（最喜欢）",
+      "views": "观看次数最多的"
+    },
+    "categoriesTitle": "主题类别",
+    "allPosts": "所有文章",
+    "readingTime_one": "{{count}}分钟阅读",
+    "readingTime_other": "{{count}}分钟阅读"
+  },
+  "chrome": {
+    "closeNotice": "驳回通知",
+    "openMenu": "打开菜单",
+    "navMenu": "导航菜单",
+    "mainNav": "主站导航",
+    "homeTitle": "DrGame – 主页",
+    "brandName": "游戏博士",
+    "tvModeTitle": "电视和控制台模式（10 英尺 UI）",
+    "profileTitle": "用户个人资料：{{name}}",
+    "mobileNav": "移动快捷访问栏",
+    "scrollRight": "向右滚动",
+    "scrollLeft": "向左滚动",
+    "tvBarRegion": "控制器指南和电视模式栏",
+    "tvBarGames": "浏览游戏目录（三角形/Y）",
+    "tvBarPlans": "配额认购计划（方形/X）",
+    "geoTitle": "选择区域和语言",
+    "geoWelcome": "欢迎来到博士游戏",
+    "geoSubtitle": "请选择您的界面语言和首选付款方式：",
+    "geoConfig": "所选配置：",
+    "geoLater": "稍后提醒我",
+    "geoConfirm": "确认并继续",
+    "geoClose": "关闭",
+    "bannerAria": "DrGame 游戏和服务的特色横幅",
+    "prevSlide": "上一张幻灯片",
+    "nextSlide": "下一张幻灯片",
+    "goToSlide": "转到幻灯片 {{index}}",
+    "dedicatedServers": "伊朗半价专用服务器"
+  },
+  "auth": {
+    "errors": {
+      "phoneRequired": "请输入您的电话号码或电子邮件地址。",
+      "otpSend": "无法发送验证码。",
+      "requiredFields": "请填写所有必填字段。",
+      "register": "使用验证码注册失败。",
+      "credentials": "请输入您的用户名和密码。",
+      "invalidCredentials": "用户名或密码不正确。",
+      "consoleCode": "请输入 7 位控制台代码。",
+      "invalidConsoleCode": "7 位控制台代码无效。",
+      "testCode": "短信代码（测试环境）："
+    }
+  },
+  "quickActions": {
+    "title": "快速行动",
+    "subtitle": "即时体验设置",
+    "open": "打开快速操作",
+    "close": "关闭快速操作",
+    "consoleTitle": "控制台模式",
+    "consoleDesc": "用于电视和游戏手柄的 10 英尺 UI",
+    "paymentTitle": "付款方式",
+    "paymentDesc": "国内网关或加密货币",
+    "domestic": "沙帕拉克/IRT",
+    "international": "加密/全球"
+  }
+}

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -87,6 +89,11 @@ export default function UserDashboardLayout({
   const { quota, fetchQuota } = useQuotaStore();
   const [copiedConsoleCode, setCopiedConsoleCode] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchCurrentUser();
@@ -100,13 +107,18 @@ export default function UserDashboardLayout({
 
   // Lock body scroll when mobile drawer is open
   useEffect(() => {
-    if (mobileDrawerOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (typeof document === 'undefined') return;
+    if (!mobileDrawerOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
     };
   }, [mobileDrawerOpen]);
 
@@ -253,37 +265,61 @@ export default function UserDashboardLayout({
         </button>
       </div>
 
-      {/* Mobile Slide-over Drawer (From the right in RTL) */}
-      {mobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop Overlay */}
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-            onClick={() => setMobileDrawerOpen(false)}
-          />
-
-          {/* Drawer Panel */}
-          <div className="fixed inset-y-0 end-0 max-w-[85vw] w-80 bg-[#0c1017] border-s border-white/10 z-50 shadow-2xl p-5 overflow-y-auto flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
-                <span className="text-xs font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-purple-400" />
-                  <span>{t('dashboard.drawerTitle')}</span>
-                </span>
-                <button
-                  type="button"
+      {/* Mobile Slide-over Drawer (Portaled to body to sit above Header & Footer) */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {mobileDrawerOpen && (
+              <div
+                dir={dir}
+                className={`fixed inset-0 z-[100] lg:hidden ${
+                  locale === 'fa' || locale === 'ar' ? 'font-vazir' : 'font-sans'
+                }`}
+              >
+                {/* Backdrop Overlay */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer touch-none"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+                  onTouchMove={(e) => e.preventDefault()}
+                />
 
-              {renderSidebarContent(() => setMobileDrawerOpen(false))}
-            </div>
-          </div>
-        </div>
-      )}
+                {/* Drawer Panel */}
+                <motion.aside
+                  initial={{ x: dir === 'rtl' ? '-100%' : '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: dir === 'rtl' ? '-100%' : '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                  className="fixed inset-y-0 end-0 max-w-[85vw] w-80 bg-[#0c1017] border-s border-white/10 z-[101] shadow-[0_0_50px_rgba(0,0,0,0.8)] p-5 overflow-y-auto flex flex-col justify-between overscroll-contain"
+                >
+                  <div>
+                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+                      <span className="text-xs font-bold text-white flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-purple-400" />
+                        <span>{t('dashboard.drawerTitle')}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setMobileDrawerOpen(false)}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        title={t('common.close') || 'بستن'}
+                        aria-label={t('common.close') || 'بستن'}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {renderSidebarContent(() => setMobileDrawerOpen(false))}
+                  </div>
+                </motion.aside>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
 
       {/* Main Layout Grid */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">

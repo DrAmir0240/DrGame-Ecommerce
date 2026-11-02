@@ -119,7 +119,7 @@ export default function BlogDetailPage() {
       {/* Hero Header */}
       <div className="space-y-4">
         <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug">
-          {locale === 'en' && post.title_en ? (
+          {locale !== 'fa' && post.title_en ? (
             post.title_en
           ) : (
             <DynamicText text={post.title_fa} />
@@ -169,7 +169,7 @@ export default function BlogDetailPage() {
       {/* Main Content Body */}
       <div className="glass-card rounded-3xl border border-white/10 p-6 sm:p-10 leading-relaxed text-sm sm:text-base text-text-secondary space-y-6">
         <div className="whitespace-pre-line leading-loose text-white/90">
-          {locale === 'en' && post.content_en ? (
+          {locale !== 'fa' && post.content_en ? (
             post.content_en
           ) : (
             <DynamicText text={post.content_fa} />

@@ -1,0 +1,283 @@
+{
+  "ticketUI": {
+    "title": "Öffnen Sie ein neues Support-Ticket",
+    "subtitle": "Die Spezialisten von DrGame beantworten Ihre Fragen und lösen Ihre Probleme so schnell wie möglich.",
+    "subjectLabel": "Betreff des Tickets:",
+    "subjectPlaceholder": "z.B. Helfen Sie mir beim Verschieben meiner PS5-Daten",
+    "departmentLabel": "Abteilung:",
+    "department": {
+      "technical": "Technischer Support und Konnektivität",
+      "downloads": "Konsolen-Downloads und Datenübertragung",
+      "financial": "Abrechnung, Abonnements und Provisionen",
+      "general": "Allgemeine Fragen und Anregungen"
+    },
+    "priorityLabel": "Priorität:",
+    "priority": {
+      "low": "Normal (Antwort innerhalb von 24 Stunden)",
+      "medium": "Mittel (Standardpriorität)",
+      "high": "Dringend und kritisch"
+    },
+    "messageLabel": "Nachricht und vollständige Details:",
+    "messagePlaceholder": "Beschreiben Sie Ihr Problem oder Ihre Frage im Detail...",
+    "cancel": "Abbrechen",
+    "submit": "Ticket senden",
+    "errorRequired": "Bitte geben Sie einen Betreff und eine Nachricht für Ihr Ticket ein.",
+    "errorSubmit": "Ihr Support-Ticket konnte nicht eingereicht werden.",
+    "errorLoad": "Die Ticketdetails konnten nicht geladen werden.",
+    "errorSend": "Ihre Nachricht konnte nicht gesendet werden.",
+    "status": {
+      "answered": "Beantwortet",
+      "inProgress": "Wird überprüft",
+      "closed": "Geschlossen",
+      "awaiting": "Warte auf Antwort"
+    },
+    "loadingTicket": "Ticketdetails werden geladen...",
+    "loadingHistory": "Nachrichtenverlauf wird geladen...",
+    "empty": "In diesem Ticket liegen noch keine Nachrichten vor.",
+    "supportName": "DrGame-Unterstützung",
+    "you": "Du",
+    "closedNotice": "Dieses Ticket ist geschlossen und es können keine Antworten mehr empfangen werden. Bitte öffnen Sie ein neues Ticket, wenn Sie weitere Hilfe benötigen.",
+    "replyPlaceholder": "Schreiben Sie Ihre Antwort...",
+    "reply": "Antwort senden"
+  },
+  "gamepad": {
+    "page": {
+      "title": "Controller-Gesundheitstest",
+      "connected": "Verbunden",
+      "waiting": "Warten auf Verbindung",
+      "enterFullscreen": "Vollbild",
+      "exitFullscreen": "Beenden Sie den Vollbildmodus"
+    },
+    "connection": {
+      "titleConnected": "Controller angeschlossen",
+      "titleDisconnected": "Schließen Sie Ihren Controller an",
+      "hintPressButton": "Drücken Sie eine beliebige Taste auf dem Controller",
+      "wireless": "Kabellos / Bluetooth",
+      "wired": "Kabelgebunden / USB",
+      "rumbleTest": "Testen Sie das Rumpeln",
+      "rumbleBusy": "Senden…",
+      "driftMeasure": "Drift messen",
+      "driftBusy": "Messen…",
+      "help": "Verbinden Sie den Controller über USB oder Bluetooth und drücken Sie dann eine beliebige Taste, damit der Browser ihn erkennen kann. Bevorzugen Sie unter Windows Chrome oder Edge für DualSense-Controller."
+    },
+    "viewer": {
+      "title": "Controller-Layout",
+      "badgeUnknown": "Unbekanntes Modell",
+      "badgeNone": "Kein Controller",
+      "view3d": "3D",
+      "viewMap": "Karte",
+      "view3dHint": "Ein 3D-Modell ist nur für den DualSense verfügbar",
+      "emptyTitle": "Sobald die Verbindung hergestellt ist, wird das Controller-Layout angezeigt",
+      "emptyHint": "Verbinden Sie den Controller über USB oder Bluetooth und drücken Sie eine beliebige Taste, damit der Browser ihn erkennen kann.",
+      "waiting": "Warten auf einen Controller…",
+      "noButtons": "Keine Tasten gedrückt"
+    },
+    "map": {
+      "ariaLabel": "Controller-Tastenbelegung"
+    },
+    "model3d": {
+      "loading": "3D-Modell wird geladen",
+      "loadError": "Das 3D-Modell konnte nicht geladen werden.",
+      "unsupported": "Die 3D-Ansicht wird in diesem Browser nicht unterstützt."
+    },
+    "triggers": {
+      "pressed": "DRÜCKEN",
+      "released": "FREIGABE"
+    },
+    "sticks": {
+      "title": "Stöcke und Drift",
+      "left": "Linker Stick",
+      "right": "Rechter Stock",
+      "toneHigh": "Hohe Drift",
+      "toneSlight": "Leichte Drift",
+      "toneHealthy": "Gesund",
+      "measuring": "Messen…",
+      "hintIdle": "Um eine genaue Driftmessung zu erhalten, drücken Sie „Drift messen“ und lassen Sie beide Stäbe 2,5 Sekunden lang unberührt.",
+      "hintHigh": "Eine Drift über 12 % ist nicht normal; Das Potentiometer ist möglicherweise abgenutzt oder verstaubt.",
+      "hintHealthy": "Die Drift liegt im gesunden Bereich."
+    },
+    "mic": {
+      "title": "Mikrofon-Loopback-Test",
+      "deviceLabel": "Eingabegerät",
+      "defaultDevice": "Systemstandardmikrofon",
+      "deviceFallback": "Mikrofon {{index}}",
+      "average": "Durchschnittlich",
+      "peak": "Höhepunkt",
+      "loopback": "Audio abspielen (über Lautsprecher anhören)",
+      "volume": "Lautstärke",
+      "howlingWarning": "Tun Sie dies nicht mit einem Headset; Akustische Rückkopplungen (Heulen) können den Lautsprecher beschädigen.",
+      "start": "Test starten",
+      "stop": "Test beenden",
+      "starting": "Verbinden…",
+      "error": "Auf das Mikrofon konnte nicht zugegriffen werden. Überprüfen Sie die Browserberechtigung und die Controller-Verbindung.",
+      "health": {
+        "idle": {
+          "label": "Bereit",
+          "advice": "Drücken Sie „Test starten“ und erlauben Sie den Mikrofonzugriff."
+        },
+        "silent": {
+          "label": "Still",
+          "advice": "Es geht kein Signal ein. Stellen Sie sicher, dass das Controller-Mikrofon ausgewählt ist und die Stummschalttaste am Controller ausgeschaltet ist."
+        },
+        "weak": {
+          "label": "Schwach",
+          "advice": "Das Niveau ist niedrig. Sprechen Sie näher am Mikrofon oder erhöhen Sie den Eingangspegel in den Windows-Einstellungen."
+        },
+        "good": {
+          "label": "Gesund",
+          "advice": "Der Signalpegel liegt im normalen Bereich; Das Controller-Mikrofon sieht in Ordnung aus."
+        },
+        "hot": {
+          "label": "Zu laut",
+          "advice": "Das Signal ist zu laut und kann verzerrt sein. Gehen Sie weiter weg."
+        },
+        "clipping": {
+          "label": "Ausschnitt",
+          "advice": "Das Signal übersteuert. Senken Sie den Eingangspegel, um die Verzerrung zu beseitigen."
+        }
+      }
+    },
+    "log": {
+      "title": "Systemprotokoll",
+      "clear": "Klar",
+      "waiting": "Warten auf Aktivität…"
+    },
+    "events": {
+      "connected": "Controller verbunden – {{id}}",
+      "disconnected": "Controller getrennt – {{id}}",
+      "deviceId": "Geräte-ID: {{id}}",
+      "unknown": "unbekannt",
+      "rumbleUnsupported": "Der Controller lehnte die Rumpelmeldung ab. Versuchen Sie es mit einer USB-Verbindung.",
+      "rumbleSent": "Test-Rumble gesendet",
+      "driftStart": "Driftmessung gestartet – Sticks loslassen",
+      "driftHigh": "Hohe Abweichung erkannt – {{percent}} %",
+      "driftSlight": "Leichte Abweichung – {{percent}} %",
+      "driftHealthy": "Bleibt gesund – Drift {{percent}} %",
+      "micStart": "Mikrofontest gestartet – Sprechen Sie mit normaler Lautstärke",
+      "micActive": "Aktives Mikrofon: {{label}}",
+      "micDenied": "Mikrofonzugriff verweigert",
+      "micHealthy": "Der Mikrofonsignalpegel ist in Ordnung",
+      "micWeak": "Der Mikrofonpegel ist niedrig",
+      "micSilent": "Vom Mikrofon wird kein Signal empfangen",
+      "micHot": "Der Eingangspegel ist zu laut",
+      "micClipping": "Das Signal wird übersteuert"
+    }
+  },
+  "avatar": {
+    "title": "Offizielle Sony-Konsolen-Avatare",
+    "subtitle": "Entworfen nach Profilmuster {{count}}",
+    "preset": {
+      "kratos": "Kratos (Gott des Krieges)",
+      "spidey": "Spider-Man (Marvel)",
+      "aloy": "Aloy (Horizon Forbidden West)",
+      "jin": "Jin Sakai (Geist von Tsushima)",
+      "joel": "Joel (Der Letzte von uns)",
+      "astro": "Astro Bot"
+    },
+    "upload": {
+      "title": "Bild hochladen",
+      "uploading": "Hochladen...",
+      "custom": "Benutzerdefinierter Avatar",
+      "invalidType": "Es sind nur Bilddateien (JPEG, PNG, WebP) zulässig.",
+      "tooLarge": "Die Dateigröße darf 5 MB nicht überschreiten.",
+      "error": "Bild konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "notificationsUI": {
+    "bellTitle": "Benachrichtigungen",
+    "bellAria": "Benachrichtigungen und Nachrichten",
+    "headerTitle": "Benachrichtigungen und Ereignisse",
+    "markAllTitle": "Alle als gelesen markieren",
+    "markAll": "Mark hat gelesen",
+    "loginPrompt": "Bitte melden Sie sich an, um Ihre Benachrichtigungen anzuzeigen.",
+    "loading": "Benachrichtigungen werden geladen...",
+    "empty": "Sie haben im Moment keine Benachrichtigungen.",
+    "footer": "Benachrichtigungscenter",
+    "newCount_one": "{{count}} neu",
+    "newCount_other": "{{count}} neu",
+    "justNow": "Gerade eben",
+    "minutesAgo_one": "Vor {{count}} Minute",
+    "minutesAgo_other": "Vor {{count}} Minuten",
+    "hoursAgo_one": "Vor {{count}} Stunde",
+    "hoursAgo_other": "Vor {{count}} Stunden",
+    "daysAgo_one": "Vor {{count}} Tag",
+    "daysAgo_other": "Vor {{count}} Tagen"
+  },
+  "quotaPill": {
+    "title": "Kontingentstatus herunterladen",
+    "currentPlan": "Aktueller Plan:",
+    "statusActive": "Aktiv",
+    "statusLow": "Es geht zur Neige",
+    "remaining": "Verbleibendes Kontingent:",
+    "total": "Gesamtkontingent:",
+    "expires": "Läuft ab am:",
+    "upgrade": "Daten aktualisieren und kaufen"
+  },
+  "blogUI": {
+    "searchTitle": "Artikel durchsuchen",
+    "searchPlaceholder": "Titel oder Thema...",
+    "sortTitle": "Sortieren nach",
+    "sort": {
+      "newest": "Neueste Artikel",
+      "popular": "Am beliebtesten (die meisten Likes)",
+      "views": "Am häufigsten angesehen"
+    },
+    "categoriesTitle": "Themenkategorien",
+    "allPosts": "Alle Artikel",
+    "readingTime_one": "{{count}} Min. gelesen",
+    "readingTime_other": "{{count}} Min. gelesen"
+  },
+  "chrome": {
+    "closeNotice": "Kündigung abweisen",
+    "openMenu": "Menü öffnen",
+    "navMenu": "Navigationsmenü",
+    "mainNav": "Hauptnavigation der Website",
+    "homeTitle": "DrGame – Startseite",
+    "brandName": "DrGame",
+    "tvModeTitle": "TV- und Konsolenmodus (10-Fuß-Benutzeroberfläche)",
+    "profileTitle": "Benutzerprofil: {{name}}",
+    "mobileNav": "Mobile Schnellzugriffsleiste",
+    "scrollRight": "Scrollen Sie nach rechts",
+    "scrollLeft": "Scrollen Sie nach links",
+    "tvBarRegion": "Controller-Anleitung und TV-Modusleiste",
+    "tvBarGames": "Durchsuchen Sie den Spielekatalog (Triangle / Y)",
+    "tvBarPlans": "Kontingent-Abonnementpläne (Square / X)",
+    "geoTitle": "Wählen Sie Region und Sprache",
+    "geoWelcome": "Willkommen bei DrGame",
+    "geoSubtitle": "Bitte wählen Sie die Sprache Ihrer Benutzeroberfläche und Ihre bevorzugte Zahlungsmethode aus:",
+    "geoConfig": "Ausgewählte Konfiguration:",
+    "geoLater": "Erinnere mich später daran",
+    "geoConfirm": "Bestätigen und fortfahren",
+    "geoClose": "Schließen",
+    "bannerAria": "Ausgewählte Banner für DrGame-Spiele und -Dienste",
+    "prevSlide": "Vorherige Folie",
+    "nextSlide": "Nächste Folie",
+    "goToSlide": "Gehe zu Folie {{index}}",
+    "dedicatedServers": "Iranische dedizierte Server zum halben Preis"
+  },
+  "auth": {
+    "errors": {
+      "phoneRequired": "Bitte geben Sie Ihre Telefonnummer oder E-Mail-Adresse ein.",
+      "otpSend": "Der Bestätigungscode konnte nicht gesendet werden.",
+      "requiredFields": "Bitte füllen Sie alle erforderlichen Felder aus.",
+      "register": "Die Registrierung mit dem Bestätigungscode ist fehlgeschlagen.",
+      "credentials": "Bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein.",
+      "invalidCredentials": "Falscher Benutzername oder Passwort.",
+      "consoleCode": "Bitte geben Sie den 7-stelligen Konsolencode ein.",
+      "invalidConsoleCode": "Der 7-stellige Konsolencode ist ungültig.",
+      "testCode": "SMS-Code (Testumgebung):"
+    }
+  },
+  "quickActions": {
+    "title": "Schnelle Aktionen",
+    "subtitle": "Sofortige Erlebniseinstellungen",
+    "open": "Schnellaktionen öffnen",
+    "close": "Schließen Sie Schnellaktionen",
+    "consoleTitle": "Konsolenmodus",
+    "consoleDesc": "10-Fuß-Benutzeroberfläche für TV und Gamepad",
+    "paymentTitle": "Zahlungsart",
+    "paymentDesc": "Inländisches Gateway oder Krypto",
+    "domestic": "Shaparak / IRT",
+    "international": "Krypto / Global"
+  }
+}

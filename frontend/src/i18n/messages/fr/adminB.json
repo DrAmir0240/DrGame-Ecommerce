@@ -1,0 +1,246 @@
+{
+  "admin": {
+    "games": {
+      "title": "Full Game Catalog Management",
+      "subtitle": "Edit every part of a game (cover, banner, story, awards, studio, critic scores, platforms, and download links)",
+      "searchPlaceholder": "Search game titles...",
+      "addGame": "Add New Game",
+      "table": {
+        "title": "Game Title",
+        "studio": "Studio & Publisher",
+        "size": "Data Size",
+        "rating": "Rating & Metacritic",
+        "platforms": "Platforms",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "platforms": {
+        "ps5": "PS5",
+        "ps4": "PS4",
+        "xboxSeries": "Xbox Series X/S",
+        "nintendoSwitch": "Nintendo Switch"
+      },
+      "loading": "Loading catalog...",
+      "empty": "No games found.",
+      "noCover": "No cover",
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "actions": {
+        "editFull": "Full Edit",
+        "editTitle": "Edit all game details",
+        "delete": "Delete game"
+      },
+      "pagination": {
+        "showing": "Showing {{shown}} of {{total}} games in the system",
+        "prev": "Previous page",
+        "next": "Next page",
+        "pageOf": "Page {{page}} of {{pages}}"
+      },
+      "confirmDelete": "Are you sure you want to delete this game from the catalog?",
+      "errors": {
+        "fetch": "Failed to load the catalog",
+        "uploadImage": "Failed to upload the image",
+        "upload": "Upload failed",
+        "downloadAndSave": "Failed to download and save the image",
+        "cache": "Failed to cache the image",
+        "update": "Failed to update the game",
+        "create": "Failed to create the game",
+        "process": "Failed to process the request",
+        "required": "Please enter both the Persian and English titles of the game."
+      },
+      "messages": {
+        "coverUploaded": "Game cover saved to the DrGame server.",
+        "bannerUploaded": "Hero banner saved to the DrGame server.",
+        "coverCached": "Cover saved to local hosting.",
+        "bannerCached": "Banner saved to local hosting.",
+        "saved": "Game information was saved and updated successfully."
+      },
+      "defaults": {
+        "genres": "Action, Adventure",
+        "partName": "Part {{number}}"
+      },
+      "modal": {
+        "titleEdit": "Edit All Game Details",
+        "titleAdd": "Create New Game Entry",
+        "subtitle": "Unified management of banners, reviews, studio details, awards, and game download files",
+        "loading": "Loading game details from the database...",
+        "idLabel": "ID: {{id}}",
+        "tabs": {
+          "basic": "Basic Info",
+          "media": "Artwork & Hero Banner",
+          "studio": "Studio & Awards",
+          "story": "Story & Heart of the Game",
+          "features": "Platforms & Features",
+          "downloads": "Files & Parts ({{count}})"
+        },
+        "basic": {
+          "titleFa": "Persian game title",
+          "titleEn": "English game title",
+          "slug": "URL slug",
+          "released": "Release date / year",
+          "size": "Total data size (GB)",
+          "rating": "User rating (out of 5)",
+          "metacritic": "Metacritic score (out of 100)",
+          "status": "Game release status",
+          "activeLabel": "Active and published in the store",
+          "placeholders": {
+            "titleFa": "e.g. The Last of Us Remastered",
+            "titleEn": "e.g. The Last of Us Remastered",
+            "released": "e.g. 2022 or 2014-07-29",
+            "metacritic": "e.g. 95"
+          }
+        },
+        "media": {
+          "coverLabel": "Game box cover art",
+          "coverHint": "Standard 3:4 or 4:5 ratio",
+          "coverPlaceholder": "https://... or /media/games/cover_...",
+          "coverCacheTitle": "Download and store the image on the DrGame server",
+          "caching": "Caching...",
+          "cacheToServer": "Save to server",
+          "coverUploading": "Uploading cover...",
+          "coverUpload": "Upload cover from device",
+          "coverUploaded": "Cover uploaded",
+          "coverPreviewAlt": "Cover preview",
+          "bannerLabel": "Cinematic hero backdrop banner",
+          "bannerHint": "Wide background image at the top of the page (16:9)",
+          "bannerPlaceholder": "https://... or /media/games/banner_...",
+          "bannerCacheTitle": "Download and store the banner on the DrGame server",
+          "bannerUploading": "Uploading banner...",
+          "bannerUpload": "Upload hero banner from device",
+          "bannerUploaded": "Banner uploaded",
+          "bannerPreviewAlt": "Banner preview",
+          "screenshotsLabel": "Game screenshot gallery (one link per line)"
+        },
+        "studio": {
+          "developerLabel": "Developer studio",
+          "developerPlaceholder": "e.g. Naughty Dog or Santa Monica Studio",
+          "publisherLabel": "Publisher",
+          "publisherPlaceholder": "e.g. Sony Interactive Entertainment",
+          "awardsLabel": "Game awards and accolades (one award per line)",
+          "awardsHint": "Shown in the first card on the game detail page",
+          "awardsPlaceholder": "Winner of 200+ Game of the Year awards\nBest storytelling at The Game Awards\nAn unforgettable masterpiece from Naughty Dog"
+        },
+        "story": {
+          "storylineLabel": "Story & heart of the game (Storyline FA)",
+          "storylineHint": "Text of the third card, \"Heart of the Game\", on the game detail page",
+          "storylinePlaceholder": "A compelling story summary, the world of the game, and the narrative atmosphere shown in the dedicated Heart of the Game box...",
+          "descriptionFaLabel": "Full Persian description & review (Full Description FA)",
+          "descriptionFaPlaceholder": "A complete review of the gameplay, graphics, and technical details of the game in Persian...",
+          "descriptionEnLabel": "English description",
+          "descriptionEnPlaceholder": "Original English description of the game..."
+        },
+        "features": {
+          "platformsLabel": "Supported platforms",
+          "genresLabel": "Game genres (separate with commas)",
+          "genresPlaceholder": "Action, Adventure, RPG, Survival",
+          "title": "Special features & capabilities",
+          "coopLabel": "Two-player / multiplayer support (Co-op)",
+          "coopHint": "Offline or online multiplayer gameplay",
+          "vrLabel": "Virtual reality support (PS VR / PS VR2)",
+          "vrHint": "Adds a dedicated VR badge to the game details"
+        },
+        "downloads": {
+          "title": "Parts, packs, and 5 downloadable file types",
+          "subtitle": "Define game data, cheats, DLC, subtitles, and dubbing along with the required subscription tier",
+          "empty": "No files have been added for this game yet. Use the buttons above to add the file type you need.",
+          "quickAdd": {
+            "data": "Official data",
+            "cheat": "Cheats & trainers",
+            "dlc": "Expansion (DLC)",
+            "subtitle": "Subtitles",
+            "dubbing": "Persian dubbing"
+          },
+          "fileTypeLabel": "File type:",
+          "partNameLabel": "Part title / name:",
+          "partNamePlaceholder": "Part name",
+          "sizeLabel": "Size (GB):",
+          "sizePlaceholder": "Size in GB",
+          "tierLabel": "Allowed subscription:",
+          "urlLabel": "Download link URL:",
+          "activeLabel": "Active",
+          "removeTitle": "Remove this section",
+          "fileTypes": {
+            "data": "Official data",
+            "cheat": "Cheats & trainers",
+            "dlc": "Expansion (DLC)",
+            "subtitle": "Persian subtitles",
+            "dubbing": "Exclusive dubbing"
+          },
+          "tiers": {
+            "free": "Free",
+            "bronze": "Bronze and above",
+            "silver": "Silver and above",
+            "gold": "Gold"
+          },
+          "defaults": {
+            "data": "Official data (Part {{number}})",
+            "cheat": "Exclusive cheats & trainer",
+            "dlc": "Expansion pack (DLC)",
+            "subtitle": "Official Persian subtitles",
+            "dubbing": "Exclusive Persian dubbing",
+            "part": "Part {{number}}"
+          }
+        },
+        "footer": {
+          "note": "All changes take effect in the store immediately after saving.",
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "save": "Save all game information"
+        }
+      }
+    },
+    "genres": {
+      "title": "Game Categories & Genres Management",
+      "subtitle": "Define genres, reorder them, and feature the Top 8 genres on the homepage — fully database-driven",
+      "add": "Add New Genre",
+      "loading": "Loading genres...",
+      "empty": "No genres have been defined yet.",
+      "table": {
+        "order": "Order",
+        "nameFa": "Persian genre name",
+        "nameEn": "English name",
+        "slug": "Slug",
+        "top8": "Top 8 genres",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "top8Active": "Top 8 active",
+      "normal": "Standard",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Are you sure you want to delete this genre?",
+      "modal": {
+        "addTitle": "Add New Genre",
+        "editTitle": "Edit Genre",
+        "nameFaLabel": "Persian genre name:",
+        "nameFaPlaceholder": "e.g. Action Adventure",
+        "nameEnLabel": "English genre name:",
+        "nameEnPlaceholder": "Action-Adventure",
+        "slugLabel": "URL slug:",
+        "orderLabel": "Display order:",
+        "iconLabel": "Lucide icon name (optional):",
+        "top8Label": "Show in the Top 8 genres",
+        "activeLabel": "Active on the site",
+        "cancel": "Cancel",
+        "save": "Save Genre"
+      },
+      "feedback": {
+        "deleted": "Genre deleted successfully.",
+        "updated": "Genre updated successfully.",
+        "created": "New genre added successfully."
+      },
+      "errors": {
+        "load": "Failed to load game genres from the server.",
+        "delete": "Failed to delete the genre.",
+        "toggleActive": "Failed to change the genre status.",
+        "toggleTop8": "Failed to change the Top 8 label.",
+        "required": "The Persian title and genre slug are required.",
+        "save": "Failed to save the genre."
+      }
+    }
+  }
+}

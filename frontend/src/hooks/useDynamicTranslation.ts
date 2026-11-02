@@ -5,42 +5,33 @@ import { useTranslation } from '@/i18n';
 import { translateDynamicText, getInstantDynamicTranslation } from '@/lib/dynamicTranslator';
 
 /**
- * React hook to translate dynamic texts from the backend.
- * - 0ms when Persian or already cached.
- * - Safe fallback to original text (No layout shift, No crash).
+ * React hook to translate dynamic texts from the backend across all 15 languages.
+ * - 0ms instant translation via multi-lingual gaming lexicon and memory cache.
+ * - Smooth fallback without layout shifts.
  */
 export function useDynamicTranslation(text: string | null | undefined): string {
   const { locale } = useTranslation();
   
-  // Try synchronous instant lookup (Memory / LocalStorage / Lexicon)
-  const initialValue = getInstantDynamicTranslation(text, locale) ?? (text || '');
-  const [translated, setTranslated] = useState<string>(initialValue);
+  // Instant synchronous lookup (Memory / LocalStorage / Lexicon)
+  const instantValue = getInstantDynamicTranslation(text, locale);
+  const [asyncValue, setAsyncValue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!text) {
-      setTranslated('');
+    if (!text || locale === 'fa') {
+      setAsyncValue(null);
       return;
     }
 
-    if (locale === 'fa') {
-      setTranslated(text);
-      return;
-    }
-
-    // Check if immediately available
     const instant = getInstantDynamicTranslation(text, locale);
     if (instant !== null) {
-      setTranslated(instant);
+      setAsyncValue(instant);
       return;
     }
-
-    // Show initial text while waiting for translation response
-    setTranslated(text);
 
     let isMounted = true;
     translateDynamicText(text, locale).then((res) => {
       if (isMounted && res) {
-        setTranslated(res);
+        setAsyncValue(res);
       }
     });
 
@@ -49,6 +40,7 @@ export function useDynamicTranslation(text: string | null | undefined): string {
     };
   }, [text, locale]);
 
-  return translated;
+  if (!text) return '';
+  if (locale === 'fa') return text;
+  return instantValue ?? asyncValue ?? text;
 }
-

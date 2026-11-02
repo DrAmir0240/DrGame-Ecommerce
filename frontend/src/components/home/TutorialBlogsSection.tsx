@@ -51,7 +51,7 @@ export default function TutorialBlogsSection() {
   const formatDate = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
-      return d.toLocaleDateString(locale === 'en' ? 'en-US' : locale === 'ar' ? 'ar-SA' : 'fa-IR', {
+      return d.toLocaleDateString(locale || 'fa-IR', {
         month: 'short',
         day: 'numeric',
       });
@@ -115,7 +115,7 @@ export default function TutorialBlogsSection() {
               </div>
 
               <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-300 transition-colors leading-snug">
-                {locale === 'en' && featured.title_en ? (
+                {locale !== 'fa' && featured.title_en ? (
                   featured.title_en
                 ) : (
                   <DynamicText text={featured.title_fa} />
@@ -150,7 +150,7 @@ export default function TutorialBlogsSection() {
                   </span>
                 </div>
                 <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-relaxed">
-                  {locale === 'en' && item.title_en ? (
+                  {locale !== 'fa' && item.title_en ? (
                     item.title_en
                   ) : (
                     <DynamicText text={item.title_fa} />

@@ -140,9 +140,9 @@ export default function DoubleHeroBanners() {
               {/* Titles */}
               <div className="space-y-0.5">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                  {locale === 'en' && activeGame.title_en ? activeGame.title_en : <DynamicText text={activeGame.title_fa} />}
+                  {locale !== 'fa' && activeGame.title_en ? activeGame.title_en : <DynamicText text={activeGame.title_fa} />}
                 </h2>
-                {activeGame.title_en && locale !== 'en' && (
+                {activeGame.title_en && locale === 'fa' && (
                   <p className="text-xs sm:text-sm text-slate-400 font-roboto" dir="ltr">
                     {activeGame.title_en}
                   </p>
@@ -244,7 +244,7 @@ export default function DoubleHeroBanners() {
 
               {/* Title */}
               <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                {locale === 'en' && activeService.title_en ? activeService.title_en : <DynamicText text={activeService.title_fa} />}
+                {locale !== 'fa' && activeService.title_en ? activeService.title_en : <DynamicText text={activeService.title_fa} />}
               </h3>
 
               {/* Description */}

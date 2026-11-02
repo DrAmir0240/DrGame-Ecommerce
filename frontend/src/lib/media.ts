@@ -5,7 +5,7 @@
  */
 export function getMediaUrl(url: string | null | undefined): string {
   if (!url) return '';
-  const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://62.60.191.67:8000/api').replace(/\/api\/?$/, '');
+  const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'https://store.gamedr.ir/api').replace(/\/api\/?$/, '');
 
   if (url.startsWith('/media')) {
     return `${apiBase}${url}`;

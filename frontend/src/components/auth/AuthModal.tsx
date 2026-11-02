@@ -330,11 +330,13 @@ export default function AuthModal() {
         >
           {/* Header Close */}
           <button
+            type="button"
             onClick={() => {
               setAuthModalOpen(false);
               resetForms();
             }}
-            className="absolute top-4 left-4 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="absolute top-5 ltr:right-5 rtl:left-5 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-10"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -437,7 +439,7 @@ export default function AuthModal() {
                     <label className="block text-xs font-bold text-text-secondary mb-2">
                       {isDomestic ? 'شماره تلفن همراه' : 'Email Address'}
                     </label>
-                    <div className="relative">
+                    <div className="relative w-full box-border" dir="ltr">
                       <input
                         type={isDomestic ? 'tel' : 'email'}
                         dir="ltr"
@@ -484,7 +486,7 @@ export default function AuthModal() {
                   <button
                     type="submit"
                     disabled={loading || !otpValidation.valid}
-                    className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                    className="w-full box-border py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
                   >
                     {loading ? 'در حال ارسال کد...' : 'دریافت کد تایید و ادامه'}
                   </button>
@@ -508,7 +510,7 @@ export default function AuthModal() {
                           setOtpCode('');
                           setError(null);
                         }}
-                        className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <ArrowLeft className="w-3 h-3" />
                         <span>تغییر شماره</span>
@@ -531,9 +533,9 @@ export default function AuthModal() {
                   <button
                     type="submit"
                     disabled={loading || otpCode.length < 4}
-                    className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                    className="w-full box-border py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
                   >
-                    {loading ? 'در حال ورود...' : 'ورود فوری به حساب'}
+                    {loading ? 'در حال ورود...' : 'ورود فوری به حساب کاربری'}
                   </button>
 
                   <div className="pt-1 text-center">
@@ -769,7 +771,7 @@ export default function AuthModal() {
                 <label className="block text-xs font-bold text-text-secondary mb-2">
                   کد ورود سریع کنسول (۶ الی ۷ کاراکتر)
                 </label>
-                <div className="relative">
+                <div className="relative w-full box-border" dir="ltr">
                   <input
                     type="text"
                     dir="ltr"

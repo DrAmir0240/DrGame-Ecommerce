@@ -1,0 +1,249 @@
+{
+  "dashboard": {
+    "nav": {
+      "profile": "Perfil y avatar de Sony",
+      "downloads": "Mis descargas",
+      "tickets": "Boletos de soporte",
+      "payments": "Historial de pagos",
+      "notifications": "Centro de notificaciones",
+      "referral": "Ganancias de billetera y referencias",
+      "sessions": "Sesiones y dispositivos activos",
+      "subscriptions": "Actualizar y renovar suscripción"
+    },
+    "userAlt": "Usuario",
+    "activeAccount": "cuenta activa",
+    "defaultUserName": "Usuario de DrGame",
+    "consoleCodeLabel": "Código de inicio de sesión de la consola de 7 dígitos:",
+    "copyConsoleCode": "Copiar código de consola",
+    "quotaTitle": "Cuota de tráfico",
+    "quotaRemaining": "{{size}} left",
+    "quotaUsed": "Used: {{size}}",
+    "quotaTotal": "Total: {{size}}",
+    "logout": "Cerrar sesión en la cuenta",
+    "userMenu": "Menú de usuario",
+    "drawerTitle": "Panel de usuario de DrGame"
+  },
+  "downloads": {
+    "fileType": {
+      "cheat": "Trucos y entrenadores",
+      "dlc": "Paquete complementario (DLC)",
+      "subtitle": "Subtítulos en persa",
+      "dubbing": "Doblaje Exclusivo",
+      "official": "Datos oficiales del juego"
+    },
+    "errorFetch": "No se pudo cargar su historial de descargas desde el servidor.",
+    "loginPrompt": "Inicie sesión para ver su historial de descargas personal y el uso de cuotas.",
+    "loginButton": "Iniciar sesión en la cuenta",
+    "eyebrow": "Historial de uso de cuota de tráfico y entrega de archivos",
+    "title": "Mis descargas",
+    "subtitle": "Un archivo grabado de datos, parches y archivos del juego entregados bajo tu suscripción actual",
+    "catalogButton": "catalogo de juegos",
+    "stats": {
+      "totalDownloads": "Descargas totales",
+      "totalVolume": "Volumen total utilizado",
+      "remainingQuota": "Cuota de suscripción restante"
+    },
+    "unitFiles": "archivos",
+    "unitGigabyte": "ES",
+    "historyTitle": "Historial de archivos entregados",
+    "showingRecords": "Mostrando {{count}} registros",
+    "loading": "Cargando tu historial de descargas...",
+    "emptyTitle": "Aún no hay descargas",
+    "emptyDescription": "Dirígete a la página del catálogo para comenzar a descargar juegos.",
+    "statusRecorded": "Historial de uso registrado"
+  },
+  "notifications": {
+    "loginPrompt": "Inicie sesión para ver notificaciones y mensajes personales de su cuenta.",
+    "loginButton": "Iniciar sesión",
+    "eyebrow": "Mensajes, eventos y alertas del sistema.",
+    "title": "Centro de notificaciones",
+    "subtitle": "Actualizaciones de suscripción, recompensas por referencias, nuevos lanzamientos y mensajes de soporte",
+    "markAllRead": "Marcar todo como leído",
+    "tabs": {
+      "all": "Todas las notificaciones",
+      "unread": "No leído",
+      "bonus": "Recompensas y comisiones",
+      "warning": "Alertas y seguridad"
+    },
+    "loading": "Cargando notificaciones...",
+    "emptyTitle": "No se encontraron notificaciones",
+    "emptyDescription": "No hay mensajes en esta categoría.",
+    "newBadge": "Nuevo",
+    "viewLink": "Ver página relacionada",
+    "deleteTitle": "Eliminar notificación"
+  },
+  "payments": {
+    "loginPrompt": "Inicia sesión para ver tu historial de pagos y facturas oficiales.",
+    "loginButton": "Iniciar sesión",
+    "eyebrow": "Historial de transacciones y facturas digitales",
+    "title": "Historial de pagos",
+    "subtitle": "Un archivo completo de pagos de suscripciones, recargas de billetera y servicios premium.",
+    "buySubscription": "Comprar o renovar suscripción",
+    "stats": {
+      "totalPaid": "Pagos totales exitosos",
+      "successfulOrders": "Pedidos exitosos",
+      "security": "Seguridad de pago y garantía de pasarela",
+      "securityValue": "Red de pago Shaparak con cifrado SSL seguro"
+    },
+    "unitToman": "tomán",
+    "unitOrders": "pedidos",
+    "searchPlaceholder": "Busque por código de seguimiento, nombre del plan o puerta de enlace...",
+    "filter": {
+      "all": "Todas las transacciones",
+      "success": "Sólo pagos exitosos",
+      "pending": "En espera de confirmación",
+      "failed": "Pagos fallidos"
+    },
+    "status": {
+      "success": "Exitoso",
+      "failed": "Fallido",
+      "pending": "En espera de confirmación"
+    },
+    "loading": "Cargando historial de pagos...",
+    "table": {
+      "tracking": "Código de seguimiento",
+      "plan": "Plano/Servicio",
+      "amount": "Cantidad (Toman)",
+      "gateway": "Puerta de enlace",
+      "dateTime": "Fecha y hora",
+      "status": "Estado",
+      "invoice": "Factura oficial"
+    },
+    "empty": "No se encontraron transacciones.",
+    "defaultPlanName": "Suscripción al servicio de juegos premium",
+    "defaultGateway": "Pasarela bancaria",
+    "viewInvoice": "Ver factura"
+  },
+  "dashboardTickets": {
+    "loginPrompt": "Inicie sesión para ver y dar seguimiento a sus tickets de soporte.",
+    "loginButton": "Iniciar sesión",
+    "eyebrow": "Centro de soporte y contacto para suscriptores dedicado",
+    "title": "Boletos de soporte",
+    "subtitle": "Hable directamente con el equipo técnico y de facturación de DrGame, informe problemas y obtenga resoluciones rápidas",
+    "newTicket": "Abrir nuevo ticket",
+    "stats": {
+      "total": "Total de entradas abiertas",
+      "inProgress": "En progreso",
+      "answered": "Respondido"
+    },
+    "unitTickets": "entradas",
+    "searchPlaceholder": "Buscar por tema o código de seguimiento...",
+    "filter": {
+      "all": "Todos los estados",
+      "open": "esperando respuesta",
+      "inProgress": "En revisión",
+      "answered": "Respondido",
+      "closed": "Cerrado"
+    },
+    "status": {
+      "open": "esperando respuesta",
+      "inProgress": "En revisión",
+      "answered": "Respondido",
+      "closed": "Cerrado"
+    },
+    "department": {
+      "technical": "Soporte técnico",
+      "downloads": "Descargas de datos de juegos",
+      "financial": "Facturación y suscripciones",
+      "general": "generales"
+    },
+    "priority": {
+      "high": "Urgente",
+      "low": "normales",
+      "medium": "Medio"
+    },
+    "loading": "Cargando billetes...",
+    "emptyTitle": "No se encontraron entradas",
+    "emptyNoTickets": "Aún no has abierto ningún ticket de soporte. Utilice el botón de arriba para contarnos sobre su problema.",
+    "emptyFiltered": "Ningún ticket coincidió con este filtro o término de búsqueda.",
+    "viewConversation": "Ver conversación"
+  },
+  "profile": {
+    "guestTitle": "Inicia sesión para ver tu perfil",
+    "guestDescription": "Utilice el botón de inicio de sesión en la parte superior de la página.",
+    "avatarAlt": "jugador",
+    "memberSince": "Miembro desde: {{date}}",
+    "consoleCode": {
+      "title": "Código de inicio de sesión rápido de la consola permanente",
+      "badge": "Listo para PS4/PS5",
+      "description": "Ingrese este código de 7 dígitos en el navegador de su consola para iniciar sesión instantáneamente sin escribir una contraseña larga."
+    },
+    "referralCode": {
+      "title": "Tu código de referencia",
+      "badge": "Gana en USD y Toman",
+      "description": "Comparte tu código personal con amigos y gana comisiones automáticas en 3 niveles por cada compra que realicen."
+    },
+    "copyCode": "Copiar código",
+    "copied": "copiado",
+    "form": {
+      "title": "Editar datos personales",
+      "fullName": "nombre completo",
+      "username": "Nombre de usuario (no se puede cambiar)",
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "saveSuccess": "Sus datos se actualizaron exitosamente."
+    },
+    "password": {
+      "title": "Cambiar contraseña",
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "submit": "Actualizar contraseña",
+      "success": "Su contraseña se actualizó exitosamente.",
+      "error": "No se pudo cambiar la contraseña"
+    }
+  },
+  "referral": {
+    "loginPrompt": "Estás viendo un panel de marketing de muestra. Inicia sesión para acceder a tu enlace personal y retirar comisiones.",
+    "loginButton": "Iniciar sesión",
+    "title": "Panel de control de billetera y marketing de referencia",
+    "settlementBadge": "Liquidación directa",
+    "subtitle": "Obtenga ingresos constantes con cada compra de suscripción en hasta 10 niveles de su red de referencias",
+    "accountsButton": "Cuentas de liquidación ({{count}})",
+    "withdraw": "Retirar fondos",
+    "layerFilterLabel": "Filtrar la capa de red de referencia:",
+    "layers": {
+      "one": "Capa 1 (directa - 10% de comisión) - predeterminada",
+      "two": "Capa 2 (indirecta - 5% de comisión)",
+      "three": "Capa 3 (indirecta - 2,5% de comisión)",
+      "all": "Todas las capas de la red"
+    },
+    "formula": {
+      "title": "Fórmula de comisión de reducción a la mitad escalonada",
+      "description": "En el modelo de ganancias de DrGame, el sistema establece la tasa de comisión base y se reduce a la mitad en cada nivel que asciende en la cadena:",
+      "layer1Label": "Capa 1 (referente directo)",
+      "layer1Value": "10% del monto de la compra",
+      "layer1Note": "La mitad de la comisión base del 20%",
+      "layer2Label": "Capa 2 (referente de línea ascendente 2)",
+      "layer2Value": "5% del monto de la compra",
+      "layer2Note": "La mitad de la comisión de la capa 1",
+      "layer3Label": "Capa 3 (referente de línea ascendente 3)",
+      "layer3Value": "2,5% del importe de la compra",
+      "layer3Note": "La mitad de la comisión de capa 2 (continúa indefinidamente)"
+    },
+    "terms": {
+      "title": "Términos, condiciones de pago y aviso legal:",
+      "item1": "1. Las comisiones de marketing se calculan y se agregan a su saldo retirable solo después de que el usuario invitado completa un pago exitoso y activa una suscripción.",
+      "item2": "2. DrGame se reserva el derecho de monitorear continuamente la integridad de las transacciones, el comportamiento sospechoso y las cadenas de autorreferencia, y bloqueará la cuenta y el saldo si se detecta fraude."
+    }
+  },
+  "sessions": {
+    "title": "Sesiones y dispositivos conectados",
+    "subtitle": "Administre los dispositivos con acceso a su cuenta y sus dispositivos principales",
+    "loading": "Cargando lista de dispositivos...",
+    "empty": "No se encontraron dispositivos activos.",
+    "currentBadge": "Sesión actual",
+    "primaryBadge": "Dispositivo primario",
+    "consoleBadge": "Consola",
+    "ip": "IP: {{ip}}",
+    "lastActive": "Última actividad: {{time}}",
+    "currentTitle": "No puedes cerrar sesión en la sesión actual desde aquí",
+    "primaryTitle": "La consola principal registrada está protegida por el sistema.",
+    "currentButton": "Sesión actual",
+    "primaryButton": "Consola principal",
+    "revoking": "Cerrando sesión...",
+    "revoke": "Revocar acceso",
+    "revokeSuccess": "El dispositivo cerró sesión correctamente.",
+    "demoDeviceDesktop": "Navegador Chrome (este sistema)",
+    "demoDeviceConsole": "consola playstation 5"
+  }
+}

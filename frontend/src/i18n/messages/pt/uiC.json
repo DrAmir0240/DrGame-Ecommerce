@@ -1,0 +1,283 @@
+{
+  "ticketUI": {
+    "title": "Open a new support ticket",
+    "subtitle": "DrGame specialists will answer your questions and resolve your issues as quickly as possible.",
+    "subjectLabel": "Ticket subject:",
+    "subjectPlaceholder": "e.g. Help moving my PS5 data",
+    "departmentLabel": "Department:",
+    "department": {
+      "technical": "Technical support & connectivity",
+      "downloads": "Console downloads & data transfer",
+      "financial": "Billing, subscriptions & commissions",
+      "general": "General questions & suggestions"
+    },
+    "priorityLabel": "Priority:",
+    "priority": {
+      "low": "Normal (reply within 24 hours)",
+      "medium": "Medium (standard priority)",
+      "high": "Urgent & critical"
+    },
+    "messageLabel": "Message & full details:",
+    "messagePlaceholder": "Describe your issue or question in detail...",
+    "cancel": "Cancel",
+    "submit": "Send ticket",
+    "errorRequired": "Please enter a subject and a message for your ticket.",
+    "errorSubmit": "Could not submit your support ticket.",
+    "errorLoad": "Could not load the ticket details.",
+    "errorSend": "Could not send your message.",
+    "status": {
+      "answered": "Answered",
+      "inProgress": "Under review",
+      "closed": "Closed",
+      "awaiting": "Awaiting reply"
+    },
+    "loadingTicket": "Loading ticket details...",
+    "loadingHistory": "Loading message history...",
+    "empty": "No messages in this ticket yet.",
+    "supportName": "DrGame Support",
+    "you": "You",
+    "closedNotice": "This ticket is closed and can no longer receive replies. Please open a new ticket if you need more help.",
+    "replyPlaceholder": "Write your reply...",
+    "reply": "Send reply"
+  },
+  "gamepad": {
+    "page": {
+      "title": "Controller health test",
+      "connected": "Connected",
+      "waiting": "Waiting for connection",
+      "enterFullscreen": "Fullscreen",
+      "exitFullscreen": "Exit fullscreen"
+    },
+    "connection": {
+      "titleConnected": "Controller connected",
+      "titleDisconnected": "Connect your controller",
+      "hintPressButton": "Press any button on the controller",
+      "wireless": "Wireless / Bluetooth",
+      "wired": "Wired / USB",
+      "rumbleTest": "Test rumble",
+      "rumbleBusy": "Sending…",
+      "driftMeasure": "Measure drift",
+      "driftBusy": "Measuring…",
+      "help": "Connect the controller over USB or Bluetooth, then press any button so the browser can detect it. On Windows, prefer Chrome or Edge for DualSense controllers."
+    },
+    "viewer": {
+      "title": "Controller layout",
+      "badgeUnknown": "Unknown model",
+      "badgeNone": "No controller",
+      "view3d": "3D",
+      "viewMap": "Map",
+      "view3dHint": "A 3D model is only available for the DualSense",
+      "emptyTitle": "The controller layout appears once it is connected",
+      "emptyHint": "Connect the controller over USB or Bluetooth and press any button so the browser can detect it.",
+      "waiting": "Waiting for a controller…",
+      "noButtons": "No buttons pressed"
+    },
+    "map": {
+      "ariaLabel": "Controller button map"
+    },
+    "model3d": {
+      "loading": "Loading 3D model",
+      "loadError": "The 3D model could not be loaded.",
+      "unsupported": "3D view is not supported in this browser."
+    },
+    "triggers": {
+      "pressed": "PRESS",
+      "released": "RELEASE"
+    },
+    "sticks": {
+      "title": "Sticks & drift",
+      "left": "Left stick",
+      "right": "Right stick",
+      "toneHigh": "High drift",
+      "toneSlight": "Slight drift",
+      "toneHealthy": "Healthy",
+      "measuring": "Measuring…",
+      "hintIdle": "For an exact drift reading, press “Measure drift” and leave both sticks untouched for 2.5 seconds.",
+      "hintHigh": "Drift above 12% is not normal; the potentiometer may be worn or dusty.",
+      "hintHealthy": "Drift is within the healthy range."
+    },
+    "mic": {
+      "title": "Microphone loopback test",
+      "deviceLabel": "Input device",
+      "defaultDevice": "System default microphone",
+      "deviceFallback": "Microphone {{index}}",
+      "average": "Average",
+      "peak": "Peak",
+      "loopback": "Play audio back (listen on speakers)",
+      "volume": "Volume",
+      "howlingWarning": "Do not do this with a headset; acoustic feedback (howling) can damage the speaker.",
+      "start": "Start test",
+      "stop": "Stop test",
+      "starting": "Connecting…",
+      "error": "Could not access the microphone. Check the browser permission and the controller connection.",
+      "health": {
+        "idle": {
+          "label": "Ready",
+          "advice": "Press “Start test” and allow microphone access."
+        },
+        "silent": {
+          "label": "Silent",
+          "advice": "No signal is coming in. Make sure the controller microphone is selected and the Mute key on the controller is off."
+        },
+        "weak": {
+          "label": "Weak",
+          "advice": "The level is low. Speak closer to the microphone or raise the input level in Windows settings."
+        },
+        "good": {
+          "label": "Healthy",
+          "advice": "The signal level is in the normal range; the controller microphone looks healthy."
+        },
+        "hot": {
+          "label": "Too loud",
+          "advice": "The signal is too loud and may distort. Move further away."
+        },
+        "clipping": {
+          "label": "Clipping",
+          "advice": "The signal is clipping. Lower the input level to remove the distortion."
+        }
+      }
+    },
+    "log": {
+      "title": "System log",
+      "clear": "Clear",
+      "waiting": "Waiting for activity…"
+    },
+    "events": {
+      "connected": "Controller connected — {{id}}",
+      "disconnected": "Controller disconnected — {{id}}",
+      "deviceId": "Device ID: {{id}}",
+      "unknown": "unknown",
+      "rumbleUnsupported": "The controller rejected the rumble report. Try a USB connection.",
+      "rumbleSent": "Test rumble sent",
+      "driftStart": "Drift measurement started — release the sticks",
+      "driftHigh": "High drift detected — {{percent}}%",
+      "driftSlight": "Slight drift — {{percent}}%",
+      "driftHealthy": "Sticks healthy — drift {{percent}}%",
+      "micStart": "Microphone test started — speak at a normal volume",
+      "micActive": "Active microphone: {{label}}",
+      "micDenied": "Microphone access denied",
+      "micHealthy": "Microphone signal level is healthy",
+      "micWeak": "Microphone level is low",
+      "micSilent": "No signal received from the microphone",
+      "micHot": "Input level is too loud",
+      "micClipping": "Signal is clipping"
+    }
+  },
+  "avatar": {
+    "title": "Official Sony console avatars",
+    "subtitle": "Designed after profile pattern {{count}}",
+    "preset": {
+      "kratos": "Kratos (God of War)",
+      "spidey": "Spider-Man (Marvel)",
+      "aloy": "Aloy (Horizon Forbidden West)",
+      "jin": "Jin Sakai (Ghost of Tsushima)",
+      "joel": "Joel (The Last of Us)",
+      "astro": "Astro Bot"
+    },
+    "upload": {
+      "title": "Upload Image",
+      "uploading": "Uploading...",
+      "custom": "Custom Avatar",
+      "invalidType": "Only image files (JPEG, PNG, WebP) are allowed.",
+      "tooLarge": "File size must not exceed 5 MB.",
+      "error": "Failed to upload image. Please try again."
+    }
+  },
+  "notificationsUI": {
+    "bellTitle": "Notifications",
+    "bellAria": "Notifications and messages",
+    "headerTitle": "Notifications & events",
+    "markAllTitle": "Mark all as read",
+    "markAll": "Mark read",
+    "loginPrompt": "Please sign in to see your notifications.",
+    "loading": "Loading notifications...",
+    "empty": "You have no notifications right now.",
+    "footer": "Notification center",
+    "newCount_one": "{{count}} new",
+    "newCount_other": "{{count}} new",
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  },
+  "quotaPill": {
+    "title": "Download quota status",
+    "currentPlan": "Current plan:",
+    "statusActive": "Active",
+    "statusLow": "Running low",
+    "remaining": "Remaining quota:",
+    "total": "Total quota:",
+    "expires": "Expires on:",
+    "upgrade": "Upgrade & buy data"
+  },
+  "blogUI": {
+    "searchTitle": "Search articles",
+    "searchPlaceholder": "Title or topic...",
+    "sortTitle": "Sort by",
+    "sort": {
+      "newest": "Newest articles",
+      "popular": "Most popular (most likes)",
+      "views": "Most viewed"
+    },
+    "categoriesTitle": "Topic categories",
+    "allPosts": "All articles",
+    "readingTime_one": "{{count}} min read",
+    "readingTime_other": "{{count}} min read"
+  },
+  "chrome": {
+    "closeNotice": "Dismiss notice",
+    "openMenu": "Open menu",
+    "navMenu": "Navigation menu",
+    "mainNav": "Main site navigation",
+    "homeTitle": "DrGame – Home",
+    "brandName": "DrGame",
+    "tvModeTitle": "TV & Console Mode (10-Foot UI)",
+    "profileTitle": "User profile: {{name}}",
+    "mobileNav": "Mobile quick access bar",
+    "scrollRight": "Scroll right",
+    "scrollLeft": "Scroll left",
+    "tvBarRegion": "Controller guide and TV mode bar",
+    "tvBarGames": "Browse the games catalog (Triangle / Y)",
+    "tvBarPlans": "Quota subscription plans (Square / X)",
+    "geoTitle": "Select Region & Language",
+    "geoWelcome": "Welcome to DrGame",
+    "geoSubtitle": "Please choose your interface language and preferred payment method:",
+    "geoConfig": "Selected configuration:",
+    "geoLater": "Remind me later",
+    "geoConfirm": "Confirm and continue",
+    "geoClose": "Close",
+    "bannerAria": "Featured banners for DrGame games and services",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "goToSlide": "Go to slide {{index}}",
+    "dedicatedServers": "Iranian half-price dedicated servers"
+  },
+  "auth": {
+    "errors": {
+      "phoneRequired": "Please enter your phone number or email address.",
+      "otpSend": "Could not send the verification code.",
+      "requiredFields": "Please fill in all required fields.",
+      "register": "Registration with the verification code failed.",
+      "credentials": "Please enter your username and password.",
+      "invalidCredentials": "Incorrect username or password.",
+      "consoleCode": "Please enter the 7-digit console code.",
+      "invalidConsoleCode": "The 7-digit console code is invalid.",
+      "testCode": "SMS code (test environment):"
+    }
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "subtitle": "Instant experience settings",
+    "open": "Open quick actions",
+    "close": "Close quick actions",
+    "consoleTitle": "Console mode",
+    "consoleDesc": "10-foot UI for TV & gamepad",
+    "paymentTitle": "Payment method",
+    "paymentDesc": "Domestic gateway or crypto",
+    "domestic": "Shaparak / IRT",
+    "international": "Crypto / Global"
+  }
+}

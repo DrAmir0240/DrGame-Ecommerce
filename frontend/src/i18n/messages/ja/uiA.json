@@ -1,0 +1,160 @@
+{
+  "filters": {
+    "title": "Advanced Filters",
+    "clearAllTitle": "Clear all filters",
+    "clear": "Clear",
+    "closeFilters": "Close filters",
+    "platforms": "Platforms",
+    "platformNames": {
+      "ps5": "PlayStation 5",
+      "ps4": "PlayStation 4",
+      "xbox": "Xbox",
+      "switch": "Nintendo Switch"
+    },
+    "genres": "Genres",
+    "selectedCount": "{{count}} selected",
+    "showAll": "Show more",
+    "showLess": "Show less",
+    "genre": {
+      "action": "Action",
+      "adventure": "Adventure",
+      "rpg": "RPG",
+      "shooter": "Shooter",
+      "racing": "Racing",
+      "strategy": "Strategy",
+      "puzzle": "Puzzle",
+      "sports": "Sports"
+    },
+    "gameMode": "Game Mode",
+    "singlePlayer": "Single-player",
+    "multiPlayer": "Multiplayer (2+ players)",
+    "vr": "Virtual Reality",
+    "vrOnly": "VR games only",
+    "active": "On",
+    "releaseStatus": "Release Status",
+    "released": "Released",
+    "earlyAccess": "Early Access",
+    "dataSize": "Data Size",
+    "sizeAll": "All",
+    "sizeUnder": "< {{size}}",
+    "sizeRange": "{{min}}-{{max}} GB",
+    "sizeOver": "> {{size}}",
+    "minRating": "Minimum rating:",
+    "ratingValue": "{{value}} / 5"
+  },
+  "downloadBox": {
+    "title": "DrGame Multi-Purpose Half-Price Download Box",
+    "subtitle": "High-speed local cloud servers billed at 50% off standard telecom traffic rates",
+    "plan": "Plan:",
+    "remainingQuota": "Quota left:",
+    "loginBanner": "Sign in to your account to download",
+    "emptyTitle": "No files have been uploaded to this category yet",
+    "emptyBody": "The DrGame technical team will upload this section's files soon, once they have passed full health checks on the server.",
+    "tabs": {
+      "data": "Official Game Data",
+      "cheat": "Cheats & Trainers",
+      "dlc": "DLC & Expansions",
+      "subtitle": "Persian Subtitles",
+      "dubbing": "Exclusive Dubbing"
+    },
+    "features": {
+      "other": "This section",
+      "data": "Official game data",
+      "cheat": "Cheats & trainers",
+      "dlc": "DLC & expansions",
+      "subtitle": "Persian subtitles",
+      "dubbing": "Persian dubbing"
+    },
+    "eligibility": {
+      "loginBadge": "Sign-in required",
+      "loginButton": "Sign in to download",
+      "subscriptionBadge": "Active subscription required",
+      "subscriptionButton": "Buy subscription",
+      "featureBadge": "Not available on the {{plan}} plan",
+      "upgradeButton": "Upgrade your plan",
+      "quotaBadge": "Not enough quota ({{remaining}} left)",
+      "quotaButton": "Add more download quota",
+      "readyBadge": "Ready to download",
+      "downloadButton": "Direct download"
+    },
+    "tiers": {
+      "free": "Free",
+      "bronze": "Bronze+",
+      "silver": "Silver+",
+      "gold": "Gold"
+    },
+    "sizeLabel": "Size: {{size}}",
+    "partNumber": "#{{number}}",
+    "copyTitle": "Copy the direct file link",
+    "copyDisabledTitle": "Download is not available for you",
+    "copyLink": "Copy link"
+  },
+  "downloadModal": {
+    "title": "Confirm Download & Quota Deduction",
+    "loginTitle": "Sign-in required",
+    "loginBody": "To download with half-price traffic and use your subscription quota, please sign in to your account first.",
+    "loginButton": "Sign in / Sign up to DrGame",
+    "quotaTitle": "Not enough remaining quota",
+    "quotaBody": "The selected file is {{size}}, while your remaining quota is only {{remaining}}.",
+    "upgradeButton": "Upgrade & buy more download data",
+    "successTitle": "Download started successfully",
+    "successBody": "Redirecting to your download manager...",
+    "fileName": "Part / file name:",
+    "fileSize": "File size:",
+    "partFallback": "Part #{{number}}",
+    "currentQuota": "Current quota:",
+    "quotaAfter": "Quota after deduction:",
+    "warningTitle": "Note:",
+    "warningBody": "By confirming and starting the download, {{size}} will be deducted from your subscription quota and recorded in your download history.",
+    "confirm": "Confirm & start download",
+    "processing": "Processing..."
+  },
+  "quotaWidget": {
+    "cta": "Buy a subscription and download games",
+    "remainingTime": "Subscription time left:",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "remainingQuota": "Download quota left:",
+    "gigabytes": "{{value}} GB"
+  },
+  "similarGames": {
+    "titleLoading": "Similar & Suggested Games",
+    "title": "Similar Games & Recommended Titles",
+    "subtitle": "{{count}} popular titles in the same genre",
+    "viewAll": "View all games"
+  },
+  "gameCard": {
+    "released": "Released",
+    "earlyAccess": "Early Access"
+  },
+  "showcase": {
+    "vrSupported": "VR Supported",
+    "twoPlayer": "2-Player (Co-op)",
+    "downloadCta": "Download Game Data",
+    "detailsCta": "View Details & Parts",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "consoles": {
+      "ps5": "PlayStation 5",
+      "ps4": "PlayStation 4",
+      "psvr2": "PS VR",
+      "switch": "Nintendo Switch",
+      "xbox360": "Xbox",
+      "xbox": "Xbox"
+    },
+    "slides": {
+      "godOfWar": {
+        "title": "God of War: Ragnarök",
+        "description": "Join Kratos and Atreus on a mythic journey across the nine realms of Scandinavia, while the forces of Asgard prepare for a foretold battle."
+      },
+      "spiderMan": {
+        "title": "Marvel's Spider-Man 2",
+        "description": "Peter Parker and Miles Morales return to fight the terrifying Venom and Kraven the Hunter on the streets of New York. Experience the extraordinary near-instant SSD loading of PlayStation 5."
+      },
+      "horizon": {
+        "title": "Horizon: Call of the Mountain VR",
+        "description": "Full immersion in the world of Horizon with the PSVR2 headset — draw your bow, climb towering peaks, and face colossal machines."
+      }
+    }
+  }
+}

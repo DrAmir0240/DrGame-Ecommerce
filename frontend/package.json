@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/three": "^0.169.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.16.4",
     "i18next": "^23.11.5",
@@ -19,6 +20,7 @@
     "react-dom": "^18.2.0",
     "react-i18next": "^14.1.2",
     "tailwind-merge": "^2.6.0",
+    "three": "^0.169.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

@@ -1,0 +1,192 @@
+{
+  "admin": {
+    "finance": {
+      "title": "Dual-Currency Financial Monitoring (Rial / FX)",
+      "subtitle": "Read-only report of all domestic and international gateway transactions, both Shetab and crypto",
+      "auditLocked": "Audit-Locked (Read-Only)",
+      "kpis": {
+        "domestic": {
+          "label": "Rial Turnover (Shaparak / Shetab)",
+          "hint": "Domestic bank payment gateways"
+        },
+        "crypto": {
+          "label": "International Transactions (USDT)",
+          "hint": "Tether TRC20 / crypto network",
+          "value": "{{count}} orders"
+        },
+        "orders": {
+          "label": "Total Paid Orders",
+          "hint": "Aggregate successful platform orders",
+          "value": "{{count}} transactions"
+        }
+      },
+      "transactions": {
+        "title": "Recent System Transactions",
+        "latest": "Latest {{count}} records",
+        "empty": "No transactions found.",
+        "userRef": "User #{{id}}",
+        "paymentBank": "Bank transfer (Shetab)",
+        "table": {
+          "orderCode": "Order code",
+          "userId": "User ID",
+          "plan": "Purchased plan",
+          "amount": "Amount",
+          "paymentMethod": "Payment method",
+          "reference": "Tracking code / hash",
+          "status": "Status"
+        },
+        "status": {
+          "paid": "Paid",
+          "pending": "Awaiting payment",
+          "failed": "Failed"
+        }
+      }
+    },
+    "payouts": {
+      "title": "Referral Commission Payout Desk",
+      "subtitle": "Review and approve withdrawal requests, record tracking codes, and refund automatically when a request is rejected",
+      "filters": {
+        "all": "All",
+        "pending": "Pending review",
+        "approved": "Paid out",
+        "rejected": "Rejected"
+      },
+      "loading": "Loading payout desk...",
+      "empty": "No payout requests found.",
+      "defaultUser": "User",
+      "shebaLabel": "IBAN:",
+      "cardLabel": "Card number:",
+      "cryptoLabel": "USDT {{network}}:",
+      "status": {
+        "pending": "Awaiting action",
+        "approved": "Paid out",
+        "rejected": "Rejected (refunded)"
+      },
+      "actions": {
+        "approve": "Approve payout",
+        "reject": "Reject request",
+        "processed": "Processed"
+      },
+      "table": {
+        "id": "ID",
+        "user": "User",
+        "amount": "Requested amount",
+        "destination": "Destination account",
+        "date": "Request date",
+        "status": "Status",
+        "actions": "Admin action"
+      },
+      "modal": {
+        "approveTitle": "Approve settlement payout",
+        "rejectTitle": "Reject settlement request",
+        "userLabel": "User:",
+        "amountLabel": "Payout amount:",
+        "rejectWarning": "Note: rejecting this request refunds the amount to the user's wallet immediately.",
+        "receiptLabel": "Receipt image URL or link",
+        "notesLabel": "Admin note",
+        "cancel": "Cancel",
+        "submitting": "Submitting...",
+        "submitApprove": "Confirm payout",
+        "submitReject": "Submit rejection"
+      },
+      "defaultNotes": {
+        "approved": "Settlement transferred successfully",
+        "rejected": "Account details are invalid"
+      },
+      "messages": {
+        "approved": "Request approved successfully.",
+        "rejected": "Request rejected and the amount was refunded to the user's wallet."
+      }
+    },
+    "referrals": {
+      "title": "Full Referral Network & Commission Monitoring",
+      "subtitle": "Track five financial and performance indicators of the marketing network, manage referrers, and control the Hide/Unhide switch",
+      "kpis": {
+        "users": {
+          "label": "Total network members",
+          "hint": "Across all 3 tiers",
+          "unit": "users"
+        },
+        "commissions": {
+          "label": "Total commissions earned",
+          "hint": "Calculated across the entire chain"
+        },
+        "pending": {
+          "label": "Pending settlement (balance)",
+          "hint": "Active wallet balance"
+        },
+        "activeReferrers": {
+          "label": "Active tier-1 marketers",
+          "hint": "With at least one downline",
+          "unit": "users"
+        },
+        "treasury": {
+          "label": "Platform treasury balance",
+          "hint": "Surplus deposits from tiers without a referrer"
+        }
+      },
+      "searchPlaceholder": "Search name, phone or referral code...",
+      "visibilityLabel": "Visibility:",
+      "visibility": {
+        "all": "All users",
+        "visible": "Visible only (normal)",
+        "hidden": "Hidden only"
+      },
+      "loading": "Loading referral network data...",
+      "empty": "No users found in the network.",
+      "noCode": "None",
+      "status": {
+        "hidden": "Hidden from ranking",
+        "active": "Active in leaderboard"
+      },
+      "table": {
+        "referrer": "Referrer",
+        "code": "Referral code",
+        "layer1": "Tier 1",
+        "layer2": "Tier 2",
+        "layer3": "Tier 3",
+        "totalNetwork": "Total network",
+        "totalEarned": "Total earnings (Toman)",
+        "balance": "Wallet balance",
+        "status": "Referral status",
+        "actions": "Hide action"
+      },
+      "actions": {
+        "show": "Show",
+        "hide": "Hide",
+        "showTitle": "Show this user again in public statistics",
+        "hideTitle": "Hide this user without affecting network relations or earnings"
+      },
+      "feedback": {
+        "hidden": "User «{{name}}» was hidden without removing network links.",
+        "visible": "User «{{name}}» is no longer hidden."
+      },
+      "errors": {
+        "load": "Failed to load referral monitoring data from the server.",
+        "toggle": "Failed to change the user's hidden status."
+      }
+    },
+    "bankAccounts": {
+      "title": "IBAN, Bank Card & Crypto Wallet Verification Desk",
+      "subtitle": "Validate banking details and Tether wallet addresses to prevent referral commission payout errors",
+      "loading": "Loading settlement accounts...",
+      "empty": "No settlement accounts to display.",
+      "userRef": "User #{{id}}",
+      "verified": "Verified",
+      "pending": "Pending verification",
+      "defaultBankName": "Banking system",
+      "actions": {
+        "revoke": "Revoke verification",
+        "verify": "Verify account"
+      },
+      "table": {
+        "id": "ID",
+        "user": "User",
+        "accountType": "Account type",
+        "accountValue": "Account number / wallet address",
+        "verifyStatus": "Verification status",
+        "toggle": "Change status"
+      }
+    }
+  }
+}

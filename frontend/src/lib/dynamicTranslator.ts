@@ -1,6 +1,7 @@
 'use client';
 
 import { translateWithLexicon } from './dynamicLexicon';
+import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale } from '@/i18n/locale-codes';
 
 const CACHE_PREFIX = 'drgame_tr_v4_';
 
@@ -56,7 +57,7 @@ function readValidCache(lang: string, hash: string, origText: string): string | 
 // Queue for batching translation requests from multiple components on the same page
 interface QueuedItem {
   text: string;
-  targetLang: 'en' | 'ar';
+  targetLang: SupportedLocale;
   resolve: (res: string) => void;
 }
 
@@ -70,19 +71,16 @@ async function flushBatchQueue() {
 
   if (currentBatch.length === 0) return;
 
-  // Group by target language
-  const groups: Record<'en' | 'ar', QueuedItem[]> = { en: [], ar: [] };
+  // Group by target language — one request per locale per flush
+  const groups = new Map<SupportedLocale, QueuedItem[]>();
   for (const item of currentBatch) {
-    if (groups[item.targetLang]) {
-      groups[item.targetLang].push(item);
-    }
+    const list = groups.get(item.targetLang);
+    if (list) list.push(item);
+    else groups.set(item.targetLang, [item]);
   }
 
-  for (const lang of ['en', 'ar'] as const) {
-    const items = groups[lang];
-    if (items.length === 0) continue;
-
-    const uniqueTexts = Array.from(new Set(items.map((i) => i.text)));
+  for (const [lang, items] of Array.from(groups.entries())) {
+    const uniqueTexts = Array.from(new Set(items.map((i: QueuedItem) => i.text)));
 
     try {
       const res = await fetch('/api/translate', {
@@ -96,7 +94,7 @@ async function flushBatchQueue() {
       const data = await res.json();
       const translations: Record<string, string> = data.translations || {};
 
-      items.forEach((item) => {
+      items.forEach((item: QueuedItem) => {
         const translated = translations[item.text] || item.text;
         const cacheKey = `${lang}:${item.text}`;
         const hash = hashString(item.text);
@@ -113,7 +111,7 @@ async function flushBatchQueue() {
       });
     } catch {
       // Fallback silently to original text on any error
-      items.forEach((item) => item.resolve(item.text));
+      items.forEach((item: QueuedItem) => item.resolve(item.text));
     }
   }
 }
@@ -130,12 +128,12 @@ export function translateDynamicText(
     return Promise.resolve('');
   }
 
-  // If already Persian or default locale, return immediately
-  if (targetLang === 'fa' || !['en', 'ar'].includes(targetLang)) {
+  // Source language and unknown targets are returned untouched
+  if (targetLang === DEFAULT_LOCALE || !isSupportedLocale(targetLang)) {
     return Promise.resolve(text);
   }
 
-  const lang = targetLang as 'en' | 'ar';
+  const lang = targetLang as SupportedLocale;
   const trimmed = text.trim();
   const cacheKey = `${lang}:${trimmed}`;
 
@@ -155,7 +153,7 @@ export function translateDynamicText(
 
   // 3. Check Gaming & E-Commerce Lexicon (0ms)
   const lexiconResult = translateWithLexicon(trimmed, lang);
-  if (lexiconResult.isFullyTranslated && lexiconResult.translated.trim() !== trimmed) {
+  if (lexiconResult.translated.trim() !== trimmed) {
     MEMORY_CACHE.set(cacheKey, lexiconResult.translated);
     try {
       localStorage.setItem(getLocalStorageKey(lang, hash), lexiconResult.translated);
@@ -181,9 +179,9 @@ export function getInstantDynamicTranslation(
   targetLang: string
 ): string | null {
   if (!text || typeof text !== 'string') return '';
-  if (targetLang === 'fa' || !['en', 'ar'].includes(targetLang)) return text;
+  if (targetLang === DEFAULT_LOCALE || !isSupportedLocale(targetLang)) return text;
 
-  const lang = targetLang as 'en' | 'ar';
+  const lang = targetLang as SupportedLocale;
   const trimmed = text.trim();
   const cacheKey = `${lang}:${trimmed}`;
 
@@ -200,7 +198,7 @@ export function getInstantDynamicTranslation(
   }
 
   const lexicon = translateWithLexicon(trimmed, lang);
-  if (lexicon.isFullyTranslated && lexicon.translated.trim() !== trimmed) {
+  if (lexicon.translated.trim() !== trimmed) {
     MEMORY_CACHE.set(cacheKey, lexicon.translated);
     return lexicon.translated;
   }

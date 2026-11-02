@@ -1,0 +1,192 @@
+{
+  "admin": {
+    "finance": {
+      "title": "双币种金融监控（里亚尔/外汇）",
+      "subtitle": "所有国内和国际网关交易（Shetab 和加密货币）的只读报告",
+      "auditLocked": "审核锁定（只读）",
+      "kpis": {
+        "domestic": {
+          "label": "里亚尔成交量（Shaparak / Shetab）",
+          "hint": "国内银行支付网关"
+        },
+        "crypto": {
+          "label": "国际交易（USDT）",
+          "hint": "Tether TRC20 / 加密网络",
+          "value": "{{count}} 个订单"
+        },
+        "orders": {
+          "label": "已付款订单总数",
+          "hint": "聚合平台成功订单",
+          "value": "{{count}} 笔交易"
+        }
+      },
+      "transactions": {
+        "title": "最近的系统交易",
+        "latest": "最新 {{count}} 条记录",
+        "empty": "未发现任何交易。",
+        "userRef": "用户#{{id}}",
+        "paymentBank": "银行转账 (Shetab)",
+        "table": {
+          "orderCode": "订购代码",
+          "userId": "用户ID",
+          "plan": "购买计划",
+          "amount": "金额",
+          "paymentMethod": "付款方式",
+          "reference": "跟踪代码/哈希",
+          "status": "状态"
+        },
+        "status": {
+          "paid": "付费",
+          "pending": "等待付款",
+          "failed": "失败"
+        }
+      }
+    },
+    "payouts": {
+      "title": "推荐佣金支付台",
+      "subtitle": "审查并批准提款请求，记录跟踪代码，并在请求被拒绝时自动退款",
+      "filters": {
+        "all": "全部",
+        "pending": "待审核",
+        "approved": "已支付",
+        "rejected": "被拒绝"
+      },
+      "loading": "正在加载付款台...",
+      "empty": "未找到付款请求。",
+      "defaultUser": "用户",
+      "shebaLabel": "国际银行账号：",
+      "cardLabel": "卡号：",
+      "cryptoLabel": "USDT {{network}}:",
+      "status": {
+        "pending": "等待行动",
+        "approved": "已支付",
+        "rejected": "被拒绝（退款）"
+      },
+      "actions": {
+        "approve": "批准付款",
+        "reject": "拒绝请求",
+        "processed": "已加工"
+      },
+      "table": {
+        "id": "身份证号",
+        "user": "用户",
+        "amount": "要求金额",
+        "destination": "目的地账户",
+        "date": "请求日期",
+        "status": "状态",
+        "actions": "管理员操作"
+      },
+      "modal": {
+        "approveTitle": "批准结算付款",
+        "rejectTitle": "拒绝结算请求",
+        "userLabel": "用户：",
+        "amountLabel": "支付金额：",
+        "rejectWarning": "注意：拒绝此请求会立即将金额退还到用户的钱包中。",
+        "receiptLabel": "收据图片 URL 或链接",
+        "notesLabel": "管理员说明",
+        "cancel": "取消",
+        "submitting": "正在提交...",
+        "submitApprove": "确认付款",
+        "submitReject": "提交拒绝"
+      },
+      "defaultNotes": {
+        "approved": "结算转账成功",
+        "rejected": "帐户详细信息无效"
+      },
+      "messages": {
+        "approved": "请求已成功批准。",
+        "rejected": "请求被拒绝，金额已退还至用户的钱包。"
+      }
+    },
+    "referrals": {
+      "title": "完整的推荐网络和佣金监控",
+      "subtitle": "跟踪营销网络的五个财务和绩效指标、管理推荐人并控制隐藏/取消隐藏开关",
+      "kpis": {
+        "users": {
+          "label": "网络成员总数",
+          "hint": "跨越所有 3 层",
+          "unit": "用户"
+        },
+        "commissions": {
+          "label": "赚取的佣金总额",
+          "hint": "全链条计算"
+        },
+        "pending": {
+          "label": "待结算（余额）",
+          "hint": "活跃钱包余额"
+        },
+        "activeReferrers": {
+          "label": "活跃的一级营销人员",
+          "hint": "至少拥有一名下线",
+          "unit": "用户"
+        },
+        "treasury": {
+          "label": "平台金库余额",
+          "hint": "没有推荐人的层级的剩余存款"
+        }
+      },
+      "searchPlaceholder": "搜索姓名、电话或推荐码...",
+      "visibilityLabel": "能见度：",
+      "visibility": {
+        "all": "所有用户",
+        "visible": "仅可见（正常）",
+        "hidden": "仅隐藏"
+      },
+      "loading": "正在加载推荐网络数据...",
+      "empty": "在网络中找不到用户。",
+      "noCode": "无",
+      "status": {
+        "hidden": "隐藏在排名中",
+        "active": "活跃于排行榜"
+      },
+      "table": {
+        "referrer": "推荐人",
+        "code": "推荐码",
+        "layer1": "1 级",
+        "layer2": "2 级",
+        "layer3": "3 级",
+        "totalNetwork": "总网络",
+        "totalEarned": "总收入（托曼）",
+        "balance": "钱包余额",
+        "status": "推荐状态",
+        "actions": "隐藏动作"
+      },
+      "actions": {
+        "show": "显示",
+        "hide": "隐藏",
+        "showTitle": "在公共统计中再次显示该用户",
+        "hideTitle": "隐藏此用户而不影响网络关系或收入"
+      },
+      "feedback": {
+        "hidden": "用户 «{{name}}» 已隐藏，但未删除网络链接。",
+        "visible": "用户 «{{name}}» 不再隐藏。"
+      },
+      "errors": {
+        "load": "无法从服务器加载引用监控数据。",
+        "toggle": "无法更改用户的隐藏状态。"
+      }
+    },
+    "bankAccounts": {
+      "title": "IBAN、银行卡和加密钱包验证台",
+      "subtitle": "验证银行详细信息和 Tether 钱包地址，以防止推荐佣金支付错误",
+      "loading": "正在加载结算账户...",
+      "empty": "没有可显示的结算账户。",
+      "userRef": "用户#{{id}}",
+      "verified": "已验证",
+      "pending": "待验证",
+      "defaultBankName": "银行系统",
+      "actions": {
+        "revoke": "撤销验证",
+        "verify": "验证账户"
+      },
+      "table": {
+        "id": "身份证号",
+        "user": "用户",
+        "accountType": "账户类型",
+        "accountValue": "账号/钱包地址",
+        "verifyStatus": "验证状态",
+        "toggle": "更改状态"
+      }
+    }
+  }
+}

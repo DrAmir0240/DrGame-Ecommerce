@@ -1,0 +1,72 @@
+/* gamepad-theme.css — هماهنگ‌سازی استایل و تم «تست دسته» با تم DrGame (OLED Dark & Cosmic Purple/Cyan)
+   داخل iframe لود می‌شود و متغیرهای رنگی را به پالت پروژه متصل می‌کند. */
+
+:root {
+  --gd-bg: #070709;
+  --gd-surface: #0d121f;
+  --gd-text: #ffffff;
+  --gd-accent: #8b5cf6;
+  --gd-accent2: #06b6d4;
+  --gd-bg-rgb: 7 7 9;
+  --gd-surface-rgb: 13 18 31;
+  --gd-border-rgb: 40 48 68;
+  --gd-text-rgb: 255 255 255;
+  --gd-dim-rgb: 148 150 161;
+  --gd-accent-rgb: 139 92 246;
+}
+
+html.dark {
+  --gd-bg: #070709;
+  --gd-surface: #0d121f;
+  --gd-text: #ffffff;
+  --gd-accent: #8b5cf6;
+  --gd-accent2: #06b6d4;
+  --gd-bg-rgb: 7 7 9;
+  --gd-surface-rgb: 13 18 31;
+  --gd-border-rgb: 40 48 68;
+  --gd-text-rgb: 255 255 255;
+  --gd-dim-rgb: 148 150 161;
+  --gd-accent-rgb: 139 92 246;
+}
+
+html.light {
+  --gd-bg: #f8fafc;
+  --gd-surface: #ffffff;
+  --gd-text: #0f172a;
+  --gd-accent: #7c3aed;
+  --gd-accent2: #0891b2;
+  --gd-bg-rgb: 248 250 252;
+  --gd-surface-rgb: 255 255 255;
+  --gd-border-rgb: 226 232 240;
+  --gd-text-rgb: 15 23 42;
+  --gd-dim-rgb: 100 116 139;
+  --gd-accent-rgb: 124 58 237;
+}
+
+html.light, html.dark {
+  --bg-color: var(--gd-bg-rgb);
+  --text-color: var(--gd-text-rgb);
+}
+
+html { 
+  color: var(--gd-text); 
+  background-color: var(--gd-bg);
+}
+
+body { 
+  scrollbar-color: rgb(var(--gd-border-rgb)) transparent;
+  background-color: var(--gd-bg) !important;
+  font-family: 'Vazirmatn', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* کارت‌ها و کانتینرهای تستر */
+.dou-sc-container { 
+  background: var(--gd-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+}
+
+/* پنهان‌سازی عناصر اضافی و نامربوط برای ادغام کاملاً یکپارچه در پنل */
+.tools-wrapper .switch[role="switch"] { display: none !important; }
+footer { display: none !important; }
+.tools-wrapper .v-popper:has(a[href*="github.com"]) { display: none !important; }

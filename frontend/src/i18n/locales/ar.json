@@ -148,7 +148,8 @@
     "domestic": "إيران (الريال والبطاقات المحلية)",
     "international": "دولي (العملات المشفرة والبطاقات الدولية)",
     "iranShaparak": "إيران (شاابارك)",
-    "globalCrypto": "Global (Crypto/USDT)"
+    "globalCrypto": "Global (Crypto/USDT)",
+    "faq": "الأسئلة الشائعة (FAQ)"
   },
   "tv": {
     "headerTitle": "وضع التلفزيون والكونسول (10-Foot UI)",

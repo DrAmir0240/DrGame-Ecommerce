@@ -273,7 +273,7 @@ function GamesCatalogContent() {
               <div className="space-y-1 max-w-sm mx-auto">
                 <h3 className="text-base font-bold text-white">{t('gamesPage.emptyTitle')}</h3>
                 <p className="text-xs text-slate-400">
-                  {t('gamesPage.emptyBody')}
+                  {t('gamesPage.emptyBody') || t('gamesPage.emptyDescription')}
                 </p>
               </div>
               <button
@@ -281,7 +281,7 @@ function GamesCatalogContent() {
                 onClick={handleResetFilters}
                 className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors shadow-lg shadow-purple-600/20 cursor-pointer"
               >
-                {t('gamesPage.resetFilters')}
+                {t('gamesPage.resetFilters') || t('gamesPage.clearFilters')}
               </button>
             </div>
           ) : (

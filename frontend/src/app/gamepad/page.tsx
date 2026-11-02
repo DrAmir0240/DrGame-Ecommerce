@@ -16,14 +16,14 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useGamepad, type DriftSample } from '@/components/gamepad/useGamepad';
-import ControllerDiagram from '@/components/gamepad/ControllerDiagram';
+import ControllerViewer from '@/components/gamepad/ControllerViewer';
 import StickPad from '@/components/gamepad/StickPad';
 import MicTestPanel, { type LogLevel } from '@/components/gamepad/MicTestPanel';
 import SystemLog, { type LogEntry } from '@/components/gamepad/SystemLog';
 
 export default function GamepadPage() {
-  const { t } = useTranslation();
-  const { pad, rumble, measureDrift } = useGamepad();
+  const { t, locale, dir } = useTranslation();
+  const { pad, controller, rumble, measureDrift } = useGamepad();
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -47,11 +47,11 @@ export default function GamepadPage() {
   useEffect(() => {
     const onConnect = (e: Event) => {
       const gp = (e as GamepadEvent).gamepad;
-      pushLog('ok', `دسته متصل شد — ${gp.id}`);
+      pushLog('ok', t('gamepad.events.connected', { id: gp.id }));
     };
     const onDisconnect = (e: Event) => {
       const gp = (e as GamepadEvent).gamepad;
-      pushLog('warn', `دسته قطع شد — ${gp.id}`);
+      pushLog('warn', t('gamepad.events.disconnected', { id: gp.id }));
     };
     window.addEventListener('gamepadconnected', onConnect);
     window.addEventListener('gamepaddisconnected', onDisconnect);
@@ -59,17 +59,17 @@ export default function GamepadPage() {
       window.removeEventListener('gamepadconnected', onConnect);
       window.removeEventListener('gamepaddisconnected', onDisconnect);
     };
-  }, [pushLog]);
+  }, [pushLog, t]);
 
-  // log transitions once, not on every poll
+  // log transitions once
   useEffect(() => {
     if (pad.connected && !wasConnected.current) {
       wasConnected.current = true;
-      pushLog('info', `شناسه دستگاه: ${pad.id || 'ناشناس'}`);
+      pushLog('info', t('gamepad.events.deviceId', { id: pad.id || t('gamepad.events.unknown') }));
     } else if (!pad.connected && wasConnected.current) {
       wasConnected.current = false;
     }
-  }, [pad.connected, pad.id, pushLog]);
+  }, [pad.connected, pad.id, pushLog, t]);
 
   useEffect(() => {
     const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -92,26 +92,27 @@ export default function GamepadPage() {
     const ok = await rumble(700, 1, 0.7);
     if (!ok) {
       setRumbleState('unsupported');
-      pushLog('error', 'دسته گزارش لرزش را نپذیرفت. اتصال USB را امتحان کنید.');
+      pushLog('error', t('gamepad.events.rumbleUnsupported'));
     } else {
       setRumbleState('idle');
-      pushLog('ok', 'لرزش آزمایشی ارسال شد');
+      pushLog('ok', t('gamepad.events.rumbleSent'));
     }
     window.setTimeout(() => setRumbleState('idle'), 900);
-  }, [pad.connected, rumble, pushLog]);
+  }, [pad.connected, rumble, pushLog, t]);
 
   const handleMeasureDrift = useCallback(async () => {
     if (!pad.connected || measuring) return;
     setMeasuring(true);
-    pushLog('info', 'اندازه‌گیری دریفت آغاز شد — شوکرها را رها کنید');
+    pushLog('info', t('gamepad.events.driftStart'));
     const sample = await measureDrift(2500);
     setDrift(sample);
     setMeasuring(false);
     const worst = Math.max(sample.leftMax, sample.rightMax) * 100;
-    if (worst > 12) pushLog('error', `دریفت بالا تشخیص داده شد — ${worst.toFixed(0)}%`);
-    else if (worst > 6) pushLog('warn', `دریفت جزئی — ${worst.toFixed(0)}%`);
-    else pushLog('ok', `شوکرها سالم — دریفت ${worst.toFixed(0)}%`);
-  }, [pad.connected, measuring, measureDrift, pushLog]);
+    const percent = worst.toFixed(0);
+    if (worst > 12) pushLog('error', t('gamepad.events.driftHigh', { percent }));
+    else if (worst > 6) pushLog('warn', t('gamepad.events.driftSlight', { percent }));
+    else pushLog('ok', t('gamepad.events.driftHealthy', { percent }));
+  }, [pad.connected, measuring, measureDrift, pushLog, t]);
 
   const lx = pad.axes[0] ?? 0;
   const ly = pad.axes[1] ?? 0;
@@ -123,91 +124,112 @@ export default function GamepadPage() {
 
   const btn = (i: number) => pad.buttons[i] ?? { pressed: false, value: 0 };
   const connectionType = /bluetooth|wireless|bt/i.test(pad.id)
-    ? { label: 'بی‌سیم / بلوتوث', Icon: Wifi }
-    : { label: 'سیمی / USB', Icon: Cable };
+    ? { label: t('gamepad.connection.wireless'), Icon: Wifi }
+    : { label: t('gamepad.connection.wired'), Icon: Cable };
 
   return (
-    <div className="h-[100dvh] w-full overflow-y-auto bg-oled">
-      {/* floating chrome */}
-      <div className="pointer-events-none sticky top-0 z-30 flex justify-center p-3">
-        <div className="pointer-events-auto flex items-center gap-1 rounded-2xl border border-white/10 bg-black/60 px-1.5 py-1.5 shadow-[0_10px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+    <div className="min-h-screen w-full bg-oled font-vazir pb-12 select-none" dir={dir}>
+      {/* ─────────────────────────────────────────────────────────────────
+          TOP BAR (Navigation & Status)
+         ───────────────────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-30 flex justify-center p-3 pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-2xl border border-white/10 bg-black/75 px-3 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl">
           <Link
-            href="/tools"
-            className="flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+            href="/"
+            className="flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <ArrowRight className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{t('tools.backToTools')}</span>
+            <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
+            <span>{locale === 'fa' ? 'بازگشت به سایت' : 'Back to Store'}</span>
           </Link>
 
-          <span className="h-4 w-px bg-white/10" />
+          <span className="h-4 w-px bg-white/15" />
 
-          <div className="flex items-center gap-1.5 px-1.5">
-            <Gamepad2 className="h-3.5 w-3.5 text-violet-400" />
-            <span className="text-[11px] font-bold text-white">تست سلامت دسته</span>
+          <div className="flex items-center gap-2 px-1">
+            <div className="p-1 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-sm text-white">
+              <Gamepad2 className="h-4 w-4" />
+            </div>
+            <span className="text-xs font-black text-white tracking-wide">
+              {locale === 'fa' ? 'تست و عیب‌یابی دسته' : 'Gamepad Diagnostics'}
+            </span>
           </div>
 
-          <span className="h-4 w-px bg-white/10" />
+          <span className="h-4 w-px bg-white/15" />
 
+          {/* Connection Status Pill */}
           <span
-            className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-[11px] font-bold ${
               pad.connected
-                ? 'bg-emerald-500/15 text-emerald-300'
-                : 'bg-white/5 text-slate-400'
+                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                : 'bg-white/5 text-slate-400 border border-white/10'
             }`}
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                pad.connected ? 'bg-emerald-400' : 'bg-slate-500'
+              className={`h-2 w-2 rounded-full ${
+                pad.connected ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]' : 'bg-slate-500'
               }`}
             />
-            {pad.connected ? 'متصل' : 'در انتظار اتصال'}
+            {pad.connected ? t('gamepad.page.connected') : t('gamepad.page.waiting')}
           </span>
 
+          {/* Fullscreen Button */}
           <button
             type="button"
             onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'خروج از تمام‌صفحه' : 'تمام‌صفحه'}
-            className="grid h-7 w-7 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label={
+              isFullscreen
+                ? t('gamepad.page.exitFullscreen')
+                : t('gamepad.page.enterFullscreen')
+            }
+            className="grid h-8 w-8 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
+            title={isFullscreen ? t('gamepad.page.exitFullscreen') : t('gamepad.page.enterFullscreen')}
           >
             {isFullscreen ? (
-              <Minimize2 className="h-3.5 w-3.5" />
+              <Minimize2 className="h-4 w-4" />
             ) : (
-              <Maximize2 className="h-3.5 w-3.5" />
+              <Maximize2 className="h-4 w-4" />
             )}
           </button>
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-3 pb-8 pt-1 sm:px-5 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* ---------------- left ---------------- */}
+      {/* ─────────────────────────────────────────────────────────────────
+          MAIN DASHBOARD GRID
+         ───────────────────────────────────────────────────────────────── */}
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-3 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] pt-2">
+        {/* ──────────────── LEFT COLUMN ──────────────── */}
         <div className="space-y-4">
-          {/* connection */}
-          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5">
+          {/* Connection & Hardware Status Card */}
+          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5 shadow-xl">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span
-                  className={`grid h-11 w-11 place-items-center rounded-2xl border ${
+                  className={`grid h-12 w-12 place-items-center rounded-2xl border ${
                     pad.connected
-                      ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300'
+                      ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300 shadow-[0_0_15px_rgba(52,211,153,0.3)]'
                       : 'border-white/10 bg-white/5 text-slate-500'
                   }`}
                 >
-                  <Gamepad2 className="h-5 w-5" />
+                  <Gamepad2 className="h-6 w-6" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-white">
-                    {pad.connected ? 'دسته متصل است' : 'دسته‌ی خود را وصل کنید'}
+                  <p className="text-sm sm:text-base font-black text-white">
+                    {pad.connected
+                      ? controller
+                        ? controller.name
+                        : t('gamepad.connection.titleConnected')
+                      : t('gamepad.connection.titleDisconnected')}
                   </p>
-                  <p className="truncate font-mono text-[10px] text-slate-500" dir="ltr">
-                    {pad.connected ? pad.id : 'یک دکمه از دسته را فشار دهید'}
+                  <p className="truncate font-mono text-[11px] text-slate-400 mt-0.5" dir="ltr">
+                    {pad.connected ? pad.id : t('gamepad.connection.hintPressButton')}
                   </p>
                 </div>
               </div>
 
+              {/* Hardware Quick Actions */}
               <div className="flex items-center gap-2">
                 {pad.connected && (
-                  <span className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-400">
-                    <connectionType.Icon className="h-3 w-3" />
+                  <span className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-slate-300 font-medium">
+                    <connectionType.Icon className="h-3.5 w-3.5 text-cyan-400" />
                     {connectionType.label}
                   </span>
                 )}
@@ -215,75 +237,72 @@ export default function GamepadPage() {
                   type="button"
                   onClick={handleRumble}
                   disabled={!pad.connected || rumbleState === 'sending'}
-                  className="flex items-center gap-1.5 rounded-xl bg-violet-600 px-3 py-2 text-[11px] font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-40"
+                  className="flex items-center gap-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(139,92,246,0.4)] active:scale-95 disabled:opacity-40 cursor-pointer"
                 >
-                  <Vibrate className={`h-3.5 w-3.5 ${rumbleState === 'sending' ? 'animate-spin' : ''}`} />
-                  تست لرزش
+                  <Vibrate className={`h-4 w-4 ${rumbleState === 'sending' ? 'animate-spin' : ''}`} />
+                  {rumbleState === 'sending'
+                    ? t('gamepad.connection.rumbleBusy')
+                    : t('gamepad.connection.rumbleTest')}
                 </button>
                 <button
                   type="button"
                   onClick={handleMeasureDrift}
                   disabled={!pad.connected || measuring}
-                  className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold text-slate-200 transition-colors hover:bg-white/10 disabled:opacity-40"
+                  className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-3.5 py-2 text-xs font-bold text-slate-200 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
                 >
-                  <Gauge className="h-3.5 w-3.5" />
-                  {measuring ? 'در حال سنجش…' : 'سنجش دریفت'}
+                  <Gauge className="h-4 w-4 text-cyan-400" />
+                  {measuring
+                    ? t('gamepad.connection.driftBusy')
+                    : t('gamepad.connection.driftMeasure')}
                 </button>
               </div>
             </div>
 
             {!pad.connected && (
-              <p className="mt-3 flex items-start gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3 text-[11px] leading-relaxed text-slate-400">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-400" />
-                دسته را با کابل USB یا بلوتوث به دستگاه وصل کنید، سپس یکی از دکمه‌ها را فشار دهید تا
-                مرورگر آن را شناسایی کند. برای دسته‌های DualSense در ویندوز، Chrome یا Edge را
-                ترجیح دهید.
+              <p className="mt-3 flex items-start gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3 text-xs leading-relaxed text-slate-400">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+                {t('gamepad.connection.help')}
               </p>
             )}
           </section>
 
-          {/* diagram */}
-          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-white">نقشه زنده دکمه‌ها</h2>
-              <span className="font-mono text-[10px] text-slate-500" dir="ltr">
-                {pad.buttons.length} buttons
-              </span>
-            </div>
-            <ControllerDiagram buttons={pad.buttons} axes={pad.axes} connected={pad.connected} />
-          </section>
+          {/* Controller Display: 3D DualSense Shell + 2D Vector Map + 18 Button Chips + Analog Axes */}
+          <ControllerViewer pad={pad} controller={controller} />
 
-          {/* triggers */}
+          {/* Trigger Pressure & Bumpers (L1, L2, R1, R2) */}
           <section className="grid grid-cols-2 gap-4">
             {[
-              { key: 'L2', idx: 6, bump: 4, color: 'bg-violet-500' },
-              { key: 'R2', idx: 7, bump: 5, color: 'bg-cyan-400' },
+              { key: 'L2', idx: 6, bump: 4, bumpName: 'L1', color: 'bg-violet-500' },
+              { key: 'R2', idx: 7, bump: 5, bumpName: 'R1', color: 'bg-cyan-400' },
             ].map((tr) => {
               const v = btn(tr.idx).value;
+              const isBumpPressed = btn(tr.bump).pressed;
               return (
-                <div key={tr.key} className="rounded-2xl border border-white/10 bg-[#0d121f] p-4">
-                  <div className="mb-2 flex items-center justify-between text-[11px]">
+                <div key={tr.key} className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 shadow-lg">
+                  <div className="mb-2 flex items-center justify-between text-xs">
                     <span className="font-bold text-white">{tr.key}</span>
-                    <span className="font-mono text-slate-400" dir="ltr">
+                    <span className="font-mono font-bold text-cyan-300" dir="ltr">
                       {Math.round(v * 100)}%
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
                     <div
-                      className={`h-full ${tr.color}`}
-                      style={{ width: `${v * 100}%`, transition: 'width 60ms linear' }}
+                      className={`h-full ${tr.color} transition-all duration-75`}
+                      style={{ width: `${v * 100}%` }}
                     />
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500">
-                    <span>{tr.key === 'L2' ? 'L1' : 'R1'}</span>
+                  <div className="mt-3 flex items-center justify-between text-xs">
+                    <span className="text-slate-400 font-bold">{tr.bumpName}</span>
                     <span
-                      className={`rounded px-1.5 py-0.5 font-mono ${
-                        btn(tr.bump).pressed
-                          ? 'bg-emerald-500 text-black'
-                          : 'bg-white/5 text-slate-500'
+                      className={`rounded-lg px-2 py-0.5 font-mono text-[11px] font-bold transition-all ${
+                        isBumpPressed
+                          ? 'bg-emerald-500 text-slate-950 shadow-[0_0_8px_#10b981]'
+                          : 'bg-white/5 text-slate-500 border border-white/5'
                       }`}
                     >
-                      {btn(tr.bump).pressed ? 'PRESS' : 'RELEASE'}
+                      {isBumpPressed
+                        ? t('gamepad.triggers.pressed')
+                        : t('gamepad.triggers.released')}
                     </span>
                   </div>
                 </div>
@@ -292,18 +311,18 @@ export default function GamepadPage() {
           </section>
         </div>
 
-        {/* ---------------- right ---------------- */}
+        {/* ──────────────── RIGHT COLUMN ──────────────── */}
         <div className="space-y-4">
-          {/* sticks */}
-          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5">
+          {/* Dual Stick 2D Visualizer & Drift Analysis */}
+          <section className="rounded-2xl border border-white/10 bg-[#0d121f] p-4 sm:p-5 shadow-xl">
             <div className="mb-3 flex items-center gap-2">
               <Activity className="h-4 w-4 text-cyan-400" />
-              <h2 className="text-sm font-bold text-white">آنالوگ‌ها و دریفت</h2>
+              <h2 className="text-sm font-bold text-white">{t('gamepad.sticks.title')}</h2>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <StickPad
-                label="شوکر چپ"
+                label={t('gamepad.sticks.left')}
                 x={lx}
                 y={ly}
                 pressed={btn(10).pressed}
@@ -312,7 +331,7 @@ export default function GamepadPage() {
                 color="violet"
               />
               <StickPad
-                label="شوکر راست"
+                label={t('gamepad.sticks.right')}
                 x={rx}
                 y={ry}
                 pressed={btn(11).pressed}
@@ -322,17 +341,19 @@ export default function GamepadPage() {
               />
             </div>
 
-            <p className="mt-3 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-[10px] leading-relaxed text-slate-400">
+            <p className="mt-3 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-[11px] leading-relaxed text-slate-400">
               {!drift
-                ? 'برای عدد دقیق دریفت، دکمه «سنجش دریفت» را بزنید و ۲.۵ ثانیه شوکرها را رها کنید.'
+                ? t('gamepad.sticks.hintIdle')
                 : Math.max(drift.leftMax, drift.rightMax) * 100 > 12
-                  ? 'دریفت بالای ۱۲٪ طبیعی نیست؛ احتمال فرسودگی پتانسیومتر یا گردوغبار داخلی وجود دارد.'
-                  : 'مقدار دریفت در محدوده سالم است.'}
+                  ? t('gamepad.sticks.hintHigh')
+                  : t('gamepad.sticks.hintHealthy')}
             </p>
           </section>
 
+          {/* Built-in Microphone & Speaker Audio Tester */}
           <MicTestPanel onLog={pushLog} />
 
+          {/* System Hardware Event Log */}
           <SystemLog
             logs={logs}
             startedAt={startedAt.current}

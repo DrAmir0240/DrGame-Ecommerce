@@ -43,7 +43,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           {/* Bottom Card Content */}
           <div className="absolute bottom-0 inset-x-0 p-4 space-y-2 text-start">
             <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cosmic-purple transition-colors line-clamp-2 leading-snug">
-              {locale === 'en' && post.title_en ? (
+              {locale !== 'fa' && post.title_en ? (
                 post.title_en
               ) : (
                 <DynamicText text={post.title_fa} />

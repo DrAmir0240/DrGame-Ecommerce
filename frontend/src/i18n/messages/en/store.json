@@ -13,7 +13,12 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "Filters",
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -185,6 +190,29 @@
       "log2": "[*] Auto-detecting console and checking webkit vulnerability…",
       "log3": "[+] Kernel vulnerability found. Injecting GoldHEN into memory…",
       "log4": "[+] Payload executed successfully. Debug Settings enabled on the console."
+    }
+  },
+  "faqPage": {
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
+    "defaultFaqs": {
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

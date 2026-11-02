@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Tv, LogOut, Clock, Activity } from 'lucide-react';
+import { Tv, LogOut, Clock, ZoomIn } from 'lucide-react';
 import { useTvModeStore } from '@/stores/useTvModeStore';
 import { useTranslation } from '@/i18n';
 
 export default function TvBottomBar() {
   const router = useRouter();
-  const { isTvMode, closeTvMode } = useTvModeStore();
+  const { isTvMode, closeTvMode, zoomLevel, showZoomHud } = useTvModeStore();
   const { t, locale, dir } = useTranslation();
   const [currentTime, setCurrentTime] = useState<string>('21:40');
 
@@ -37,113 +37,158 @@ export default function TvBottomBar() {
 
   if (!isTvMode) return null;
 
+  const zoomPercent = Math.round(zoomLevel * 100);
+
   return (
-    <footer
-      className="fixed bottom-0 inset-x-0 z-[999] bg-[#060812]/95 border-t border-purple-500/40 backdrop-blur-2xl px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4 shadow-[0_-12px_45px_rgba(0,0,0,0.9)] flex items-center justify-between text-sm font-vazir select-none animate-in slide-in-from-bottom duration-300"
-      dir={dir}
-      role="region"
-      aria-label={t('chrome.tvBarRegion')}
-    >
+    <>
       {/* ─────────────────────────────────────────────────────────────────────────
-          1. BRAND & LIVE SERVER METRICS (Large TV Badge)
+          ON-SCREEN ZOOM HUD (Heads-Up Display when L3 + R-Stick is used)
          ───────────────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 p-0.5 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.55)]">
-            <Tv className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-          </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="font-black text-white text-sm sm:text-base leading-tight tracking-tight">
-              DrGame <span className="text-purple-400 font-black">Nebula TV</span>
+      {showZoomHud && (
+        <div className="fixed top-8 inset-x-0 z-[1000] flex justify-center pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-black/85 border border-purple-500/50 backdrop-blur-xl shadow-[0_0_35px_rgba(168,85,247,0.7)] text-white text-sm font-bold font-vazir">
+            <ZoomIn className="w-4 h-4 text-cyan-400 animate-pulse" />
+            <span>
+              {locale === 'fa' ? `بزرگ‌نمایی: ${zoomPercent}٪` : `Zoom: ${zoomPercent}%`}
             </span>
-            <span className="text-xs text-purple-300 font-mono mt-0.5">10-Foot Console UI</span>
+            <div className="w-20 h-1.5 rounded-full bg-white/20 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full transition-all duration-100"
+                style={{ width: `${Math.min(100, Math.max(0, ((zoomLevel - 0.65) / (1.30 - 0.65)) * 100))}%` }}
+              />
+            </div>
           </div>
         </div>
-
-        {/* Live Clock & Server Ping */}
-        <div className="hidden md:flex items-center gap-3 border-r border-l border-white/15 px-4 py-1 text-xs sm:text-sm text-slate-200">
-          <div className="flex items-center gap-1.5 font-mono font-bold">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <span>{currentTime}</span>
-          </div>
-          <span className="text-slate-600 font-bold">|</span>
-          <div className="flex items-center gap-2 font-mono text-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]" />
-            <span className="text-slate-200 font-sans font-bold">{t('tv.serverStatus')}</span>
-            <span className="text-emerald-300 font-bold">11ms</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────────────────
-          2. GAMEPAD / CONTROLLER GUIDE (Large High-Visibility Badges)
+          FIXED BOTTOM CONTROLLER BAR (Never Focusable by Gamepad Navigation)
          ───────────────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3.5 sm:gap-7 flex-wrap justify-center font-bold text-xs sm:text-sm">
-        {/* D-Pad: Navigate */}
-        <div className="flex items-center gap-2 text-slate-200">
-          <span className="px-2 sm:px-2.5 py-1 rounded-xl bg-white/15 border border-white/30 text-white font-black text-xs sm:text-sm font-mono shadow-sm">
-            ← ↑ ↓ →
-          </span>
-          <span className="text-white text-xs sm:text-sm">{t('tv.move')}</span>
+      <footer
+        data-tv-bar="true"
+        data-no-gamepad="true"
+        className="fixed bottom-0 inset-x-0 z-[999] bg-[#060812]/95 border-t border-purple-500/40 backdrop-blur-2xl px-4 sm:px-8 lg:px-12 py-3 shadow-[0_-12px_45px_rgba(0,0,0,0.9)] flex items-center justify-between text-xs sm:text-sm font-vazir select-none animate-in slide-in-from-bottom duration-300 pointer-events-auto"
+        dir={dir}
+        role="region"
+        aria-label={t('chrome.tvBarRegion')}
+      >
+        {/* Brand & Metrics */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 p-0.5 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.55)]">
+              <Tv className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <span className="font-black text-white text-xs sm:text-sm leading-tight tracking-tight">
+                DrGame <span className="text-purple-400 font-black">Nebula TV</span>
+              </span>
+              <span className="text-[10px] text-purple-300 font-mono mt-0.5">10-Foot Console UI</span>
+            </div>
+          </div>
+
+          {/* Live Clock & Server Ping */}
+          <div className="hidden md:flex items-center gap-3 border-r border-l border-white/15 px-3 py-1 text-xs text-slate-200">
+            <div className="flex items-center gap-1.5 font-mono font-bold">
+              <Clock className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{currentTime}</span>
+            </div>
+            <span className="text-slate-600 font-bold">|</span>
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]" />
+              <span className="text-slate-200 font-sans font-bold">{t('tv.serverStatus')}</span>
+              <span className="text-emerald-300 font-bold">11ms</span>
+            </div>
+          </div>
         </div>
 
-        {/* Cross (Select) */}
-        <div className="flex items-center gap-2 text-slate-200">
-          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/25 border border-blue-400/80 text-blue-400 font-black text-xs sm:text-sm flex items-center justify-center font-roboto shadow-[0_0_12px_rgba(59,130,246,0.6)]">
-            ✕
-          </span>
-          <span className="text-white font-black text-xs sm:text-sm">{t('tv.select')}</span>
+        {/* Gamepad / Controller Guide Legend */}
+        <div className="flex items-center gap-2.5 sm:gap-5 flex-wrap justify-center font-bold text-[11px] sm:text-xs">
+          {/* D-Pad: Move */}
+          <div className="flex items-center gap-1.5 text-slate-200">
+            <span className="px-1.5 py-0.5 rounded-lg bg-white/15 border border-white/30 text-white font-black text-[10px] font-mono shadow-sm">
+              ← ↑ ↓ →
+            </span>
+            <span className="text-white">{t('tv.move')}</span>
+          </div>
+
+          {/* Right Stick: Scroll */}
+          <div className="flex items-center gap-1.5 text-slate-200">
+            <span className="px-1.5 py-0.5 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-black text-[10px] font-mono">
+              R-Stick
+            </span>
+            <span className="text-white">{locale === 'fa' ? 'اسکرول' : 'Scroll'}</span>
+          </div>
+
+          {/* L3 + Right Stick: Zoom */}
+          <div className="flex items-center gap-1.5 text-slate-200">
+            <span className="px-1.5 py-0.5 rounded-lg bg-purple-500/20 border border-purple-400/50 text-purple-300 font-black text-[10px] font-mono">
+              L3 + R-Stick
+            </span>
+            <span className="text-white">{locale === 'fa' ? 'زوم' : 'Zoom'}</span>
+          </div>
+
+          {/* Cross (Select) */}
+          <div className="flex items-center gap-1.5 text-slate-200">
+            <span className="w-6 h-6 rounded-full bg-blue-500/25 border border-blue-400/80 text-blue-400 font-black text-xs flex items-center justify-center font-roboto shadow-[0_0_10px_rgba(59,130,246,0.6)]">
+              ✕
+            </span>
+            <span className="text-white font-black">{t('tv.select')}</span>
+          </div>
+
+          {/* Circle (Back) */}
+          <div className="flex items-center gap-1.5 text-slate-200">
+            <span className="w-6 h-6 rounded-full bg-rose-500/25 border border-rose-400/80 text-rose-400 font-black text-xs flex items-center justify-center font-roboto shadow-[0_0_10px_rgba(244,63,94,0.6)]">
+              ○
+            </span>
+            <span className="text-white">{t('tv.back')}</span>
+          </div>
+
+          {/* Triangle (Games Catalog) */}
+          <button
+            type="button"
+            tabIndex={-1}
+            data-no-gamepad="true"
+            onClick={() => router.push('/games')}
+            className="hidden sm:flex items-center gap-1.5 text-slate-200 hover:text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+            title={t('chrome.tvBarGames')}
+          >
+            <span className="w-6 h-6 rounded-full bg-emerald-500/25 border border-emerald-400/80 text-emerald-400 font-black text-xs flex items-center justify-center font-roboto shadow-[0_0_10px_rgba(52,211,153,0.6)]">
+              △
+            </span>
+            <span className="text-white">{t('nav.games')}</span>
+          </button>
+
+          {/* Square (Subscriptions) */}
+          <button
+            type="button"
+            tabIndex={-1}
+            data-no-gamepad="true"
+            onClick={() => router.push('/subscriptions')}
+            className="hidden md:flex items-center gap-1.5 text-slate-200 hover:text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+            title={t('chrome.tvBarPlans')}
+          >
+            <span className="w-6 h-6 rounded-xl bg-pink-500/25 border border-pink-400/80 text-pink-400 font-black text-xs flex items-center justify-center font-roboto shadow-[0_0_10px_rgba(236,72,153,0.6)]">
+              □
+            </span>
+            <span className="text-white">{t('subscription.buyNow')}</span>
+          </button>
         </div>
 
-        {/* Circle (Back) */}
-        <div className="flex items-center gap-2 text-slate-200">
-          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500/25 border border-rose-400/80 text-rose-400 font-black text-xs sm:text-sm flex items-center justify-center font-roboto shadow-[0_0_12px_rgba(244,63,94,0.6)]">
-            ○
-          </span>
-          <span className="text-white text-xs sm:text-sm">{t('tv.back')}</span>
+        {/* Exit TV Mode Button */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            tabIndex={-1}
+            data-no-gamepad="true"
+            onClick={closeTvMode}
+            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/10 hover:bg-rose-500/30 border border-white/20 hover:border-rose-500/60 text-slate-100 hover:text-rose-100 text-xs font-bold transition-all shadow-lg active:scale-95 cursor-pointer"
+            title={`${t('tv.exitTv')} (Esc)`}
+          >
+            <LogOut className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180 text-rose-400 shrink-0" />
+            <span className="hidden xs:inline">{t('tv.exitTv')}</span>
+          </button>
         </div>
-
-        {/* Triangle (Games Catalog) */}
-        <button
-          type="button"
-          onClick={() => router.push('/games')}
-          className="hidden sm:flex items-center gap-2 text-slate-200 hover:text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-          title={t('chrome.tvBarGames')}
-        >
-          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/25 border border-emerald-400/80 text-emerald-400 font-black text-xs sm:text-sm flex items-center justify-center font-roboto shadow-[0_0_12px_rgba(52,211,153,0.6)]">
-            △
-          </span>
-          <span className="text-white text-xs sm:text-sm">{t('nav.games')}</span>
-        </button>
-
-        {/* Square (Subscriptions) */}
-        <button
-          type="button"
-          onClick={() => router.push('/subscriptions')}
-          className="hidden md:flex items-center gap-2 text-slate-200 hover:text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-          title={t('chrome.tvBarPlans')}
-        >
-          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-pink-500/25 border border-pink-400/80 text-pink-400 font-black text-xs sm:text-sm flex items-center justify-center font-roboto shadow-[0_0_12px_rgba(236,72,153,0.6)]">
-            □
-          </span>
-          <span className="text-white text-xs sm:text-sm">{t('subscription.buyNow')}</span>
-        </button>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────────────────────
-          3. EXIT TV MODE BUTTON (Large & Accessible)
-         ───────────────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={closeTvMode}
-          className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-white/10 hover:bg-rose-500/30 border border-white/20 hover:border-rose-500/60 text-slate-100 hover:text-rose-100 text-xs sm:text-sm font-bold transition-all shadow-lg active:scale-95 cursor-pointer"
-          title={`${t('tv.exitTv')} (Esc)`}
-        >
-          <LogOut className="w-4 h-4 sm:w-4.5 sm:h-4.5 rtl:rotate-0 ltr:rotate-180 text-rose-400 shrink-0" />
-          <span className="hidden xs:inline">{t('tv.exitTv')}</span>
-        </button>
-      </div>
-    </footer>
+      </footer>
+    </>
   );
 }

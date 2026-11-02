@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://62.60.191.67:8000/api",
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://store.gamedr.ir/api",
   },
   images: {
     domains: ["media.rawg.io", "images.unsplash.com", "via.placeholder.com"],
@@ -29,6 +29,19 @@ const nextConfig = {
         source: '/admin/login',
         destination: '/admin/hub',
         permanent: false,
+      },
+    ];
+  },
+
+  // The DualSense glb is ~12 MB — cache it hard so the tester loads instantly
+  // on repeat visits.
+  async headers() {
+    return [
+      {
+        source: '/models/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
       },
     ];
   },

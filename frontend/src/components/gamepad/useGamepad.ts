@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /** Radius (0..1) of each stick measured while the user is not touching them. */
 export interface DriftSample {
@@ -32,8 +32,92 @@ const IDLE: PadSnapshot = {
   axes: [],
 };
 
-/** Polling rate. The Gamepad API is poll-only, so we sample at ~30fps. */
-const FRAME_MS = 1000 / 30;
+/* ------------------------------------------------------------------ */
+/* Controller identification                                          */
+/* ------------------------------------------------------------------ */
+
+export type ControllerKey = 'dualsense' | 'dualsense-edge' | 'dualshock4' | 'xbox-series';
+
+export interface ControllerInfo {
+  key: ControllerKey;
+  name: string;
+  vendor: number;
+  products: number[];
+  /** Whether a 3D model ships for this controller (only DualSense does). */
+  has3d: boolean;
+}
+
+export const CONTROLLERS: readonly ControllerInfo[] = [
+  { key: 'dualsense', name: 'DualSense', vendor: 0x054c, products: [0x0ce6], has3d: true },
+  { key: 'dualsense-edge', name: 'DualSense Edge', vendor: 0x054c, products: [0x0df2], has3d: false },
+  { key: 'dualshock4', name: 'DualShock 4', vendor: 0x054c, products: [0x05c4, 0x09cc], has3d: false },
+  { key: 'xbox-series', name: 'Xbox Wireless', vendor: 0x045e, products: [0x0b12, 0x0b13], has3d: false },
+];
+
+/**
+ * Chrome embeds the USB ids in `gamepad.id`:
+ *   "DualSense Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 0ce6)"
+ * Exact product match wins, then string-based matching for Bluetooth/Firefox/Safari.
+ */
+export function identifyController(id: string | null | undefined): ControllerInfo | null {
+  if (!id) return null;
+  const lower = id.toLowerCase();
+
+  // 1. Check exact vendor and product ids if present (Chrome / Edge format)
+  const vendorMatch = /vendor:\s*([0-9a-f]{4})/i.exec(id);
+  const productMatch = /product:\s*([0-9a-f]{4})/i.exec(id);
+  const vendor = vendorMatch ? parseInt(vendorMatch[1], 16) : null;
+  const product = productMatch ? parseInt(productMatch[1], 16) : null;
+
+  if (vendor !== null) {
+    const matched =
+      CONTROLLERS.find((c) => c.vendor === vendor && product !== null && c.products.includes(product)) ??
+      CONTROLLERS.find((c) => c.vendor === vendor);
+    if (matched) return matched;
+  }
+
+  // 2. Name / String based detection (Bluetooth, Firefox, Safari, Linux/Mac, or generic headers)
+  if (lower.includes('dualsense edge') || lower.includes('0df2')) {
+    return CONTROLLERS[1]; // dualsense-edge
+  }
+  if (lower.includes('dualsense') || lower.includes('ps5') || lower.includes('0ce6')) {
+    return CONTROLLERS[0]; // dualsense
+  }
+  if (lower.includes('dualshock') || lower.includes('ps4') || lower.includes('05c4') || lower.includes('09cc')) {
+    return CONTROLLERS[2]; // dualshock4
+  }
+  if (lower.includes('xbox') || lower.includes('x-box') || lower.includes('045e') || lower.includes('xinput')) {
+    return CONTROLLERS[3]; // xbox-series
+  }
+  if (lower.includes('sony') || lower.includes('054c') || lower.includes('wireless controller')) {
+    return CONTROLLERS[0]; // default to dualsense for Sony controllers
+  }
+
+  return null;
+}
+
+/** Labels for the W3C "standard" button indices (PlayStation glyphs). */
+export const BUTTON_LABELS: readonly string[] = [
+  '✕', '◯', '□', '△', // 0..3
+  'L1', 'R1', 'L2', 'R2', // 4..7
+  'Create', 'Options', // 8..9
+  'L3', 'R3', // 10..11
+  '↑', '↓', '←', '→', // 12..15
+  'PS', 'Touchpad', // 16..17
+];
+
+/** Labels for Xbox controllers. */
+export const BUTTON_LABELS_XBOX: readonly string[] = [
+  'A', 'B', 'X', 'Y', // 0..3
+  'LB', 'RB', 'LT', 'RT', // 4..7
+  'View', 'Menu', // 8..9
+  'L3', 'R3', // 10..11
+  '↑', '↓', '←', '→', // 12..15
+  'Xbox', 'Share', // 16..17
+];
+
+/** Polling rate. We sample at ~60fps for crisp, zero-lag responsive inputs. */
+const FRAME_MS = 1000 / 60;
 /** Below this delta we consider the pad "unchanged" and skip the re-render. */
 const EPSILON = 0.004;
 
@@ -77,6 +161,8 @@ function isSame(a: PadSnapshot, b: PadSnapshot): boolean {
 export function useGamepad() {
   const [pad, setPad] = useState<PadSnapshot>(IDLE);
   const rafRef = useRef<number | null>(null);
+
+  const controller = useMemo(() => identifyController(pad.id), [pad.id]);
 
   useEffect(() => {
     let last = 0;
@@ -168,5 +254,5 @@ export function useGamepad() {
     });
   }, []);
 
-  return { pad, rumble, measureDrift };
+  return { pad, controller, rumble, measureDrift };
 }

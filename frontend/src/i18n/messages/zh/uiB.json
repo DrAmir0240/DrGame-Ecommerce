@@ -1,0 +1,190 @@
+{
+  "plans": {
+    "currentPlan": "您的积极计划",
+    "period": {
+      "days30": "/ 30 天",
+      "days90": "/ 90 天（3 个月）",
+      "days180": "/ 180 天（6 个月）"
+    },
+    "quota": {
+      "download": "{{size}} 的游戏下载量"
+    },
+    "warning": "一旦您的配额用完，您将无法打开新游戏。您已经打开的游戏将一直可用，直到您的计划到期。",
+    "free": {
+      "badge": "免费",
+      "description": "该计划让您可以使用免费下载配额访问选定的游戏。",
+      "priceTitle": "免费",
+      "priceNote": "一次，永远",
+      "gamesTitle": "此计划中的免费游戏：",
+      "gamesLoading": "正在加载奖励游戏...",
+      "gamesEmpty": "目前没有定义免费游戏。",
+      "cta": "免费下载"
+    },
+    "bronze": {
+      "name": "铜牌",
+      "tagline": "通过专用速度和高速游戏数据，以经济实惠的方式开始。",
+      "cta": "选择铜牌",
+      "features": {
+        "speed": "最大下载速度：20 Mbps",
+        "consoles": "PS4 和 PS5 游戏",
+        "noRetro": "PS1、PS2、PS3、任天堂和 Xbox 游戏",
+        "noSubtitles": "此计划不提供字幕",
+        "noDlc": "此计划不支持 DLC 购买"
+      }
+    },
+    "silver": {
+      "name": "银牌",
+      "tagline": "具有更多平台和海量数据的平衡计划。",
+      "cta": "选择银牌",
+      "features": {
+        "speed": "最大下载速度：20 Mbps",
+        "consoles": "PS2、PS3、PS4 和 PS5 游戏",
+        "extras": "字幕和 DLC 可供购买",
+        "themes": "主题不包含在白银计划中",
+        "excluded": "PS1、Xbox 和任天堂游戏不包括在内"
+      }
+    },
+    "gold": {
+      "name": "黄金",
+      "tagline": "广泛的平台访问、更高的速度和专用的游戏数据。",
+      "cta": "选择黄金",
+      "features": {
+        "speed": "最大下载速度：40 Mbps",
+        "consoles": "Xbox 360、PS1、PS2、PS3、任天堂、PS4 和 PS5 游戏",
+        "categories": "访问每个游戏类别",
+        "extras": "字幕和 DLC 可供购买",
+        "themes": "黄金计划包含的主题"
+      }
+    }
+  },
+  "invoice": {
+    "print": "打印发票",
+    "brandTitle": "游戏博士",
+    "brandTagline": "完整的主机服务、数据下载和原创游戏",
+    "official": "正式电子发票",
+    "number": "发票号码：INV-{{code}}",
+    "buyer": "买家：",
+    "buyerFallback": "亲爱的DrGame客户",
+    "trackingCode": "银行/Shaparak 跟踪代码：",
+    "gateway": "支付网关：{{gateway}}",
+    "table": {
+      "service": "服务/订阅",
+      "quantity": "数量",
+      "total": "总额"
+    },
+    "planFallback": "高级主机游戏订阅",
+    "itemDescription": "高速访问我们的专用数据存储库",
+    "subtotal": "小计：",
+    "discount": "折扣：",
+    "tax": "增值税：",
+    "totalPaid": "支付总额：",
+    "verified": "交易成功 - 经官方电子验证"
+  },
+  "referralUI": {
+    "settlement": {
+      "title": "付款账户",
+      "subtitle": "要接收营销佣金，请添加经过验证的银行帐户以及您的身份证件和手机号码，或 Tether 钱包。",
+      "existingAccounts": "您保存的帐户：",
+      "bankFallback": "银行账户",
+      "cryptoAccount": "USDT 钱包 ({{network}})",
+      "verified": "已验证",
+      "pending": "待审核",
+      "tabBank": "银行账户和国民身份证",
+      "tabCrypto": "泰达币钱包（USDT）",
+      "shebaLabel": "IBAN（24 位数字，无 IR）：",
+      "holderLabel": "账户持有人全名：",
+      "holderPlaceholder": "例如约翰·史密斯",
+      "nationalIdLabel": "持有人国民身份证（10 位数字）：",
+      "mobileLabel": "注册手机号码：",
+      "bankNameLabel": "银行名称：",
+      "bankNamePlaceholder": "例如萨曼·梅拉特",
+      "cardLabel": "卡号（可选）：",
+      "cardPlaceholder": "6037...",
+      "otpSending": "正在发送验证短信...",
+      "requestOtp": "发送确认短信",
+      "otpTitle": "根据国民 ID {{nationalId}} 短信验证 IBAN",
+      "otpHint": "输入发送至 {{phone}} 的 6 位数代码。 （测试码：123456）",
+      "otpLabel": "6位验证码：",
+      "editInfo": "编辑详细信息",
+      "verifying": "正在验证...",
+      "confirmSave": "确认并保存帐户",
+      "walletLabel": "Tether（USDT）钱包地址：",
+      "walletPlaceholder": "T...或0x...",
+      "networkLabel": "传输网络：",
+      "networks": {
+        "trc20": "Tron (TRC20) - 低费用，高速度",
+        "bep20": "BNB智能链（BEP20）",
+        "polygon": "多边形网络",
+        "erc20": "以太坊（ERC20）"
+      },
+      "submitting": "正在保存...",
+      "submitCrypto": "保存 Tether 钱包",
+      "errShebaHolder": "需要 IBAN 和账户持有人姓名。",
+      "errNationalId": "国民身份证必须正好是 10 位数字。",
+      "errMobile": "输入账户持有人注册的有效 11 位手机号码。",
+      "otpSent": "通过短信发送测试验证码（默认代码：123456）",
+      "errOtp": "验证码不正确。 （测试码：123456）",
+      "bankSaved": "银行账户已验证并成功保存。",
+      "errBankSave": "支付账户保存失败",
+      "errWalletRequired": "需要 Tether (USDT) 钱包地址。",
+      "walletSaved": "加密钱包保存成功。",
+      "errWalletSave": "钱包保存失败"
+    },
+    "withdrawal": {
+      "title": "提款请求",
+      "subtitle": "通过 Paya/Satna 向国内银行账户付款，并通过 Tether 向加密钱包付款。",
+      "successTitle": "提款请求已提交",
+      "successBody": "经我们财务团队审核后，该金额将转入您的账户。",
+      "currentBalance": "当前余额：",
+      "destination": "付款至账户：",
+      "noAccounts": "您首先需要在付款账户下添加银行账户或加密钱包。",
+      "bankFallback": "银行",
+      "amountLabel": "请求金额（托曼）：",
+      "amountPlaceholder": "Minimum {{amount}}",
+      "remainingAfter": "提现后余额：",
+      "submitting": "正在提交请求...",
+      "submit": "确认提现",
+      "errNoAccount": "请选择一个付款帐户。",
+      "errMinAmount": "最低提款金额为{{amount}}。",
+      "errExceeds": "请求的金额超过您的可提款余额。",
+      "errSubmit": "提现请求提交失败"
+    },
+    "transactions": {
+      "title": "交易和佣金历史",
+      "totalRecords_one": "总计：{{count}} 条记录",
+      "totalRecords_other": "总计：{{count}} 条记录",
+      "emptyTitle": "您的账户尚未记录任何交易或佣金。",
+      "emptyBody": "一旦您网络中的某人购买了订阅，佣金就会立即显示在此表中。",
+      "colId": "身份证号",
+      "colTier": "推荐级别",
+      "colAmount": "收到金额",
+      "colDescription": "描述",
+      "colDate": "日期",
+      "tierBadge": "级别 {{level}}",
+      "page": "第 {{page}} 页，共 {{total}} 页",
+      "prev": "上一页",
+      "next": "下一步"
+    }
+  },
+  "referralStats": {
+    "badge": "独家营销链接",
+    "title": "您的推荐码和邀请链接",
+    "description": "邀请朋友并在他们和您的下线进行的每次购买中赚取现金佣金，最多 10 级深度（1 级为池的 50%）。",
+    "codeLabel": "推荐码：",
+    "copied": "复制了！",
+    "copy": "复制邀请链接",
+    "withdrawable": "可提取余额",
+    "totalEarned": "总收入",
+    "withdrawCta": "请求付款",
+    "earnedFromNetwork": "从您的推荐网络分享",
+    "directReferrals": "直接会员（1级）",
+    "usersUnit": "用户",
+    "joinedWithCode": "使用您的邀请码注册",
+    "activeSubs": "活跃的下线订阅",
+    "activeUnit": "活跃潜艇",
+    "recurringCommission": "产生经常性佣金"
+  },
+  "referralBanner": {
+    "ariaLabel": "DrGame 收入和推荐摘要"
+  }
+}

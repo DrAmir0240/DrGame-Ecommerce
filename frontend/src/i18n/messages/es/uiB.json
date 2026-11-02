@@ -1,0 +1,190 @@
+{
+  "plans": {
+    "currentPlan": "Tu plan activo",
+    "period": {
+      "days30": "/ 30 días",
+      "days90": "/ 90 días (3 meses)",
+      "days180": "/ 180 días (6 meses)"
+    },
+    "quota": {
+      "download": "{{size}} de descargas de juegos"
+    },
+    "warning": "Una vez que se agote tu cuota no podrás abrir nuevos juegos. Los juegos que ya has abierto permanecen disponibles hasta que caduque tu plan.",
+    "free": {
+      "badge": "Gratis",
+      "description": "Este plan te brinda acceso a juegos seleccionados con cuota de descarga gratuita.",
+      "priceTitle": "Gratis",
+      "priceNote": "Una vez, para siempre",
+      "gamesTitle": "Juegos gratis en este plan:",
+      "gamesLoading": "Cargando juegos de bonificación...",
+      "gamesEmpty": "No hay juegos gratuitos definidos en este momento.",
+      "cta": "Descargar gratis"
+    },
+    "bronze": {
+      "name": "Bronce",
+      "tagline": "Un comienzo económico con velocidad dedicada y datos de juego de alta velocidad.",
+      "cta": "Elige Bronce",
+      "features": {
+        "speed": "Velocidad máxima de descarga: 20 Mbps",
+        "consoles": "Juegos de PS4 y PS5",
+        "noRetro": "Juegos de PS1, PS2, PS3, Nintendo y Xbox",
+        "noSubtitles": "Los subtítulos no están disponibles en este plan.",
+        "noDlc": "Las compras de DLC no están disponibles en este plan"
+      }
+    },
+    "silver": {
+      "name": "Plata",
+      "tagline": "Un plan equilibrado con más plataformas y gran volumen de datos.",
+      "cta": "Elige Plata",
+      "features": {
+        "speed": "Velocidad máxima de descarga: 20 Mbps",
+        "consoles": "Juegos de PS2, PS3, PS4 y PS5",
+        "extras": "Subtítulos y DLC disponibles para su compra.",
+        "themes": "Los temas no están incluidos en el plan Silver.",
+        "excluded": "Los juegos de PS1, Xbox y Nintendo no están incluidos."
+      }
+    },
+    "gold": {
+      "name": "oro",
+      "tagline": "Amplio acceso a la plataforma, mayor velocidad y datos de juego dedicados.",
+      "cta": "Elige oro",
+      "features": {
+        "speed": "Velocidad máxima de descarga: 40 Mbps",
+        "consoles": "Juegos de Xbox 360, PS1, PS2, PS3, Nintendo, PS4 y PS5",
+        "categories": "Acceso a todas las categorías de juegos.",
+        "extras": "Subtítulos y DLC disponibles para su compra.",
+        "themes": "Temas incluidos con el plan Gold"
+      }
+    }
+  },
+  "invoice": {
+    "print": "imprimir factura",
+    "brandTitle": "DrGame",
+    "brandTagline": "Servicios completos de consola, descargas de datos y juegos originales.",
+    "official": "Factura electrónica oficial",
+    "number": "Invoice No: INV-{{code}}",
+    "buyer": "Comprador:",
+    "buyerFallback": "Estimado cliente de DrGame",
+    "trackingCode": "Código de seguimiento del banco/Shaparak:",
+    "gateway": "Pasarela de pago: {{gateway}}",
+    "table": {
+      "service": "Servicio / suscripción",
+      "quantity": "Cantidad",
+      "total": "Monto total"
+    },
+    "planFallback": "Suscripción de juegos de consola premium",
+    "itemDescription": "Acceso de alta velocidad a nuestro repositorio de datos dedicado",
+    "subtotal": "Subtotal:",
+    "discount": "Descuento:",
+    "tax": "IVA:",
+    "totalPaid": "Total pagado:",
+    "verified": "Transacción exitosa: oficialmente verificada electrónicamente"
+  },
+  "referralUI": {
+    "settlement": {
+      "title": "cuentas de pago",
+      "subtitle": "Para recibir sus comisiones de marketing, agregue una cuenta bancaria verificada junto con su identificación nacional y número de teléfono móvil, o una billetera Tether.",
+      "existingAccounts": "Tus cuentas guardadas:",
+      "bankFallback": "cuenta bancaria",
+      "cryptoAccount": "Billetera USDT ({{network}})",
+      "verified": "Verificado",
+      "pending": "Pendiente de revisión",
+      "tabBank": "Cuenta bancaria y DNI",
+      "tabCrypto": "Monedero Tether (USDT)",
+      "shebaLabel": "IBAN (24 dígitos, sin IR):",
+      "holderLabel": "Nombre completo del titular de la cuenta:",
+      "holderPlaceholder": "por ej. Juan Smith",
+      "nationalIdLabel": "DNI del titular (10 dígitos):",
+      "mobileLabel": "Número de móvil registrado:",
+      "bankNameLabel": "Nombre del banco:",
+      "bankNamePlaceholder": "por ej. Mellat, Samán",
+      "cardLabel": "Número de tarjeta (opcional):",
+      "cardPlaceholder": "6037...",
+      "otpSending": "Enviando SMS de verificación...",
+      "requestOtp": "Enviar SMS de confirmación",
+      "otpTitle": "Verificación por SMS del IBAN con el DNI {{nationalId}}",
+      "otpHint": "Ingrese el código de 6 dígitos enviado a {{phone}}. (Código de prueba: 123456)",
+      "otpLabel": "Código de verificación de 6 dígitos:",
+      "editInfo": "Editar detalles",
+      "verifying": "Verificando...",
+      "confirmSave": "Confirmar y guardar cuenta",
+      "walletLabel": "Dirección de la billetera Tether (USDT):",
+      "walletPlaceholder": "T... o 0x...",
+      "networkLabel": "Red de transferencia:",
+      "networks": {
+        "trc20": "Tron (TRC20): tarifas bajas, alta velocidad",
+        "bep20": "Cadena inteligente BNB (BEP20)",
+        "polygon": "Red de polígonos",
+        "erc20": "Etereum (ERC20)"
+      },
+      "submitting": "Guardando...",
+      "submitCrypto": "Guardar billetera Tether",
+      "errShebaHolder": "Se requieren IBAN y nombre del titular de la cuenta.",
+      "errNationalId": "El DNI debe tener exactamente 10 dígitos.",
+      "errMobile": "Ingrese un número de teléfono móvil válido de 11 dígitos registrado para el titular de la cuenta.",
+      "otpSent": "Se envió un código de verificación de prueba por SMS (código predeterminado: 123456)",
+      "errOtp": "El código de verificación es incorrecto. (Código de prueba: 123456)",
+      "bankSaved": "Cuenta bancaria verificada y guardada exitosamente.",
+      "errBankSave": "No se pudo guardar la cuenta de pago",
+      "errWalletRequired": "Se requiere la dirección de la billetera Tether (USDT).",
+      "walletSaved": "La billetera criptográfica se guardó exitosamente.",
+      "errWalletSave": "No se pudo guardar la billetera"
+    },
+    "withdrawal": {
+      "title": "Solicitud de retiro",
+      "subtitle": "Los pagos a cuentas bancarias nacionales se realizan a través de Paya/Satna y a carteras criptográficas en Tether.",
+      "successTitle": "Solicitud de retiro enviada",
+      "successBody": "El monto se transferirá a su cuenta después de que nuestro equipo financiero lo revise.",
+      "currentBalance": "Saldo actual:",
+      "destination": "Pagar a cuenta:",
+      "noAccounts": "Primero debe agregar una cuenta bancaria o una billetera criptográfica en Cuentas de pago.",
+      "bankFallback": "banco",
+      "amountLabel": "Monto solicitado (Toman):",
+      "amountPlaceholder": "Minimum {{amount}}",
+      "remainingAfter": "Saldo después del retiro:",
+      "submitting": "Enviando solicitud...",
+      "submit": "Confirmar retiro",
+      "errNoAccount": "Seleccione una cuenta de pago.",
+      "errMinAmount": "El monto mínimo de retiro es {{amount}}.",
+      "errExceeds": "El monto solicitado excede su saldo retirable.",
+      "errSubmit": "No se pudo enviar la solicitud de retiro"
+    },
+    "transactions": {
+      "title": "Historial de transacciones y comisiones",
+      "totalRecords_one": "Total: {{count}} registro",
+      "totalRecords_other": "Total: {{count}} registros",
+      "emptyTitle": "Aún no se han registrado transacciones ni comisiones en su cuenta.",
+      "emptyBody": "Tan pronto como alguien en su red compra una suscripción, la comisión aparece instantáneamente en esta tabla.",
+      "colId": "identificación",
+      "colTier": "Nivel de referencia",
+      "colAmount": "Cantidad recibida",
+      "colDescription": "Descripción",
+      "colDate": "Fecha",
+      "tierBadge": "Level {{level}}",
+      "page": "Page {{page}} of {{total}}",
+      "prev": "Anterior",
+      "next": "Siguiente"
+    }
+  },
+  "referralStats": {
+    "badge": "Enlace de marketing exclusivo",
+    "title": "Su código de referencia y enlace de invitación",
+    "description": "Invita a tus amigos y gana una comisión en efectivo por cada compra que ellos y tu línea descendente realicen, hasta 10 niveles de profundidad (50 % del fondo común para el nivel 1).",
+    "codeLabel": "Código de referencia:",
+    "copied": "¡Copiado!",
+    "copy": "Copiar enlace de invitación",
+    "withdrawable": "Saldo retirable",
+    "totalEarned": "Total ganado",
+    "withdrawCta": "Solicitar pago",
+    "earnedFromNetwork": "Compartido desde su red de referencias",
+    "directReferrals": "Miembros directos (nivel 1)",
+    "usersUnit": "usuarios",
+    "joinedWithCode": "Regístrate con tu código de invitación",
+    "activeSubs": "Suscripciones activas en línea descendente",
+    "activeUnit": "subs activos",
+    "recurringCommission": "Generando comisión recurrente"
+  },
+  "referralBanner": {
+    "ariaLabel": "Resumen de ganancias y referencias de DrGame"
+  }
+}

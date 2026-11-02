@@ -1,0 +1,283 @@
+{
+  "ticketUI": {
+    "title": "Abrir un nuevo ticket de soporte",
+    "subtitle": "Los especialistas de DrGame responderán a tus preguntas y resolverán tus problemas lo más rápido posible.",
+    "subjectLabel": "Asunto del billete:",
+    "subjectPlaceholder": "por ej. Ayuda para mover datos de mi PS5",
+    "departmentLabel": "Departamento:",
+    "department": {
+      "technical": "Soporte técnico y conectividad",
+      "downloads": "Descargas de consola y transferencia de datos",
+      "financial": "Facturación, suscripciones y comisiones",
+      "general": "Preguntas y sugerencias generales"
+    },
+    "priorityLabel": "Prioridad:",
+    "priority": {
+      "low": "Normal (respuesta dentro de las 24 horas)",
+      "medium": "Media (prioridad estándar)",
+      "high": "Urgente y crítico"
+    },
+    "messageLabel": "Mensaje y detalles completos:",
+    "messagePlaceholder": "Describe detalladamente tu problema o pregunta...",
+    "cancel": "Cancelar",
+    "submit": "Enviar billete",
+    "errorRequired": "Por favor ingrese un asunto y un mensaje para su boleto.",
+    "errorSubmit": "No se pudo enviar su ticket de soporte.",
+    "errorLoad": "No se pudieron cargar los detalles del boleto.",
+    "errorSend": "No se pudo enviar tu mensaje.",
+    "status": {
+      "answered": "Respondido",
+      "inProgress": "En revisión",
+      "closed": "Cerrado",
+      "awaiting": "esperando respuesta"
+    },
+    "loadingTicket": "Cargando detalles del billete...",
+    "loadingHistory": "Cargando historial de mensajes...",
+    "empty": "Aún no hay mensajes en este ticket.",
+    "supportName": "Soporte DrGame",
+    "you": "tu",
+    "closedNotice": "Este ticket está cerrado y ya no puede recibir respuestas. Abra un nuevo ticket si necesita más ayuda.",
+    "replyPlaceholder": "Escribe tu respuesta...",
+    "reply": "Enviar respuesta"
+  },
+  "gamepad": {
+    "page": {
+      "title": "Prueba de salud del controlador",
+      "connected": "Conectado",
+      "waiting": "Esperando conexión",
+      "enterFullscreen": "Pantalla completa",
+      "exitFullscreen": "Salir de pantalla completa"
+    },
+    "connection": {
+      "titleConnected": "Controlador conectado",
+      "titleDisconnected": "Conecte su controlador",
+      "hintPressButton": "Presione cualquier botón en el controlador",
+      "wireless": "Inalámbrico/Bluetooth",
+      "wired": "Con cable/USB",
+      "rumbleTest": "Retumbar de prueba",
+      "rumbleBusy": "Enviando…",
+      "driftMeasure": "Medir la deriva",
+      "driftBusy": "Midiendo…",
+      "help": "Conecte el controlador a través de USB o Bluetooth, luego presione cualquier botón para que el navegador pueda detectarlo. En Windows, prefiera Chrome o Edge para los controladores DualSense."
+    },
+    "viewer": {
+      "title": "Diseño del controlador",
+      "badgeUnknown": "Modelo desconocido",
+      "badgeNone": "Sin controlador",
+      "view3d": "3D",
+      "viewMap": "Mapa",
+      "view3dHint": "Un modelo 3D solo está disponible para DualSense",
+      "emptyTitle": "El diseño del controlador aparece una vez conectado",
+      "emptyHint": "Conecte el controlador a través de USB o Bluetooth y presione cualquier botón para que el navegador pueda detectarlo.",
+      "waiting": "Esperando un controlador...",
+      "noButtons": "No hay botones presionados"
+    },
+    "map": {
+      "ariaLabel": "Mapa de botones del controlador"
+    },
+    "model3d": {
+      "loading": "Cargando modelo 3D",
+      "loadError": "No se pudo cargar el modelo 3D.",
+      "unsupported": "La vista 3D no es compatible con este navegador."
+    },
+    "triggers": {
+      "pressed": "PRENSA",
+      "released": "LIBERAR"
+    },
+    "sticks": {
+      "title": "Palos y deriva",
+      "left": "Joystick izquierdo",
+      "right": "Joystick derecho",
+      "toneHigh": "Alta deriva",
+      "toneSlight": "Ligera deriva",
+      "toneHealthy": "saludable",
+      "measuring": "Midiendo…",
+      "hintIdle": "Para obtener una lectura exacta de la deriva, presione \"Medir deriva\" y deje ambas palancas sin tocar durante 2,5 segundos.",
+      "hintHigh": "Una desviación por encima del 12% no es normal; El potenciómetro puede estar desgastado o lleno de polvo.",
+      "hintHealthy": "La deriva está dentro del rango saludable."
+    },
+    "mic": {
+      "title": "Prueba de bucle invertido del micrófono",
+      "deviceLabel": "Dispositivo de entrada",
+      "defaultDevice": "Micrófono predeterminado del sistema",
+      "deviceFallback": "Micrófono {{index}}",
+      "average": "Promedio",
+      "peak": "pico",
+      "loopback": "Reproducir audio (escuchar en los parlantes)",
+      "volume": "Volumen",
+      "howlingWarning": "No hagas esto con auriculares; La retroalimentación acústica (aullidos) puede dañar el altavoz.",
+      "start": "Iniciar prueba",
+      "stop": "detener la prueba",
+      "starting": "Conectando…",
+      "error": "No se pudo acceder al micrófono. Verifique el permiso del navegador y la conexión del controlador.",
+      "health": {
+        "idle": {
+          "label": "Listo",
+          "advice": "Presione \"Iniciar prueba\" y permita el acceso al micrófono."
+        },
+        "silent": {
+          "label": "silencioso",
+          "advice": "No entra ninguna señal. Asegúrese de que el micrófono del controlador esté seleccionado y que la tecla Silenciar del controlador esté apagada."
+        },
+        "weak": {
+          "label": "Débil",
+          "advice": "El nivel es bajo. Hable más cerca del micrófono o aumente el nivel de entrada en la configuración de Windows."
+        },
+        "good": {
+          "label": "saludable",
+          "advice": "El nivel de la señal está en el rango normal; El micrófono del controlador parece saludable."
+        },
+        "hot": {
+          "label": "demasiado ruidoso",
+          "advice": "La señal es demasiado alta y puede distorsionarse. Aléjate más."
+        },
+        "clipping": {
+          "label": "Recorte",
+          "advice": "La señal se está saturando. Baje el nivel de entrada para eliminar la distorsión."
+        }
+      }
+    },
+    "log": {
+      "title": "Registro del sistema",
+      "clear": "Borrar",
+      "waiting": "Esperando actividad..."
+    },
+    "events": {
+      "connected": "Controlador conectado: {{id}}",
+      "disconnected": "Controlador desconectado: {{id}}",
+      "deviceId": "ID del dispositivo: {{id}}",
+      "unknown": "desconocido",
+      "rumbleUnsupported": "El controlador rechazó el informe del estruendo. Prueba una conexión USB.",
+      "rumbleSent": "Rumbo de prueba enviado",
+      "driftStart": "Se inició la medición de la deriva: suelte los palos",
+      "driftHigh": "Alta deriva detectada: {{percent}}%",
+      "driftSlight": "Ligera deriva: {{percent}}%",
+      "driftHealthy": "Se mantiene saludable: deriva {{percent}}%",
+      "micStart": "Se inició la prueba del micrófono: hable a un volumen normal",
+      "micActive": "Micrófono activo: {{label}}",
+      "micDenied": "Acceso al micrófono denegado",
+      "micHealthy": "El nivel de señal del micrófono es saludable",
+      "micWeak": "El nivel del micrófono es bajo",
+      "micSilent": "No se recibe señal del micrófono.",
+      "micHot": "El nivel de entrada es demasiado alto",
+      "micClipping": "La señal está saturada"
+    }
+  },
+  "avatar": {
+    "title": "Avatares oficiales de la consola Sony",
+    "subtitle": "Diseñado según el patrón de perfil {{count}}",
+    "preset": {
+      "kratos": "Kratos (dios de la guerra)",
+      "spidey": "Hombre Araña (Marvel)",
+      "aloy": "Aloy (Horizonte Oeste Prohibido)",
+      "jin": "Jin Sakai (Fantasma de Tsushima)",
+      "joel": "Joel (El último de nosotros)",
+      "astro": "Astrobot"
+    },
+    "upload": {
+      "title": "Subir imagen",
+      "uploading": "Subiendo...",
+      "custom": "Avatar personalizado",
+      "invalidType": "Sólo se permiten archivos de imagen (JPEG, PNG, WebP).",
+      "tooLarge": "El tamaño del archivo no debe exceder los 5 MB.",
+      "error": "No se pudo cargar la imagen. Por favor inténtalo de nuevo."
+    }
+  },
+  "notificationsUI": {
+    "bellTitle": "Notificaciones",
+    "bellAria": "Notificaciones y mensajes",
+    "headerTitle": "Notificaciones y eventos",
+    "markAllTitle": "Marcar todo como leído",
+    "markAll": "marcar leído",
+    "loginPrompt": "Por favor inicia sesión para ver tus notificaciones.",
+    "loading": "Cargando notificaciones...",
+    "empty": "No tienes notificaciones en este momento.",
+    "footer": "Centro de notificaciones",
+    "newCount_one": "{{count}} nuevo",
+    "newCount_other": "{{count}} nuevo",
+    "justNow": "Justo ahora",
+    "minutesAgo_one": "Hace {{count}} minuto",
+    "minutesAgo_other": "Hace {{count}} minutos",
+    "hoursAgo_one": "Hace {{count}} hora",
+    "hoursAgo_other": "Hace {{count}} horas",
+    "daysAgo_one": "Hace {{count}} día",
+    "daysAgo_other": "Hace {{count}} días"
+  },
+  "quotaPill": {
+    "title": "Descargar estado de cuota",
+    "currentPlan": "Plan actual:",
+    "statusActive": "Activo",
+    "statusLow": "Se está agotando",
+    "remaining": "Cuota restante:",
+    "total": "Cuota total:",
+    "expires": "Vence el:",
+    "upgrade": "Actualizar y comprar datos"
+  },
+  "blogUI": {
+    "searchTitle": "Buscar artículos",
+    "searchPlaceholder": "Título o tema...",
+    "sortTitle": "Ordenar por",
+    "sort": {
+      "newest": "Artículos más recientes",
+      "popular": "Más popular (más me gusta)",
+      "views": "Lo más visto"
+    },
+    "categoriesTitle": "Categorías de temas",
+    "allPosts": "Todos los artículos",
+    "readingTime_one": "{{count}} lectura mínima",
+    "readingTime_other": "{{count}} lectura mínima"
+  },
+  "chrome": {
+    "closeNotice": "Descartar aviso",
+    "openMenu": "abrir menú",
+    "navMenu": "Menú de navegación",
+    "mainNav": "Navegación del sitio principal",
+    "homeTitle": "DrGame – Inicio",
+    "brandName": "DrGame",
+    "tvModeTitle": "Modo TV y consola (UI de 10 pies)",
+    "profileTitle": "User profile: {{name}}",
+    "mobileNav": "Barra de acceso rápido móvil",
+    "scrollRight": "Desplácese hacia la derecha",
+    "scrollLeft": "Desplazarse hacia la izquierda",
+    "tvBarRegion": "Guía del controlador y barra de modo de TV.",
+    "tvBarGames": "Navegar por el catálogo de juegos (Triángulo / Y)",
+    "tvBarPlans": "Planes de suscripción de cuotas (Cuadrado/X)",
+    "geoTitle": "Seleccionar región e idioma",
+    "geoWelcome": "Bienvenido a DrGame",
+    "geoSubtitle": "Elija el idioma de su interfaz y el método de pago preferido:",
+    "geoConfig": "Configuración seleccionada:",
+    "geoLater": "Recuérdamelo más tarde",
+    "geoConfirm": "Confirmar y continuar",
+    "geoClose": "Cerrar",
+    "bannerAria": "Banners destacados para juegos y servicios de DrGame",
+    "prevSlide": "Diapositiva anterior",
+    "nextSlide": "Siguiente diapositiva",
+    "goToSlide": "Ir a la diapositiva {{index}}",
+    "dedicatedServers": "Servidores dedicados iraníes a mitad de precio"
+  },
+  "auth": {
+    "errors": {
+      "phoneRequired": "Por favor ingrese su número de teléfono o dirección de correo electrónico.",
+      "otpSend": "No se pudo enviar el código de verificación.",
+      "requiredFields": "Por favor complete todos los campos requeridos.",
+      "register": "El registro con el código de verificación falló.",
+      "credentials": "Por favor ingrese su nombre de usuario y contraseña.",
+      "invalidCredentials": "Nombre de usuario o contraseña incorrectos.",
+      "consoleCode": "Ingrese el código de la consola de 7 dígitos.",
+      "invalidConsoleCode": "El código de la consola de 7 dígitos no es válido.",
+      "testCode": "Código SMS (entorno de prueba):"
+    }
+  },
+  "quickActions": {
+    "title": "Acciones rápidas",
+    "subtitle": "Configuración de experiencia instantánea",
+    "open": "Abrir acciones rápidas",
+    "close": "Cerrar acciones rápidas",
+    "consoleTitle": "Modo consola",
+    "consoleDesc": "UI de 10 pies para TV y gamepad",
+    "paymentTitle": "Método de pago",
+    "paymentDesc": "Puerta de enlace nacional o cripto",
+    "domestic": "Shaparak/IRT",
+    "international": "Cripto / Global"
+  }
+}

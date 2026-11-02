@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import type { LogLevel } from './SystemLog';
+import { useTranslation } from '@/i18n';
 
 export type { LogLevel };
 
@@ -32,51 +33,20 @@ function toDb(amplitude: number): number {
   return Math.max(MIN_DB, Math.min(MAX_DB, 20 * Math.log10(amplitude)));
 }
 
-const HEALTH: Record<
-  Health,
-  { label: string; advice: string; badge: string; icon: 'idle' | 'ok' | 'warn' | 'bad' }
-> = {
-  idle: {
-    label: 'آماده',
-    advice: 'دکمه «شروع تست» را بزنید و اجازه‌ی دسترسی به میکروفون را بدهید.',
-    badge: 'border-white/10 bg-white/5 text-slate-400',
-    icon: 'idle',
-  },
-  silent: {
-    label: 'بی‌صدا',
-    advice: 'سیگنالی دریافت نمی‌شود. مطمئن شوید میکروفون دسته انتخاب شده و کلید Mute روی دسته فعال نیست.',
-    badge: 'border-slate-400/25 bg-slate-500/15 text-slate-300',
-    icon: 'warn',
-  },
-  weak: {
-    label: 'ضعیف',
-    advice: 'سطح صدا پایین است. نزدیک‌تر به میکروفون صحبت کنید یا در تنظیمات ویندوز سطح ورودی را بالا ببرید.',
-    badge: 'border-amber-500/30 bg-amber-500/15 text-amber-300',
-    icon: 'warn',
-  },
-  good: {
-    label: 'سالم',
-    advice: 'سطح سیگنال در محدوده‌ی طبیعی است؛ میکروفون دسته سالم به نظر می‌رسد.',
-    badge: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300',
-    icon: 'ok',
-  },
-  hot: {
-    label: 'بسیار بلند',
-    advice: 'سیگنال خیلی بلند است و ممکن است اعوجاج داشته باشد. فاصله را بیشتر کنید.',
-    badge: 'border-orange-500/30 bg-orange-500/15 text-orange-300',
-    icon: 'warn',
-  },
-  clipping: {
-    label: 'اشباع',
-    advice: 'سیگنال در حال برش (Clipping) است. سطح ورودی را کم کنید تا اعوجاج از بین برود.',
-    badge: 'border-rose-500/30 bg-rose-500/15 text-rose-300',
-    icon: 'bad',
-  },
+/** Visual treatment per health state — the copy itself lives in the i18n catalog. */
+const HEALTH_META: Record<Health, { badge: string; icon: 'idle' | 'ok' | 'warn' | 'bad' }> = {
+  idle: { badge: 'border-white/10 bg-white/5 text-slate-400', icon: 'idle' },
+  silent: { badge: 'border-slate-400/25 bg-slate-500/15 text-slate-300', icon: 'warn' },
+  weak: { badge: 'border-amber-500/30 bg-amber-500/15 text-amber-300', icon: 'warn' },
+  good: { badge: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300', icon: 'ok' },
+  hot: { badge: 'border-orange-500/30 bg-orange-500/15 text-orange-300', icon: 'warn' },
+  clipping: { badge: 'border-rose-500/30 bg-rose-500/15 text-rose-300', icon: 'bad' },
 };
 
 const clampPct = (db: number) => Math.max(0, Math.min(100, ((db - MIN_DB) / (MAX_DB - MIN_DB)) * 100));
 
 export default function MicTestPanel({ onLog }: MicTestPanelProps) {
+  const { t } = useTranslation();
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [deviceId, setDeviceId] = useState('');
   const [active, setActive] = useState(false);
@@ -85,7 +55,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
   const [peakDb, setPeakDb] = useState(MIN_DB);
   const [loopback, setLoopback] = useState(false);
   const [volume, setVolume] = useState(35);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const streamRef = useRef<MediaStream | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
@@ -132,7 +102,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
   const start = useCallback(
     async (overrideId?: string) => {
       const wanted = overrideId ?? deviceId;
-      setError(null);
+      setFailed(false);
       setStarting(true);
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -175,7 +145,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
         frameRef.current = 0;
 
         setActive(true);
-        onLog?.('info', 'تست میکروفون آغاز شد — با صدای معمولی صحبت کنید');
+        onLog?.('info', t('gamepad.events.micStart'));
 
         const listed = await navigator.mediaDevices.enumerateDevices();
         const mics = listed.filter((d) => d.kind === 'audioinput');
@@ -184,16 +154,16 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
         const current = stream.getAudioTracks()[0]?.getSettings().deviceId;
         if (current && !wanted) setDeviceId(current);
         const label = mics.find((d) => d.deviceId === current)?.label;
-        if (label) onLog?.('ok', `میکروفون فعال: ${label}`);
+        if (label) onLog?.('ok', t('gamepad.events.micActive', { label }));
       } catch {
-        setError('دسترسی به میکروفون ممکن نشد. اجازه‌ی مرورگر و اتصال دسته را بررسی کنید.');
-        onLog?.('error', 'دسترسی به میکروفون رد شد');
+        setFailed(true);
+        onLog?.('error', t('gamepad.events.micDenied'));
         stop();
       } finally {
         setStarting(false);
       }
     },
-    [deviceId, loopback, volume, onLog, stop],
+    [deviceId, loopback, volume, onLog, stop, t],
   );
 
   // unmount cleanup
@@ -269,12 +239,12 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
   useEffect(() => {
     if (health === healthRef.current) return;
     healthRef.current = health;
-    if (health === 'good') onLog?.('ok', 'سطح سیگنال میکروفون سالم است');
-    else if (health === 'weak') onLog?.('warn', 'سطح صدای میکروفون پایین است');
-    else if (health === 'silent') onLog?.('warn', 'سیگنالی از میکروفون دریافت نمی‌شود');
-    else if (health === 'hot') onLog?.('warn', 'سطح ورودی بسیار بلند است');
-    else if (health === 'clipping') onLog?.('error', 'سیگنال اشباع شده (Clipping)');
-  }, [health, onLog]);
+    if (health === 'good') onLog?.('ok', t('gamepad.events.micHealthy'));
+    else if (health === 'weak') onLog?.('warn', t('gamepad.events.micWeak'));
+    else if (health === 'silent') onLog?.('warn', t('gamepad.events.micSilent'));
+    else if (health === 'hot') onLog?.('warn', t('gamepad.events.micHot'));
+    else if (health === 'clipping') onLog?.('error', t('gamepad.events.micClipping'));
+  }, [health, onLog, t]);
 
   const handleDeviceChange = useCallback(
     (id: string) => {
@@ -287,7 +257,9 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
     [active, stop, start],
   );
 
-  const meta = HEALTH[health];
+  const meta = HEALTH_META[health];
+  const healthLabel = t(`gamepad.mic.health.${health}.label`);
+  const healthAdvice = t(`gamepad.mic.health.${health}.advice`);
   const levelPct = clampPct(avgDb);
   const peakPct = clampPct(peakDb);
 
@@ -296,25 +268,25 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Mic className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-sm font-bold text-white">تست بازگشتی میکروفون</h2>
+          <h2 className="text-sm font-bold text-white">{t('gamepad.mic.title')}</h2>
         </div>
         <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-bold ${meta.badge}`}>
-          {meta.label}
+          {healthLabel}
         </span>
       </div>
 
       {/* device picker */}
       <div className="mb-3">
-        <label className="mb-1 block text-[10px] text-slate-500">دستگاه ورودی</label>
+        <label className="mb-1 block text-[10px] text-slate-500">{t('gamepad.mic.deviceLabel')}</label>
         <select
           value={deviceId}
           onChange={(e) => handleDeviceChange(e.target.value)}
           className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-[11px] text-slate-200 outline-none transition-colors focus:border-cyan-500/50"
         >
-          <option value="">میکروفون پیش‌فرض سیستم</option>
+          <option value="">{t('gamepad.mic.defaultDevice')}</option>
           {devices.map((d, i) => (
             <option key={d.deviceId || `mic-${i}`} value={d.deviceId}>
-              {d.label || `میکروفون ${i + 1}`}
+              {d.label || t('gamepad.mic.deviceFallback', { index: i + 1 })}
             </option>
           ))}
         </select>
@@ -349,14 +321,14 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
       {/* readouts */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <div className="rounded-xl border border-white/5 bg-white/[0.03] p-2 text-center">
-          <p className="text-[9px] text-slate-500">میانگین</p>
+          <p className="text-[9px] text-slate-500">{t('gamepad.mic.average')}</p>
           <p className="font-mono text-sm font-bold text-white" dir="ltr">
             {avgDb.toFixed(1)}
             <span className="ms-0.5 text-[9px] font-normal text-slate-500">dB</span>
           </p>
         </div>
         <div className="rounded-xl border border-white/5 bg-white/[0.03] p-2 text-center">
-          <p className="text-[9px] text-slate-500">اوج</p>
+          <p className="text-[9px] text-slate-500">{t('gamepad.mic.peak')}</p>
           <p className="font-mono text-sm font-bold text-white" dir="ltr">
             {peakDb.toFixed(1)}
             <span className="ms-0.5 text-[9px] font-normal text-slate-500">dB</span>
@@ -375,7 +347,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
         ) : (
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-400" />
         )}
-        {meta.advice}
+        {healthAdvice}
       </p>
 
       {/* loopback */}
@@ -391,7 +363,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
             ) : (
               <VolumeX className="h-3.5 w-3.5 text-slate-500" />
             )}
-            پخش هم‌زمان صدا (شنیدن از اسپیکر)
+            {t('gamepad.mic.loopback')}
           </span>
           <span
             className={`relative h-4 w-8 rounded-full transition-colors ${
@@ -407,7 +379,7 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
 
         {loopback && (
           <div className="mt-2.5 flex items-center gap-2">
-            <span className="text-[10px] text-slate-500">بلندی</span>
+            <span className="text-[10px] text-slate-500">{t('gamepad.mic.volume')}</span>
             <input
               type="range"
               min={0}
@@ -425,14 +397,14 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
         {loopback && (
           <p className="mt-2 flex items-start gap-1.5 text-[9px] leading-relaxed text-amber-400/80">
             <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
-            با هدست این کار را نکنید؛ بازخورد صوتی (howling) می‌تواند به اسپیکر آسیب بزند.
+            {t('gamepad.mic.howlingWarning')}
           </p>
         )}
       </div>
 
-      {error && (
+      {failed && (
         <p className="mb-2 rounded-xl border border-rose-500/25 bg-rose-500/10 p-2 text-[10px] text-rose-300">
-          {error}
+          {t('gamepad.mic.error')}
         </p>
       )}
 
@@ -453,7 +425,11 @@ export default function MicTestPanel({ onLog }: MicTestPanelProps) {
         ) : (
           <Mic className="h-3.5 w-3.5" />
         )}
-        {starting ? 'در حال اتصال…' : active ? 'پایان تست' : 'شروع تست'}
+        {starting
+          ? t('gamepad.mic.starting')
+          : active
+            ? t('gamepad.mic.stop')
+            : t('gamepad.mic.start')}
       </button>
     </section>
   );

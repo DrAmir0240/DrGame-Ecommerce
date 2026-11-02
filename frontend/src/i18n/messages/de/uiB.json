@@ -1,0 +1,190 @@
+{
+  "plans": {
+    "currentPlan": "Ihr aktiver Plan",
+    "period": {
+      "days30": "/ 30 Tage",
+      "days90": "/ 90 Tage (3 Monate)",
+      "days180": "/ 180 Tage (6 Monate)"
+    },
+    "quota": {
+      "download": "{{size}} der Spiele-Downloads"
+    },
+    "warning": "Sobald Ihr Kontingent aufgebraucht ist, können Sie keine neuen Spiele mehr eröffnen. Spiele, die Sie bereits geöffnet haben, bleiben verfügbar, bis Ihr Plan abläuft.",
+    "free": {
+      "badge": "Kostenlos",
+      "description": "Mit diesem Plan erhalten Sie Zugriff auf ausgewählte Spiele mit kostenlosem Download-Kontingent.",
+      "priceTitle": "Kostenlos",
+      "priceNote": "Einmalig, für immer",
+      "gamesTitle": "Kostenlose Spiele in diesem Plan:",
+      "gamesLoading": "Bonusspiele werden geladen...",
+      "gamesEmpty": "Derzeit sind keine kostenlosen Spiele definiert.",
+      "cta": "Kostenlos herunterladen"
+    },
+    "bronze": {
+      "name": "Bronze",
+      "tagline": "Ein budgetfreundlicher Start mit dedizierter Geschwindigkeit und Hochgeschwindigkeits-Spieldaten.",
+      "cta": "Wählen Sie Bronze",
+      "features": {
+        "speed": "Maximale Download-Geschwindigkeit: 20 Mbit/s",
+        "consoles": "PS4- und PS5-Spiele",
+        "noRetro": "PS1-, PS2-, PS3-, Nintendo- und Xbox-Spiele",
+        "noSubtitles": "Untertitel sind in diesem Plan nicht verfügbar",
+        "noDlc": "DLC-Käufe sind in diesem Plan nicht verfügbar"
+      }
+    },
+    "silver": {
+      "name": "Silber",
+      "tagline": "Ein ausgewogener Plan mit mehr Plattformen und großen Datenmengen.",
+      "cta": "Wählen Sie Silber",
+      "features": {
+        "speed": "Maximale Download-Geschwindigkeit: 20 Mbit/s",
+        "consoles": "PS2-, PS3-, PS4- und PS5-Spiele",
+        "extras": "Untertitel und DLC zum Kauf verfügbar",
+        "themes": "Themen sind im Silver-Plan nicht enthalten",
+        "excluded": "PS1-, Xbox- und Nintendo-Spiele sind nicht enthalten"
+      }
+    },
+    "gold": {
+      "name": "Gold",
+      "tagline": "Breiter Plattformzugriff, höhere Geschwindigkeit und dedizierte Spieldaten.",
+      "cta": "Wählen Sie Gold",
+      "features": {
+        "speed": "Maximale Download-Geschwindigkeit: 40 Mbit/s",
+        "consoles": "Xbox 360-, PS1-, PS2-, PS3-, Nintendo-, PS4- und PS5-Spiele",
+        "categories": "Zugriff auf jede Spielkategorie",
+        "extras": "Untertitel und DLC zum Kauf verfügbar",
+        "themes": "Im Gold-Plan enthaltene Themen"
+      }
+    }
+  },
+  "invoice": {
+    "print": "Rechnung drucken",
+    "brandTitle": "DrGame",
+    "brandTagline": "Komplette Konsolendienste, Datendownloads und Originalspiele",
+    "official": "Offizielle elektronische Rechnung",
+    "number": "Rechnungsnr.: INV-{{code}}",
+    "buyer": "Käufer:",
+    "buyerFallback": "Sehr geehrter DrGame-Kunde",
+    "trackingCode": "Bank-/Shaparak-Tracking-Code:",
+    "gateway": "Zahlungsgateway: {{gateway}}",
+    "table": {
+      "service": "Service / Abonnement",
+      "quantity": "Menge",
+      "total": "Gesamtbetrag"
+    },
+    "planFallback": "Premium-Konsolen-Gaming-Abonnement",
+    "itemDescription": "Hochgeschwindigkeitszugriff auf unser dediziertes Datenrepository",
+    "subtotal": "Zwischensumme:",
+    "discount": "Rabatt:",
+    "tax": "MwSt.:",
+    "totalPaid": "Gesamtbezahlt:",
+    "verified": "Transaktion erfolgreich – offiziell elektronisch verifiziert"
+  },
+  "referralUI": {
+    "settlement": {
+      "title": "Auszahlungskonten",
+      "subtitle": "Um Ihre Marketingprovisionen zu erhalten, fügen Sie ein verifiziertes Bankkonto zusammen mit Ihrem Personalausweis und Ihrer Mobiltelefonnummer oder ein Tether-Wallet hinzu.",
+      "existingAccounts": "Ihre gespeicherten Konten:",
+      "bankFallback": "Bankkonto",
+      "cryptoAccount": "USDT-Wallet ({{network}})",
+      "verified": "Verifiziert",
+      "pending": "Ausstehende Überprüfung",
+      "tabBank": "Bankkonto und Personalausweis",
+      "tabCrypto": "Tether-Wallet (USDT)",
+      "shebaLabel": "IBAN (24-stellig, ohne IR):",
+      "holderLabel": "Vollständiger Name des Kontoinhabers:",
+      "holderPlaceholder": "z.B. John Smith",
+      "nationalIdLabel": "Nationale ID des Inhabers (10 Ziffern):",
+      "mobileLabel": "Registrierte Handynummer:",
+      "bankNameLabel": "Name der Bank:",
+      "bankNamePlaceholder": "z.B. Mellat, Saman",
+      "cardLabel": "Kartennummer (optional):",
+      "cardPlaceholder": "6037...",
+      "otpSending": "Bestätigungs-SMS wird gesendet...",
+      "requestOtp": "Bestätigungs-SMS senden",
+      "otpTitle": "SMS-Verifizierung der IBAN anhand der nationalen ID {{nationalId}}",
+      "otpHint": "Geben Sie den 6-stelligen Code ein, der an {{phone}} gesendet wurde. (Testcode: 123456)",
+      "otpLabel": "6-stelliger Bestätigungscode:",
+      "editInfo": "Details bearbeiten",
+      "verifying": "Überprüfung...",
+      "confirmSave": "Konto bestätigen und speichern",
+      "walletLabel": "Tether (USDT)-Wallet-Adresse:",
+      "walletPlaceholder": "T... oder 0x...",
+      "networkLabel": "Transfernetzwerk:",
+      "networks": {
+        "trc20": "Tron (TRC20) – niedrige Gebühren, hohe Geschwindigkeit",
+        "bep20": "BNB Smart Chain (BEP20)",
+        "polygon": "Polygon-Netzwerk",
+        "erc20": "Ethereum (ERC20)"
+      },
+      "submitting": "Sparen...",
+      "submitCrypto": "Speichern Sie die Tether-Wallet",
+      "errShebaHolder": "IBAN und Name des Kontoinhabers sind erforderlich.",
+      "errNationalId": "Der Personalausweis muss genau 10 Ziffern lang sein.",
+      "errMobile": "Geben Sie eine gültige 11-stellige Mobiltelefonnummer ein, die für den Kontoinhaber registriert ist.",
+      "otpSent": "Ein Testbestätigungscode wurde per SMS gesendet (Standardcode: 123456)",
+      "errOtp": "Der Bestätigungscode ist falsch. (Testcode: 123456)",
+      "bankSaved": "Bankkonto erfolgreich verifiziert und gespeichert.",
+      "errBankSave": "Das Auszahlungskonto konnte nicht gespeichert werden",
+      "errWalletRequired": "Es ist eine Tether (USDT)-Wallet-Adresse erforderlich.",
+      "walletSaved": "Krypto-Wallet erfolgreich gespeichert.",
+      "errWalletSave": "Die Wallet konnte nicht gespeichert werden"
+    },
+    "withdrawal": {
+      "title": "Auszahlungsantrag",
+      "subtitle": "Auszahlungen auf inländische Bankkonten erfolgen über Paya/Satna und auf Krypto-Wallets in Tether.",
+      "successTitle": "Auszahlungsantrag eingereicht",
+      "successBody": "Der Betrag wird nach Prüfung durch unser Finanzteam auf Ihr Konto überwiesen.",
+      "currentBalance": "Aktueller Kontostand:",
+      "destination": "Auf Konto zahlen:",
+      "noAccounts": "Sie müssen zunächst unter Auszahlungskonten ein Bankkonto oder eine Krypto-Wallet hinzufügen.",
+      "bankFallback": "Bank",
+      "amountLabel": "Gewünschter Betrag (Toman):",
+      "amountPlaceholder": "Mindestens {{amount}}",
+      "remainingAfter": "Saldo nach Auszahlung:",
+      "submitting": "Anfrage senden...",
+      "submit": "Auszahlung bestätigen",
+      "errNoAccount": "Bitte wählen Sie ein Auszahlungskonto aus.",
+      "errMinAmount": "Der Mindestauszahlungsbetrag beträgt {{amount}}.",
+      "errExceeds": "Der angeforderte Betrag übersteigt Ihr auszahlbares Guthaben.",
+      "errSubmit": "Die Auszahlungsanfrage konnte nicht übermittelt werden"
+    },
+    "transactions": {
+      "title": "Transaktions- und Provisionshistorie",
+      "totalRecords_one": "Gesamt: {{count}} Datensatz",
+      "totalRecords_other": "Gesamt: {{count}} Datensätze",
+      "emptyTitle": "Für Ihr Konto wurden noch keine Transaktionen oder Provisionen erfasst.",
+      "emptyBody": "Sobald jemand in Ihrem Netzwerk ein Abonnement kauft, erscheint die Provision sofort in dieser Tabelle.",
+      "colId": "Ausweis",
+      "colTier": "Empfehlungsebene",
+      "colAmount": "Erhaltener Betrag",
+      "colDescription": "Beschreibung",
+      "colDate": "Datum",
+      "tierBadge": "Level {{level}}",
+      "page": "Seite {{page}} von {{total}}",
+      "prev": "Zurück",
+      "next": "Als nächstes"
+    }
+  },
+  "referralStats": {
+    "badge": "Exklusiver Marketinglink",
+    "title": "Ihr Empfehlungscode und Einladungslink",
+    "description": "Laden Sie Freunde ein und verdienen Sie eine Barprovision für jeden Einkauf, den sie und Ihre Downline tätigen, bis zu 10 Ebenen tief (50 % des Pools für Ebene 1).",
+    "codeLabel": "Empfehlungscode:",
+    "copied": "Kopiert!",
+    "copy": "Einladungslink kopieren",
+    "withdrawable": "Auszahlbares Guthaben",
+    "totalEarned": "Insgesamt verdient",
+    "withdrawCta": "Auszahlung beantragen",
+    "earnedFromNetwork": "Von Ihrem Empfehlungsnetzwerk geteilt",
+    "directReferrals": "Direktmitglieder (Stufe 1)",
+    "usersUnit": "Benutzer",
+    "joinedWithCode": "Mit Ihrem Einladungscode angemeldet",
+    "activeSubs": "Aktive Downline-Abonnements",
+    "activeUnit": "aktive Subs",
+    "recurringCommission": "Generierung wiederkehrender Provisionen"
+  },
+  "referralBanner": {
+    "ariaLabel": "Zusammenfassung der DrGame-Einnahmen und Empfehlungen"
+  }
+}

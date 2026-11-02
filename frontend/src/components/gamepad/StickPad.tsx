@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslation } from '@/i18n';
 
 interface StickPadProps {
   label: string;
@@ -30,11 +31,13 @@ const PALETTE = {
   },
 } as const;
 
-function driftTone(drift: number): { label: string; className: string } {
+type DriftTone = 'toneHigh' | 'toneSlight' | 'toneHealthy';
+
+function driftTone(drift: number): { key: DriftTone; className: string } {
   const pct = drift * 100;
-  if (pct > 12) return { label: 'دریفت بالا', className: 'bg-rose-500/15 text-rose-300 border-rose-500/30' };
-  if (pct > 6) return { label: 'دریفت جزئی', className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' };
-  return { label: 'سالم', className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' };
+  if (pct > 12) return { key: 'toneHigh', className: 'bg-rose-500/15 text-rose-300 border-rose-500/30' };
+  if (pct > 6) return { key: 'toneSlight', className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' };
+  return { key: 'toneHealthy', className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' };
 }
 
 export default function StickPad({
@@ -46,6 +49,7 @@ export default function StickPad({
   measuring = false,
   color = 'violet',
 }: StickPadProps) {
+  const { t } = useTranslation();
   const palette = PALETTE[color];
   const tone = driftTone(drift);
   const pct = Math.round(drift * 100);
@@ -96,8 +100,11 @@ export default function StickPad({
         <span className="font-mono text-slate-500" dir="ltr">
           {x.toFixed(2)} , {y.toFixed(2)}
         </span>
-        <span className={`rounded border px-1.5 py-0.5 font-bold ${tone.className}`}>
-          {measuring ? 'سنجش…' : `${pct}%`}
+        <span
+          title={t(`gamepad.sticks.${tone.key}`)}
+          className={`rounded border px-1.5 py-0.5 font-bold ${tone.className}`}
+        >
+          {measuring ? t('gamepad.sticks.measuring') : `${pct}%`}
         </span>
       </div>
     </div>

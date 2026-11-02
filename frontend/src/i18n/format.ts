@@ -12,6 +12,18 @@ const INTL_LOCALE: Record<SupportedLocale, string> = {
   fa: 'fa-IR',
   en: 'en-US',
   ar: 'ar-EG',
+  de: 'de-DE',
+  es: 'es-ES',
+  fr: 'fr-FR',
+  ru: 'ru-RU',
+  zh: 'zh-CN',
+  ja: 'ja-JP',
+  ko: 'ko-KR',
+  tr: 'tr-TR',
+  it: 'it-IT',
+  pt: 'pt-BR',
+  hi: 'hi-IN',
+  nl: 'nl-NL',
 };
 
 /** Locale code usable by Intl (also useful for `Intl.PluralRules`). */

@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Filter,
   RotateCcw,
@@ -87,6 +90,28 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
   const { t, n, size } = useTranslation();
   const [showAllGenres, setShowAllGenres] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock background body scroll when mobile filter sheet is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!isOpenMobile) return;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+    };
+  }, [isOpenMobile]);
 
   const update = (partial: Partial<FilterState>) => {
     onChange({ ...filters, ...partial });
@@ -382,12 +407,20 @@ export default function FilterSidebar({
 
       {/* Mobile-only close button at bottom */}
       {isMobile && onCloseMobile && (
-        <div className="pt-2">
+        <div className="pt-3 border-t border-white/10 flex items-center gap-2.5">
           <button
+            type="button"
             onClick={onCloseMobile}
-            className="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95"
+            className="flex-1 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
-            <span>{t('filters.closeFilters')}</span>
+            <span>{t('gamesPage.viewResults') || 'مشاهده نتایج'} ({n(total)})</span>
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+          >
+            <span>{t('filters.clear')}</span>
           </button>
         </div>
       )}
@@ -403,20 +436,50 @@ export default function FilterSidebar({
         </div>
       </aside>
 
-      {/* Mobile Drawer (Only when isOpenMobile is true) */}
-      {isOpenMobile && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-            onClick={onCloseMobile}
-          />
-          {/* Slide-in sidebar drawer */}
-          <aside className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-[#0d121f] border-l border-white/10 p-4 overflow-y-auto shadow-2xl z-10 text-start font-vazir select-none animate-in slide-in-from-right duration-300">
-            {renderFilterContent(true)}
-          </aside>
-        </div>
-      )}
+      {/* Mobile Bottom Sheet (Animated bottom-up menu mounted to body via Portal) */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isOpenMobile && (
+              <div className="fixed inset-0 z-[100] lg:hidden flex flex-col justify-end">
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-sm cursor-pointer touch-none"
+                  onClick={onCloseMobile}
+                  onTouchMove={(e) => e.preventDefault()}
+                />
+
+                {/* Bottom Sheet Drawer */}
+                <motion.aside
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                  className="relative w-full max-h-[85vh] bg-[#0d121f] border-t border-purple-500/30 rounded-t-3xl shadow-[0_-15px_40px_rgba(0,0,0,0.9)] z-10 flex flex-col text-start font-vazir select-none overflow-hidden touch-auto"
+                >
+                  {/* Drag Handle Indicator */}
+                  <div
+                    className="w-full pt-3 pb-2 flex justify-center shrink-0 cursor-pointer touch-none"
+                    onClick={onCloseMobile}
+                    title={t('common.close') || 'بستن'}
+                  >
+                    <div className="w-12 h-1.5 rounded-full bg-white/20 hover:bg-white/40 transition-colors" />
+                  </div>
+
+                  {/* Scrollable Filters Content */}
+                  <div className="px-5 pb-6 pt-1 overflow-y-auto flex-1 overscroll-contain">
+                    {renderFilterContent(true)}
+                  </div>
+                </motion.aside>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </>
   );
 }

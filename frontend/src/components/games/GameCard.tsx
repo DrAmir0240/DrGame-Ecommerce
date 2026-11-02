@@ -74,7 +74,7 @@ export default function GameCard({ game }: GameCardProps) {
       {/* Card Info Section */}
       <div className={`p-3 flex flex-col justify-between flex-1 gap-2 ${dir === 'rtl' ? 'text-start' : 'text-left'}`}>
         <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
-          {locale === 'en' && game.title_en ? (
+          {locale !== 'fa' && game.title_en ? (
             game.title_en
           ) : (
             <DynamicText text={game.title_fa || game.title_en} />

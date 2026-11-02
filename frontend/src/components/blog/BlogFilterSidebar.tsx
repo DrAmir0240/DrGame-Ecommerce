@@ -103,7 +103,7 @@ export default function BlogFilterSidebar({
                   : 'text-text-muted hover:bg-white/5 hover:text-white'
               }`}
             >
-              {locale === 'en' && cat.name_en ? (
+              {locale !== 'fa' && cat.name_en ? (
                 cat.name_en
               ) : (
                 <DynamicText text={cat.name_fa} />
