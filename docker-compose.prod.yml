@@ -151,6 +151,10 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
       - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
       - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
+      - IGDB_CLIENT_ID=${IGDB_CLIENT_ID:-}
+      - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET:-}
+      - IGDB_BASE_URL=${IGDB_BASE_URL:-https://api.igdb.com/v4}
+      - IGDB_TOKEN_URL=${IGDB_TOKEN_URL:-https://id.twitch.tv/oauth2/token}
       - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:?WEBHOOK_SECRET_KEY must be set in .env}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["https://store.gamedr.ir","https://api.gamedr.ir","https://admin.gamedr.ir","https://gamedr.ir","http://localhost:3000","http://127.0.0.1:3000"]}
       - LIARA_ENDPOINT=${LIARA_ENDPOINT:-https://storage.c2.liara.site}
@@ -200,7 +204,7 @@ services:
       dockerfile: Dockerfile
       target: prod
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://store.gamedr.ir/api}
         NEXT_PUBLIC_DEPLOYMENT_MODE: ${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
         NEXT_PUBLIC_DEFAULT_CURRENCY: ${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
     <<: *restart-unless-stopped
@@ -208,7 +212,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://store.gamedr.ir/api}
       - NEXT_PUBLIC_DEPLOYMENT_MODE=${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
       - NEXT_PUBLIC_DEFAULT_CURRENCY=${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
       - PORT=3000

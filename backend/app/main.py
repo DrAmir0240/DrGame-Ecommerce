@@ -62,11 +62,48 @@ app.add_middleware(
 app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
-# Static Media Files Mounting
+# Static Media Files Mounting & S3 On-Demand Cache
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, Response
+from fastapi import HTTPException
+import mimetypes
 import os
-MEDIA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+from app.core.storage import liara_storage, MEDIA_DIR
+
 os.makedirs(os.path.join(MEDIA_DIR, "games"), exist_ok=True)
+
+@app.get("/media/{file_path:path}", tags=["Media"])
+async def serve_media(file_path: str):
+    clean_path = file_path.lstrip("/")
+    local_file = os.path.join(MEDIA_DIR, clean_path)
+
+    # 1. Check if file is already cached on local disk
+    if os.path.isfile(local_file):
+        return FileResponse(local_file)
+
+    # 2. If not on local disk, fetch from Liara S3 on-the-fly and cache locally
+    if liara_storage.is_configured:
+        try:
+            data = await liara_storage.download_bytes(clean_path)
+            if data:
+                os.makedirs(os.path.dirname(local_file), exist_ok=True)
+                with open(local_file, "wb") as f:
+                    f.write(data)
+                content_type, _ = mimetypes.guess_type(local_file)
+                content_type = content_type or "application/octet-stream"
+                return Response(
+                    content=data,
+                    media_type=content_type,
+                    headers={
+                        "Cache-Control": "public, max-age=31536000, immutable",
+                        "Accept-Ranges": "bytes",
+                    },
+                )
+        except Exception as e:
+            logger.warning(f"Error streaming media '{clean_path}' from Liara S3: {e}")
+
+    raise HTTPException(status_code=404, detail="File not found")
+
 app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 
 @app.get("/", tags=["Root"])
@@ -171,6 +208,12 @@ try:
     app.include_router(referral_admin_router)
 except ImportError as e:
     logger.warning(f"Could not load department admin routers: {e}")
+
+try:
+    from app.modules.catalog_sync.router import router as catalog_sync_router
+    app.include_router(catalog_sync_router)
+except ImportError as e:
+    logger.warning(f"Could not load catalog_sync router: {e}")
 
 try:
     from app.modules.home.router import router as home_router

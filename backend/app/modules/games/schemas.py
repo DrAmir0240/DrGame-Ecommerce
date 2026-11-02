@@ -50,7 +50,8 @@ class GameDownloadLinkOut(BaseModel):
 
 class GameCardOut(BaseModel):
     id: int
-    rawg_id: int
+    source_id: Optional[str] = None
+    rawg_id: Optional[int] = None
     title_fa: str
     title_en: str
     slug: str

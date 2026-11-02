@@ -140,11 +140,11 @@ export default function UserDashboardLayout({
   };
 
   const renderSidebarContent = (onItemClick?: () => void) => (
-    <div className="space-y-6">
+    <div className="space-y-3.5">
       {/* User Mini Profile Header */}
-      <div className="flex flex-col items-center text-center pb-4 border-b border-white/10">
-        <div className="relative mb-3">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-cosmic-purple/60 shadow-neon-purple p-0.5 bg-black/40">
+      <div className="flex flex-col items-center text-center pb-3 border-b border-white/10">
+        <div className="relative mb-2">
+          <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-cosmic-purple/60 shadow-neon-purple p-0.5 bg-black/40">
             <img
               src={
                 user?.avatar_url ||
@@ -154,15 +154,15 @@ export default function UserDashboardLayout({
               className="w-full h-full object-cover rounded-xl"
             />
           </div>
-          <div className="absolute -bottom-1 -end-1 bg-emerald-500 w-5 h-5 rounded-full border-2 border-[#0c1017] flex items-center justify-center" title={t('dashboard.activeAccount')}>
-            <ShieldCheck className="w-3 h-3 text-white" />
+          <div className="absolute -bottom-1 -end-1 bg-emerald-500 w-4.5 h-4.5 rounded-full border-2 border-[#0c1017] flex items-center justify-center" title={t('dashboard.activeAccount')}>
+            <ShieldCheck className="w-2.5 h-2.5 text-white" />
           </div>
         </div>
 
-        <h2 className="text-base font-bold text-white mb-0.5">
+        <h2 className="text-sm font-bold text-white mb-0.5">
           {user?.full_name || t('dashboard.defaultUserName')}
         </h2>
-        <span className="text-xs text-text-muted font-roboto" dir="ltr">
+        <span className="text-[11px] text-text-muted font-roboto" dir="ltr">
           @{user?.username || 'user'}
         </span>
       </div>
@@ -171,19 +171,19 @@ export default function UserDashboardLayout({
       <ConsolePairWidget />
 
       {/* Quota Capsule Widget */}
-      <div className="p-4 rounded-2xl bg-gradient-to-br from-cosmic-purple/10 to-transparent border border-white/10 space-y-2.5">
+      <div className="p-3 rounded-2xl bg-gradient-to-br from-cosmic-purple/10 to-transparent border border-white/10 space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-text-muted flex items-center gap-1.5 font-medium">
             <HardDrive className="w-3.5 h-3.5 text-cosmic-purple" />
             {t('dashboard.quotaTitle')}
           </span>
-          <span className="text-emerald-400 font-bold">
+          <span className="text-emerald-400 font-bold text-xs">
             {t('dashboard.quotaRemaining', { size: size(quota ? quota.remaining_quota_gb : 5) })}
           </span>
         </div>
-        <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-cosmic-purple to-emerald-400 h-2 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-cosmic-purple to-emerald-400 h-1.5 rounded-full transition-all duration-500"
             style={{
               width: `${Math.min(
                 100,
@@ -201,7 +201,7 @@ export default function UserDashboardLayout({
       </div>
 
       {/* Nav Menu */}
-      <nav className="space-y-1.5">
+      <nav className="space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -209,7 +209,7 @@ export default function UserDashboardLayout({
               key={item.href}
               href={item.href}
               onClick={onItemClick}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 isActive
                   ? 'bg-cosmic-gradient text-white shadow-neon-purple'
                   : 'text-text-secondary hover:text-white hover:bg-white/5'
@@ -229,9 +229,9 @@ export default function UserDashboardLayout({
             if (onItemClick) onItemClick();
             logout();
           }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-3.5 h-3.5" />
           <span>{t('dashboard.logout')}</span>
         </button>
       </div>
@@ -344,8 +344,8 @@ export default function UserDashboardLayout({
       {/* Main Layout Grid */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Desktop Sticky Right Sidebar */}
-        <aside className="hidden lg:block lg:w-72 shrink-0">
-          <div className="glass-card rounded-3xl p-6 border border-white/10 sticky top-24 shadow-2xl backdrop-blur-xl bg-[#0c1017]/80">
+        <aside className="hidden lg:block lg:w-80 shrink-0">
+          <div className="glass-card rounded-3xl p-5 border border-white/10 sticky top-24 shadow-2xl backdrop-blur-xl bg-[#0c1017]/90 max-h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar">
             {renderSidebarContent()}
           </div>
         </aside>

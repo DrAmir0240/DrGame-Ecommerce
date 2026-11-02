@@ -1,5 +1,6 @@
 """Admin services: authentication, user management, manual quota adjustment, finance monitoring, and payouts."""
 from datetime import datetime, timezone
+from typing import Any, Optional, List, Dict
 from sqlalchemy import select, func, desc, or_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
@@ -325,24 +326,41 @@ class AdminService:
         }
 
     @staticmethod
-    async def create_game(db: AsyncSession, data: dict) -> Game:
+    async def create_game(db: AsyncSession, data: Any) -> Game:
         """Create a new game in catalog with local image storage and download links."""
         import random
         from app.core.storage import download_and_save_image
-        rawg_id = data.get("rawg_id") or random.randint(100000, 999999)
+
+        if hasattr(data, "model_dump"):
+            data = data.model_dump()
+        elif not isinstance(data, dict):
+            data = dict(data)
+
+        rawg_id = data.get("rawg_id")
+        source_id = data.get("source_id") or (f"custom_{random.randint(100000, 999999)}" if not rawg_id else str(rawg_id))
         slug = data.get("slug") or data["title_en"].lower().replace(" ", "-")
 
         cover_image = data.get("cover_image_url")
         banner_image = data.get("banner_image_url") or cover_image
 
-        if cover_image and cover_image.startswith("http"):
+        if cover_image and cover_image.startswith("http") and ".liara.site" not in cover_image:
             cover_image = await download_and_save_image(cover_image, prefix="cover")
-        if banner_image and banner_image.startswith("http"):
+        if banner_image and banner_image.startswith("http") and ".liara.site" not in banner_image:
             banner_image = await download_and_save_image(banner_image, prefix="banner")
+
+        screenshots = data.get("screenshots") or []
+        if isinstance(screenshots, list):
+            processed_shots = []
+            for s in screenshots:
+                if s and isinstance(s, str) and s.startswith("http") and ".liara.site" not in s:
+                    s = await download_and_save_image(s, prefix="shot")
+                processed_shots.append(s)
+            screenshots = processed_shots
 
         download_links_data = data.pop("download_links", None)
 
         game = Game(
+            source_id=source_id,
             rawg_id=rawg_id,
             title_fa=data["title_fa"],
             title_en=data["title_en"],
@@ -353,7 +371,7 @@ class AdminService:
             developer=data.get("developer"),
             publisher=data.get("publisher"),
             awards=data.get("awards", []),
-            screenshots=data.get("screenshots", []),
+            screenshots=screenshots,
             released=data.get("released"),
             rating=data.get("rating", 0.0),
             metacritic=data.get("metacritic"),
@@ -438,17 +456,30 @@ class AdminService:
         }
 
     @staticmethod
-    async def update_game(db: AsyncSession, game_id: int, data: dict) -> Game:
+    async def update_game(db: AsyncSession, game_id: int, data: Any) -> Game:
         """Update existing game catalog entry and localize images if remote."""
         from app.core.storage import download_and_save_image
+
+        if hasattr(data, "model_dump"):
+            data = data.model_dump(exclude_unset=True)
+        elif not isinstance(data, dict):
+            data = dict(data)
+
         game = (await db.execute(select(Game).where(Game.id == game_id))).scalar_one_or_none()
         if not game:
             raise NotFoundException("بازی یافت نشد.")
 
-        if "cover_image_url" in data and data["cover_image_url"] and data["cover_image_url"].startswith("http"):
+        if "cover_image_url" in data and data["cover_image_url"] and data["cover_image_url"].startswith("http") and ".liara.site" not in data["cover_image_url"]:
             data["cover_image_url"] = await download_and_save_image(data["cover_image_url"], prefix="cover")
-        if "banner_image_url" in data and data["banner_image_url"] and data["banner_image_url"].startswith("http"):
+        if "banner_image_url" in data and data["banner_image_url"] and data["banner_image_url"].startswith("http") and ".liara.site" not in data["banner_image_url"]:
             data["banner_image_url"] = await download_and_save_image(data["banner_image_url"], prefix="banner")
+        if "screenshots" in data and isinstance(data["screenshots"], list):
+            processed_shots = []
+            for s in data["screenshots"]:
+                if s and isinstance(s, str) and s.startswith("http") and ".liara.site" not in s:
+                    s = await download_and_save_image(s, prefix="shot")
+                processed_shots.append(s)
+            data["screenshots"] = processed_shots
 
         download_links_data = data.pop("download_links", None)
 

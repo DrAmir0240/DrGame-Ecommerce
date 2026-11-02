@@ -44,3 +44,4 @@ class TokenResponse(BaseModel):
 class MessageResponse(BaseModel):
     message: str
     detail: str | None = None
+    is_registered: bool = False

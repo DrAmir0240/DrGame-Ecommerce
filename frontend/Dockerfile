@@ -5,15 +5,13 @@ FROM node:20-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache libc6-compat || true
 
-# Install dependencies
-FROM base AS deps
-COPY package.json package-lock.json* ./
-RUN npm install
-
 # Development target (hot-reload)
 FROM base AS dev
-ENV NODE_ENV=development
-COPY --from=deps /app/node_modules ./node_modules
+ENV NODE_ENV=development \
+    PATH="/app/node_modules/.bin:$PATH"
+
+COPY package.json package-lock.json* ./
+RUN npm install
 COPY . .
 
 EXPOSE 3000
@@ -22,15 +20,27 @@ CMD ["npm", "run", "dev"]
 
 # Builder
 FROM base AS builder
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    PATH="/app/node_modules/.bin:$PATH"
+
+# Install all dependencies (including devDependencies for build: typescript, tailwindcss, etc.)
+COPY package.json package-lock.json* ./
+RUN npm install
+RUN chmod -R +x /app/node_modules/.bin || true
+
 COPY . .
 
-ARG NEXT_PUBLIC_API_URL=http://62.60.191.67:8000/api
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL=https://store.gamedr.ir/api
+ARG NEXT_PUBLIC_DEPLOYMENT_MODE=domestic
+ARG NEXT_PUBLIC_DEFAULT_CURRENCY=IRT
 
-RUN npm run build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_DEPLOYMENT_MODE=$NEXT_PUBLIC_DEPLOYMENT_MODE \
+    NEXT_PUBLIC_DEFAULT_CURRENCY=$NEXT_PUBLIC_DEFAULT_CURRENCY \
+    NODE_ENV=production
+
+RUN npx next build
 
 # Production runner
 FROM node:20-alpine AS prod
@@ -39,7 +49,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME="0.0.0.0"
+    HOSTNAME="0.0.0.0" \
+    PATH="/app/node_modules/.bin:$PATH"
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -48,9 +59,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
+RUN chmod -R +x /app/node_modules/.bin || true
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npx", "next", "start", "-p", "3000"]
