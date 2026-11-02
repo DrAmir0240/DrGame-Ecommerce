@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { apiRequest } from '@/lib/apiClient';
@@ -18,6 +19,9 @@ import {
   Bookmark,
   Gamepad2,
   Loader2,
+  Laptop,
+  ArrowLeft,
+  ExternalLink,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
@@ -214,33 +218,86 @@ function ProfileContent() {
       ) : (
         /* Profile & Security Settings View */
         <div className="space-y-8">
-          {/* Referral Code Card */}
-          <div className="max-w-2xl">
-            {/* 8-Digit Referral Code */}
-            <div className="p-6 rounded-2xl glass-card border border-white/10 space-y-4 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <Share2 className="w-5 h-5 text-emerald-400" />
-                  <span>{t('profile.referralCode.title')}</span>
+          {/* Quick Hub: Referral & Security Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 1. Referral & Earnings Card */}
+            <div className="p-6 rounded-3xl glass-card border border-white/10 space-y-4 shadow-lg flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white font-bold">
+                    <Share2 className="w-5 h-5 text-emerald-400" />
+                    <span>{t('profile.referralCode.title')}</span>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    {t('profile.referralCode.badge')}
+                  </span>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  {t('profile.referralCode.badge')}
-                </span>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  {t('profile.referralCode.description')}
+                </p>
+
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-base border border-emerald-500/30">
+                  <span className="text-xl font-roboto font-extrabold tracking-widest text-emerald-400">
+                    {user?.referral_code || 'REF8X92K'}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => copyToClipboard(user?.referral_code || 'REF8X92K', 'referral')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      {copiedCode === 'referral' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedCode === 'referral' ? t('profile.copied') : t('profile.copyCode')}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {t('profile.referralCode.description')}
-              </p>
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-base border border-white/10">
-                <span className="text-2xl font-roboto font-extrabold tracking-widest text-emerald-400">
-                  {user?.referral_code || 'REF8X92K'}
-                </span>
-                <button
-                  onClick={() => copyToClipboard(user?.referral_code || 'REF8X92K', 'referral')}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-xs font-semibold transition-all cursor-pointer"
+
+              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <span className="text-xs text-text-muted">۴ سطح کمیسیون خودکار</span>
+                <Link
+                  href="/referral"
+                  className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 transition-colors"
                 >
-                  {copiedCode === 'referral' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedCode === 'referral' ? t('profile.copied') : t('profile.copyCode')}</span>
-                </button>
+                  <span>داشبورد درآمد و تسویه</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Active Sessions & Account Security Card */}
+            <div className="p-6 rounded-3xl glass-card border border-white/10 space-y-4 shadow-lg flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white font-bold">
+                    <Laptop className="w-5 h-5 text-cosmic-purple" />
+                    <span>امنیت حساب و نشست‌های فعال</span>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-cosmic-purple/20 text-nebula-violet border border-cosmic-purple/30">
+                    محافظت سشن
+                  </span>
+                </div>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  کنترل نشست‌های همزمان روی مرورگر، موبایل و کنسول‌های PS4/PS5 و لغو دسترسی‌های مشکوک.
+                </p>
+
+                <div className="p-3 rounded-2xl bg-surface-base border border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs text-slate-300">نشست جاری: دستگاه تایید شده</span>
+                  </div>
+                  <span className="text-[11px] text-text-muted font-mono" dir="ltr">IP محافظت‌شده</span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <span className="text-xs text-text-muted">مدیریت دستگاه‌های متصل</span>
+                <Link
+                  href="/sessions"
+                  className="text-xs text-nebula-violet hover:text-purple-300 font-bold flex items-center gap-1 transition-colors"
+                >
+                  <span>مشاهده لیست نشست‌ها</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </div>
           </div>

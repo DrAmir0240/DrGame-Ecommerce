@@ -1,6 +1,7 @@
 """Authentication router: OTP, registration, password login, console login, logout."""
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
@@ -42,14 +43,29 @@ def extract_client_info(request: Request) -> dict:
 @router.post("/otp/send", response_model=MessageResponse, status_code=status.HTTP_200_OK)
 async def send_otp(
     payload: OTPRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)]
 ):
-    """Send 6-digit OTP code to email or mobile (cached in Redis with 120s TTL)."""
+    """Send 6-digit OTP code to email or mobile (cached in Redis with 120s TTL) and detect if user exists."""
     code = await AuthService.generate_and_save_otp(redis, payload.target)
-    # In production, send SMS/Email via external gateway. In development/testing, return simulated notice.
+
+    # Check if target already belongs to an existing registered user
+    clean_target = payload.target.strip().lower()
+    if "@" in clean_target:
+        stmt = select(User).where(User.email.ilike(clean_target))
+    else:
+        clean_phone = clean_target.replace(" ", "").replace("-", "")
+        if clean_phone.startswith("+98"):
+            clean_phone = "0" + clean_phone[3:]
+        stmt = select(User).where(User.phone == clean_phone)
+
+    user = await db.scalar(stmt)
+    is_registered = user is not None
+
     return MessageResponse(
         message="کد تایید ۶ رقمی با موفقیت ارسال شد.",
-        detail=f"DEBUG_CODE: {code}"  # Accessible in dev tests
+        detail=f"DEBUG_CODE: {code}",
+        is_registered=is_registered
     )
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)

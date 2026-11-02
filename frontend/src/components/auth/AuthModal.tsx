@@ -24,6 +24,12 @@ import { apiRequest } from '@/lib/apiClient';
 import { TokenResponse } from '@/types/auth';
 import { useTranslation } from '@/i18n';
 
+interface OtpSendResponse {
+  message: string;
+  detail?: string;
+  is_registered?: boolean;
+}
+
 export default function AuthModal() {
   const { t } = useTranslation();
   const { isAuthModalOpen, setAuthModalOpen, authModalInitialTab, setAuth } = useAuthStore();
@@ -31,19 +37,18 @@ export default function AuthModal() {
   const deploymentMode = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE || 'domestic';
   const isDomestic = deploymentMode === 'domestic';
 
-  const [tab, setTab] = useState<'otp' | 'password' | 'register' | 'console'>('otp');
+  // Tabs: 'otp' (Unified Login & Register) or 'password' (Password Login) or 'console' (PlayStation)
+  const [tab, setTab] = useState<'otp' | 'password' | 'console'>('otp');
   const [isConsoleUA, setIsConsoleUA] = useState(false);
 
-  // OTP Login State
+  // Unified OTP State
+  // Step: 'target' -> 'verify_login' (if existing account) OR 'verify_register' (if new account)
   const [otpTarget, setOtpTarget] = useState('');
-  const [otpStep, setOtpStep] = useState<'target' | 'verify'>('target');
+  const [otpStep, setOtpStep] = useState<'target' | 'verify_login' | 'verify_register'>('target');
   const [otpCode, setOtpCode] = useState('');
   const [simulatedNotice, setSimulatedNotice] = useState<string | null>(null);
 
-  // Register State
-  const [regTarget, setRegTarget] = useState('');
-  const [regStep, setRegStep] = useState<'target' | 'verify'>('target');
-  const [regCode, setRegCode] = useState('');
+  // Registration Fields (when is_registered === false)
   const [regFullName, setRegFullName] = useState('');
   const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -71,11 +76,7 @@ export default function AuthModal() {
       if (isPlayStation) {
         setTab('console');
       } else {
-        if (authModalInitialTab === 'console') {
-          setTab('otp');
-        } else {
-          setTab(authModalInitialTab);
-        }
+        setTab(authModalInitialTab === 'console' ? 'otp' : authModalInitialTab);
       }
     }
   }, [authModalInitialTab, isAuthModalOpen]);
@@ -87,8 +88,6 @@ export default function AuthModal() {
     setSimulatedNotice(null);
     setOtpStep('target');
     setOtpCode('');
-    setRegStep('target');
-    setRegCode('');
     setRegFullName('');
     setRegUsername('');
     setRegPassword('');
@@ -107,7 +106,7 @@ export default function AuthModal() {
       if (clean.includes('@') || /[a-zA-Z]/.test(clean)) {
         return {
           valid: false,
-          message: 'در نسخه داخلی، ثبت‌نام فقط با شماره موبایل ایران امکان‌پذیر است.',
+          message: 'در نسخه داخلی، ورود و ثبت‌نام فقط با شماره موبایل ایران انجام می‌شود.',
           type: 'error',
         };
       }
@@ -130,7 +129,7 @@ export default function AuthModal() {
       if (/^\d+$/.test(clean) || clean.startsWith('09')) {
         return {
           valid: false,
-          message: 'In international mode, registration is only via Email.',
+          message: 'In international mode, login/register is only via Email.',
           type: 'error',
         };
       }
@@ -145,8 +144,8 @@ export default function AuthModal() {
     }
   };
 
-  // 1. Send OTP for Login
-  const handleSendLoginOtp = async (e: React.FormEvent) => {
+  // Step 1: Send OTP and automatically check if account exists
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanTarget = otpTarget.trim();
     const validation = validateTarget(cleanTarget);
@@ -158,11 +157,19 @@ export default function AuthModal() {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiRequest<{ message: string; detail?: string }>('/auth/otp/send', {
+      const res = await apiRequest<OtpSendResponse>('/auth/otp/send', {
         method: 'POST',
         body: JSON.stringify({ target: cleanTarget }),
       });
-      setOtpStep('verify');
+
+      if (res.is_registered) {
+        // User already has an account -> proceed to fast OTP login
+        setOtpStep('verify_login');
+      } else {
+        // User does NOT have an account -> proceed to registration step
+        setOtpStep('verify_register');
+      }
+
       if (res.detail) setSimulatedNotice(res.detail);
     } catch (err: any) {
       setError(err.message || 'خطا در ارسال کد تایید');
@@ -171,13 +178,13 @@ export default function AuthModal() {
     }
   };
 
-  // 2. Submit OTP Login
+  // Step 2A: Verify OTP for existing account (Login)
   const handleOtpLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanCode = otpCode.trim();
     const cleanTarget = otpTarget.trim();
     if (!cleanCode) {
-      setError('لطفاً کد تایید دریافتی را وارد کنید.');
+      setError('لطفاً کد تایید ۶ رقمی را وارد کنید.');
       return;
     }
 
@@ -195,50 +202,28 @@ export default function AuthModal() {
       setAuthModalOpen(false);
       resetForms();
     } catch (err: any) {
-      setError(err.message || 'کد تایید وارد شده نامعتبر یا منقضی شده است.');
+      setError(err.message || 'کد تایید وارد شده نادرست یا منقضی شده است.');
     } finally {
       setLoading(false);
     }
   };
 
-  // 3. Send OTP for Registration
-  const handleSendRegOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanTarget = regTarget.trim();
-    const validation = validateTarget(cleanTarget);
-    if (!validation.valid) {
-      setError(validation.message || 'لطفاً مقدار ورودی معتبر وارد نمایید.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiRequest<{ message: string; detail?: string }>('/auth/otp/send', {
-        method: 'POST',
-        body: JSON.stringify({ target: cleanTarget }),
-      });
-      setRegStep('verify');
-      if (res.detail) setSimulatedNotice(res.detail);
-    } catch (err: any) {
-      setError(err.message || 'خطا در ارسال کد تایید');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 4. Submit Full Registration
+  // Step 2B: Verify OTP and Register new account
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanTarget = regTarget.trim();
-    const cleanCode = regCode.trim();
+    const cleanTarget = otpTarget.trim();
+    const cleanCode = otpCode.trim();
     const cleanFullName = regFullName.trim();
     const cleanUsername = regUsername.trim();
     const cleanPassword = regPassword.trim();
     const cleanReferral = regReferralCode.trim() || undefined;
 
-    if (!cleanCode || !cleanFullName || !cleanUsername || !cleanPassword) {
-      setError('لطفاً تمامی فیلدهای الزامی فرم ثبت‌نام را تکمیل فرمایید.');
+    if (!cleanCode) {
+      setError('لطفاً کد تایید ۶ رقمی را وارد کنید.');
+      return;
+    }
+    if (!cleanFullName || !cleanUsername || !cleanPassword) {
+      setError('لطفاً تمام فیلدهای مشخصات کاربری را تکمیل فرمایید.');
       return;
     }
 
@@ -276,7 +261,7 @@ export default function AuthModal() {
     }
   };
 
-  // 5. Password Login
+  // Password Login
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanLogin = loginIdentifier.trim();
@@ -305,7 +290,7 @@ export default function AuthModal() {
     }
   };
 
-  // 6. Console Login (PS4 / PS5)
+  // Console Login (PS4 / PS5)
   const handleConsoleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanConsoleCode = consoleCode.toUpperCase().trim();
@@ -333,7 +318,6 @@ export default function AuthModal() {
   };
 
   const otpValidation = validateTarget(otpTarget);
-  const regValidation = validateTarget(regTarget);
 
   return (
     <AnimatePresence>
@@ -342,7 +326,7 @@ export default function AuthModal() {
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-md rounded-2xl glass-card border border-cosmic-purple/40 p-6 shadow-2xl overflow-hidden bg-[#101116] max-h-[92vh] overflow-y-auto"
+          className="relative w-full max-w-md rounded-3xl glass-card border border-cosmic-purple/40 p-6 sm:p-7 shadow-2xl overflow-hidden bg-[#101116] max-h-[92vh] overflow-y-auto"
         >
           {/* Header Close */}
           <button
@@ -357,18 +341,18 @@ export default function AuthModal() {
 
           {/* Title Header */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 rounded-xl bg-cosmic-gradient shadow-neon-purple text-white">
+            <div className="p-3 rounded-2xl bg-cosmic-gradient shadow-neon-purple text-white">
               <Gamepad2 className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">
-                {isConsoleUA ? 'ورود به حساب کنسول پلی‌استیشن' : 'ورود و ثبت‌نام در دکتر گیم'}
+                {isConsoleUA ? 'ورود به حساب در کنسول' : 'ورود / ثبت‌نام در دکتر گیم'}
               </h2>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-text-muted mt-0.5">
                 {isConsoleUA
-                  ? 'ورود سریع بهینه شده برای مرورگر PS4 و PS5'
+                  ? 'ورود سریع بهینه‌شده برای مرورگر PS4 و PS5'
                   : isDomestic
-                  ? 'سامانه یکپارچه کاربران دکتر گیم (ایران)'
+                  ? 'دسترسی سریع با شماره موبایل ایران'
                   : 'DrGame Global Gamer Network'}
               </p>
             </div>
@@ -376,8 +360,8 @@ export default function AuthModal() {
 
           {/* =========================================================================
               NAVIGATION TABS
-              - If PlayStation detected: ONLY show console badge (no tab navigation).
-              - If Desktop/Mobile: Show OTP, Password, and Register tabs (Hide Console).
+              - If PlayStation: Show console detection badge only.
+              - If Desktop/Mobile: Show 2 simple tabs (OTP vs Password).
              ========================================================================= */}
           {isConsoleUA ? (
             <div className="mb-6 p-3 rounded-xl bg-cosmic-purple/15 border border-cosmic-purple/30 flex items-center justify-between text-xs">
@@ -388,20 +372,20 @@ export default function AuthModal() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
           ) : (
-            <div className="flex p-1 mb-6 rounded-xl bg-[#0d121f] border border-white/10 text-xs font-medium">
+            <div className="flex p-1 mb-6 rounded-2xl bg-[#0d121f] border border-white/10 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
                   setTab('otp');
                   resetForms();
                 }}
-                className={`flex-1 py-2.5 rounded-lg transition-all cursor-pointer font-bold ${
+                className={`flex-1 py-2.5 rounded-xl transition-all cursor-pointer font-bold ${
                   tab === 'otp'
                     ? 'bg-nebula-violet text-white shadow-neon-purple'
                     : 'text-text-secondary hover:text-white'
                 }`}
               >
-                ورود با OTP
+                ورود / ثبت‌نام با کد تایید
               </button>
               <button
                 type="button"
@@ -409,27 +393,13 @@ export default function AuthModal() {
                   setTab('password');
                   resetForms();
                 }}
-                className={`flex-1 py-2.5 rounded-lg transition-all cursor-pointer font-bold ${
+                className={`flex-1 py-2.5 rounded-xl transition-all cursor-pointer font-bold ${
                   tab === 'password'
                     ? 'bg-nebula-violet text-white shadow-neon-purple'
                     : 'text-text-secondary hover:text-white'
                 }`}
               >
                 ورود با رمز عبور
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTab('register');
-                  resetForms();
-                }}
-                className={`flex-1 py-2.5 rounded-lg transition-all cursor-pointer font-bold ${
-                  tab === 'register'
-                    ? 'bg-cosmic-purple text-white shadow-neon-purple'
-                    : 'text-text-secondary hover:text-white'
-                }`}
-              >
-                ثبت‌نام جدید
               </button>
             </div>
           )}
@@ -447,8 +417,8 @@ export default function AuthModal() {
             <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>
-                کد آزمایشی سرور:{' '}
-                <b className="font-mono text-sm tracking-wider">
+                کد تایید پیامکی سرور:{' '}
+                <b className="font-mono text-sm tracking-wider font-bold">
                   {simulatedNotice.replace('DEBUG_CODE: ', '')}
                 </b>
               </span>
@@ -456,12 +426,13 @@ export default function AuthModal() {
           )}
 
           {/* =========================================================================
-              TAB 1: OTP FAST LOGIN
+              TAB 1: UNIFIED OTP (Auto-detects Existing User vs New User)
              ========================================================================= */}
           {!isConsoleUA && tab === 'otp' && (
             <div>
-              {otpStep === 'target' ? (
-                <form onSubmit={handleSendLoginOtp} className="space-y-4">
+              {/* STEP 1: Enter Phone / Email */}
+              {otpStep === 'target' && (
+                <form onSubmit={handleSendOtp} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-text-secondary mb-2">
                       {isDomestic ? 'شماره تلفن همراه' : 'Email Address'}
@@ -506,32 +477,30 @@ export default function AuthModal() {
                     )}
                   </div>
 
+                  <p className="text-[11px] text-text-muted leading-relaxed">
+                    در صورت داشتن حساب کاربری وارد خواهید شد؛ در غیر این صورت به صفحه تکمیل مشخصات ثبت‌نام هدایت می‌شوید.
+                  </p>
+
                   <button
                     type="submit"
                     disabled={loading || !otpValidation.valid}
                     className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
                   >
-                    {loading ? 'در حال ارسال کد...' : 'دریافت کد ورود ۶ رقمی'}
+                    {loading ? 'در حال ارسال کد...' : 'دریافت کد تایید و ادامه'}
                   </button>
-
-                  <div className="pt-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTab('register');
-                        resetForms();
-                      }}
-                      className="text-xs text-nebula-violet hover:underline cursor-pointer"
-                    >
-                      حساب کاربری ندارید؟ ثبت‌نام مشخصات کامل
-                    </button>
-                  </div>
                 </form>
-              ) : (
+              )}
+
+              {/* STEP 2A: Existing User -> Fast OTP Login */}
+              {otpStep === 'verify_login' && (
                 <form onSubmit={handleOtpLoginSubmit} className="space-y-4">
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
+                    حساب کاربری شما شناسایی شد. کد ۶ رقمی ارسال‌شده به <b className="text-white" dir="ltr">{otpTarget}</b> را وارد کنید:
+                  </div>
+
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <label className="text-xs text-text-secondary">کد تایید ۶ رقمی دریافتی</label>
+                      <label className="text-xs font-bold text-text-secondary">کد تایید ۶ رقمی</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -542,7 +511,7 @@ export default function AuthModal() {
                         className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <ArrowLeft className="w-3 h-3" />
-                        <span>تغییر شماره / ایمیل</span>
+                        <span>تغییر شماره</span>
                       </button>
                     </div>
                     <input
@@ -564,203 +533,55 @@ export default function AuthModal() {
                     disabled={loading || otpCode.length < 4}
                     className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
                   >
-                    {loading ? 'در حال ورود...' : 'ورود فوری به حساب کاربری'}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* =========================================================================
-              TAB 2: PASSWORD LOGIN
-             ========================================================================= */}
-          {!isConsoleUA && tab === 'password' && (
-            <form onSubmit={handlePasswordLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-2">
-                  نام کاربری، شماره موبایل یا ایمیل
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    dir="ltr"
-                    style={{ colorScheme: 'dark' }}
-                    value={loginIdentifier}
-                    onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="gamer2026 / 0912... / user@domain.com"
-                    className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
-                    required
-                    autoFocus
-                  />
-                  <User className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-2">کلمه عبور</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    dir="ltr"
-                    style={{ colorScheme: 'dark' }}
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full ps-11 pe-11 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
-                    required
-                  />
-                  <Lock className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute end-3.5 top-3.5 text-text-muted hover:text-white transition-colors cursor-pointer"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
-              >
-                {loading ? 'در حال بررسی...' : 'ورود با کلمه عبور'}
-              </button>
-
-              <div className="flex items-center justify-between pt-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTab('otp');
-                    resetForms();
-                  }}
-                  className="text-text-muted hover:text-white cursor-pointer"
-                >
-                  ورود سریع بدون رمز
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTab('register');
-                    resetForms();
-                  }}
-                  className="text-nebula-violet hover:underline font-bold cursor-pointer"
-                >
-                  حساب ندارید؟ ثبت‌نام کنید
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* =========================================================================
-              TAB 3: FULL REGISTRATION FORM
-             ========================================================================= */}
-          {!isConsoleUA && tab === 'register' && (
-            <div>
-              {regStep === 'target' ? (
-                <form onSubmit={handleSendRegOtp} className="space-y-4">
-                  <div className="p-3 rounded-xl bg-cosmic-purple/10 border border-cosmic-purple/25 text-xs text-text-secondary leading-relaxed">
-                    برای شروع ثبت‌نام، شماره تماس یا ایمیل معتبر خود را جهت دریافت کد تایید وارد کنید.
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-2">
-                      {isDomestic ? 'شماره همراه (ایران)' : 'Email Address'}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={isDomestic ? 'tel' : 'email'}
-                        dir="ltr"
-                        style={{ colorScheme: 'dark' }}
-                        value={regTarget}
-                        onChange={(e) => setRegTarget(e.target.value)}
-                        placeholder={isDomestic ? '09123456789' : 'user@example.com'}
-                        className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
-                        required
-                        autoFocus
-                      />
-                      {isDomestic ? (
-                        <Phone className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
-                      ) : (
-                        <Mail className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
-                      )}
-                    </div>
-
-                    {/* Live Validator Badge */}
-                    {regValidation.message && (
-                      <div
-                        className={`mt-1.5 text-[11px] flex items-center gap-1.5 ${
-                          regValidation.type === 'success'
-                            ? 'text-emerald-400'
-                            : regValidation.type === 'warning'
-                            ? 'text-amber-400'
-                            : 'text-rose-400'
-                        }`}
-                      >
-                        {regValidation.type === 'success' ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                        ) : (
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                        )}
-                        <span>{regValidation.message}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading || !regValidation.valid}
-                    className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
-                  >
-                    {loading ? 'در حال ارسال کد...' : 'تایید شماره و رفتن به فرم ثبت‌نام'}
+                    {loading ? 'در حال ورود...' : 'ورود فوری به حساب'}
                   </button>
 
-                  <div className="pt-2 text-center">
+                  <div className="pt-1 text-center">
                     <button
                       type="button"
                       onClick={() => {
                         setTab('password');
-                        resetForms();
+                        setLoginIdentifier(otpTarget);
                       }}
                       className="text-xs text-text-muted hover:text-white cursor-pointer"
                     >
-                      قبلاً ثبت‌نام کرده‌اید؟ ورود با کلمه عبور
+                      ورود با رمز عبور به جای کد تایید
                     </button>
                   </div>
                 </form>
-              ) : (
+              )}
+
+              {/* STEP 2B: New User -> Registration Form with Pre-sent OTP */}
+              {otpStep === 'verify_register' && (
                 <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                  <div className="flex justify-between items-center pb-1 border-b border-white/10">
-                    <span className="text-xs text-text-secondary">
-                      تایید کد ارسال شده به <b className="text-white" dir="ltr">{regTarget}</b>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRegStep('target');
-                        setRegCode('');
-                        setError(null);
-                      }}
-                      className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <ArrowLeft className="w-3 h-3" />
-                      <span>تغییر</span>
-                    </button>
+                  <div className="p-3 rounded-xl bg-cosmic-purple/15 border border-cosmic-purple/30 text-xs text-text-secondary leading-relaxed">
+                    حسابی با شماره <b className="text-white" dir="ltr">{otpTarget}</b> یافت نشد. لطفاً کد تایید و مشخصات خود را جهت ساخت حساب تکمیل نمایید:
                   </div>
 
                   {/* OTP Code */}
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">
-                      کد تایید ۶ رقمی
-                    </label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-bold text-text-secondary">کد تایید ۶ رقمی</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpStep('target');
+                          setOtpCode('');
+                          setError(null);
+                        }}
+                        className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3 h-3" />
+                        <span>تغییر شماره</span>
+                      </button>
+                    </div>
                     <input
                       type="text"
                       dir="ltr"
                       maxLength={6}
                       style={{ colorScheme: 'dark' }}
-                      value={regCode}
-                      onChange={(e) => setRegCode(e.target.value.replace(/\D/g, ''))}
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                       placeholder="123456"
                       className="w-full text-center tracking-widest text-xl font-bold px-4 py-2.5 rounded-xl bg-[#0d121f] border border-white/15 text-emerald-400 focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet caret-purple-400"
                       required
@@ -852,11 +673,11 @@ export default function AuthModal() {
 
                   <button
                     type="submit"
-                    disabled={loading || regCode.length < 4 || !regFullName || !regUsername || !regPassword}
+                    disabled={loading || otpCode.length < 4 || !regFullName || !regUsername || !regPassword}
                     className="w-full py-3 mt-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>{loading ? 'در حال ثبت‌نام...' : 'تکمیل ثبت‌نام و ساخت حساب'}</span>
+                    <span>{loading ? 'در حال ثبت‌نام...' : 'تکمیل ثبت‌نام و ورود'}</span>
                   </button>
                 </form>
               )}
@@ -864,7 +685,79 @@ export default function AuthModal() {
           )}
 
           {/* =========================================================================
-              TAB 4: CONSOLE QUICK AUTH (PlayStation PS4 / PS5 Only)
+              TAB 2: PASSWORD LOGIN
+             ========================================================================= */}
+          {!isConsoleUA && tab === 'password' && (
+            <form onSubmit={handlePasswordLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-2">
+                  نام کاربری، شماره موبایل یا ایمیل
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    dir="ltr"
+                    style={{ colorScheme: 'dark' }}
+                    value={loginIdentifier}
+                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                    placeholder="gamer2026 / 0912... / user@domain.com"
+                    className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
+                    required
+                    autoFocus
+                  />
+                  <User className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-2">کلمه عبور</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    dir="ltr"
+                    style={{ colorScheme: 'dark' }}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full ps-11 pe-11 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
+                    required
+                  />
+                  <Lock className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute end-3.5 top-3.5 text-text-muted hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+              >
+                {loading ? 'در حال بررسی...' : 'ورود با کلمه عبور'}
+              </button>
+
+              <div className="pt-2 text-center text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTab('otp');
+                    resetForms();
+                  }}
+                  className="text-nebula-violet hover:underline cursor-pointer"
+                >
+                  ورود یا ثبت‌نام با کد تایید یکبارمصرف (OTP)
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* =========================================================================
+              TAB 3: CONSOLE QUICK AUTH (PlayStation PS4 / PS5 Only)
              ========================================================================= */}
           {tab === 'console' && (
             <form onSubmit={handleConsoleLogin} className="space-y-4">
