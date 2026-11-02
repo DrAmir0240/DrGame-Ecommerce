@@ -288,10 +288,10 @@ export default function DepartmentLayout({
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex antialiased" dir="rtl">
       {/* =========================================================================
-          DESKTOP SIDEBAR (Collapsible w-64 <-> w-20, sticky on md:)
+          DESKTOP SIDEBAR (Collapsible w-64 <-> w-20, sticky on lg:)
          ========================================================================= */}
       <aside
-        className={`hidden md:flex flex-col bg-[#0c1017] border-l border-slate-800/80 sticky top-0 h-screen shrink-0 z-20 transition-[width] duration-300 ease-in-out ${
+        className={`hidden lg:flex flex-col bg-[#0c1017] border-l border-slate-800/80 sticky top-0 h-screen shrink-0 z-20 overflow-hidden transition-[width] duration-300 ease-in-out ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -349,7 +349,7 @@ export default function DepartmentLayout({
         createPortal(
           <AnimatePresence>
             {mobileOpen && (
-              <div className="fixed inset-0 z-[100] md:hidden font-vazir" dir="rtl">
+              <div className="fixed inset-0 z-[100] lg:hidden font-vazir" dir="rtl">
                 {/* Backdrop Overlay */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -413,11 +413,11 @@ export default function DepartmentLayout({
         <header className="h-16 px-4 sm:px-6 border-b border-slate-800/80 bg-[#0c1017]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-3">
           {/* Right Section: Mobile Trigger, Desktop Collapse Toggle & Hub Link */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile Hamburger Menu Button */}
+            {/* Mobile / Tablet Hamburger Menu Button */}
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="md:hidden flex items-center gap-1.5 p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="lg:hidden flex items-center gap-1.5 p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-all active:scale-95 cursor-pointer shadow-sm"
               title="منوی دپارتمان"
               aria-label="منوی دپارتمان"
             >
@@ -429,7 +429,7 @@ export default function DepartmentLayout({
             <button
               type="button"
               onClick={toggleCollapsed}
-              className="hidden md:flex p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/50 transition-colors cursor-pointer"
+              className="hidden lg:flex p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/50 transition-colors cursor-pointer"
               title={collapsed ? 'گسترش نوار کناری' : 'جمع کردن نوار کناری'}
               aria-label={collapsed ? 'گسترش نوار کناری' : 'جمع کردن نوار کناری'}
             >
