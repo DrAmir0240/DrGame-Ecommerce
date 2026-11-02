@@ -13,7 +13,11 @@
     "firstPage": "Primera página",
     "prevPage": "Pagina anterior",
     "nextPage": "Página siguiente",
-    "lastPage": "Última página"
+    "lastPage": "Última página",
+    "filters": "Filtros",
+    "emptyBody": "No hay juegos que coincidan con los filtros seleccionados. Restablece los filtros o prueba con otra búsqueda.",
+    "resetFilters": "Restablecer filtros",
+    "paginationShowing": "Mostrando {{from}} a {{to}} de {{total}} juegos"
   },
   "gameDetail": {
     "loading": "Cargando detalles del juego cinematográfico...",

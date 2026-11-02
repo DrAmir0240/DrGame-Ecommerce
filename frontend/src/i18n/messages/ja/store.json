@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "フィルター",
+    "emptyBody": "選択したフィルターに一致するゲームが見つかりませんでした。フィルターをリセットするか、別のキーワードで検索してください。",
+    "resetFilters": "フィルターをリセット",
+    "paginationShowing": "全 {{total}} 件中 {{from}} 〜 {{to}} 件を表示"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",

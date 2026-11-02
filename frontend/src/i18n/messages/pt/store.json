@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "Filtros",
+    "emptyBody": "Nenhum jogo corresponde aos filtros selecionados. Redefina os filtros ou tente outra busca.",
+    "resetFilters": "Redefinir filtros",
+    "paginationShowing": "Mostrando {{from}} a {{to}} de {{total}} jogos"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",

@@ -13,7 +13,11 @@
     "firstPage": "第一页",
     "prevPage": "上一页",
     "nextPage": "下一页",
-    "lastPage": "最后一页"
+    "lastPage": "最后一页",
+    "filters": "筛选",
+    "emptyBody": "没有找到符合所选筛选条件的游戏。请重置筛选或尝试其他搜索。",
+    "resetFilters": "重置筛选",
+    "paginationShowing": "显示第 {{from}} 至 {{to}} 条，共 {{total}} 款游戏"
   },
   "gameDetail": {
     "loading": "正在加载电影般的游戏详细信息...",

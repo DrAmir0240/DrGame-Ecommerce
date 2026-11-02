@@ -13,7 +13,11 @@
     "firstPage": "Erste Seite",
     "prevPage": "Vorherige Seite",
     "nextPage": "Nächste Seite",
-    "lastPage": "Letzte Seite"
+    "lastPage": "Letzte Seite",
+    "filters": "Filter",
+    "emptyBody": "Keine Spiele entsprechen den ausgewählten Filtern. Setzen Sie die Filter zurück oder versuchen Sie eine andere Suche.",
+    "resetFilters": "Filter zurücksetzen",
+    "paginationShowing": "Zeige {{from}} bis {{to}} von {{total}} Spielen"
   },
   "gameDetail": {
     "loading": "Details zum filmischen Spiel werden geladen…",

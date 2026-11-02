@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "필터",
+    "emptyBody": "선택한 필터와 일치하는 게임이 없습니다. 필터를 재설정하거나 다른 검색어를 입력해 보세요.",
+    "resetFilters": "필터 초기화",
+    "paginationShowing": "총 {{total}}개 중 {{from}} - {{to}}개 표시"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",

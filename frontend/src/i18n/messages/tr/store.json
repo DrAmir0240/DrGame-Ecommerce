@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "Filtreler",
+    "emptyBody": "Seçilen filtrelerle eşleşen oyun bulunamadı. Filtreleri sıfırlayın veya farklı bir arama yapın.",
+    "resetFilters": "Filtreleri Sıfırla",
+    "paginationShowing": "Toplam {{total}} oyundan {{from}} - {{to}} arası gösteriliyor"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",

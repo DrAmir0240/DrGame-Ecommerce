@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "Filters",
+    "emptyBody": "Geen games gevonden die voldoen aan de geselecteerde filters. Reset de filters of probeer een andere zoekopdracht.",
+    "resetFilters": "Filters resetten",
+    "paginationShowing": "Weergave van {{from}} tot {{to}} van {{total}} games"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",

@@ -13,7 +13,11 @@
     "firstPage": "First page",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "lastPage": "Last page"
+    "lastPage": "Last page",
+    "filters": "फ़िल्टर",
+    "emptyBody": "चयनित फ़िल्टर से मेल खाने वाला कोई गेम नहीं मिला। कृपया फ़िल्टर रीसेट करें या कोई अन्य खोज आज़माएं।",
+    "resetFilters": "फ़िल्टर रीसेट करें",
+    "paginationShowing": "कुल {{total}} गेम में से {{from}} से {{to}} दिखाया जा रहा है"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
