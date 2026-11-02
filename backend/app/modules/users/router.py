@@ -154,3 +154,17 @@ async def get_my_payments(
     payments = await UserService.get_user_payments(db=db, user_id=current_user.id)
     return [UserPaymentOut(**p) for p in payments]
 
+
+# ==========================================
+# Dynamic Console Pairing Code (120s TTL)
+# ==========================================
+
+@router.post("/me/console-code/generate", status_code=status.HTTP_200_OK)
+@router.post("/console-code/generate", status_code=status.HTTP_200_OK)
+async def generate_console_pairing_code(
+    current_user: Annotated[User, Depends(get_current_user)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """Generate dynamic 6-character console pairing code valid for 120 seconds (2 minutes)."""
+    return await UserService.generate_dynamic_console_code(redis=redis, user_id=current_user.id)
+

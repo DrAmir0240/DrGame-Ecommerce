@@ -12,7 +12,6 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  KeyRound,
   Share2,
   Sparkles,
   AlertCircle,
@@ -215,36 +214,8 @@ function ProfileContent() {
       ) : (
         /* Profile & Security Settings View */
         <div className="space-y-8">
-          {/* Console Quick Auth & Referral Code Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Persistent 7-Digit Console Auth Code */}
-            <div className="p-6 rounded-2xl glass-card border border-cosmic-purple/40 space-y-4 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <KeyRound className="w-5 h-5 text-nebula-violet" />
-                  <span>{t('profile.consoleCode.title')}</span>
-                </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-cosmic-purple/20 text-nebula-violet border border-cosmic-purple/30">
-                  {t('profile.consoleCode.badge')}
-                </span>
-              </div>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {t('profile.consoleCode.description')}
-              </p>
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-base border border-cosmic-purple/30">
-                <span className="text-2xl font-roboto font-extrabold tracking-widest text-nebula-violet">
-                  {user?.console_auth_code || '7X9K2PL'}
-                </span>
-                <button
-                  onClick={() => copyToClipboard(user?.console_auth_code || '7X9K2PL', 'console')}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cosmic-purple/20 hover:bg-cosmic-purple/40 text-nebula-violet text-xs font-semibold transition-all cursor-pointer"
-                >
-                  {copiedCode === 'console' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedCode === 'console' ? t('profile.copied') : t('profile.copyCode')}</span>
-                </button>
-              </div>
-            </div>
-
+          {/* Referral Code Card */}
+          <div className="max-w-2xl">
             {/* 8-Digit Referral Code */}
             <div className="p-6 rounded-2xl glass-card border border-white/10 space-y-4 shadow-lg">
               <div className="flex items-center justify-between">

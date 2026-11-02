@@ -4,7 +4,8 @@ from httpx import AsyncClient
 
 @pytest.mark.asyncio
 async def test_auth_full_journey_via_api(client: AsyncClient):
-    target = "pro_player@drgame.com"
+    # In domestic mode, target must be phone number
+    target = "09121112233"
 
     # 1. Request OTP
     otp_res = await client.post("/api/auth/otp/send", json={"target": target})
@@ -73,4 +74,22 @@ async def test_auth_full_journey_via_api(client: AsyncClient):
         "/api/users/me",
         headers={"Authorization": f"Bearer {access_token}"}
     )
+    assert me_res.status_code == 401
+
+    # 10. Dynamic Console Pairing Code flow
+    # Re-login with password
+    rel_res = await client.post("/api/auth/login", json={"login": "proplayer", "password": "StrongPassword2026!"})
+    new_token = rel_res.json()["access_token"]
+
+    gen_res = await client.post("/api/users/console-code/generate", headers={"Authorization": f"Bearer {new_token}"})
+    assert gen_res.status_code == 200
+    gen_data = gen_res.json()
+    assert "code" in gen_data
+    assert len(gen_data["code"]) == 6
+    assert gen_data["expires_in"] == 120
+
+    # Test login with this dynamic code on console
+    pair_res = await client.post("/api/auth/login/console", json={"console_code": gen_data["code"]})
+    assert pair_res.status_code == 200
+    assert pair_res.json()["user"]["username"] == "proplayer"
     assert me_res.status_code == 401

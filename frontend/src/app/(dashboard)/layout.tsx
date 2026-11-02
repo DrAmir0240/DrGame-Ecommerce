@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { useTranslation } from '@/i18n';
+import ConsolePairWidget from '@/components/profile/ConsolePairWidget';
 import {
   User as UserIcon,
   Share2,
@@ -145,31 +146,8 @@ export default function UserDashboardLayout({
         </span>
       </div>
 
-      {/* 7-digit Console Auth Code Box */}
-      {user?.console_auth_code && (
-        <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-cosmic-purple/30 space-y-1.5 text-center">
-          <div className="text-[11px] text-text-muted">{t('dashboard.consoleCodeLabel')}</div>
-          <div className="flex items-center justify-center gap-2">
-            <span
-              className="font-roboto text-lg font-black tracking-widest text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-xl border border-emerald-500/20"
-              dir="ltr"
-            >
-              {user.console_auth_code}
-            </span>
-            <button
-              onClick={copyConsoleCode}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
-              title={t('dashboard.copyConsoleCode')}
-            >
-              {copiedConsoleCode ? (
-                <Check className="w-4 h-4 text-emerald-400" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Dynamic 2-minute Console Pair Widget */}
+      <ConsolePairWidget />
 
       {/* Quota Capsule Widget */}
       <div className="p-4 rounded-2xl bg-gradient-to-br from-cosmic-purple/10 to-transparent border border-white/10 space-y-2.5">

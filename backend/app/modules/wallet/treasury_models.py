@@ -10,6 +10,7 @@ class ReferralTreasuryPool(Base):
     __tablename__ = "referral_treasury_pool"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     balance_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_collected_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_distributed_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
@@ -27,6 +28,7 @@ class TreasuryLog(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     amount_toman: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     action_type: Mapped[str] = mapped_column(String(50), nullable=False)  # "deposit_leftover", "admin_reset", "admin_reward"
     order_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
     description: Mapped[str] = mapped_column(String(255), nullable=False)

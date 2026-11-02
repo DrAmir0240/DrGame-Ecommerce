@@ -90,10 +90,11 @@ async def login_console(
     payload: ConsoleLoginRequest,
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
-    """Authenticate console browser via 7-digit persistent code."""
+    """Authenticate console browser via dynamic 2-minute pairing code or persistent code."""
     client_info = extract_client_info(request)
-    return await AuthService.login_with_console_code(db, payload.console_code, client_info)
+    return await AuthService.login_with_console_code(db, redis, payload.console_code, client_info)
 
 @router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(

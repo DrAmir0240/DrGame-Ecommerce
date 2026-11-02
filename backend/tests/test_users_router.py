@@ -63,3 +63,11 @@ async def test_users_router_full_cycle(client: AsyncClient, test_db):
     # 5. DELETE /api/users/sessions/{session_id}
     del_res = await client.delete(f"/api/users/sessions/{session.id}", headers=headers)
     assert del_res.status_code == 200
+
+    # 6. POST /api/users/console-code/generate
+    console_code_res = await client.post("/api/users/console-code/generate", headers=headers)
+    assert console_code_res.status_code == 200
+    code_data = console_code_res.json()
+    assert "code" in code_data
+    assert len(code_data["code"]) == 6
+    assert code_data["expires_in"] == 120

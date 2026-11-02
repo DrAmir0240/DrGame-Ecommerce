@@ -36,6 +36,7 @@ export default function Header() {
   const { settings, fetchSettings } = useSiteSettingsStore();
   const [showDnsWarning, setShowDnsWarning] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const isInternational = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
 
   useEffect(() => {
     fetchCurrentUser();
@@ -213,10 +214,12 @@ export default function Header() {
               <SubscriptionBadge />
             </div>
 
-            {/* Language Switcher */}
-            <div className="hidden sm:block">
-              <LanguageSwitcher />
-            </div>
+            {/* Language Switcher (Visible only in International mode) */}
+            {isInternational && (
+              <div className="hidden sm:block">
+                <LanguageSwitcher />
+              </div>
+            )}
 
             {/* Notification Dropdown */}
             <NotificationDropdown />
@@ -382,11 +385,13 @@ export default function Header() {
                 </Link>
               </nav>
 
-              {/* Language Switcher in Drawer */}
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                <span className="text-xs text-slate-400">{t('nav.siteLanguage')}</span>
-                <LanguageSwitcher />
-              </div>
+              {/* Language Switcher in Drawer (Visible only in International mode) */}
+              {isInternational && (
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-400">{t('nav.siteLanguage')}</span>
+                  <LanguageSwitcher />
+                </div>
+              )}
             </div>
 
             {/* Drawer Footer Actions */}

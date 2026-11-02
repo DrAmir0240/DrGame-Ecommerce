@@ -1,6 +1,7 @@
 """User profile and session management service."""
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+import secrets
 import redis.asyncio as aioredis
 
 from app.core.config import settings
@@ -273,4 +274,18 @@ class UserService:
                 "created_at_jalali": to_jalali_str(p.created_at),
             })
         return results
+
+    @staticmethod
+    async def generate_dynamic_console_code(redis: aioredis.Redis, user_id: int) -> dict:
+        """Generate a random 6-character console pairing code with 120s TTL in Redis."""
+        alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+        code = "".join(secrets.choice(alphabet) for _ in range(6))
+
+        pair_key = f"drgame:console_pair:{code}"
+        await redis.setex(pair_key, 120, str(user_id))
+
+        return {
+            "code": code,
+            "expires_in": 120,
+        }
 

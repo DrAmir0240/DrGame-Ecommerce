@@ -141,6 +141,8 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME:-DrGame E-Commerce Platform}
       - ENVIRONMENT=production
+      - DEPLOYMENT_MODE=${DEPLOYMENT_MODE:-domestic}
+      - DEFAULT_CURRENCY=${DEFAULT_CURRENCY:-IRT}
       - DEBUG=false
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set in .env}
       - REDIS_URL=${REDIS_URL:?REDIS_URL must be set in .env}
@@ -199,12 +201,16 @@ services:
       target: prod
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+        NEXT_PUBLIC_DEPLOYMENT_MODE: ${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
+        NEXT_PUBLIC_DEFAULT_CURRENCY: ${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
     <<: *restart-unless-stopped
     env_file:
       - .env
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+      - NEXT_PUBLIC_DEPLOYMENT_MODE=${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
+      - NEXT_PUBLIC_DEFAULT_CURRENCY=${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
       - PORT=3000
       - HOSTNAME=0.0.0.0
     ports:
