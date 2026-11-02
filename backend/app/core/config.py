@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api"
 
+    # Regional & Deployment Mode
+    DEPLOYMENT_MODE: str = "domestic"  # "domestic" | "international"
+    DEFAULT_CURRENCY: str = "IRT"      # "IRT" | "USDT" | "USD"
+
     # Database
     POSTGRES_USER: str = "drgame_user"
     POSTGRES_PASSWORD: str = "drgame_secure_pass_2026"

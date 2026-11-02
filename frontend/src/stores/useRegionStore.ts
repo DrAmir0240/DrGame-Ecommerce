@@ -18,12 +18,14 @@ function writeCookie(value: string) {
   document.cookie = `${COOKIE_KEY}=${value}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 }
 
+const envMode = (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE as RegionMode) || 'domestic';
+
 /**
- * Single source of truth for the payment/region switch (Iran/Shaparak vs Global/Crypto).
- * Used by the footer banner, the floating quick-actions panel and checkout.
+ * Single source of truth for the payment/region mode (Iran/Shaparak vs Global/Crypto).
+ * In dual-server mode, this defaults to NEXT_PUBLIC_DEPLOYMENT_MODE.
  */
 export const useRegionStore = create<RegionState>((set, get) => ({
-  mode: 'domestic',
+  mode: envMode,
   hydrated: false,
 
   setMode: (mode) => {
@@ -41,6 +43,12 @@ export const useRegionStore = create<RegionState>((set, get) => ({
 
   initRegion: () => {
     if (typeof window === 'undefined') return;
+
+    // In dual-server mode, if NEXT_PUBLIC_DEPLOYMENT_MODE is explicitly set, use it
+    if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE) {
+      set({ mode: envMode, hydrated: true });
+      return;
+    }
 
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'domestic' || stored === 'international') {

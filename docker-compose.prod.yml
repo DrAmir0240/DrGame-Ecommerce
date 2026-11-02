@@ -141,6 +141,8 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME:-DrGame E-Commerce Platform}
       - ENVIRONMENT=production
+      - DEPLOYMENT_MODE=${DEPLOYMENT_MODE:-domestic}
+      - DEFAULT_CURRENCY=${DEFAULT_CURRENCY:-IRT}
       - DEBUG=false
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set in .env}
       - REDIS_URL=${REDIS_URL:?REDIS_URL must be set in .env}
@@ -150,7 +152,7 @@ services:
       - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
       - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
       - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:?WEBHOOK_SECRET_KEY must be set in .env}
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000"]}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["https://store.gamedr.ir","https://api.gamedr.ir","https://admin.gamedr.ir","https://gamedr.ir","http://localhost:3000","http://127.0.0.1:3000"]}
       - LIARA_ENDPOINT=${LIARA_ENDPOINT:-https://storage.c2.liara.site}
       - LIARA_BUCKET_NAME=${LIARA_BUCKET_NAME:-drgame-storage}
       - LIARA_ACCESS_KEY=${LIARA_ACCESS_KEY:-m9rvoec258l68eek}
@@ -198,13 +200,17 @@ services:
       dockerfile: Dockerfile
       target: prod
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://62.60.191.67:8000/api}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+        NEXT_PUBLIC_DEPLOYMENT_MODE: ${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
+        NEXT_PUBLIC_DEFAULT_CURRENCY: ${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
     <<: *restart-unless-stopped
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.60.191.67:8000/api}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+      - NEXT_PUBLIC_DEPLOYMENT_MODE=${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
+      - NEXT_PUBLIC_DEFAULT_CURRENCY=${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
       - PORT=3000
       - HOSTNAME=0.0.0.0
     ports:
@@ -246,7 +252,7 @@ services:
       - DJANGO_DB_SCHEMA=${DJANGO_DB_SCHEMA:-django_admin}
       - DJANGO_DEBUG=false
       - DJANGO_ALLOWED_HOSTS=*
-      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-https://admin.gamedr.ir,https://store.gamedr.ir,https://api.gamedr.ir}
       - DJANGO_SECURE_COOKIES=false
       - GUNICORN_WORKERS=${GUNICORN_WORKERS:-3}
       - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}

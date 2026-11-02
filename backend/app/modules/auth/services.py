@@ -22,6 +22,7 @@ from app.core.security import (
     decode_token,
 )
 from app.modules.auth.models import UserSession
+from app.modules.auth.otp_service import OTPService
 from app.modules.auth.schemas import (
     RegisterRequest,
     PasswordLoginRequest,
@@ -63,6 +64,24 @@ class AuthService:
     async def generate_and_save_otp(redis: aioredis.Redis, target: str) -> str:
         """Generate 6-digit OTP, apply rate limiting, and cache in Redis with 120s TTL."""
         clean_target = target.strip().lower()
+        is_email = "@" in clean_target
+
+        # Mode enforcement for OTP generation
+        if settings.DEPLOYMENT_MODE == "domestic":
+            if is_email:
+                raise BadRequestError("در نسخه داخلی، ارسال کد فقط به شماره موبایل ایران امکان‌پذیر است.")
+            clean_phone = clean_target.replace(" ", "").replace("-", "")
+            if clean_phone.startswith("+98"):
+                clean_phone = "0" + clean_phone[3:]
+            if not re.match(r"^09\d{9}$", clean_phone):
+                raise BadRequestError("فرمت شماره موبایل نامعتبر است. شماره باید ۱۱ رقمی و با ۰۹ آغاز شود.")
+            clean_target = clean_phone
+        elif settings.DEPLOYMENT_MODE == "international":
+            if not is_email:
+                raise BadRequestError("در نسخه بین‌المللی، ارسال کد فقط به آدرس ایمیل معتبر امکان‌پذیر است.")
+            if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", clean_target):
+                raise BadRequestError("فرمت آدرس ایمیل وارد شده نامعتبر است.")
+
         ratelimit_key = f"drgame:otp:ratelimit:{clean_target}"
         attempts = await redis.incr(ratelimit_key)
         if attempts == 1:
@@ -73,6 +92,10 @@ class AuthService:
         code = f"{secrets.randbelow(900000) + 100000}"
         otp_key = f"drgame:otp:{clean_target}"
         await redis.setex(otp_key, 120, code)
+
+        # Dispatch via unified OTP service (currently logs formatted banner)
+        await OTPService.dispatch_otp(clean_target, code, settings.DEPLOYMENT_MODE)
+
         return code
 
     @staticmethod
@@ -96,20 +119,41 @@ class AuthService:
         data: RegisterRequest,
         client_info: dict
     ) -> TokenResponse:
-        """Register a new user after verifying OTP code."""
+        """Register a new user after verifying OTP code with deployment mode rules."""
         clean_target = data.target.strip().lower()
+        is_email = "@" in clean_target
+
+        if settings.DEPLOYMENT_MODE == "domestic":
+            if is_email:
+                raise BadRequestError("در نسخه داخلی، ثبت‌نام فقط با شماره موبایل معتبر ایران (۰۹...) امکان‌پذیر است.")
+            clean_phone = clean_target.replace(" ", "").replace("-", "")
+            if clean_phone.startswith("+98"):
+                clean_phone = "0" + clean_phone[3:]
+            if not re.match(r"^09\d{9}$", clean_phone):
+                raise BadRequestError("فرمت شماره موبایل نامعتبر است. شماره باید ۱۱ رقمی و با ۰۹ شروع شود.")
+            clean_target = clean_phone
+            phone = clean_phone
+            email = None
+        else:
+            if not is_email:
+                raise BadRequestError("در نسخه بین‌المللی، ثبت‌نام فقط با آدرس ایمیل معتبر امکان‌پذیر است.")
+            if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", clean_target):
+                raise BadRequestError("فرمت آدرس ایمیل وارد شده نامعتبر است.")
+            email = clean_target
+            phone = None
+
         await AuthService.verify_otp(redis, clean_target, data.code)
 
-        # Check existing username
+        # Validate unique username
+        clean_username = data.username.strip()
+        if not re.match(r"^[a-zA-Z0-9_.-]{3,50}$", clean_username):
+            raise BadRequestError("نام کاربری باید بین ۳ تا ۵۰ کاراکتر و شامل حروف انگلیسی، اعداد یا کاراکترهای _ . - باشد.")
+
         existing_username = await db.scalar(
-            select(User).where(User.username == data.username.strip())
+            select(User).where(User.username == clean_username)
         )
         if existing_username:
-            raise ConflictError("این نام کاربری قبلاً ثبت شده است.")
-
-        is_email = "@" in clean_target
-        email = clean_target if is_email else None
-        phone = None if is_email else clean_target
+            raise ConflictError("این نام کاربری قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.")
 
         if email:
             existing_email = await db.scalar(select(User).where(User.email == email))
@@ -122,7 +166,7 @@ class AuthService:
 
         user = User(
             full_name=data.full_name.strip(),
-            username=data.username.strip(),
+            username=clean_username,
             email=email,
             phone=phone,
             password_hash=hash_password(data.password),
@@ -132,6 +176,18 @@ class AuthService:
         db.add(user)
         await db.commit()
         await db.refresh(user)
+
+        # Create wallet with default currency
+        from app.modules.wallet.models import UserWallet
+        wallet = UserWallet(
+            user_id=user.id,
+            currency=settings.DEFAULT_CURRENCY,
+            withdrawable_balance_toman=0,
+            total_earned_toman=0,
+            total_withdrawn_toman=0,
+        )
+        db.add(wallet)
+        await db.commit()
 
         return await AuthService.create_user_session(db, user, client_info)
 
@@ -199,14 +255,29 @@ class AuthService:
     @staticmethod
     async def login_with_console_code(
         db: AsyncSession,
+        redis: aioredis.Redis,
         console_code: str,
         client_info: dict
     ) -> TokenResponse:
-        """Authenticate console user with 7-digit persistent alphanumeric code."""
+        """Authenticate console user with dynamic 2-minute pairing code or fallback."""
         clean_code = console_code.strip().upper()
-        user = await db.scalar(select(User).where(User.console_auth_code == clean_code))
+
+        # 1. Check dynamic pairing code in Redis first (primary flow)
+        pair_key = f"drgame:console_pair:{clean_code}"
+        user_id_raw = await redis.get(pair_key)
+        user = None
+        if user_id_raw:
+            user_id = int(user_id_raw.decode() if isinstance(user_id_raw, bytes) else user_id_raw)
+            user = await db.get(User, user_id)
+            # Atomically invalidate pairing code immediately upon use
+            await redis.delete(pair_key)
+
+        # 2. Fallback to static console_auth_code if exists
         if not user:
-            raise AuthenticationError("کد ورود ۷ رقمی کنسول نامعتبر است.")
+            user = await db.scalar(select(User).where(User.console_auth_code == clean_code))
+
+        if not user:
+            raise AuthenticationError("کد اتصال کنسول نامعتبر است یا زمان ۲ دقیقه‌ای آن منقضی شده است.")
 
         if not user.is_active:
             raise AuthorizationError("حساب کاربری شما مسدود شده است.")

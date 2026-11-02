@@ -16,20 +16,19 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
-import { useRegionStore } from '@/stores/useRegionStore';
 import { useSiteSettingsStore } from '@/stores/useSiteSettingsStore';
 
 export default function Footer() {
   const pathname = usePathname();
   const { t } = useTranslation();
-  // 'domestic' (Iran) or 'international' — shared with the floating quick-actions panel
-  const { mode: footerMode, setMode: setFooterMode, initRegion } = useRegionStore();
+  // Deployment mode driven strictly by environment variable
+  const deploymentMode = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE || 'domestic';
+  const footerMode = deploymentMode === 'international' ? 'international' : 'domestic';
   const { settings, fetchSettings } = useSiteSettingsStore();
 
   useEffect(() => {
-    initRegion();
     fetchSettings();
-  }, [initRegion]);
+  }, []);
 
   // Do not render storefront footer inside the admin panel
   if (pathname?.startsWith('/admin')) {
@@ -48,39 +47,6 @@ export default function Footer() {
 
   return (
     <footer className="w-full border-t border-white/5 bg-surface-base/90 backdrop-blur-2xl relative z-20 mt-20">
-      {/* Mode Switcher Banner */}
-      <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-3 flex items-center justify-between border-b border-white/5 text-xs text-text-muted">
-        <div className="flex items-center gap-2">
-          <Globe className="w-3.5 h-3.5 text-cosmic-purple" />
-          <span>{t('footer.geoConfig')}</span>
-          <span className="font-bold text-white">
-            {footerMode === 'domestic' ? t('footer.domestic') : t('footer.international')}
-          </span>
-        </div>
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-          <button
-            onClick={() => setFooterMode('domestic')}
-            className={`px-3 py-1 rounded-lg transition-all font-medium ${
-              footerMode === 'domestic'
-                ? 'bg-cosmic-purple text-white shadow-neon-purple'
-                : 'text-text-muted hover:text-white'
-            }`}
-          >
-            {t('footer.iranShaparak')}
-          </button>
-          <button
-            onClick={() => setFooterMode('international')}
-            className={`px-3 py-1 rounded-lg transition-all font-medium ${
-              footerMode === 'international'
-                ? 'bg-cosmic-purple text-white shadow-neon-purple'
-                : 'text-text-muted hover:text-white'
-            }`}
-          >
-            {t('footer.globalCrypto')}
-          </button>
-        </div>
-      </div>
-
       <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & About */}
         <div className="space-y-4 md:col-span-1">

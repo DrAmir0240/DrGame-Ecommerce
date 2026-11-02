@@ -42,26 +42,31 @@ async def test_detect_device_info():
 
 @pytest.mark.asyncio
 async def test_otp_generation_and_verification(fake_redis):
-    target = "user@example.com"
-    code = await AuthService.generate_and_save_otp(fake_redis, target)
+    # In domestic mode (default), target must be Iranian phone
+    phone_target = "09123456789"
+    code = await AuthService.generate_and_save_otp(fake_redis, phone_target)
     assert len(code) == 6
     assert code.isdigit()
 
+    # Email in domestic mode should be rejected
+    with pytest.raises(BadRequestError):
+        await AuthService.generate_and_save_otp(fake_redis, "user@example.com")
+
     # Wrong code should raise BadRequestError
     with pytest.raises(BadRequestError):
-        await AuthService.verify_otp(fake_redis, target, "000000")
+        await AuthService.verify_otp(fake_redis, phone_target, "000000")
 
     # Correct code should pass
-    verified = await AuthService.verify_otp(fake_redis, target, code)
+    verified = await AuthService.verify_otp(fake_redis, phone_target, code)
     assert verified is True
 
     # Re-using already verified code should fail (one-time use)
     with pytest.raises(BadRequestError):
-        await AuthService.verify_otp(fake_redis, target, code)
+        await AuthService.verify_otp(fake_redis, phone_target, code)
 
 @pytest.mark.asyncio
 async def test_register_and_login_flow(test_db, fake_redis):
-    target = "drgamer@domain.com"
+    target = "09129876543"
     code = await AuthService.generate_and_save_otp(fake_redis, target)
 
     req = RegisterRequest(
@@ -83,10 +88,62 @@ async def test_register_and_login_flow(test_db, fake_redis):
     login_resp = await AuthService.login_with_password(test_db, login_req, client_info)
     assert login_resp.user.username == "drgamer"
 
-    # Login with console 7-digit code
-    console_resp = await AuthService.login_with_console_code(test_db, token_resp.user.console_auth_code, client_info)
+    # Login with console fallback 7-digit code
+    console_resp = await AuthService.login_with_console_code(test_db, fake_redis, token_resp.user.console_auth_code, client_info)
     assert console_resp.user.id == token_resp.user.id
+
+    # Test dynamic 2-minute pairing code
+    from app.modules.users.services import UserService
+    dynamic_code_data = await UserService.generate_dynamic_console_code(fake_redis, token_resp.user.id)
+    assert len(dynamic_code_data["code"]) == 6
+    assert dynamic_code_data["expires_in"] == 120
+
+    # Login with dynamic code
+    dyn_login_resp = await AuthService.login_with_console_code(test_db, fake_redis, dynamic_code_data["code"], client_info)
+    assert dyn_login_resp.user.id == token_resp.user.id
+
+    # Dynamic code should be consumed and fail on second attempt
+    with pytest.raises(AuthenticationError):
+        await AuthService.login_with_console_code(test_db, fake_redis, dynamic_code_data["code"], client_info)
 
     # Console login with bad code should fail
     with pytest.raises(AuthenticationError):
-        await AuthService.login_with_console_code(test_db, "BADCODE", client_info)
+        await AuthService.login_with_console_code(test_db, fake_redis, "BADCODE", client_info)
+
+
+@pytest.mark.asyncio
+async def test_international_mode_registration(test_db, fake_redis, monkeypatch):
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "DEPLOYMENT_MODE", "international")
+    monkeypatch.setattr(settings, "DEFAULT_CURRENCY", "USDT")
+
+    from app.core.exceptions import BadRequestError
+
+    # In international mode, phone number should fail
+    with pytest.raises(BadRequestError, match="ارسال کد فقط به آدرس ایمیل"):
+        await AuthService.generate_and_save_otp(fake_redis, "09121112233")
+
+    # Valid international email should succeed
+    email_target = "globalgamer@domain.com"
+    code = await AuthService.generate_and_save_otp(fake_redis, email_target)
+    assert len(code) == 6
+
+    req = RegisterRequest(
+        target=email_target,
+        code=code,
+        full_name="Global Champion",
+        username="globalchamp",
+        password="SecurePass2026!",
+    )
+    client_info = {"device_name": "Chrome on Mac", "device_type": "desktop", "ip_address": "1.1.1.1", "user_agent": "Macintosh"}
+    token_resp = await AuthService.register_user(test_db, fake_redis, req, client_info)
+
+    assert token_resp.user.email == email_target
+    assert token_resp.user.username == "globalchamp"
+
+    # Verify wallet currency was initialized to USDT
+    from app.modules.wallet.models import UserWallet
+    from sqlalchemy import select
+    wallet = await test_db.scalar(select(UserWallet).where(UserWallet.user_id == token_resp.user.id))
+    assert wallet is not None
+    assert wallet.currency == "USDT"

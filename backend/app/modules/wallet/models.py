@@ -11,6 +11,7 @@ class UserWallet(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     withdrawable_balance_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_earned_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_withdrawn_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
@@ -44,6 +45,7 @@ class CommissionLedger(Base):
     user_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     tier_level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     amount_toman: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
