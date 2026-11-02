@@ -97,7 +97,8 @@ export default function FinanceDiscountsPage() {
       )}
 
       <div className="rounded-2xl border border-slate-800 bg-[#0c1017] overflow-hidden">
-        <table className="w-full text-right text-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-xs">
           <thead className="bg-[#121824] text-slate-400 border-b border-slate-800">
             <tr>
               <th className="py-3 px-4">کد</th>
@@ -137,6 +138,7 @@ export default function FinanceDiscountsPage() {
             )}
           </tbody>
         </table>
+      </div>
       </div>
 
       {modalOpen && (

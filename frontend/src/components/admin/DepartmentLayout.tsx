@@ -286,18 +286,18 @@ export default function DepartmentLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex antialiased" dir="rtl">
+    <div className="h-screen h-[100dvh] bg-[#07090e] text-slate-100 flex overflow-hidden antialiased font-vazir" dir="rtl">
       {/* =========================================================================
-          DESKTOP SIDEBAR (Collapsible w-64 <-> w-20, sticky on lg:)
+          DESKTOP SIDEBAR (Collapsible w-64 <-> w-20, fixed full height on lg:)
          ========================================================================= */}
       <aside
-        className={`hidden lg:flex flex-col bg-[#0c1017] border-l border-slate-800/80 sticky top-0 h-screen shrink-0 z-20 overflow-hidden transition-[width] duration-300 ease-in-out ${
+        className={`hidden lg:flex flex-col bg-[#0c1017] border-l border-slate-800/80 h-full shrink-0 z-20 overflow-hidden transition-[width] duration-300 ease-in-out ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
         {/* Brand Header */}
         <div
-          className={`h-16 px-4 border-b border-slate-800 flex items-center ${
+          className={`h-16 shrink-0 px-4 border-b border-slate-800 flex items-center ${
             collapsed ? 'justify-center' : 'justify-between'
           }`}
         >
@@ -406,11 +406,11 @@ export default function DepartmentLayout({
         )}
 
       {/* =========================================================================
-          MAIN CONTENT AREA (Top Header + Page Content)
+          MAIN CONTENT AREA (Top Fixed Navbar + Scrollable Page Content)
          ========================================================================= */}
-      <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
-        {/* Top Navbar */}
-        <header className="h-16 px-4 sm:px-6 border-b border-slate-800/80 bg-[#0c1017]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-3">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        {/* Top Navbar (Fixed at top, never scrolls away) */}
+        <header className="h-16 shrink-0 px-4 sm:px-6 border-b border-slate-800/80 bg-[#0c1017]/95 backdrop-blur-md z-30 flex items-center justify-between gap-3 sticky top-0 shadow-sm">
           {/* Right Section: Mobile Trigger, Desktop Collapse Toggle & Hub Link */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Mobile / Tablet Hamburger Menu Button */}
@@ -458,8 +458,10 @@ export default function DepartmentLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-4 sm:p-6 md:p-8 flex-1 min-w-0 max-w-full">{children}</main>
+        {/* Page Content (Scrolls smoothly underneath the fixed header) */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 min-w-0 max-w-full overscroll-contain">
+          {children}
+        </main>
       </div>
     </div>
   );

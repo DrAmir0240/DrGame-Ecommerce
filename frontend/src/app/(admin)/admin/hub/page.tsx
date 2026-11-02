@@ -131,7 +131,7 @@ export default function AdminHubPage() {
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col justify-between p-6 md:p-12 selection:bg-purple-500 selection:text-white" dir="rtl">
       {/* Header Banner */}
-      <header className="max-w-6xl mx-auto w-full pt-4 pb-8 border-b border-slate-800/80">
+      <header className="sticky top-0 z-30 bg-[#07090e]/95 backdrop-blur-md max-w-6xl mx-auto w-full pt-4 pb-6 border-b border-slate-800/80 mb-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">

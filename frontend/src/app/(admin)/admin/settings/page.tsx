@@ -186,7 +186,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-8 font-vazir pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-4 bg-[#07090e]/95 backdrop-blur-md border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-black/20">
         <div>
           <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
             <Settings className="w-7 h-7 text-cosmic-purple" />
