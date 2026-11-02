@@ -46,7 +46,7 @@ export default function Footer() {
   const samandehiUrl = settings?.samandehi_url || 'https://samandehi.ir';
 
   return (
-    <footer className="w-full border-t border-white/5 bg-surface-base/90 backdrop-blur-2xl relative z-20 mt-20">
+    <footer className="w-full border-t border-white/5 bg-surface-base/90 backdrop-blur-2xl relative z-10 mt-20">
       <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & About */}
         <div className="space-y-4 md:col-span-1">

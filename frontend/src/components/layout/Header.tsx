@@ -86,22 +86,16 @@ export default function Header() {
     <>
       {/* Top DNS Warning Banner (Yellow / Amber) */}
       {showDnsWarning && (
-        <div className="w-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 text-slate-950 border-b border-amber-500/80 shadow-sm relative z-50">
-          <div className="max-w-[1700px] mx-auto px-2.5 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-4 text-xs sm:text-sm font-bold">
-            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 justify-center text-center">
-              <span className="flex items-center gap-1 shrink-0 font-black text-slate-950 text-[11px] sm:text-xs">
-                <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-950" />
-                <span className="hidden xs:inline">{t('nav.dnsAttention')}:</span>
-                <span className="xs:hidden">DNS:</span>
+        <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 text-slate-950 border-b border-amber-500 shadow-md relative z-50">
+          <div className="max-w-[1700px] mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center text-center flex-wrap text-xs sm:text-sm font-bold leading-relaxed">
+              <span className="flex items-center gap-1.5 shrink-0 text-slate-950 font-black">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-slate-950" />
+                <span className="hidden xs:inline">{t('nav.dnsAttention')}</span>
               </span>
-              <span className="hidden md:inline text-slate-900 font-medium text-xs truncate max-w-md">
-                {t('nav.dnsInstruction')}
-              </span>
-              <span className="md:hidden text-slate-900 font-bold text-[11px] sm:text-xs shrink-0">
-                اختصاصی:
-              </span>
+              <span>{t('nav.dnsInstruction')}</span>
               <span
-                className="font-roboto font-black text-[11px] sm:text-xs px-2 py-0.5 rounded-md bg-slate-950 text-amber-300 tracking-wider shadow-inner shrink-0"
+                className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
                 dir="ltr"
               >
                 {primaryDns}
@@ -109,13 +103,12 @@ export default function Header() {
             </div>
 
             <button
-              type="button"
               onClick={() => setShowDnsWarning(false)}
-              className="p-1 rounded-md hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
-              title={t('chrome.closeNotice') || 'بستن'}
-              aria-label={t('chrome.closeNotice') || 'بستن'}
+              className="p-1 rounded-lg hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
+              title={t('chrome.closeNotice')}
+              aria-label={t('chrome.closeNotice')}
             >
-              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
           </div>
         </div>
