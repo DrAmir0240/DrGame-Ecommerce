@@ -43,7 +43,8 @@ async def test_save_uploaded_file_s3_success():
     )
     with patch.object(liara_storage, "upload_bytes", return_value=f"{settings.S3_PUBLIC_BASE_URL}/avatars/custom_avatar.png"):
         result_url = await save_uploaded_file(mock_file, prefix="test_avatar", folder="avatars")
-        assert result_url == f"{settings.S3_PUBLIC_BASE_URL}/avatars/custom_avatar.png"
+        # Result resolves to /media/avatars/... when using .liara.site to prevent browser 404s
+        assert result_url.startswith("/media/avatars/test_avatar_")
 
 
 @pytest.mark.asyncio

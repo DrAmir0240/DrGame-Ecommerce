@@ -308,35 +308,40 @@ async def download_and_save_image(
 
 
 async def save_uploaded_file(
-    file: UploadFile, prefix: str = "custom", folder: str = "games"
+    file: UploadFile,
+    prefix: str = "custom",
+    folder: str = "games",
+    subfolder: Optional[str] = None,
 ) -> str:
     """
-    Saves an uploaded file to Liara S3.
-    If S3 is unavailable or fails, gracefully falls back to local disk (/uploads/{folder}/).
+    Saves an uploaded file to Liara S3 and caches on local disk.
+    Returns a web-accessible URL (/media/... or custom CDN domain).
     """
     ext = os.path.splitext(file.filename or "")[1].lower() or ".jpg"
     if ext not in [".jpg", ".jpeg", ".png", ".webp", ".svg", ".pdf", ".zip"]:
         ext = ".jpg"
 
+    target_folder = (subfolder or folder).strip("/")
     filename = f"{prefix}_{uuid.uuid4().hex[:12]}{ext}"
-    s3_key = f"{folder}/{filename}"
+    s3_key = f"{target_folder}/{filename}"
     content = await file.read()
     content_type = file.content_type or mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
-    # 1. Try uploading to Liara S3
-    if liara_storage.is_configured:
-        s3_url = await liara_storage.upload_bytes(content, s3_key, content_type)
-        if s3_url:
-            logger.info(f"Liara S3: Saved uploaded file {file.filename} -> {s3_url}")
-            return s3_url
-
-    # 2. Fallback to local disk storage
-    target_dir = os.path.join(MEDIA_DIR, folder)
+    # 1. Save to local disk cache
+    target_dir = os.path.join(MEDIA_DIR, target_folder)
     os.makedirs(target_dir, exist_ok=True)
     filepath = os.path.join(target_dir, filename)
-
     with open(filepath, "wb") as f:
         f.write(content)
 
-    logger.info(f"Local storage: Saved uploaded file {file.filename} -> /media/{folder}/{filename}")
-    return f"/media/{folder}/{filename}"
+    # 2. Upload to Liara S3 for permanent cloud backup
+    if liara_storage.is_configured:
+        try:
+            await liara_storage.upload_bytes(content, s3_key, content_type)
+            logger.info(f"Liara S3: Uploaded file {file.filename} -> {s3_key}")
+        except Exception as e:
+            logger.warning(f"Liara S3 upload failed for {file.filename}, falling back to local: {e}")
+
+    if settings.LIARA_PUBLIC_URL and ".liara.site" not in settings.LIARA_PUBLIC_URL:
+        return f"{settings.S3_PUBLIC_BASE_URL}/{s3_key}"
+    return f"/media/{s3_key}"
