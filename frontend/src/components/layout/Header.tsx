@@ -86,30 +86,71 @@ export default function Header() {
     <>
       {/* Top DNS Warning Banner (Yellow / Amber) */}
       {showDnsWarning && (
-        <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 text-slate-950 border-b border-amber-500 shadow-md relative z-50">
-          <div className="max-w-[1700px] mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center text-center flex-wrap text-xs sm:text-sm font-bold leading-relaxed">
-              <span className="flex items-center gap-1.5 shrink-0 text-slate-950 font-black">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-slate-950" />
-                <span className="hidden xs:inline">{t('nav.dnsAttention')}</span>
-              </span>
-              <span>{t('nav.dnsInstruction')}</span>
-              <span
-                className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
-                dir="ltr"
+        <div className="w-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 text-slate-950 border-b border-amber-500/80 shadow-sm relative z-50">
+          <div className="max-w-[1700px] mx-auto px-3 sm:px-6 py-2 sm:py-2.5">
+            {/* Desktop View (sm and above): Sleek single line */}
+            <div className="hidden sm:flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 flex-1 justify-center text-center text-xs sm:text-sm font-bold">
+                <span className="flex items-center gap-1.5 shrink-0 text-slate-950 font-black">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-950" />
+                  <span>{t('nav.dnsAttention')}</span>
+                </span>
+                <span className="text-slate-900 font-medium">{t('nav.dnsInstruction')}</span>
+                <span
+                  className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
+                  dir="ltr"
+                >
+                  {primaryDns}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowDnsWarning(false)}
+                className="p-1 rounded-lg hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
+                title={t('chrome.closeNotice') || 'بستن'}
+                aria-label={t('chrome.closeNotice') || 'بستن'}
               >
-                {primaryDns}
-              </span>
+                <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </button>
             </div>
 
-            <button
-              onClick={() => setShowDnsWarning(false)}
-              className="p-1 rounded-lg hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
-              title={t('chrome.closeNotice')}
-              aria-label={t('chrome.closeNotice')}
-            >
-              <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            </button>
+            {/* Mobile View (< sm): Structured, neat compact card layout */}
+            <div className="sm:hidden flex items-start gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-950/10 mt-0.5">
+                <AlertTriangle className="w-4 h-4 text-slate-950" />
+              </div>
+
+              <div className="flex-1 min-w-0 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-black text-slate-950 text-[11px] uppercase tracking-wide">
+                    {t('nav.dnsAttention')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDnsWarning(false)}
+                    className="p-1 -me-1 -mt-1 rounded-md hover:bg-slate-950/15 text-slate-950 transition-colors cursor-pointer"
+                    title={t('chrome.closeNotice') || 'بستن'}
+                    aria-label={t('chrome.closeNotice') || 'بستن'}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <p className="text-[11px] leading-relaxed text-slate-900 font-medium">
+                  {t('nav.dnsInstruction')}
+                </p>
+
+                <div className="pt-0.5">
+                  <span
+                    className="inline-flex items-center gap-1.5 font-roboto font-black text-xs px-2.5 py-1 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-sm"
+                    dir="ltr"
+                  >
+                    {primaryDns}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
