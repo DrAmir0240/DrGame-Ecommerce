@@ -173,10 +173,10 @@ class CatalogSyncService:
                 except Exception as e:
                     logger.warning(f"Invalid date_to format: {req.date_to} ({e})")
 
-            # Min rating filter (convert 0-5 to 0-100)
+            # Min rating filter (convert 0-5 to 0-100 integer for APICalypse parser)
             if req.min_rating > 0:
-                min_100 = round(req.min_rating * 20.0, 1)
-                where_clauses.append(f"rating >= {min_100}")
+                min_100 = int(round(req.min_rating * 20.0))
+                where_clauses.append(f"(rating >= {min_100} | total_rating >= {min_100})")
 
             # Sorting clause
             if req.sort_by == "release_date_asc":
