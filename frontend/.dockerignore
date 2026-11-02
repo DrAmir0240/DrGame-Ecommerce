@@ -8,3 +8,8 @@ yarn-debug.log*
 yarn-error.log*
 .env*
 README.md
+node_modules
+.next
+.git
+.env*
+Dockerfile
