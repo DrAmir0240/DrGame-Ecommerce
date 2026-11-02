@@ -12,9 +12,11 @@ RUN npm install
 
 # Development target (hot-reload)
 FROM base AS dev
-ENV NODE_ENV=development
-COPY --from=deps /app/node_modules ./node_modules
+ENV NODE_ENV=development \
+    PATH="/app/node_modules/.bin:$PATH"
+
 COPY . .
+COPY --from=deps /app/node_modules ./node_modules
 
 EXPOSE 3000
 
@@ -22,13 +24,21 @@ CMD ["npm", "run", "dev"]
 
 # Builder
 FROM base AS builder
+WORKDIR /app
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+    NEXT_TELEMETRY_DISABLED=1 \
+    PATH="/app/node_modules/.bin:$PATH"
 
-ARG NEXT_PUBLIC_API_URL=http://62.60.191.67:8000/api
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+COPY . .
+COPY --from=deps /app/node_modules ./node_modules
+
+ARG NEXT_PUBLIC_API_URL=https://store.gamedr.ir/api
+ARG NEXT_PUBLIC_DEPLOYMENT_MODE=domestic
+ARG NEXT_PUBLIC_DEFAULT_CURRENCY=IRT
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_DEPLOYMENT_MODE=$NEXT_PUBLIC_DEPLOYMENT_MODE \
+    NEXT_PUBLIC_DEFAULT_CURRENCY=$NEXT_PUBLIC_DEFAULT_CURRENCY
 
 RUN npm run build
 
@@ -39,7 +49,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME="0.0.0.0"
+    HOSTNAME="0.0.0.0" \
+    PATH="/app/node_modules/.bin:$PATH"
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
