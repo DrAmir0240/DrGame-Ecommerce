@@ -29,6 +29,7 @@ function ProfileContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'wishlist' ? 'wishlist' : 'profile';
 
+  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, fetchCurrentUser, updateUser } = useAuthStore();
   const { t, d } = useTranslation();
   const [activeTab, setActiveTab] = useState<'profile' | 'wishlist'>(initialTab);
@@ -114,6 +115,18 @@ function ProfileContent() {
       setPwError(err.message || t('profile.password.error'));
     }
   };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
+        <Loader2 className="w-8 h-8 text-nebula-violet animate-spin" />
+      </div>
+    );
+  }
 
   if (!user && !isAuthenticated) {
     return (
