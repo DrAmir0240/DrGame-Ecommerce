@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { useTranslation } from '@/i18n';
+import { getAccessToken } from '@/lib/authTokens';
 import ConsolePairWidget from '@/components/profile/ConsolePairWidget';
 import {
   User as UserIcon,
@@ -84,6 +85,7 @@ export default function UserDashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { t, size, dir, locale } = useTranslation();
   const { user, isAuthenticated, fetchCurrentUser, logout } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
@@ -99,6 +101,13 @@ export default function UserDashboardLayout({
     fetchCurrentUser();
     fetchQuota();
   }, []);
+
+  // Client-side safeguard for route protection
+  useEffect(() => {
+    if (mounted && !isAuthenticated && !getAccessToken()) {
+      router.replace('/?auth=required');
+    }
+  }, [mounted, isAuthenticated, router]);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -228,6 +237,17 @@ export default function UserDashboardLayout({
       </div>
     </div>
   );
+
+  if (mounted && !isAuthenticated && !getAccessToken()) {
+    return (
+      <div className="min-h-screen bg-[#07090e] flex items-center justify-center text-slate-400">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">در حال انتقال...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

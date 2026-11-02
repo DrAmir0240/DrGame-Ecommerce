@@ -270,7 +270,7 @@ async def get_analytics_summary(
     db: AsyncSession = Depends(get_db),
     _: ReportAdmin = Depends(require_report_admin()),
 ):
-    return await AdminService.get_analytics_summary(db)
+    return await AdminService.get_dashboard_stats(db)
 
 
 @router.get("/dashboard-stats")
@@ -285,11 +285,25 @@ async def get_dashboard_stats(
 
 @router.get("/charts/sales")
 async def get_sales_chart(
-    timeframe: str = Query("monthly", description="daily, weekly, or monthly"),
+    days: int = Query(14, ge=1, le=365),
+    timeframe: str = Query("daily", description="daily, weekly, or monthly"),
     db: AsyncSession = Depends(get_db),
     _: ReportAdmin = Depends(require_report_admin()),
 ):
-    return await AdminService.get_sales_chart(db, timeframe=timeframe)
+    from app.modules.subscriptions.models import OrderPayment
+    stmt = (
+        select(
+            func.date_trunc('day', OrderPayment.created_at).label('date'),
+            func.sum(OrderPayment.final_price).label('amount')
+        )
+        .where(OrderPayment.status.in_(["paid", "success"]))
+        .group_by('date')
+        .order_by('date')
+        .limit(days)
+    )
+    res = await db.execute(stmt)
+    timeline = [{"date": str(r.date)[:10], "value": int(r.amount or 0)} for r in res]
+    return {"chart": "sales", "days": days, "data": timeline}
 
 
 @router.get("/charts/users")
@@ -332,11 +346,24 @@ async def get_subscriptions_distribution(
 
 @router.get("/charts/downloads")
 async def get_top_downloaded_games(
+    days: int = Query(14, ge=1, le=365),
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     _: ReportAdmin = Depends(require_report_admin()),
 ):
-    return await AdminService.get_top_selling_games(db, limit=limit)
+    from app.modules.quota.models import QuotaConsumptionLog
+    stmt = (
+        select(
+            func.date_trunc('day', QuotaConsumptionLog.created_at).label('date'),
+            func.sum(QuotaConsumptionLog.gb_deducted).label('gb')
+        )
+        .group_by('date')
+        .order_by('date')
+        .limit(days)
+    )
+    res = await db.execute(stmt)
+    timeline = [{"date": str(r.date)[:10], "value": round(float(r.gb or 0), 2)} for r in res]
+    return {"chart": "downloads", "days": days, "data": timeline}
 
 
 # --- Admin Audit Logs Inspection ---

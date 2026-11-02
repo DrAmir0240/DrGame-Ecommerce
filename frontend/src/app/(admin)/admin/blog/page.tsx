@@ -228,9 +228,9 @@ export default function AdminBlogPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 font-vazir">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-4 bg-[#07090e]/95 backdrop-blur-md border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
         <div>
           <h1 className="text-xl font-bold text-white mb-1">مدیریت وبلاگ</h1>
           <p className="text-xs text-slate-400">مقالات، راهنماها و دسته‌بندی‌های وبلاگ دکتر گیم</p>

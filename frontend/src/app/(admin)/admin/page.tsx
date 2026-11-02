@@ -11,7 +11,7 @@ export default function AdminRootPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-[#07090e] flex items-center justify-center">
+    <div className="h-full flex items-center justify-center bg-[#07090e]">
       <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );

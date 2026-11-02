@@ -26,23 +26,52 @@ export default function ReportDashboardPage() {
   const [downloadsChart, setDownloadsChart] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Safely extract ChartPoint array from any API response structure
+  const normalizeChartData = (res: any, defaultKey = "value"): ChartPoint[] => {
+    if (!res) return [];
+    const list = Array.isArray(res)
+      ? res
+      : Array.isArray(res?.data)
+      ? res.data
+      : Array.isArray(res?.timeline)
+      ? res.timeline
+      : [];
+
+    if (!Array.isArray(list)) return [];
+
+    return list.map((item: any) => ({
+      date: String(item.date || item.day || ""),
+      value: Number(
+        item[defaultKey] ??
+        item.value ??
+        item.users ??
+        item.count ??
+        item.amount ??
+        item.revenue ??
+        item.gb ??
+        0
+      ),
+    }));
+  };
+
   useEffect(() => {
     Promise.all([
       apiRequest("/admin-report/dashboard-stats").catch(() => null),
-      apiRequest<ChartPoint[]>("/admin-report/charts/sales?days=14").catch(() => []),
-      apiRequest<ChartPoint[]>("/admin-report/charts/users?days=14").catch(() => []),
-      apiRequest<ChartPoint[]>("/admin-report/charts/downloads?days=14").catch(() => []),
+      apiRequest("/admin-report/charts/sales?days=14").catch(() => []),
+      apiRequest("/admin-report/charts/users?days=14").catch(() => []),
+      apiRequest("/admin-report/charts/downloads?days=14").catch(() => []),
     ]).then(([statsRes, salesRes, usersRes, downloadsRes]) => {
       setStats(statsRes);
-      setSalesChart(salesRes || []);
-      setUsersChart(usersRes || []);
-      setDownloadsChart(downloadsRes || []);
+      setSalesChart(normalizeChartData(salesRes, "value"));
+      setUsersChart(normalizeChartData(usersRes, "users"));
+      setDownloadsChart(normalizeChartData(downloadsRes, "value"));
       setLoading(false);
     });
   }, []);
 
   // Simple SVG Line Chart Renderer (Zero dependencies, max performance)
-  const renderSvgAreaChart = (data: ChartPoint[], strokeColor: string, fillColor: string) => {
+  const renderSvgAreaChart = (rawData: any, strokeColor: string, fillColor: string) => {
+    const data: ChartPoint[] = Array.isArray(rawData) ? rawData : [];
     if (!data || data.length === 0) {
       return (
         <div className="h-44 flex items-center justify-center text-slate-500 text-xs">

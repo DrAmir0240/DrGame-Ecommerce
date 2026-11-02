@@ -106,7 +106,8 @@ export default function ReportAuditLogsPage() {
 
       {/* Audit Logs Table */}
       <div className="rounded-2xl border border-slate-800 bg-[#0c1017] overflow-hidden">
-        <table className="w-full text-right text-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-xs">
           <thead className="bg-[#121824] text-slate-400 border-b border-slate-800">
             <tr>
               <th className="py-3.5 px-4">شناسه</th>
@@ -168,6 +169,7 @@ export default function ReportAuditLogsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Details Modal */}

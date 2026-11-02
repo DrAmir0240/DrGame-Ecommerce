@@ -41,7 +41,15 @@ export default function Header() {
   useEffect(() => {
     fetchCurrentUser();
     fetchSettings();
-  }, []);
+
+    // Auto-open auth modal if redirected with auth=required
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('auth') === 'required' && !isAuthenticated) {
+        setAuthModalOpen(true, 'otp');
+      }
+    }
+  }, [isAuthenticated, setAuthModalOpen]);
 
   // Close drawer on navigation
   useEffect(() => {
@@ -75,7 +83,9 @@ export default function Header() {
   const navItems = [
     { href: '/', label: t('nav.home'), icon: Home, exact: true, activeColor: 'text-purple-400' },
     { href: '/games', label: t('nav.games'), icon: Gamepad2, activeColor: 'text-cosmic-purple' },
-    { href: '/dashboard/downloads', label: t('nav.downloads'), icon: DownloadCloud, activeColor: 'text-cyan-400' },
+    ...(isAuthenticated
+      ? [{ href: '/dashboard/downloads', label: t('nav.downloads'), icon: DownloadCloud, activeColor: 'text-cyan-400' }]
+      : []),
     { href: '/tools', label: t('nav.tools'), icon: Wrench, activeColor: 'text-amber-400' },
     { href: '/blog', label: t('nav.blog'), icon: BookOpen, activeColor: 'text-emerald-400' },
   ];
@@ -240,34 +250,28 @@ export default function Header() {
               </div>
             </div>
 
-            {/* User Profile / Auth Button */}
+            {/* User Profile / Dashboard Button (Only User Panel, No Logout in Header) */}
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center shrink-0">
                 <Link
                   href="/profile"
-                  className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl glass-card border border-white/15 hover:border-cosmic-purple/60 hover:shadow-[0_0_12px_rgba(168,85,247,0.3)] transition-all overflow-hidden shrink-0 group"
+                  className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl glass-card border border-white/15 hover:border-cosmic-purple/60 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all overflow-hidden shrink-0 group text-white text-xs sm:text-sm font-bold"
                   title={t('chrome.profileTitle', { name: user.full_name || user.username })}
                   aria-label={t('nav.profile')}
                 >
-                  {user.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt={user.full_name || 'User Avatar'}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                    />
-                  ) : (
-                    <UserIcon className="w-4 h-4 text-slate-200 group-hover:text-cosmic-purple transition-colors" />
-                  )}
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg overflow-hidden bg-cosmic-purple/20 flex items-center justify-center shrink-0">
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.full_name || 'User Avatar'}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                      />
+                    ) : (
+                      <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cosmic-purple group-hover:text-white transition-colors" />
+                    )}
+                  </div>
+                  <span>{t('nav.profile')}</span>
                 </Link>
-
-                <button
-                  onClick={() => logout()}
-                  title={t('nav.logout')}
-                  aria-label={t('nav.logout')}
-                  className="hidden lg:flex p-2 rounded-xl glass-card border border-white/10 hover:border-red-500/40 text-slate-300 hover:text-red-400 transition-all shrink-0 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
               </div>
             ) : (
               <button
@@ -430,7 +434,7 @@ export default function Header() {
         aria-label={t('chrome.mobileNav')}
         className="fixed bottom-0 inset-x-0 z-30 md:hidden bg-[#0a0d14]/95 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.7)] px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
-        <div className="grid grid-cols-5 items-center justify-around">
+        <div className={`grid items-center justify-around ${navItems.length === 5 ? 'grid-cols-5' : 'grid-cols-4'}`}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isNavActive(item);
