@@ -17,7 +17,8 @@
     "filters": "Filter",
     "emptyBody": "Keine Spiele entsprechen den ausgewählten Filtern. Setzen Sie die Filter zurück oder versuchen Sie eine andere Suche.",
     "resetFilters": "Filter zurücksetzen",
-    "paginationShowing": "Zeige {{from}} bis {{to}} von {{total}} Spielen"
+    "paginationShowing": "Zeige {{from}} bis {{to}} von {{total}} Spielen",
+    "viewResults": "Ergebnisse anzeigen"
   },
   "gameDetail": {
     "loading": "Details zum filmischen Spiel werden geladen…",
@@ -189,6 +190,29 @@
       "log2": "[*] Automatische Erkennung der Konsole und Überprüfung der Webkit-Schwachstelle …",
       "log3": "[+] Kernel-Schwachstelle gefunden. GoldHEN ins Gedächtnis einprägen…",
       "log4": "[+] Nutzlast erfolgreich ausgeführt. Debug-Einstellungen auf der Konsole aktiviert."
+    }
+  },
+  "faqPage": {
+    "backToHome": "Zurück zur Startseite",
+    "badge": "Hilfezentrum & Häufige Fragen",
+    "title": "Häufig gestellte Fragen (FAQ)",
+    "subtitle": "Antworten auf die häufigsten Fragen zu Spieldaten-Downloads, Jailbreak, Abonnements und Support",
+    "searchPlaceholder": "Häufig gestellte Fragen durchsuchen...",
+    "noResults": "Keine Ergebnisse für Ihre Suche gefunden.",
+    "notFoundQuestion": "Haben Sie keine passende Antwort gefunden?",
+    "supportDescription": "Die technischen Experten von DrGame stehen Ihnen rund um die Uhr im Ticket-Bereich zur Verfügung.",
+    "sendTicket": "Support-Ticket erstellen",
+    "defaultFaqs": {
+      "q1": "Wie installiere ich Spieldaten auf meiner Konsole?",
+      "a1": "Nach dem Herunterladen der Pakete von DrGame-Servern können Sie das Spiel einfach über das Package Sender-Tool im lokalen Netzwerk oder per exFAT-Festplatte installieren.",
+      "q2": "Wie wird das Download-Datenvolumen berechnet?",
+      "a2": "Alle DrGame-Downloadserver laufen über eine hochoptimierte Infrastruktur mit geringer Latenz und dediziertem CDN.",
+      "q3": "Haben DrGame-Datenvolumen ein Ablaufdatum?",
+      "a3": "Nein! Einer der größten Vorteile von DrGame ist das zeitlich unbegrenzte Kontingent. Gekauftes Volumen verfällt niemals.",
+      "q4": "Fallen zusätzliche Kosten für Cheats, Untertitel oder Patches an?",
+      "a4": "Nein, alle Cheat-Pakete, Trainer und Patches sind in aktiven Abonnements kostenlos enthalten.",
+      "q5": "Wie funktioniert das Empfehlungsprogramm?",
+      "a5": "Wenn Sie Freunde über Ihren Empfehlungscode einladen, erhalten Sie 15% Provision auf deren erste Einkäufe direkt auf Ihr Guthaben."
     }
   }
 }

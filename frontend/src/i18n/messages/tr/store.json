@@ -17,7 +17,8 @@
     "filters": "Filtreler",
     "emptyBody": "Seçilen filtrelerle eşleşen oyun bulunamadı. Filtreleri sıfırlayın veya farklı bir arama yapın.",
     "resetFilters": "Filtreleri Sıfırla",
-    "paginationShowing": "Toplam {{total}} oyundan {{from}} - {{to}} arası gösteriliyor"
+    "paginationShowing": "Toplam {{total}} oyundan {{from}} - {{to}} arası gösteriliyor",
+    "viewResults": "Sonuçları Gör"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -189,6 +190,29 @@
       "log2": "[*] Auto-detecting console and checking webkit vulnerability…",
       "log3": "[+] Kernel vulnerability found. Injecting GoldHEN into memory…",
       "log4": "[+] Payload executed successfully. Debug Settings enabled on the console."
+    }
+  },
+  "faqPage": {
+    "backToHome": "Ana Sayfaya Dön",
+    "badge": "Yardım Merkezi ve Sorular",
+    "title": "Sıkça Sorulan Sorular (SSS)",
+    "subtitle": "Oyun verisi indirme, jailbreak, abonelikler ve destek hakkında en sık sorulan soruların yanıtları",
+    "searchPlaceholder": "Sıkça sorulan sorularda ara...",
+    "noResults": "Aramanızla eşleşen sonuç bulunamadı.",
+    "notFoundQuestion": "Aradığınız sorunun cevabını bulamadınız mı?",
+    "supportDescription": "DrGame teknik uzmanları destek talepleri bölümünde 7/24 hizmetinizdedir.",
+    "sendTicket": "Destek Talebi Gönder",
+    "defaultFaqs": {
+      "q1": "Oyun verilerini konsoluma nasıl yüklerim?",
+      "a1": "DrGame sunucularından parçaları indirdikten sonra yerel ağ üzerinden Package Sender veya exFAT harici disk ile konsolunuza kolayca yükleyebilirsiniz.",
+      "q2": "İndirme trafiği nasıl hesaplanır?",
+      "a2": "Tüm DrGame sunucuları düşük gecikmeli ve özel CDN altyapısıyla en yüksek indirme hızlarını sunar.",
+      "q3": "DrGame abonelik kotalarının son kullanma tarihi var mı?",
+      "a3": "Hayır! DrGame'in en büyük avantajlarından biri süre kısıtlaması olmamasıdır. Satın alınan kota tamamen tüketilene kadar geçerlidir.",
+      "q4": "Hileler, altyazılar ve yamalar için ek ücret alınır mı?",
+      "a4": "Hayır, tüm hile paketleri, trainerlar ve özel yamalar aktif aboneliklerle ücretsiz indirilebilir.",
+      "q5": "Arkadaş davet ve kazanç sistemi nasıl çalışır?",
+      "a5": "Referans kodunuzla arkadaşlarınızı davet ederek ilk alışverişlerinin %15'ini doğrudan cüzdanınıza komisyon olarak kazanırsınız."
     }
   }
 }

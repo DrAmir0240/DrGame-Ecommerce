@@ -148,7 +148,8 @@
     "domestic": "ایران (پرداخت ریالی و نمادها)",
     "international": "بین‌الملل (کریپتو و ارزی)",
     "iranShaparak": "ایران (شاپرک)",
-    "globalCrypto": "Global (Crypto/USDT)"
+    "globalCrypto": "Global (Crypto/USDT)",
+    "faq": "سوالات متداول (FAQ)"
   },
   "tv": {
     "headerTitle": "حالت تلویزیون و کنسول (10-Foot UI)",

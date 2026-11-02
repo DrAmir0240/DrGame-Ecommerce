@@ -17,7 +17,8 @@
     "filters": "Filtros",
     "emptyBody": "No hay juegos que coincidan con los filtros seleccionados. Restablece los filtros o prueba con otra búsqueda.",
     "resetFilters": "Restablecer filtros",
-    "paginationShowing": "Mostrando {{from}} a {{to}} de {{total}} juegos"
+    "paginationShowing": "Mostrando {{from}} a {{to}} de {{total}} juegos",
+    "viewResults": "Ver resultados"
   },
   "gameDetail": {
     "loading": "Cargando detalles del juego cinematográfico...",
@@ -189,6 +190,29 @@
       "log2": "[*] Consola de detección automática y verificación de vulnerabilidad de webkit...",
       "log3": "[+] Se encontró vulnerabilidad del kernel. Inyectando GoldHEN en la memoria…",
       "log4": "[+] Carga útil ejecutada exitosamente. Configuración de depuración habilitada en la consola."
+    }
+  },
+  "faqPage": {
+    "backToHome": "Volver al inicio",
+    "badge": "Centro de ayuda y preguntas",
+    "title": "Preguntas frecuentes (FAQ)",
+    "subtitle": "Respuestas a las dudas más comunes sobre descargas, jailbreak, suscripciones y soporte",
+    "searchPlaceholder": "Buscar en preguntas frecuentes...",
+    "noResults": "No se encontraron resultados que coincidan con su búsqueda.",
+    "notFoundQuestion": "¿No encontraste respuesta a tu pregunta?",
+    "supportDescription": "Los especialistas técnicos de DrGame están disponibles 24/7 en la sección de tickets.",
+    "sendTicket": "Enviar ticket de soporte",
+    "defaultFaqs": {
+      "q1": "¿Cómo instalo los datos de juegos en mi consola?",
+      "a1": "Tras descargar las partes desde los servidores de DrGame, puedes instalar el juego en tu consola mediante Package Sender (por red local) o con un disco externo exFAT.",
+      "q2": "¿Cómo se calcula el tráfico de descarga?",
+      "a2": "Todos los servidores de DrGame operan en infraestructura optimizada de alta velocidad con CDN dedicada.",
+      "q3": "¿Las cuotas de suscripción de DrGame tienen fecha de caducidad?",
+      "a3": "¡No! Una gran ventaja de DrGame es que las cuotas no tienen límite de tiempo y nunca caducan.",
+      "q4": "¿Hay un costo adicional para descargar trucos, subtítulos y parches?",
+      "a4": "No, todos los paquetes de trucos, entrenadores y parches están incluidos gratis con cualquier suscripción activa.",
+      "q5": "¿Cómo funciona el sistema de referidos y ganancias?",
+      "a5": "Al invitar a tus amigos con tu código de referido, recibes un 15% de comisión en todas sus primeras compras directamente en tu billetera."
     }
   }
 }

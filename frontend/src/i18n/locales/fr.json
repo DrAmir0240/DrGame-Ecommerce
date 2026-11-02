@@ -148,7 +148,8 @@
     "domestic": "Iran (Toman & Local Cards)",
     "international": "International (Crypto & Currency)",
     "iranShaparak": "Iran (Shaparak)",
-    "globalCrypto": "Global (Crypto/USDT)"
+    "globalCrypto": "Global (Crypto/USDT)",
+    "faq": "Foire aux questions (FAQ)"
   },
   "tv": {
     "headerTitle": "TV & Console Mode (10-Foot UI)",

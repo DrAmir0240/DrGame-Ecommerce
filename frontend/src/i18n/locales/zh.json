@@ -148,7 +148,8 @@
     "domestic": "伊朗（托曼卡和当地卡）",
     "international": "国际（加密货币和货币）",
     "iranShaparak": "伊朗（沙帕拉克）",
-    "globalCrypto": "全球（加密货币/USDT）"
+    "globalCrypto": "全球（加密货币/USDT）",
+    "faq": "常见问题 (FAQ)"
   },
   "tv": {
     "headerTitle": "电视和控制台模式（10 英尺 UI）",

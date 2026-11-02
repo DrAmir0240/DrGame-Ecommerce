@@ -17,7 +17,8 @@
     "filters": "Filtres",
     "emptyBody": "Aucun jeu ne correspond aux filtres sélectionnés. Réinitialisez les filtres ou essayez une autre recherche.",
     "resetFilters": "Réinitialiser les filtres",
-    "paginationShowing": "Affichage de {{from}} à {{to}} sur {{total}} jeux"
+    "paginationShowing": "Affichage de {{from}} à {{to}} sur {{total}} jeux",
+    "viewResults": "Voir les résultats"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -189,6 +190,29 @@
       "log2": "[*] Auto-detecting console and checking webkit vulnerability…",
       "log3": "[+] Kernel vulnerability found. Injecting GoldHEN into memory…",
       "log4": "[+] Payload executed successfully. Debug Settings enabled on the console."
+    }
+  },
+  "faqPage": {
+    "backToHome": "Retour à l'accueil",
+    "badge": "Centre d'aide et questions fréquentes",
+    "title": "Foire aux questions (FAQ)",
+    "subtitle": "Réponses aux questions les plus fréquentes sur le téléchargement de données, le jailbreak, les abonnements et le support",
+    "searchPlaceholder": "Rechercher dans les questions fréquentes...",
+    "noResults": "Aucun résultat ne correspond à votre recherche.",
+    "notFoundQuestion": "Vous n'avez pas trouvé la réponse souhaitée ?",
+    "supportDescription": "Les spécialistes techniques de DrGame sont disponibles 24h/24 et 7j/7 dans la section tickets.",
+    "sendTicket": "Ouvrir un ticket de support",
+    "defaultFaqs": {
+      "q1": "Comment installer les données de jeu sur ma console ?",
+      "a1": "Après avoir téléchargé les fichiers depuis les serveurs DrGame, installez le jeu facilement à l'aide de l'application Package Sender (via réseau local) ou sur disque externe exFAT.",
+      "q2": "Comment le trafic de téléchargement est-il calculé ?",
+      "a2": "Tous les serveurs de téléchargement DrGame fonctionnent sur une infrastructure ultra-rapide avec CDN dédié.",
+      "q3": "Les quotas d'abonnement DrGame ont-ils une date d'expiration ?",
+      "a3": "Non ! L'un des grands avantages de DrGame est un quota sans limite de temps. Le volume acheté reste disponible indéfiniment.",
+      "q4": "Y a-t-il des frais supplémentaires pour télécharger des cheats ou des patchs ?",
+      "a4": "Non, tous les packs de cheats, trainers et patchs sont inclus gratuitement avec tout abonnement actif.",
+      "q5": "Comment fonctionne le système de parrainage et de gains ?",
+      "a5": "En invitant vos amis avec votre code de parrainage, vous touchez 15 % de commission sur leurs premiers achats, directement versés sur votre portefeuille."
     }
   }
 }
