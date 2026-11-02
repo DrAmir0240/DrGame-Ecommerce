@@ -14,7 +14,17 @@ client id igdb
 6fddqp62amcta340bymo4gjd4w2io0
 secret for igdb
 
+https://id.twitch.tv/oauth2/token?client_id=755p4548dxlbbe5n6xud3fnw3zjwsd&client_secret=6fddqp62amcta340bymo4gjd4w2io0&grant_type=client_credentials
 
+get token url for igdb
+
+https://api.igdb.com/v4
+
+base url of igdb
+
+Client-ID: Client ID
+Authorization: Bearer access_token
+headers of request
 
 
 
