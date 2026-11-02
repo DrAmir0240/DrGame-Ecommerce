@@ -21,13 +21,12 @@ CMD ["npm", "run", "dev"]
 # Builder
 FROM base AS builder
 WORKDIR /app
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
+ENV NEXT_TELEMETRY_DISABLED=1 \
     PATH="/app/node_modules/.bin:$PATH"
 
-# Install dependencies directly in builder to avoid cross-stage copy / broken symlinks
+# Install all dependencies (including devDependencies for build: typescript, tailwindcss, etc.)
 COPY package.json package-lock.json* ./
-RUN npm ci || npm install
+RUN npm install
 RUN chmod -R +x /app/node_modules/.bin || true
 
 COPY . .
@@ -38,9 +37,10 @@ ARG NEXT_PUBLIC_DEFAULT_CURRENCY=IRT
 
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_DEPLOYMENT_MODE=$NEXT_PUBLIC_DEPLOYMENT_MODE \
-    NEXT_PUBLIC_DEFAULT_CURRENCY=$NEXT_PUBLIC_DEFAULT_CURRENCY
+    NEXT_PUBLIC_DEFAULT_CURRENCY=$NEXT_PUBLIC_DEFAULT_CURRENCY \
+    NODE_ENV=production
 
-RUN npm run build
+RUN npx next build
 
 # Production runner
 FROM node:20-alpine AS prod
@@ -65,4 +65,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npx", "next", "start", "-p", "3000"]
