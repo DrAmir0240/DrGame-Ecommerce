@@ -286,7 +286,7 @@ export default function DepartmentLayout({
   };
 
   return (
-    <div className="h-screen h-[100dvh] bg-[#07090e] text-slate-100 flex overflow-hidden antialiased font-vazir" dir="rtl">
+    <div className="fixed inset-0 bg-[#07090e] text-slate-100 flex overflow-hidden antialiased font-vazir" dir="rtl">
       {/* =========================================================================
           DESKTOP SIDEBAR (Collapsible w-64 <-> w-20, fixed full height on lg:)
          ========================================================================= */}
