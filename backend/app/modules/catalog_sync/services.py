@@ -2,11 +2,13 @@
 import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Tuple
+import httpx
 from sqlalchemy import select, delete, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
 from app.core.storage import download_and_save_image
+from app.modules.catalog_sync.narrative import synthesize_game_narrative
 from app.modules.games.models import (
     Game,
     Genre,
@@ -211,119 +213,136 @@ class CatalogSyncService:
             synced_items: list[CatalogGameItem] = []
 
             # 4. Upsert each game into DB & upload assets to S3
-            for item in raw_games:
-                source_id = str(item["id"])
-                name = item.get("name") or "Unknown Title"
-                slug = item.get("slug") or f"game-{source_id}"
-                summary = item.get("summary")
-                storyline = item.get("storyline")
-                released = format_release_date(item.get("first_release_date"))
+            async with httpx.AsyncClient(timeout=6.0) as http_client:
+                for item in raw_games:
+                    source_id = str(item["id"])
+                    name = item.get("name") or "Unknown Title"
+                    slug = item.get("slug") or f"game-{source_id}"
+                    summary = item.get("summary")
+                    storyline = item.get("storyline")
+                    released = format_release_date(item.get("first_release_date"))
 
-                raw_rating = item.get("rating")
-                rating_5 = round(raw_rating / 20.0, 1) if raw_rating else 0.0
+                    raw_rating = item.get("rating")
+                    rating_5 = round(raw_rating / 20.0, 1) if raw_rating else 0.0
 
-                raw_meta = item.get("aggregated_rating")
-                metacritic = round(raw_meta) if raw_meta else None
+                    raw_meta = item.get("aggregated_rating")
+                    metacritic = round(raw_meta) if raw_meta else None
 
-                platforms, has_vr = map_platforms(item.get("platforms") or [])
-                is_two_player = detect_two_player(item.get("game_modes") or [])
-                genres = [g["name"] for g in item.get("genres") or [] if "name" in g]
-                dev, pub = extract_companies(item.get("involved_companies") or [])
+                    platforms, has_vr = map_platforms(item.get("platforms") or [])
+                    is_two_player = detect_two_player(item.get("game_modes") or [])
+                    genres = [g["name"] for g in item.get("genres") or [] if "name" in g]
+                    dev, pub = extract_companies(item.get("involved_companies") or [])
 
-                # Upload assets to Liara S3 (games/{source_id}/...)
-                cover_id = item.get("cover", {}).get("image_id")
-                cover_image_url = None
-                if cover_id:
-                    cover_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{cover_id}.jpg"
-                    cover_image_url = await download_and_save_image(
-                        cover_source_url, exact_key=f"games/{source_id}/cover.jpg"
-                    )
-
-                artworks = item.get("artworks") or []
-                banner_id = artworks[0].get("image_id") if artworks else cover_id
-                banner_image_url = cover_image_url
-                if banner_id and banner_id != cover_id:
-                    banner_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{banner_id}.jpg"
-                    banner_image_url = await download_and_save_image(
-                        banner_source_url, exact_key=f"games/{source_id}/banner.jpg"
-                    )
-
-                raw_screenshots = item.get("screenshots") or []
-                screenshots = []
-                for s_idx, s in enumerate(raw_screenshots[:6], start=1):
-                    s_id = s.get("image_id")
-                    if s_id:
-                        s_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{s_id}.jpg"
-                        s3_shot = await download_and_save_image(
-                            s_url, exact_key=f"games/{source_id}/screenshots/{s_idx}.jpg"
+                    # Synthesize rich Persian narrative & description (minimum 10 lines storyline)
+                    try:
+                        desc_fa, story_fa = await synthesize_game_narrative(
+                            title=name,
+                            summary=summary,
+                            storyline=storyline,
+                            genres=genres,
+                            platforms=platforms,
+                            developer=dev,
+                            publisher=pub,
+                            client=http_client,
                         )
-                        screenshots.append(s3_shot)
+                    except Exception as narrative_err:
+                        logger.warning(f"Failed to synthesize narrative for {name}: {narrative_err}")
+                        desc_fa = f"بازی {name} برای کنسول‌های بازی."
+                        story_fa = storyline
 
-                # Check if game already exists in DB
-                existing_game = await db.scalar(
-                    select(Game).where(or_(Game.source_id == source_id, Game.slug == slug))
-                )
+                    # Upload assets to Liara S3 (games/{source_id}/...)
+                    cover_id = item.get("cover", {}).get("image_id")
+                    cover_image_url = None
+                    if cover_id:
+                        cover_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{cover_id}.jpg"
+                        cover_image_url = await download_and_save_image(
+                            cover_source_url, exact_key=f"games/{source_id}/cover.jpg"
+                        )
 
-                if existing_game:
-                    # UPDATE existing game
-                    existing_game.source_id = source_id
-                    existing_game.title_en = name
-                    existing_game.title_fa = name
-                    existing_game.description_en = summary
-                    if not existing_game.description_fa:
-                        existing_game.description_fa = f"بازی {name} برای کنسول‌های بازی."
-                    existing_game.storyline_fa = storyline or existing_game.storyline_fa
-                    existing_game.released = released
-                    existing_game.rating = rating_5
-                    existing_game.metacritic = metacritic
-                    existing_game.platforms = platforms
-                    existing_game.genres = genres
-                    existing_game.developer = dev
-                    existing_game.publisher = pub
-                    existing_game.is_two_player = is_two_player
-                    existing_game.has_vr = has_vr
-                    if cover_image_url:
-                        existing_game.cover_image_url = cover_image_url
-                    if banner_image_url:
-                        existing_game.banner_image_url = banner_image_url
-                    if screenshots:
-                        existing_game.screenshots = screenshots
-                    existing_game.is_active = True
+                    artworks = item.get("artworks") or []
+                    banner_id = artworks[0].get("image_id") if artworks else cover_id
+                    banner_image_url = cover_image_url
+                    if banner_id and banner_id != cover_id:
+                        banner_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{banner_id}.jpg"
+                        banner_image_url = await download_and_save_image(
+                            banner_source_url, exact_key=f"games/{source_id}/banner.jpg"
+                        )
 
-                    updated_count += 1
-                    game_record_id = existing_game.id
-                    is_updated = True
-                else:
-                    # INSERT new game (NO download parts generated!)
-                    new_game = Game(
-                        source_id=source_id,
-                        title_fa=name,
-                        title_en=name,
-                        slug=slug,
-                        description_en=summary or f"Experience the incredible adventure of {name}.",
-                        description_fa=f"بازی {name} برای کنسول‌های بازی.",
-                        storyline_fa=storyline,
-                        released=released,
-                        rating=rating_5,
-                        metacritic=metacritic,
-                        download_size_gb=40.0,
-                        is_two_player=is_two_player,
-                        has_vr=has_vr,
-                        platforms=platforms,
-                        genres=genres,
-                        developer=dev,
-                        publisher=pub,
-                        cover_image_url=cover_image_url,
-                        banner_image_url=banner_image_url,
-                        screenshots=screenshots,
-                        is_active=True,
+                    raw_screenshots = item.get("screenshots") or []
+                    screenshots = []
+                    for s_idx, s in enumerate(raw_screenshots[:6], start=1):
+                        s_id = s.get("image_id")
+                        if s_id:
+                            s_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{s_id}.jpg"
+                            s3_shot = await download_and_save_image(
+                                s_url, exact_key=f"games/{source_id}/screenshots/{s_idx}.jpg"
+                            )
+                            screenshots.append(s3_shot)
+
+                    # Check if game already exists in DB
+                    existing_game = await db.scalar(
+                        select(Game).where(or_(Game.source_id == source_id, Game.slug == slug))
                     )
-                    db.add(new_game)
-                    await db.flush()
 
-                    imported_count += 1
-                    game_record_id = new_game.id
-                    is_updated = False
+                    if existing_game:
+                        # UPDATE existing game
+                        existing_game.source_id = source_id
+                        existing_game.title_en = name
+                        existing_game.title_fa = name
+                        existing_game.description_en = summary
+                        existing_game.description_fa = desc_fa
+                        existing_game.storyline_fa = story_fa
+                        existing_game.released = released
+                        existing_game.rating = rating_5
+                        existing_game.metacritic = metacritic
+                        existing_game.platforms = platforms
+                        existing_game.genres = genres
+                        existing_game.developer = dev
+                        existing_game.publisher = pub
+                        existing_game.is_two_player = is_two_player
+                        existing_game.has_vr = has_vr
+                        if cover_image_url:
+                            existing_game.cover_image_url = cover_image_url
+                        if banner_image_url:
+                            existing_game.banner_image_url = banner_image_url
+                        if screenshots:
+                            existing_game.screenshots = screenshots
+                        existing_game.is_active = True
+
+                        updated_count += 1
+                        game_record_id = existing_game.id
+                        is_updated = True
+                    else:
+                        # INSERT new game (NO download parts generated!)
+                        new_game = Game(
+                            source_id=source_id,
+                            title_fa=name,
+                            title_en=name,
+                            slug=slug,
+                            description_en=summary or f"Experience the incredible adventure of {name}.",
+                            description_fa=desc_fa,
+                            storyline_fa=story_fa,
+                            released=released,
+                            rating=rating_5,
+                            metacritic=metacritic,
+                            download_size_gb=40.0,
+                            is_two_player=is_two_player,
+                            has_vr=has_vr,
+                            platforms=platforms,
+                            genres=genres,
+                            developer=dev,
+                            publisher=pub,
+                            cover_image_url=cover_image_url,
+                            banner_image_url=banner_image_url,
+                            screenshots=screenshots,
+                            is_active=True,
+                        )
+                        db.add(new_game)
+                        await db.flush()
+
+                        imported_count += 1
+                        game_record_id = new_game.id
+                        is_updated = False
 
                 synced_items.append(
                     CatalogGameItem(
