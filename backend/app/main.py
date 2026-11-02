@@ -173,6 +173,12 @@ except ImportError as e:
     logger.warning(f"Could not load department admin routers: {e}")
 
 try:
+    from app.modules.catalog_sync.router import router as catalog_sync_router
+    app.include_router(catalog_sync_router)
+except ImportError as e:
+    logger.warning(f"Could not load catalog_sync router: {e}")
+
+try:
     from app.modules.home.router import router as home_router
     app.include_router(home_router, prefix="/api/home", tags=["Home Banners"])
 except ImportError:

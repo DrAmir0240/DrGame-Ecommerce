@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     RAWG_API_KEY: str = "91c0c1c9c30c4796bbff63a7471fdfdd"
     RAWG_BASE_URL: str = "https://api.rawg.io/api"
 
+    # IGDB / Twitch OAuth API
+    IGDB_CLIENT_ID: str = "755p4548dxlbbe5n6xud3fnw3zjwsd"
+    IGDB_CLIENT_SECRET: str = "6fddqp62amcta340bymo4gjd4w2io0"
+    IGDB_BASE_URL: str = "https://api.igdb.com/v4"
+    IGDB_TOKEN_URL: str = "https://id.twitch.tv/oauth2/token"
+
     # Liara S3 Object Storage
     LIARA_ENDPOINT: str = "https://storage.c2.liara.site"
     LIARA_BUCKET_NAME: str = "drgame-storage"
