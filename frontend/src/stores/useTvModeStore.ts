@@ -2,11 +2,17 @@ import { create } from 'zustand';
 
 interface TvModeState {
   isTvMode: boolean;
+  zoomLevel: number;
+  showZoomHud: boolean;
   openTvMode: () => void;
   closeTvMode: () => void;
   toggleTvMode: () => void;
   initTvDetection: () => void;
+  adjustZoom: (delta: number) => void;
+  resetZoom: () => void;
 }
+
+let hudTimeout: NodeJS.Timeout | null = null;
 
 const applyTvClass = (enabled: boolean) => {
   if (typeof document === 'undefined') return;
@@ -14,11 +20,14 @@ const applyTvClass = (enabled: boolean) => {
     document.documentElement.classList.add('tv-mode');
   } else {
     document.documentElement.classList.remove('tv-mode');
+    (document.documentElement.style as any).zoom = '';
   }
 };
 
 export const useTvModeStore = create<TvModeState>((set, get) => ({
   isTvMode: false,
+  zoomLevel: 1.0,
+  showZoomHud: false,
 
   openTvMode: () => {
     applyTvClass(true);
@@ -33,7 +42,7 @@ export const useTvModeStore = create<TvModeState>((set, get) => ({
     if (typeof window !== 'undefined') {
       localStorage.setItem('drgame_tv_mode', 'false');
     }
-    set({ isTvMode: false });
+    set({ isTvMode: false, zoomLevel: 1.0, showZoomHud: false });
   },
 
   toggleTvMode: () => {
@@ -43,6 +52,30 @@ export const useTvModeStore = create<TvModeState>((set, get) => ({
       localStorage.setItem('drgame_tv_mode', nextState ? 'true' : 'false');
     }
     set({ isTvMode: nextState });
+  },
+
+  adjustZoom: (delta: number) => {
+    const current = get().zoomLevel;
+    // Clamp zoom between 0.65 (65%) and 1.30 (130%)
+    const nextZoom = Math.min(1.30, Math.max(0.65, Math.round((current + delta) * 100) / 100));
+    
+    if (typeof document !== 'undefined') {
+      (document.documentElement.style as any).zoom = nextZoom.toFixed(2);
+    }
+
+    if (hudTimeout) clearTimeout(hudTimeout);
+    hudTimeout = setTimeout(() => {
+      set({ showZoomHud: false });
+    }, 1200);
+
+    set({ zoomLevel: nextZoom, showZoomHud: true });
+  },
+
+  resetZoom: () => {
+    if (typeof document !== 'undefined') {
+      (document.documentElement.style as any).zoom = '';
+    }
+    set({ zoomLevel: 1.0, showZoomHud: false });
   },
 
   initTvDetection: () => {
@@ -102,7 +135,7 @@ export const useTvModeStore = create<TvModeState>((set, get) => ({
       }
     });
 
-    // Auto-detect resolution changes (e.g. going fullscreen on a 1080p/4K TV)
+    // Auto-detect resolution changes
     window.addEventListener('resize', () => {
       const stored = localStorage.getItem('drgame_tv_mode');
       if (!stored) {

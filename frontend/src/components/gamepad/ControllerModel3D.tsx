@@ -119,41 +119,65 @@ export default function ControllerModel3D({
       canvas.addEventListener('pointerup', onPointerUp);
       canvas.addEventListener('pointercancel', onPointerUp);
 
-      /* ---- load the model ---- */
+      /* ---- load the model with meshopt decoder ready ---- */
+      if (meshoptModule.MeshoptDecoder && meshoptModule.MeshoptDecoder.ready) {
+        try {
+          await meshoptModule.MeshoptDecoder.ready;
+        } catch (err) {
+          console.warn('MeshoptDecoder.ready failed:', err);
+        }
+      }
+
       const loader = new gltfModule.GLTFLoader().setMeshoptDecoder(
         meshoptModule.MeshoptDecoder,
       );
 
+      const handleGltfSuccess = (gltf: any) => {
+        if (disposed) return;
+        const root = gltf.scene;
+        const box = new THREE.Box3().setFromObject(root);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        // Center on the origin, then normalise the scale.
+        root.position.sub(center);
+        const max = Math.max(size.x, size.y, size.z);
+        if (max > 0) root.scale.setScalar(TARGET_SIZE / max);
+
+        dragGroup.add(root);
+        setProgress(null);
+        setReady(true);
+        resize();
+      };
+
+      const handleGltfProgress = (event: ProgressEvent) => {
+        if (disposed) return;
+        if (event.lengthComputable && event.total > 0) {
+          setProgress(event.loaded / event.total);
+        } else {
+          setProgress(null);
+        }
+      };
+
       loader.load(
         modelUrl,
-        (gltf) => {
-          if (disposed) return;
-          const root = gltf.scene;
-          const box = new THREE.Box3().setFromObject(root);
-          const size = box.getSize(new THREE.Vector3());
-          const center = box.getCenter(new THREE.Vector3());
-
-          // Center on the origin, then normalise the scale.
-          root.position.sub(center);
-          const max = Math.max(size.x, size.y, size.z);
-          if (max > 0) root.scale.setScalar(TARGET_SIZE / max);
-
-          dragGroup.add(root);
-          setProgress(null);
-          setReady(true);
-          resize();
-        },
-        (event) => {
-          if (disposed) return;
-          if (event.lengthComputable && event.total > 0) {
-            setProgress(event.loaded / event.total);
-          } else {
-            setProgress(null);
-          }
-        },
+        handleGltfSuccess,
+        handleGltfProgress,
         () => {
           if (disposed) return;
-          setErrorKey('gamepad.model3d.loadError');
+          // Fallback retry with /gamepad/models/dualsense.glb if initial path failed
+          if (modelUrl !== '/gamepad/models/dualsense.glb') {
+            loader.load(
+              '/gamepad/models/dualsense.glb',
+              handleGltfSuccess,
+              handleGltfProgress,
+              () => {
+                if (!disposed) setErrorKey('gamepad.model3d.loadError');
+              },
+            );
+          } else {
+            setErrorKey('gamepad.model3d.loadError');
+          }
         },
       );
 

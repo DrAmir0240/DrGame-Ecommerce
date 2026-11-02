@@ -52,3 +52,4 @@ source/
 
 # i18n translation cache (resumable generator state)
 frontend/.i18n-cache/
+*.bak

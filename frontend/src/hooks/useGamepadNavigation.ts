@@ -6,8 +6,9 @@ import { useTvModeStore } from '@/stores/useTvModeStore';
 
 export function useGamepadNavigation() {
   const router = useRouter();
-  const { isTvMode, toggleTvMode, closeTvMode } = useTvModeStore();
+  const { isTvMode, toggleTvMode, closeTvMode, adjustZoom } = useTvModeStore();
   const lastPressRef = useRef<number>(0);
+  const lastZoomTickRef = useRef<number>(0);
   const currentFocusedElRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -29,8 +30,17 @@ export function useGamepadNavigation() {
           'a, button, input, select, textarea, [tabindex="0"], [data-nav], [role="button"]'
         )
       ).filter((el) => {
-        // Exclude elements inside the fixed bottom bar from standard page spatial jump
-        // unless explicitly needed, or make sure they are visible and not disabled
+        // STRICT RULE: Controller MUST NEVER navigate into the fixed bottom bar
+        if (
+          el.closest('footer') ||
+          el.closest('[data-tv-bar]') ||
+          el.closest('[role="region"][aria-label*="tv"]') ||
+          el.hasAttribute('data-no-gamepad') ||
+          el.getAttribute('tabindex') === '-1'
+        ) {
+          return false;
+        }
+
         return (
           el.offsetParent !== null &&
           !el.hasAttribute('disabled') &&
@@ -56,7 +66,6 @@ export function useGamepadNavigation() {
         const targetRect = target.getBoundingClientRect();
 
         let isValidDirection = false;
-        // Directional validation with threshold tolerance
         if (down && targetRect.top >= currentRect.bottom - 20) isValidDirection = true;
         if (up && targetRect.bottom <= currentRect.top + 20) isValidDirection = true;
         if (right && targetRect.left >= currentRect.right - 20) isValidDirection = true;
@@ -66,7 +75,6 @@ export function useGamepadNavigation() {
           const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
           const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
 
-          // Angle penalty: Elements aligned strictly along the primary navigation axis get preference
           let axisPenalty = 1;
           if (up || down) {
             axisPenalty += Math.abs(dx) * 1.5;
@@ -94,7 +102,42 @@ export function useGamepadNavigation() {
 
       if (gp) {
         const now = Date.now();
-        // 170ms debounce for comfortable, responsive navigation
+
+        // 1. Check L3 (Left Stick Click - Button 10)
+        const isL3Pressed = !!gp.buttons[10]?.pressed;
+
+        // 2. Right Stick (RX: axes[2], RY: axes[3])
+        const rx = gp.axes[2] || 0;
+        const ry = gp.axes[3] || 0;
+
+        if (isL3Pressed) {
+          // L3 + Right Joystick: ZOOM IN / ZOOM OUT
+          if (Math.abs(ry) > 0.22 && now - lastZoomTickRef.current > 70) {
+            // Tilting Up (ry < -0.22): Zoom IN (+0.02)
+            // Tilting Down (ry > 0.22): Zoom OUT (-0.02)
+            const zoomDelta = ry < -0.22 ? 0.02 : -0.02;
+            adjustZoom(zoomDelta);
+            lastZoomTickRef.current = now;
+          }
+        } else {
+          // Right Joystick Alone: ANALOG CONTINUOUS SCROLLING
+          if (Math.abs(ry) > 0.15) {
+            const scrollDelta = ry * 24;
+            window.scrollBy({ top: scrollDelta, behavior: 'auto' });
+          }
+
+          if (Math.abs(rx) > 0.25) {
+            const current = (document.activeElement as HTMLElement) || currentFocusedElRef.current;
+            const carousel = current?.closest('.overflow-x-auto') || document.querySelector('.overflow-x-auto');
+            if (carousel) {
+              carousel.scrollBy({ left: rx * 22, behavior: 'auto' });
+            } else {
+              window.scrollBy({ left: rx * 22, behavior: 'auto' });
+            }
+          }
+        }
+
+        // 3. Debounced D-Pad and Face Buttons Navigation
         if (now - lastPressRef.current > 170) {
           const dpadUp = gp.buttons[12]?.pressed || (gp.axes[1] && gp.axes[1] < -0.5);
           const dpadDown = gp.buttons[13]?.pressed || (gp.axes[1] && gp.axes[1] > 0.5);
@@ -119,7 +162,6 @@ export function useGamepadNavigation() {
             }
             lastPressRef.current = now;
           } else if (buttonCircle) {
-            // Circle: Back in navigation
             const activeEl = document.activeElement as HTMLElement;
             if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
               activeEl.blur();
@@ -128,23 +170,18 @@ export function useGamepadNavigation() {
             }
             lastPressRef.current = now;
           } else if (buttonSquare) {
-            // Square: Quick access to subscriptions
             router.push('/subscriptions');
             lastPressRef.current = now;
           } else if (buttonTriangle) {
-            // Triangle: Quick access to games catalog
             router.push('/games');
             lastPressRef.current = now;
           } else if (buttonL1) {
-            // L1: Smooth page scroll up
             window.scrollBy({ top: -450, behavior: 'smooth' });
             lastPressRef.current = now;
           } else if (buttonR1) {
-            // R1: Smooth page scroll down
             window.scrollBy({ top: 450, behavior: 'smooth' });
             lastPressRef.current = now;
           } else if (buttonSelect) {
-            // Toggle TV Mode
             toggleTvMode();
             lastPressRef.current = now;
           }
@@ -154,10 +191,8 @@ export function useGamepadNavigation() {
       animationFrameId = requestAnimationFrame(scanGamepad);
     };
 
-    // Keyboard Arrow Keys Spatial Navigation for 10-foot keyboard or remote testing
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        // If typing inside an input field, do not hijack arrows
         const tag = (document.activeElement?.tagName || '').toLowerCase();
         if (tag === 'input' || tag === 'textarea') return;
 
@@ -185,5 +220,5 @@ export function useGamepadNavigation() {
         currentFocusedElRef.current.removeAttribute('data-tv-focused');
       }
     };
-  }, [router, isTvMode, toggleTvMode, closeTvMode]);
+  }, [router, isTvMode, toggleTvMode, closeTvMode, adjustZoom]);
 }

@@ -106,7 +106,6 @@ export default function AuthModal() {
     setError(null);
 
     try {
-      // If user toggled manual registration form and entered credentials, call /auth/register
       if (isRegisterMode && (fullName.trim() || username.trim() || password.trim())) {
         if (!fullName.trim() || !username.trim() || !password.trim()) {
           setError(t('auth.errors.requiredFields'));
@@ -129,7 +128,6 @@ export default function AuthModal() {
         setAuthModalOpen(false);
         resetForms();
       } else {
-        // Fast passwordless OTP login (supports existing users and auto-creates accounts seamlessly)
         const res = await apiRequest<TokenResponse>('/auth/login/otp', {
           method: 'POST',
           body: JSON.stringify({
@@ -210,36 +208,38 @@ export default function AuthModal() {
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-md rounded-2xl glass-card border border-cosmic-purple/40 p-6 shadow-2xl overflow-hidden bg-[#101116]"
+          className="relative w-full max-w-md rounded-3xl border border-cosmic-purple/35 bg-[#101116] p-6 sm:p-7 shadow-2xl shadow-purple-950/50 overflow-hidden box-border"
         >
           {/* Header Close */}
           <button
+            type="button"
             onClick={() => {
               setAuthModalOpen(false);
               resetForms();
             }}
-            className="absolute top-4 left-4 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="absolute top-5 ltr:right-5 rtl:left-5 p-2 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-10"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Title */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 rounded-xl bg-cosmic-gradient shadow-neon-purple text-white">
+          <div className="flex items-center gap-3 mb-6 pe-10">
+            <div className="p-3 rounded-2xl bg-cosmic-gradient shadow-neon-purple text-white shrink-0">
               <Gamepad2 className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{t('auth.loginToDrGame')}</h2>
-              <p className="text-xs text-text-muted">{t('auth.loginSubtitle')}</p>
+              <p className="text-xs text-text-muted mt-0.5">{t('auth.loginSubtitle')}</p>
             </div>
           </div>
 
           {/* Tabs Navigation */}
-          <div className="flex p-1 mb-6 rounded-xl bg-[#0d121f] border border-white/10 text-xs font-medium">
+          <div className="grid grid-cols-3 p-1 mb-6 rounded-2xl bg-[#0a0d17] border border-white/10 text-xs font-medium">
             <button
               type="button"
               onClick={() => { setTab('otp'); resetForms(); }}
-              className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
+              className={`py-2 rounded-xl transition-all cursor-pointer text-center font-bold ${
                 tab === 'otp'
                   ? 'bg-nebula-violet text-white shadow-neon-purple'
                   : 'text-text-secondary hover:text-white'
@@ -250,7 +250,7 @@ export default function AuthModal() {
             <button
               type="button"
               onClick={() => { setTab('password'); resetForms(); }}
-              className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
+              className={`py-2 rounded-xl transition-all cursor-pointer text-center font-bold ${
                 tab === 'password'
                   ? 'bg-nebula-violet text-white shadow-neon-purple'
                   : 'text-text-secondary hover:text-white'
@@ -261,7 +261,7 @@ export default function AuthModal() {
             <button
               type="button"
               onClick={() => { setTab('console'); resetForms(); }}
-              className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer font-bold ${
                 tab === 'console'
                   ? 'bg-cosmic-purple text-white shadow-neon-purple'
                   : 'text-text-secondary hover:text-white'
@@ -295,37 +295,36 @@ export default function AuthModal() {
             <div>
               {otpStep === 'target' ? (
                 <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div>
+                  <div className="w-full">
                     <label className="block text-xs font-medium text-text-secondary mb-2">
                       {t('auth.phoneOrEmail')}
                     </label>
-                    <div className="relative">
+                    <div className="relative w-full box-border" dir="ltr">
                       <input
                         type="text"
-                        dir="ltr"
                         value={otpTarget}
                         onChange={(e) => setOtpTarget(e.target.value)}
                         placeholder={t('auth.phoneOrEmailPlaceholder')}
-                        className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left"
+                        className="w-full box-border pl-11 pr-4 py-3 rounded-xl bg-[#0a0d17] border border-white/15 text-white placeholder:text-text-muted text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left font-sans"
                         required
                         autoFocus
                       />
-                      <Phone className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
                     </div>
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                    className="w-full box-border py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
                   >
                     {loading ? t('auth.sendingOtp') : t('auth.sendOtp')}
                   </button>
                 </form>
               ) : (
                 <form onSubmit={handleOtpSubmit} className="space-y-3">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
+                  <div className="w-full">
+                    <div className="flex justify-between items-center mb-1.5">
                       <label className="text-xs text-text-secondary">{t('auth.sendOtp')}</label>
                       <button
                         type="button"
@@ -334,23 +333,24 @@ export default function AuthModal() {
                           setOtpCode('');
                           setError(null);
                         }}
-                        className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-xs text-nebula-violet hover:underline flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <ArrowLeft className="w-3 h-3" />
                         <span>{t('auth.changeTarget')}</span>
                       </button>
                     </div>
-                    <input
-                      type="text"
-                      dir="ltr"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      placeholder="123456"
-                      className="w-full text-center tracking-widest text-xl font-bold px-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet"
-                      required
-                      autoFocus
-                    />
+                    <div className="relative w-full box-border" dir="ltr">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                        placeholder="123456"
+                        className="w-full box-border text-center tracking-widest text-2xl font-mono font-bold px-4 py-3 rounded-xl bg-[#0a0d17] border border-white/15 text-white focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet"
+                        required
+                        autoFocus
+                      />
+                    </div>
                   </div>
 
                   {/* Optional New User Registration Toggle */}
@@ -369,41 +369,45 @@ export default function AuthModal() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="space-y-3 overflow-hidden"
+                      className="space-y-3 overflow-hidden w-full"
                     >
-                      <div>
+                      <div className="w-full">
                         <label className="block text-xs text-text-secondary mb-1">{t('auth.fullName')}</label>
-                        <input
-                          type="text"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          placeholder={t('auth.fullNamePlaceholder')}
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#0d121f] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted"
-                        />
+                        <div className="relative w-full box-border">
+                          <input
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder={t('auth.fullNamePlaceholder')}
+                            className="w-full box-border px-4 py-2.5 rounded-xl bg-[#0a0d17] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted"
+                          />
+                        </div>
                       </div>
 
-                      <div>
+                      <div className="w-full">
                         <label className="block text-xs text-text-secondary mb-1">{t('auth.username')}</label>
-                        <input
-                          type="text"
-                          dir="ltr"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          placeholder={t('auth.usernamePlaceholder')}
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#0d121f] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
-                        />
+                        <div className="relative w-full box-border" dir="ltr">
+                          <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder={t('auth.usernamePlaceholder')}
+                            className="w-full box-border px-4 py-2.5 rounded-xl bg-[#0a0d17] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left font-sans"
+                          />
+                        </div>
                       </div>
 
-                      <div>
+                      <div className="w-full">
                         <label className="block text-xs text-text-secondary mb-1">{t('auth.password')}</label>
-                        <input
-                          type="password"
-                          dir="ltr"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder={t('auth.passwordPlaceholder')}
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#0d121f] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
-                        />
+                        <div className="relative w-full box-border" dir="ltr">
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder={t('auth.passwordPlaceholder')}
+                            className="w-full box-border px-4 py-2.5 rounded-xl bg-[#0a0d17] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
+                          />
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -411,7 +415,7 @@ export default function AuthModal() {
                   <button
                     type="submit"
                     disabled={loading || otpCode.length < 4}
-                    className="w-full py-3 mt-2 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                    className="w-full box-border py-3 mt-2 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
                   >
                     {loading ? t('auth.activating') : t('auth.verifyAndLogin')}
                   </button>
@@ -423,44 +427,42 @@ export default function AuthModal() {
           {/* TAB 2: Password */}
           {tab === 'password' && (
             <form onSubmit={handlePasswordLogin} className="space-y-4">
-              <div>
+              <div className="w-full">
                 <label className="block text-xs font-medium text-text-secondary mb-2">
                   {t('auth.phoneOrEmail')}
                 </label>
-                <div className="relative">
+                <div className="relative w-full box-border" dir="ltr">
                   <input
                     type="text"
-                    dir="ltr"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
                     placeholder="drgamer / 0912... / gamer@mail.com"
-                    className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
+                    className="w-full box-border pl-11 pr-4 py-3 rounded-xl bg-[#0a0d17] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left font-sans"
                     required
                     autoFocus
                   />
-                  <User className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
                 </div>
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-xs font-medium text-text-secondary mb-2">
                   {t('auth.password')}
                 </label>
-                <div className="relative">
+                <div className="relative w-full box-border" dir="ltr">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    dir="ltr"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full ps-11 pe-11 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
+                    className="w-full box-border pl-11 pr-11 py-3 rounded-xl bg-[#0a0d17] border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet placeholder:text-text-muted text-left"
                     required
                   />
-                  <Lock className="absolute start-3.5 top-3.5 w-4 h-4 text-text-muted pointer-events-none" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute end-3.5 top-3.5 text-text-muted hover:text-white transition-colors cursor-pointer"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-white transition-colors cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -470,7 +472,7 @@ export default function AuthModal() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                className="w-full box-border py-3 rounded-xl bg-cosmic-gradient hover:opacity-90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? t('auth.verifying') : t('auth.loginWithPassword')}
               </button>
@@ -480,34 +482,33 @@ export default function AuthModal() {
           {/* TAB 3: Console Quick Auth */}
           {tab === 'console' && (
             <form onSubmit={handleConsoleLogin} className="space-y-4">
-              <div className="p-3 rounded-xl bg-cosmic-purple/10 border border-cosmic-purple/30 text-xs text-text-secondary">
+              <div className="p-3.5 rounded-2xl bg-cosmic-purple/10 border border-cosmic-purple/30 text-xs text-text-secondary leading-relaxed">
                 {t('auth.consoleHint')}
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-xs font-medium text-text-secondary mb-2">
                   {t('auth.consoleLabel')}
                 </label>
-                <div className="relative">
+                <div className="relative w-full box-border" dir="ltr">
                   <input
                     type="text"
-                    dir="ltr"
                     maxLength={7}
                     value={consoleCode}
                     onChange={(e) => setConsoleCode(e.target.value.toUpperCase())}
                     placeholder="7X9K2PL"
-                    className="w-full text-center uppercase tracking-widest text-xl font-mono font-bold px-11 py-3 rounded-xl bg-[#0d121f] border border-cosmic-purple/40 text-nebula-violet focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet"
+                    className="w-full box-border text-center uppercase tracking-widest text-2xl font-mono font-bold pl-11 pr-11 py-3 rounded-xl bg-[#0a0d17] border border-cosmic-purple/40 text-nebula-violet focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet"
                     required
                     autoFocus
                   />
-                  <KeyRound className="absolute start-3.5 top-3.5 w-5 h-5 text-nebula-violet pointer-events-none" />
+                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-nebula-violet pointer-events-none" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white font-medium text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer"
+                className="w-full box-border py-3 rounded-xl bg-cosmic-purple hover:bg-cosmic-purple/90 text-white font-bold text-sm transition-all shadow-neon-purple disabled:opacity-50 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? t('auth.consoleValidating') : t('auth.consoleLoginBtn')}
               </button>
