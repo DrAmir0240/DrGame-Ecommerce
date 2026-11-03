@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CloudDownload,
   Calendar,
@@ -9,6 +9,7 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   RotateCcw,
   Sparkles,
   Layers,
@@ -55,11 +56,26 @@ interface SyncJob {
 interface SyncResponse {
   success: boolean;
   job_id: number;
+  status: string;
   imported_count: number;
   updated_count: number;
   total_count: number;
   message: string;
   games: CatalogGame[];
+}
+
+interface ProgressInfo {
+  job_id: number;
+  status: "idle" | "in_progress" | "completed" | "failed";
+  current: number;
+  total: number;
+  percentage: number;
+  current_game: string | null;
+  imported_count: number;
+  updated_count: number;
+  error_message: string | null;
+  recent_games: CatalogGame[];
+  message: string | null;
 }
 
 export default function CatalogSyncPage() {
@@ -73,6 +89,9 @@ export default function CatalogSyncPage() {
 
   // Execution & UI State
   const [syncing, setSyncing] = useState<boolean>(false);
+  const [progress, setProgress] = useState<ProgressInfo | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
   const [wiping, setWiping] = useState<boolean>(false);
   const [showWipeModal, setShowWipeModal] = useState<boolean>(false);
   const [recentGames, setRecentGames] = useState<CatalogGame[]>([]);
@@ -80,9 +99,74 @@ export default function CatalogSyncPage() {
   const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
-  // Load History on Mount
+  // Stop polling helper
+  const stopPolling = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  };
+
+  // Poll progress from backend
+  const startPolling = (jobId: number | string) => {
+    stopPolling();
+    pollingRef.current = setInterval(async () => {
+      try {
+        const data = await apiRequest<ProgressInfo>(`/admin-content/catalog/progress/${jobId}`);
+        if (!data) return;
+
+        setProgress(data);
+
+        // Update games incrementally so cards appear one by one
+        if (data.recent_games && data.recent_games.length > 0) {
+          setRecentGames(data.recent_games);
+        }
+
+        if (data.status === "completed") {
+          stopPolling();
+          setSyncing(false);
+          setFeedback({
+            type: "success",
+            message: data.message || `با موفقیت ${data.imported_count} بازی اضافه و ${data.updated_count} بازی آپدیت شد.`,
+          });
+          loadHistory();
+        } else if (data.status === "failed") {
+          stopPolling();
+          setSyncing(false);
+          setFeedback({
+            type: "error",
+            message: data.error_message || data.message || "خطا در فرآیند همگام‌سازی رخ داد.",
+          });
+          loadHistory();
+        }
+      } catch {
+        // Keep polling on transient network hiccup
+      }
+    }, 1000);
+  };
+
+  // Check if an existing job is in progress on page mount
+  const checkActiveJob = async () => {
+    try {
+      const data = await apiRequest<ProgressInfo>("/admin-content/catalog/progress/latest");
+      if (data && data.status === "in_progress" && data.job_id) {
+        setProgress(data);
+        setSyncing(true);
+        if (data.recent_games && data.recent_games.length > 0) {
+          setRecentGames(data.recent_games);
+        }
+        startPolling(data.job_id);
+      }
+    } catch {
+      // Silently ignore during initial check
+    }
+  };
+
+  // Lifecycle
   useEffect(() => {
     loadHistory();
+    checkActiveJob();
+    return () => stopPolling();
   }, []);
 
   const loadHistory = async () => {
@@ -120,9 +204,23 @@ export default function CatalogSyncPage() {
     }
 
     setSyncing(true);
+    setRecentGames([]);
+    setProgress({
+      job_id: 0,
+      status: "in_progress",
+      current: 0,
+      total: Number(count),
+      percentage: 0,
+      current_game: "در حال اتصال به سرور و استعلام بازی‌ها...",
+      imported_count: 0,
+      updated_count: 0,
+      error_message: null,
+      recent_games: [],
+      message: "عملیات همگام‌سازی آغاز شد...",
+    });
     setFeedback({
       type: "info",
-      message: "در حال استعلام از مرجع کاتالوگ، نرمال‌سازی متادیتا و آپلود تصاویر ۱۰۸۰p به باکت S3 لیارا...",
+      message: "درخواست دریافت کاتالوگ با موفقیت ثبت شد. فرآیند در پس‌زمینه در جریان است...",
     });
 
     try {
@@ -141,23 +239,34 @@ export default function CatalogSyncPage() {
         body: JSON.stringify(payload),
       });
 
-      if (res && res.success) {
-        setRecentGames(res.games || []);
-        setFeedback({
-          type: "success",
-          message: res.message || `با موفقیت ${res.imported_count} بازی اضافه و ${res.updated_count} بازی آپدیت شد.`,
-        });
-        loadHistory();
+      if (res && res.success && res.job_id) {
+        setProgress((prev) => ({
+          ...(prev || {
+            current: 0,
+            total: Number(count),
+            percentage: 0,
+            current_game: null,
+            imported_count: 0,
+            updated_count: 0,
+            error_message: null,
+            recent_games: [],
+            message: null,
+          }),
+          job_id: res.job_id,
+          status: "in_progress",
+        }));
+        // Start live polling for progress & incremental game items
+        startPolling(res.job_id);
       } else {
+        setSyncing(false);
         setFeedback({ type: "error", message: "خطا در دریافت پاسخ از سرور کاتالوگ." });
       }
     } catch (err: any) {
+      setSyncing(false);
       setFeedback({
         type: "error",
         message: err.message || "خطای غیرمنتظره در ارتباط با سرور کاتالوگ رخ داد.",
       });
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -241,6 +350,84 @@ export default function CatalogSyncPage() {
           >
             بستن
           </button>
+        </div>
+      )}
+
+      {/* Live Sync Progress Bar Card */}
+      {progress && (progress.status === "in_progress" || progress.percentage > 0) && (
+        <div className="bg-[#0f1422] border border-emerald-500/30 rounded-2xl p-5 shadow-2xl shadow-emerald-950/30 space-y-4 animate-in fade-in duration-300">
+          {/* Header & Status */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="flex items-center gap-3">
+              {progress.status === "in_progress" ? (
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  <RotateCcw className="w-5 h-5 animate-spin" />
+                </div>
+              ) : progress.status === "completed" ? (
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+              )}
+              <div>
+                <h3 className="text-sm md:text-base font-bold text-white flex items-center gap-2">
+                  <span>عملیات دریافت و ثبت زنده کاتالوگ</span>
+                  {progress.job_id > 0 && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-white/10 border border-white/15 text-gray-300">
+                      شناسه #{progress.job_id}
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-emerald-300/90 font-mono mt-0.5 flex items-center gap-1.5">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  {progress.current_game
+                    ? `در حال پردازش: ${progress.current_game}`
+                    : progress.message || "در حال انجام..."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 text-xs font-mono self-end sm:self-auto">
+              <span className="bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 px-3 py-1.5 rounded-xl font-bold">
+                {progress.imported_count} جدید
+              </span>
+              <span className="bg-blue-950/70 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-xl font-bold">
+                {progress.updated_count} به‌روزرسانی
+              </span>
+              <span className="text-xl font-black text-emerald-400 px-2">
+                {progress.percentage}%
+              </span>
+            </div>
+          </div>
+
+          {/* Visual Progress Bar Track */}
+          <div className="space-y-1.5">
+            <div className="w-full bg-black/70 border border-white/10 rounded-full h-3.5 overflow-hidden p-0.5">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ease-out ${
+                  progress.status === "completed"
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                    : progress.status === "failed"
+                    ? "bg-rose-500"
+                    : "bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400"
+                }`}
+                style={{ width: `${Math.max(progress.percentage, 2)}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-center text-[11px] text-gray-400 font-mono">
+              <span>تکمیل‌شده: {progress.current} از {progress.total} بازی</span>
+              <span>
+                {progress.status === "in_progress"
+                  ? "در حال ذخیره‌سازی در دیتابیس و آپلود ۱۰۸۰p به S3..."
+                  : progress.status === "completed"
+                  ? "تکمیل شد ✔"
+                  : "متوقف شد ✖"}
+              </span>
+            </div>
+          </div>
         </div>
       )}
 

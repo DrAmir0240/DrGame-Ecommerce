@@ -1,4 +1,5 @@
 """Catalog synchronization service: data ingestion, normalization, Liara S3 asset storage, and upsert logic."""
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Tuple
@@ -7,6 +8,8 @@ from sqlalchemy import select, delete, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
+from app.core.database import AsyncSessionLocal
+from app.core.redis_client import redis_manager
 from app.core.storage import download_and_save_image
 from app.modules.catalog_sync.narrative import synthesize_game_narrative
 from app.modules.games.models import (
@@ -126,8 +129,7 @@ class CatalogSyncService:
         redis: aioredis.Redis,
         req: CatalogSyncRequest,
     ) -> dict:
-        """Query external catalog provider with requested filters, upload assets to Liara S3, and upsert games."""
-        # 1. Create a job record in DB
+        """Create job record and launch background ingestion to avoid HTTP 504 timeouts."""
         job = CatalogSyncJob(
             status="in_progress",
             platforms=req.platforms,
@@ -143,258 +145,445 @@ class CatalogSyncService:
         await db.commit()
         await db.refresh(job)
 
-        try:
-            # 2. Build APICalypse query conditions
-            where_clauses: list[str] = ["cover != null"]
+        initial_progress = {
+            "job_id": job.id,
+            "status": "in_progress",
+            "current": 0,
+            "total": req.count,
+            "percentage": 0,
+            "current_game": "در حال استعلام از مرجع کاتالوگ...",
+            "imported_count": 0,
+            "updated_count": 0,
+            "error_message": None,
+            "recent_games": [],
+            "message": "عملیات همگام‌سازی کاتالوگ در پس‌زمینه آغاز شد.",
+        }
+        await redis_manager.set_json(f"drgame:catalog:progress:{job.id}", initial_progress, ex=86400)
+        await redis_manager.set_json("drgame:catalog:latest_job", job.id, ex=86400)
 
-            # Platforms filter
-            target_ids: set[int] = set()
-            for p in req.platforms:
-                ids = PLATFORM_ID_MAP.get(p.strip())
-                if ids:
-                    target_ids.update(ids)
+        # Launch detached background worker
+        asyncio.create_task(self._run_sync_task(job.id, req))
 
-            if target_ids:
-                ids_str = ", ".join(map(str, sorted(list(target_ids))))
-                where_clauses.append(f"platforms = ({ids_str})")
+        return {
+            "success": True,
+            "job_id": job.id,
+            "status": "in_progress",
+            "imported_count": 0,
+            "updated_count": 0,
+            "total_count": req.count,
+            "message": f"عملیات دریافت کاتالوگ با شناسه {job.id} در پس‌زمینه آغاز شد.",
+            "games": [],
+        }
 
-            # Date range filter
-            if req.date_from:
-                try:
-                    start_dt = datetime.strptime(req.date_from, "%Y-%m-%d")
-                    start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
-                    where_clauses.append(f"first_release_date >= {start_ts}")
-                except Exception as e:
-                    logger.warning(f"Invalid date_from format: {req.date_from} ({e})")
+    async def _run_sync_task(self, job_id: int, req: CatalogSyncRequest):
+        """Background worker that queries external catalog, downloads assets concurrently, and upserts games."""
+        logger.info(f"Starting background catalog sync job {job_id} ({req.count} games)...")
+        current_idx = 0
+        total_raw = req.count
+        imported_count = 0
+        updated_count = 0
+        synced_items: list[CatalogGameItem] = []
 
-            if req.date_to:
-                try:
-                    end_dt = datetime.strptime(req.date_to, "%Y-%m-%d")
-                    end_ts = int(end_dt.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
-                    where_clauses.append(f"first_release_date <= {end_ts}")
-                except Exception as e:
-                    logger.warning(f"Invalid date_to format: {req.date_to} ({e})")
+        async with AsyncSessionLocal() as db:
+            redis = await redis_manager.connect()
+            job = await db.get(CatalogSyncJob, job_id)
+            if not job:
+                logger.error(f"CatalogSyncJob {job_id} not found in DB.")
+                return
 
-            # Min rating filter (convert 0-5 to 0-100 integer for APICalypse parser)
-            if req.min_rating > 0:
-                min_100 = int(round(req.min_rating * 20.0))
-                where_clauses.append(f"(rating >= {min_100} | total_rating >= {min_100})")
+            try:
+                # 1. Build APICalypse query conditions
+                where_clauses: list[str] = ["cover != null"]
+                target_ids: set[int] = set()
+                for p in req.platforms:
+                    ids = PLATFORM_ID_MAP.get(p.strip())
+                    if ids:
+                        target_ids.update(ids)
 
-            # Sorting clause
-            if req.sort_by == "release_date_asc":
-                sort_clause = "sort first_release_date asc;"
-            elif req.sort_by == "rating_desc":
-                sort_clause = "sort total_rating desc;"
-            else:  # release_date_desc (default)
-                sort_clause = "sort first_release_date desc;"
+                if target_ids:
+                    ids_str = ", ".join(map(str, sorted(list(target_ids))))
+                    where_clauses.append(f"platforms = ({ids_str})")
 
-            fields = """
-                id, name, slug, summary, storyline, first_release_date,
-                rating, rating_count, aggregated_rating, aggregated_rating_count, total_rating,
-                cover.image_id, cover.url,
-                artworks.image_id,
-                screenshots.image_id,
-                genres.name,
-                platforms.id, platforms.name,
-                game_modes.name,
-                involved_companies.company.name, involved_companies.developer, involved_companies.publisher;
-            """
-            where_str = " & ".join(where_clauses)
-            full_query = f"fields {fields} where {where_str}; {sort_clause} limit {req.count};"
-
-            logger.info(f"Executing APICalypse query: where {where_str}; {sort_clause} limit {req.count};")
-
-            # 3. Query external provider
-            raw_games = await self.client.query("games", full_query, redis)
-            logger.info(f"Received {len(raw_games)} games from catalog provider.")
-
-            imported_count = 0
-            updated_count = 0
-            synced_items: list[CatalogGameItem] = []
-
-            # 4. Upsert each game into DB & upload assets to S3
-            async with httpx.AsyncClient(timeout=6.0) as http_client:
-                for item in raw_games:
-                    source_id = str(item["id"])
-                    name = item.get("name") or "Unknown Title"
-                    slug = item.get("slug") or f"game-{source_id}"
-                    summary = item.get("summary")
-                    storyline = item.get("storyline")
-                    released = format_release_date(item.get("first_release_date"))
-
-                    raw_rating = item.get("rating")
-                    rating_5 = round(raw_rating / 20.0, 1) if raw_rating else 0.0
-
-                    raw_meta = item.get("aggregated_rating")
-                    metacritic = round(raw_meta) if raw_meta else None
-
-                    platforms, has_vr = map_platforms(item.get("platforms") or [])
-                    is_two_player = detect_two_player(item.get("game_modes") or [])
-                    genres = [g["name"] for g in item.get("genres") or [] if "name" in g]
-                    dev, pub = extract_companies(item.get("involved_companies") or [])
-
-                    # Synthesize rich Persian narrative & description (minimum 10 lines storyline)
+                if req.date_from:
                     try:
-                        desc_fa, story_fa = await synthesize_game_narrative(
-                            title=name,
-                            summary=summary,
-                            storyline=storyline,
-                            genres=genres,
-                            platforms=platforms,
-                            developer=dev,
-                            publisher=pub,
-                            client=http_client,
-                        )
-                    except Exception as narrative_err:
-                        logger.warning(f"Failed to synthesize narrative for {name}: {narrative_err}")
-                        desc_fa = f"بازی {name} برای کنسول‌های بازی."
-                        story_fa = storyline
+                        start_dt = datetime.strptime(req.date_from, "%Y-%m-%d")
+                        start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
+                        where_clauses.append(f"first_release_date >= {start_ts}")
+                    except Exception as e:
+                        logger.warning(f"Invalid date_from format: {req.date_from} ({e})")
 
-                    # Upload assets to Liara S3 (games/{source_id}/...)
-                    cover_id = item.get("cover", {}).get("image_id")
-                    cover_image_url = None
-                    if cover_id:
-                        cover_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{cover_id}.jpg"
-                        cover_image_url = await download_and_save_image(
-                            cover_source_url, exact_key=f"games/{source_id}/cover.jpg"
+                if req.date_to:
+                    try:
+                        end_dt = datetime.strptime(req.date_to, "%Y-%m-%d")
+                        end_ts = int(end_dt.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
+                        where_clauses.append(f"first_release_date <= {end_ts}")
+                    except Exception as e:
+                        logger.warning(f"Invalid date_to format: {req.date_to} ({e})")
+
+                if req.min_rating > 0:
+                    min_100 = int(round(req.min_rating * 20.0))
+                    where_clauses.append(f"(rating >= {min_100} | total_rating >= {min_100})")
+
+                if req.sort_by == "release_date_asc":
+                    sort_clause = "sort first_release_date asc;"
+                elif req.sort_by == "rating_desc":
+                    sort_clause = "sort total_rating desc;"
+                else:
+                    sort_clause = "sort first_release_date desc;"
+
+                fields = """
+                    id, name, slug, summary, storyline, first_release_date,
+                    rating, rating_count, aggregated_rating, aggregated_rating_count, total_rating,
+                    cover.image_id, cover.url,
+                    artworks.image_id,
+                    screenshots.image_id,
+                    genres.name,
+                    platforms.id, platforms.name,
+                    game_modes.name,
+                    involved_companies.company.name, involved_companies.developer, involved_companies.publisher;
+                """
+                where_str = " & ".join(where_clauses)
+                full_query = f"fields {fields} where {where_str}; {sort_clause} limit {req.count};"
+
+                # 2. Query external catalog provider
+                raw_games = await self.client.query("games", full_query, redis)
+                total_raw = len(raw_games)
+                logger.info(f"Received {total_raw} games from catalog provider.")
+
+                # Update progress with actual game count
+                await redis_manager.set_json(
+                    f"drgame:catalog:progress:{job_id}",
+                    {
+                        "job_id": job_id,
+                        "status": "in_progress",
+                        "current": 0,
+                        "total": total_raw,
+                        "percentage": 0,
+                        "current_game": f"استعلام موفق {total_raw} بازی. شروع پردازش...",
+                        "imported_count": 0,
+                        "updated_count": 0,
+                        "error_message": None,
+                        "recent_games": [],
+                        "message": f"{total_raw} بازی از سرور کاتالوگ دریافت شد. در حال پردازش متادیتا و مدیا...",
+                    },
+                    ex=86400,
+                )
+
+                # 3. Process each game with parallel asset uploads
+                async with httpx.AsyncClient(timeout=8.0) as http_client:
+                    for item in raw_games:
+                        source_id = str(item["id"])
+                        name = item.get("name") or "Unknown Title"
+                        slug = item.get("slug") or f"game-{source_id}"
+                        summary = item.get("summary")
+                        storyline = item.get("storyline")
+                        released = format_release_date(item.get("first_release_date"))
+
+                        raw_rating = item.get("rating")
+                        rating_5 = round(raw_rating / 20.0, 1) if raw_rating else 0.0
+
+                        raw_meta = item.get("aggregated_rating")
+                        metacritic = round(raw_meta) if raw_meta else None
+
+                        platforms, has_vr = map_platforms(item.get("platforms") or [])
+                        is_two_player = detect_two_player(item.get("game_modes") or [])
+                        genres = [g["name"] for g in item.get("genres") or [] if "name" in g]
+                        dev, pub = extract_companies(item.get("involved_companies") or [])
+
+                        # Update status: current game being processed
+                        pct_now = int((current_idx / total_raw) * 100) if total_raw > 0 else 0
+                        await redis_manager.set_json(
+                            f"drgame:catalog:progress:{job_id}",
+                            {
+                                "job_id": job_id,
+                                "status": "in_progress",
+                                "current": current_idx,
+                                "total": total_raw,
+                                "percentage": pct_now,
+                                "current_game": name,
+                                "imported_count": imported_count,
+                                "updated_count": updated_count,
+                                "error_message": None,
+                                "recent_games": [g.model_dump() for g in reversed(synced_items[-20:])],
+                                "message": f"در حال پردازش: {name} ({current_idx + 1} از {total_raw})",
+                            },
+                            ex=86400,
                         )
 
-                    artworks = item.get("artworks") or []
-                    banner_id = artworks[0].get("image_id") if artworks else cover_id
-                    banner_image_url = cover_image_url
-                    if banner_id and banner_id != cover_id:
-                        banner_source_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{banner_id}.jpg"
-                        banner_image_url = await download_and_save_image(
-                            banner_source_url, exact_key=f"games/{source_id}/banner.jpg"
-                        )
-
-                    raw_screenshots = item.get("screenshots") or []
-                    screenshots = []
-                    for s_idx, s in enumerate(raw_screenshots[:6], start=1):
-                        s_id = s.get("image_id")
-                        if s_id:
-                            s_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{s_id}.jpg"
-                            s3_shot = await download_and_save_image(
-                                s_url, exact_key=f"games/{source_id}/screenshots/{s_idx}.jpg"
+                        # Synthesize Persian narrative
+                        try:
+                            desc_fa, story_fa = await synthesize_game_narrative(
+                                title=name,
+                                summary=summary,
+                                storyline=storyline,
+                                genres=genres,
+                                platforms=platforms,
+                                developer=dev,
+                                publisher=pub,
+                                client=http_client,
                             )
-                            screenshots.append(s3_shot)
+                        except Exception as narrative_err:
+                            logger.warning(f"Failed to synthesize narrative for {name}: {narrative_err}")
+                            desc_fa = f"بازی {name} برای کنسول‌های بازی."
+                            story_fa = storyline
 
-                    # Check if game already exists in DB
-                    existing_game = await db.scalar(
-                        select(Game).where(or_(Game.source_id == source_id, Game.slug == slug))
-                    )
+                        # Parallel asset downloads (Cover, Banner, Screenshots)
+                        cover_id = item.get("cover", {}).get("image_id")
+                        artworks = item.get("artworks") or []
+                        banner_id = artworks[0].get("image_id") if artworks else cover_id
+                        raw_screenshots = item.get("screenshots") or []
 
-                    if existing_game:
-                        # UPDATE existing game
-                        existing_game.source_id = source_id
-                        existing_game.title_en = name
-                        existing_game.title_fa = name
-                        existing_game.description_en = summary
-                        existing_game.description_fa = desc_fa
-                        existing_game.storyline_fa = story_fa
-                        existing_game.released = released
-                        existing_game.rating = rating_5
-                        existing_game.metacritic = metacritic
-                        existing_game.platforms = platforms
-                        existing_game.genres = genres
-                        existing_game.developer = dev
-                        existing_game.publisher = pub
-                        existing_game.is_two_player = is_two_player
-                        existing_game.has_vr = has_vr
-                        if cover_image_url:
-                            existing_game.cover_image_url = cover_image_url
-                        if banner_image_url:
-                            existing_game.banner_image_url = banner_image_url
-                        if screenshots:
-                            existing_game.screenshots = screenshots
-                        existing_game.is_active = True
+                        asset_tasks = []
+                        task_meta = []
 
-                        updated_count += 1
-                        game_record_id = existing_game.id
-                        is_updated = True
-                    else:
-                        # INSERT new game (NO download parts generated!)
-                        new_game = Game(
+                        async def _safe_save(url: str, key: str) -> Optional[str]:
+                            try:
+                                return await download_and_save_image(url, exact_key=key)
+                            except Exception as img_err:
+                                logger.warning(f"Failed to download/save image {url} ({key}): {img_err}")
+                                return None
+
+                        if cover_id:
+                            cov_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{cover_id}.jpg"
+                            asset_tasks.append(_safe_save(cov_url, f"games/{source_id}/cover.jpg"))
+                            task_meta.append("cover")
+
+                        if banner_id and banner_id != cover_id:
+                            ban_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{banner_id}.jpg"
+                            asset_tasks.append(_safe_save(ban_url, f"games/{source_id}/banner.jpg"))
+                            task_meta.append("banner")
+
+                        for s_idx, s in enumerate(raw_screenshots[:6], start=1):
+                            s_id = s.get("image_id")
+                            if s_id:
+                                s_url = f"https://images.igdb.com/igdb/image/upload/t_1080p/{s_id}.jpg"
+                                asset_tasks.append(_safe_save(s_url, f"games/{source_id}/screenshots/{s_idx}.jpg"))
+                                task_meta.append(f"shot_{s_idx}")
+
+                        # Execute asset downloads concurrently
+                        cover_image_url = None
+                        banner_image_url = None
+                        screenshots = []
+
+                        if asset_tasks:
+                            results = await asyncio.gather(*asset_tasks, return_exceptions=True)
+                            for t_meta, res in zip(task_meta, results):
+                                if isinstance(res, str) and res:
+                                    if t_meta == "cover":
+                                        cover_image_url = res
+                                    elif t_meta == "banner":
+                                        banner_image_url = res
+                                    elif t_meta.startswith("shot_"):
+                                        screenshots.append(res)
+
+                        if not banner_image_url:
+                            banner_image_url = cover_image_url
+
+                        # Database Upsert
+                        existing_game = await db.scalar(
+                            select(Game).where(or_(Game.source_id == source_id, Game.slug == slug))
+                        )
+
+                        if existing_game:
+                            existing_game.source_id = source_id
+                            existing_game.title_en = name
+                            existing_game.title_fa = name
+                            existing_game.description_en = summary
+                            existing_game.description_fa = desc_fa
+                            existing_game.storyline_fa = story_fa
+                            existing_game.released = released
+                            existing_game.rating = rating_5
+                            existing_game.metacritic = metacritic
+                            existing_game.platforms = platforms
+                            existing_game.genres = genres
+                            existing_game.developer = dev
+                            existing_game.publisher = pub
+                            existing_game.is_two_player = is_two_player
+                            existing_game.has_vr = has_vr
+                            if cover_image_url:
+                                existing_game.cover_image_url = cover_image_url
+                            if banner_image_url:
+                                existing_game.banner_image_url = banner_image_url
+                            if screenshots:
+                                existing_game.screenshots = screenshots
+                            existing_game.is_active = True
+
+                            updated_count += 1
+                            game_record_id = existing_game.id
+                            is_updated = True
+                        else:
+                            new_game = Game(
+                                source_id=source_id,
+                                title_fa=name,
+                                title_en=name,
+                                slug=slug,
+                                description_en=summary or f"Experience the incredible adventure of {name}.",
+                                description_fa=desc_fa,
+                                storyline_fa=story_fa,
+                                released=released,
+                                rating=rating_5,
+                                metacritic=metacritic,
+                                download_size_gb=40.0,
+                                is_two_player=is_two_player,
+                                has_vr=has_vr,
+                                platforms=platforms,
+                                genres=genres,
+                                developer=dev,
+                                publisher=pub,
+                                cover_image_url=cover_image_url,
+                                banner_image_url=banner_image_url,
+                                screenshots=screenshots,
+                                is_active=True,
+                            )
+                            db.add(new_game)
+                            await db.flush()
+
+                            imported_count += 1
+                            game_record_id = new_game.id
+                            is_updated = False
+
+                        # Commit each game to persist incrementally
+                        await db.commit()
+
+                        game_item = CatalogGameItem(
+                            id=game_record_id,
                             source_id=source_id,
-                            title_fa=name,
                             title_en=name,
                             slug=slug,
-                            description_en=summary or f"Experience the incredible adventure of {name}.",
-                            description_fa=desc_fa,
-                            storyline_fa=story_fa,
                             released=released,
                             rating=rating_5,
                             metacritic=metacritic,
-                            download_size_gb=40.0,
-                            is_two_player=is_two_player,
-                            has_vr=has_vr,
                             platforms=platforms,
                             genres=genres,
-                            developer=dev,
-                            publisher=pub,
                             cover_image_url=cover_image_url,
-                            banner_image_url=banner_image_url,
-                            screenshots=screenshots,
-                            is_active=True,
+                            is_updated=is_updated,
                         )
-                        db.add(new_game)
-                        await db.flush()
+                        synced_items.append(game_item)
 
-                        imported_count += 1
-                        game_record_id = new_game.id
-                        is_updated = False
+                        current_idx += 1
+                        pct_done = int((current_idx / total_raw) * 100) if total_raw > 0 else 100
 
-                synced_items.append(
-                    CatalogGameItem(
-                        id=game_record_id,
-                        source_id=source_id,
-                        title_en=name,
-                        slug=slug,
-                        released=released,
-                        rating=rating_5,
-                        metacritic=metacritic,
-                        platforms=platforms,
-                        genres=genres,
-                        cover_image_url=cover_image_url,
-                        is_updated=is_updated,
-                    )
-                )
+                        # Update progress in Redis immediately after each game
+                        progress_update = {
+                            "job_id": job_id,
+                            "status": "in_progress",
+                            "current": current_idx,
+                            "total": total_raw,
+                            "percentage": pct_done,
+                            "current_game": name,
+                            "imported_count": imported_count,
+                            "updated_count": updated_count,
+                            "error_message": None,
+                            "recent_games": [g.model_dump() for g in reversed(synced_items[-30:])],
+                            "message": f"ثبت موفق {name} ({current_idx} از {total_raw})",
+                        }
+                        await redis_manager.set_json(f"drgame:catalog:progress:{job_id}", progress_update, ex=86400)
 
-            # 5. Commit all changes to DB
-            await db.commit()
+                # 4. Finalize job in DB
+                job.status = "completed"
+                job.imported_count = imported_count
+                job.updated_count = updated_count
+                job.completed_at = datetime.now(timezone.utc)
+                await db.commit()
 
-            # 6. Update job record
-            job.status = "completed"
-            job.imported_count = imported_count
-            job.updated_count = updated_count
-            job.completed_at = datetime.now(timezone.utc)
-            await db.commit()
+                # Invalidate Redis games cache
+                try:
+                    keys = await redis.keys("drgame:games:*")
+                    if keys:
+                        await redis.delete(*keys)
+                except Exception as e:
+                    logger.warning(f"Failed to clear Redis keys: {e}")
 
-            # 7. Invalidate Redis catalog cache
-            try:
-                keys = await redis.keys("drgame:games:*")
-                if keys:
-                    await redis.delete(*keys)
+                final_progress = {
+                    "job_id": job_id,
+                    "status": "completed",
+                    "current": total_raw,
+                    "total": total_raw,
+                    "percentage": 100,
+                    "current_game": None,
+                    "imported_count": imported_count,
+                    "updated_count": updated_count,
+                    "error_message": None,
+                    "recent_games": [g.model_dump() for g in reversed(synced_items)],
+                    "message": f"عملیات دریافت کاتالوگ با موفقیت انجام شد: {imported_count} بازی جدید اضافه و {updated_count} بازی به‌روزرسانی گردید.",
+                }
+                await redis_manager.set_json(f"drgame:catalog:progress:{job_id}", final_progress, ex=86400)
+                logger.info(f"✔ Completed background catalog sync job {job_id} successfully.")
+
             except Exception as e:
-                logger.warning(f"Failed to clear Redis keys: {e}")
+                logger.error(f"Error in background sync job {job_id}: {e}", exc_info=True)
+                try:
+                    job.status = "failed"
+                    job.error_message = str(e)
+                    job.completed_at = datetime.now(timezone.utc)
+                    await db.commit()
+                except Exception:
+                    pass
 
-            return {
-                "success": True,
-                "job_id": job.id,
-                "imported_count": imported_count,
-                "updated_count": updated_count,
-                "total_count": len(synced_items),
-                "message": f"عملیات دریافت کاتالوگ با موفقیت انجام شد: {imported_count} بازی جدید اضافه و {updated_count} بازی به‌روزرسانی گردید.",
-                "games": synced_items,
-            }
+                failed_progress = {
+                    "job_id": job_id,
+                    "status": "failed",
+                    "current": current_idx,
+                    "total": total_raw,
+                    "percentage": int((current_idx / total_raw) * 100) if total_raw > 0 else 0,
+                    "current_game": None,
+                    "imported_count": imported_count,
+                    "updated_count": updated_count,
+                    "error_message": str(e),
+                    "recent_games": [g.model_dump() for g in reversed(synced_items[-30:])],
+                    "message": f"خطا در همگام‌سازی: {str(e)}",
+                }
+                await redis_manager.set_json(f"drgame:catalog:progress:{job_id}", failed_progress, ex=86400)
 
-        except Exception as e:
-            logger.error(f"Error executing catalog sync: {e}", exc_info=True)
-            job.status = "failed"
-            job.error_message = str(e)
-            job.completed_at = datetime.now(timezone.utc)
-            await db.commit()
-            raise
+    async def get_sync_progress(self, job_id_str: str, db: AsyncSession) -> dict:
+        """Fetch current sync progress from Redis or fallback to DB."""
+        target_job_id = None
+        if job_id_str in ("latest", "current", "", None):
+            target_job_id = await redis_manager.get_json("drgame:catalog:latest_job")
+        else:
+            try:
+                target_job_id = int(job_id_str)
+            except ValueError:
+                target_job_id = None
+
+        if target_job_id:
+            cached = await redis_manager.get_json(f"drgame:catalog:progress:{target_job_id}")
+            if cached and isinstance(cached, dict):
+                return cached
+
+            # Fallback to DB
+            job = await db.get(CatalogSyncJob, target_job_id)
+            if job:
+                total = job.requested_count
+                current = job.imported_count + job.updated_count
+                pct = int((current / total) * 100) if total > 0 else (100 if job.status == "completed" else 0)
+                return {
+                    "job_id": job.id,
+                    "status": job.status,
+                    "current": current,
+                    "total": total,
+                    "percentage": pct,
+                    "current_game": None,
+                    "imported_count": job.imported_count,
+                    "updated_count": job.updated_count,
+                    "error_message": job.error_message,
+                    "recent_games": [],
+                    "message": f"وضعیت عملیات: {job.status}",
+                }
+
+        return {
+            "job_id": 0,
+            "status": "idle",
+            "current": 0,
+            "total": 0,
+            "percentage": 0,
+            "current_game": None,
+            "imported_count": 0,
+            "updated_count": 0,
+            "error_message": None,
+            "recent_games": [],
+            "message": "هیچ عملیات همگام‌سازی فعالی در جریان نیست.",
+        }
 
     async def get_jobs_history(self, db: AsyncSession, limit: int = 20) -> list[CatalogSyncJob]:
         """Fetch past catalog sync jobs."""

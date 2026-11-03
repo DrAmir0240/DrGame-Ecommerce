@@ -12,6 +12,7 @@ from app.modules.catalog_sync.schemas import (
     CatalogSyncRequest,
     CatalogSyncResponse,
     CatalogSyncJobResponse,
+    CatalogProgressResponse,
     CatalogWipeResponse,
 )
 from app.modules.catalog_sync.services import CatalogSyncService
@@ -36,6 +37,18 @@ async def sync_catalog_games(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"خطا در همگام‌سازی کاتالوگ: {str(e)}",
         )
+
+
+@router.get("/progress/{job_id}", response_model=CatalogProgressResponse, status_code=status.HTTP_200_OK)
+async def get_sync_progress(
+    job_id: str,
+    db: AsyncSession = Depends(get_db),
+    admin: ContentAdmin = Depends(require_content_admin()),
+):
+    """Retrieve real-time progress for a given job ID or 'latest'."""
+    service = CatalogSyncService()
+    progress = await service.get_sync_progress(job_id, db)
+    return CatalogProgressResponse(**progress)
 
 
 @router.get("/history", response_model=List[CatalogSyncJobResponse], status_code=status.HTTP_200_OK)

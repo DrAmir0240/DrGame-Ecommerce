@@ -52,11 +52,26 @@ class CatalogGameItem(BaseModel):
 class CatalogSyncResponse(BaseModel):
     success: bool
     job_id: int
-    imported_count: int
-    updated_count: int
-    total_count: int
+    status: str = "in_progress"
+    imported_count: int = 0
+    updated_count: int = 0
+    total_count: int = 0
     message: str
     games: List[CatalogGameItem] = []
+
+
+class CatalogProgressResponse(BaseModel):
+    job_id: int
+    status: str  # in_progress, completed, failed, idle
+    current: int = 0
+    total: int = 0
+    percentage: int = 0
+    current_game: Optional[str] = None
+    imported_count: int = 0
+    updated_count: int = 0
+    error_message: Optional[str] = None
+    recent_games: List[CatalogGameItem] = []
+    message: Optional[str] = None
 
 
 class CatalogSyncJobResponse(BaseModel):
