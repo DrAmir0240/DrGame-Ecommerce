@@ -73,6 +73,7 @@ from app.core.storage import liara_storage, MEDIA_DIR
 os.makedirs(os.path.join(MEDIA_DIR, "games"), exist_ok=True)
 
 @app.get("/media/{file_path:path}", tags=["Media"])
+@app.get("/api/media/{file_path:path}", tags=["Media"])
 async def serve_media(file_path: str):
     clean_path = file_path.lstrip("/")
     local_file = os.path.join(MEDIA_DIR, clean_path)

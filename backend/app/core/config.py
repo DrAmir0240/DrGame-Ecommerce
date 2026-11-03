@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     LIARA_BUCKET_NAME: str = "drgame-storage"
     LIARA_ACCESS_KEY: str = "m9rvoec258l68eek"
     LIARA_SECRET_KEY: str = "fb10fbac-cdd6-4ded-b574-4b297c1c678a"
-    LIARA_PUBLIC_URL: str | None = "https://drgame-storage.storage.c2.liara.site"
+    LIARA_PUBLIC_URL: str | None = "https://storage.gamedr.ir"
 
     @property
     def S3_PUBLIC_BASE_URL(self) -> str:
