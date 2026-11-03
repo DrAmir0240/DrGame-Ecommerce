@@ -5,10 +5,13 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://store.gamedr.ir/api",
   },
   images: {
-    domains: ["media.rawg.io", "images.unsplash.com", "via.placeholder.com"],
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
         hostname: "**",
       },
     ],
