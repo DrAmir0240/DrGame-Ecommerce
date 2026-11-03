@@ -46,6 +46,15 @@ echo "$CHANGED_FILES" >> "$LOG_FILE"
 # Pull the new changes
 git pull origin main >> "$LOG_FILE" 2>&1
 
+# Auto-generate or update Xray proxy config if V2RAY_SUB_URL is defined in .env
+if grep -q "^V2RAY_SUB_URL=" .env 2>/dev/null; then
+    if [ ! -f "proxy/config.json" ] || echo "$CHANGED_FILES" | grep -q -E "update_proxy|docker-compose|\.env"; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Updating Xray proxy config..." >> "$LOG_FILE"
+        python3 scripts/update_proxy.py >> "$LOG_FILE" 2>&1 || true
+        docker compose -f "$COMPOSE_FILE" up -d proxy >> "$LOG_FILE" 2>&1 || true
+    fi
+fi
+
 REBUILD_BACKEND=false
 REBUILD_FRONTEND=false
 REBUILD_ADMIN=false
@@ -59,7 +68,7 @@ if echo "$CHANGED_FILES" | grep -q -E "^frontend/"; then
     REBUILD_FRONTEND=true
 fi
 
-if echo "$CHANGED_FILES" | grep -q -E "^admin_panel/"; then
+if echo "$CHANGED_FILES" | grep -q -E "^admin-panel/"; then
     REBUILD_ADMIN=true
 fi
 

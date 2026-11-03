@@ -107,6 +107,24 @@ services:
     logging: *logging-prod
     stop_grace_period: 10s
 
+  # ── Xray Anti-Censorship Proxy Sidecar ──────────────────────────────────────
+  proxy:
+    image: teddysun/xray:latest
+    container_name: drgame-proxy-prod
+    <<: *restart-unless-stopped
+    volumes:
+      - ./proxy:/etc/xray:ro
+    ports:
+      - "${PROXY_HTTP_PORT:-10809}:10809"
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "128m"
+    logging: *logging-prod
+
   # ── Alembic Migrations (one-shot init container) ──────────────────────────
   migrate:
     container_name: drgame-migrate-prod
@@ -163,6 +181,9 @@ services:
       - LIARA_SECRET_KEY=${LIARA_SECRET_KEY:-fb10fbac-cdd6-4ded-b574-4b297c1c678a}
       - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://drgame-storage.storage.c2.liara.site}
       - DPOP_BASE_ORIGIN=${DPOP_BASE_ORIGIN:-https://dltest.gamedr.ir}
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1,db,cache,frontend,admin-panel,proxy}
     volumes:
       - drgame_media_prod:/app/media
     ports:

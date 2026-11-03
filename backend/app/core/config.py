@@ -78,6 +78,12 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
 
+    # Outbound Proxy Settings (Anti-Censorship Sidecar)
+    HTTP_PROXY: str | None = None
+    HTTPS_PROXY: str | None = None
+    NO_PROXY: str | None = None
+    V2RAY_SUB_URL: str | None = None
+
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
