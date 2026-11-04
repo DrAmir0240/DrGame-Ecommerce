@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Genre } from '@/types/game';
+import { useTvModeStore } from '@/stores/useTvModeStore';
 import PlatformIcon from './PlatformIcons';
 import { useTranslation, DynamicText } from '@/i18n';
 
@@ -91,6 +92,17 @@ export default function FilterSidebar({
   const { t, n, size } = useTranslation();
   const [showAllGenres, setShowAllGenres] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { isTvMode } = useTvModeStore();
+  const [isConsole, setIsConsole] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      const isPlayStation = /playstation|ps4|ps5/i.test(navigator.userAgent);
+      setIsConsole(isTvMode || isPlayStation);
+    } else {
+      setIsConsole(isTvMode);
+    }
+  }, [isTvMode]);
 
   useEffect(() => {
     setMounted(true);
@@ -125,9 +137,9 @@ export default function FilterSidebar({
   };
 
   const renderFilterContent = (isMobile = false) => (
-    <div className="space-y-5">
+    <div className={isConsole ? "space-y-2 text-xs" : "space-y-5"}>
       {/* Header: فیلترهای پیشرفته */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className={`flex items-center justify-between border-b border-white/10 ${isConsole ? "pb-1.5" : "pb-3"}`}>
         <div className="flex items-center gap-2 text-purple-400 font-bold text-sm">
           <Filter className="w-4 h-4 text-purple-400" />
           <span>{t('filters.title')}</span>
@@ -171,7 +183,7 @@ export default function FilterSidebar({
               <button
                 key={plat.id}
                 onClick={() => update({ platform: isSelected ? '' : plat.id })}
-                className={`h-11 rounded-xl border flex items-center justify-center transition-all ${
+                className={`${isConsole ? "h-8 rounded-lg" : "h-11 rounded-xl"} border flex items-center justify-center transition-all ${
                   isSelected
                     ? 'bg-purple-500/20 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.45)] ring-1 ring-purple-500'
                     : 'bg-[#141b2d] border-white/10 hover:border-white/20 hover:bg-[#1a233a]'
@@ -181,7 +193,7 @@ export default function FilterSidebar({
               >
                 <PlatformIcon
                   platform={plat.id}
-                  size={isPS ? 28 : 22}
+                  size={isConsole ? (isPS ? 20 : 16) : (isPS ? 28 : 22)}
                   className={isPS ? 'max-w-[95%] max-h-7' : 'max-w-[80%] max-h-5'}
                 />
               </button>
@@ -206,7 +218,7 @@ export default function FilterSidebar({
               <button
                 key={g.slug}
                 onClick={() => update({ genre: isSelected ? '' : g.slug })}
-                className={`py-1.5 px-2 rounded-xl text-xs font-medium border text-center transition-all truncate ${
+                className={`${isConsole ? "py-1 px-1.5 text-[11px] rounded-lg" : "py-1.5 px-2 rounded-xl text-xs"} font-medium border text-center transition-all truncate ${
                   isSelected
                     ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold shadow-[0_0_10px_rgba(168,85,247,0.35)]'
                     : 'bg-[#141b2d] border-white/5 text-text-secondary hover:text-white hover:border-white/15'
@@ -267,7 +279,7 @@ export default function FilterSidebar({
           <button
             type="button"
             onClick={() => update({ is_two_player: filters.is_two_player === false ? null : false })}
-            className={`py-2 px-2 rounded-xl text-xs font-semibold border text-center transition-all ${
+            className={`${isConsole ? "py-1 px-1.5 text-[11px] rounded-lg" : "py-2 px-2 rounded-xl text-xs"} font-semibold border text-center transition-all ${
               filters.is_two_player === false
                 ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold shadow-[0_0_12px_rgba(168,85,247,0.35)] ring-1 ring-purple-500'
                 : 'bg-[#141b2d] border-white/5 text-slate-300 hover:text-white hover:border-white/15'
@@ -302,7 +314,7 @@ export default function FilterSidebar({
         <button
           type="button"
           onClick={() => update({ has_vr: !filters.has_vr })}
-          className={`w-full py-2 px-3 rounded-xl text-xs font-medium border flex items-center justify-between transition-all ${
+          className={`w-full ${isConsole ? "py-1 px-2 text-[11px] rounded-lg" : "py-2 px-3 rounded-xl text-xs"} font-medium border flex items-center justify-between transition-all ${
             filters.has_vr
               ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold shadow-[0_0_12px_rgba(168,85,247,0.35)] ring-1 ring-purple-500'
               : 'bg-[#141b2d] border-white/5 text-slate-300 hover:text-white hover:border-white/15'
@@ -317,6 +329,7 @@ export default function FilterSidebar({
       </div>
 
       {/* 4. وضعیت انتشار */}
+      {!isConsole && (
       <div className="space-y-2 pt-2 border-t border-white/10">
         <label className="text-xs font-bold text-white flex items-center justify-between">
           <span className="flex items-center gap-1.5">
@@ -349,6 +362,7 @@ export default function FilterSidebar({
           </button>
         </div>
       </div>
+      )}
 
       {/* 5. فیلتر پله‌ای حجم دیتا */}
       <div className="space-y-2 pt-2 border-t border-white/10">
@@ -370,7 +384,7 @@ export default function FilterSidebar({
               <button
                 key={`${step.labelKey}-${step.max}`}
                 onClick={() => update({ max_size: step.max })}
-                className={`py-1 px-1.5 rounded-lg text-[11px] border text-center transition-all font-roboto ${
+                className={`${isConsole ? "py-0.5 px-1 text-[10px] rounded-md" : "py-1 px-1.5 rounded-lg text-[11px]"} border text-center transition-all font-roboto ${
                   isSelected
                     ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold shadow-[0_0_10px_rgba(168,85,247,0.35)]'
                     : 'bg-[#141b2d] border-white/5 text-text-secondary hover:text-white'
@@ -384,6 +398,7 @@ export default function FilterSidebar({
       </div>
 
       {/* 6. محدوده امتیاز */}
+      {!isConsole && (
       <div className="space-y-2 pt-2 border-t border-white/10">
         <div className="flex justify-between items-center text-xs">
           <span className="text-white font-bold flex items-center gap-1">
@@ -404,6 +419,7 @@ export default function FilterSidebar({
           className="w-full accent-purple-500 cursor-pointer"
         />
       </div>
+      )}
 
       {/* Mobile-only close button at bottom */}
       {isMobile && onCloseMobile && (
@@ -430,8 +446,8 @@ export default function FilterSidebar({
   return (
     <>
       {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-      <aside className="hidden lg:block w-72 shrink-0 text-start font-vazir select-none sticky top-20 z-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">
-        <div className="p-4 rounded-2xl bg-[#0d121f]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
+      <aside className={`hidden lg:block w-72 shrink-0 text-start font-vazir select-none sticky top-20 z-20 ${isConsole ? "max-h-[calc(100vh-5rem)] overflow-hidden" : "max-h-[calc(100vh-6rem)] overflow-y-auto pr-1"}`}>
+        <div className={`rounded-2xl bg-[#0d121f]/95 border border-white/10 shadow-2xl backdrop-blur-xl ${isConsole ? "p-3" : "p-4"}`}>
           {renderFilterContent(false)}
         </div>
       </aside>
