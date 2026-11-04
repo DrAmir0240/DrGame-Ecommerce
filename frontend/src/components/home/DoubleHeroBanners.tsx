@@ -98,7 +98,7 @@ export default function DoubleHeroBanners() {
   return (
     <section
       aria-label={t('chrome.bannerAria')}
-      className="w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-4 sm:py-6 space-y-5 sm:space-y-6"
+      className={`w-full max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-4 sm:py-6 grid grid-cols-1 ${activeGame && activeService ? 'lg:grid-cols-2' : ''} gap-4 sm:gap-6`}
     >
       {/* =========================================================================
           BANNER 1 (TOP): GAME SPOTLIGHT SLIDER (2/3 Height ~320px)
@@ -107,7 +107,7 @@ export default function DoubleHeroBanners() {
         <div
           onMouseEnter={() => setIsGamePaused(true)}
           onMouseLeave={() => setIsGamePaused(false)}
-          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
+          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[360px] 2xl:h-[400px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
         >
           {/* Background Image with Smooth Fade Transition */}
           <div
@@ -119,7 +119,7 @@ export default function DoubleHeroBanners() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#090b14]/90 via-transparent to-[#090b14]/70" />
 
           {/* Slide Content */}
-          <div className="relative z-10 p-5 sm:p-7 md:p-8 w-full flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+          <div className="relative z-10 p-5 sm:p-6 md:p-7 w-full flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-end lg:items-start xl:items-end justify-between gap-4">
             <div className="max-w-2xl space-y-2">
               {/* Badge & Platforms */}
               <div className="flex items-center gap-2 flex-wrap">
@@ -218,7 +218,7 @@ export default function DoubleHeroBanners() {
         <div
           onMouseEnter={() => setIsServicePaused(true)}
           onMouseLeave={() => setIsServicePaused(false)}
-          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[370px] 2xl:h-[420px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
+          className="relative rounded-3xl overflow-hidden min-h-[300px] sm:min-h-[320px] md:h-[340px] lg:h-[360px] 2xl:h-[400px] flex items-end border border-white/10 shadow-2xl bg-[#090b14] group"
         >
           {/* Background Image with Amber/Purple Tint Gradient */}
           <div
@@ -229,7 +229,7 @@ export default function DoubleHeroBanners() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#090b14]/90 via-transparent to-[#090b14]/70" />
 
           {/* Slide Content */}
-          <div className="relative z-10 p-5 sm:p-7 md:p-8 w-full flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+          <div className="relative z-10 p-5 sm:p-6 md:p-7 w-full flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-end lg:items-start xl:items-end justify-between gap-4">
             <div className="max-w-2xl space-y-2">
               {/* Service Badge */}
               <div className="flex items-center gap-2">

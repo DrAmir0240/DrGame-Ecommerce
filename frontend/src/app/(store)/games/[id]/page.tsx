@@ -26,6 +26,8 @@ import {
   Gamepad2,
   ShieldCheck,
   ChevronDown,
+  ChevronLeft,
+  X,
 } from 'lucide-react';
 
 export default function GameDetailPage() {
@@ -37,6 +39,7 @@ export default function GameDetailPage() {
   const [game, setGame] = useState<GameDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedShare, setCopiedShare] = useState(false);
+  const [showStoryModal, setShowStoryModal] = useState(false);
 
   // Voting state
   const [likesCount, setLikesCount] = useState(0);
@@ -541,16 +544,42 @@ export default function GameDetailPage() {
 
               <h3 className="text-center font-bold text-white text-base mb-4">{t('gameDetail.storyTitle')}</h3>
 
-              <div className="text-xs sm:text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-line space-y-3 font-normal">
-                <p>
-                  {locale !== 'fa' && game.description_en ? game.description_en : <DynamicText text={game.storyline_fa || game.description_fa || game.description_en} />}
-                </p>
-                {!game.storyline_fa && (
-                  <p className="text-text-muted text-xs">
-                    {t('gameDetail.storyFallback')}
-                  </p>
-                )}
-              </div>
+              {(() => {
+                const storyContent = locale !== 'fa' && game.description_en
+                  ? game.description_en
+                  : (game.storyline_fa || game.description_fa || game.description_en || '');
+                const isLongStory = storyContent.length > 220;
+
+                return (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <p className={`text-xs sm:text-sm text-slate-300 leading-relaxed text-justify whitespace-pre-line font-normal ${
+                        isLongStory ? 'line-clamp-6' : ''
+                      }`}>
+                        <DynamicText text={storyContent} />
+                      </p>
+                      {!game.storyline_fa && (
+                        <p className="text-text-muted text-xs mt-2">
+                          {t('gameDetail.storyFallback')}
+                        </p>
+                      )}
+                    </div>
+
+                    {isLongStory && (
+                      <div className="pt-2 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setShowStoryModal(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+                        >
+                          <span>{locale === 'fa' ? 'نمایش بیشتر و داستان کامل' : 'Read Full Story'}</span>
+                          <ChevronLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Subtle PS Embellishment */}
@@ -603,6 +632,60 @@ export default function GameDetailPage() {
 
       {/* 5. SIMILAR & RECOMMENDED GAMES CAROUSEL */}
       <SimilarGamesCarousel gameId={game.id} />
+      {/* Full Story Modal */}
+      {showStoryModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0"
+            onClick={() => setShowStoryModal(false)}
+          />
+          <div className="relative w-full max-w-2xl bg-[#0b0f17] border border-cyan-500/30 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.9)] overflow-hidden z-10 flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#070a10]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2 h-6 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" />
+                <h3 className="text-base sm:text-lg font-black text-white">
+                  {t('gameDetail.storyTitle')} - {locale !== 'fa' && game.title_en ? game.title_en : (game.title_fa || game.title_en)}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowStoryModal(false)}
+                className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                aria-label={t('common.close') || 'بستن'}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-4 text-slate-200 text-sm leading-relaxed text-justify font-vazir whitespace-pre-line selection:bg-cyan-500/30">
+              <p>
+                <DynamicText text={
+                  locale !== 'fa' && game.description_en
+                    ? game.description_en
+                    : (game.storyline_fa || game.description_fa || game.description_en || '')
+                } />
+              </p>
+              {!game.storyline_fa && (
+                <p className="text-text-muted text-xs pt-2 border-t border-white/5">
+                  {t('gameDetail.storyFallback')}
+                </p>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3 border-t border-white/10 bg-[#070a10] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowStoryModal(false)}
+                className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors cursor-pointer"
+              >
+                {t('common.close') || 'بستن'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

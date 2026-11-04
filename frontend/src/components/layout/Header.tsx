@@ -36,6 +36,13 @@ export default function Header() {
   const { settings, fetchSettings } = useSiteSettingsStore();
   const [showDnsWarning, setShowDnsWarning] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isPlayStationUA, setIsPlayStationUA] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      setIsPlayStationUA(/playstation/i.test(navigator.userAgent));
+    }
+  }, []);
   const isInternational = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
 
   useEffect(() => {
@@ -96,30 +103,38 @@ export default function Header() {
     <>
       {/* Top DNS Warning Banner (Yellow / Amber) */}
       {showDnsWarning && (
-        <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 text-slate-950 border-b border-amber-500 shadow-md relative z-50">
-          <div className="max-w-[1700px] mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center text-center flex-wrap text-xs sm:text-sm font-bold leading-relaxed">
-              <span className="flex items-center gap-1.5 shrink-0 text-slate-950 font-black">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-slate-950" />
-                <span className="hidden xs:inline">{t('nav.dnsAttention')}</span>
-              </span>
-              <span>{t('nav.dnsInstruction')}</span>
-              <span
-                className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
-                dir="ltr"
-              >
-                {primaryDns}
-              </span>
+        <div className="w-full relative z-50">
+          {/* PlayStation-only top black bar: exactly half the width of the DNS cover */}
+          {isPlayStationUA && (
+            <div className="w-full flex justify-center bg-black/60">
+              <div className="w-1/2 h-3.5 bg-black border-b border-black" />
             </div>
+          )}
+          <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 text-slate-950 border-b border-amber-500 shadow-md">
+            <div className="max-w-[1700px] mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center text-center flex-wrap text-xs sm:text-sm font-bold leading-relaxed">
+                <span className="flex items-center gap-1.5 shrink-0 text-slate-950 font-black">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-slate-950" />
+                  <span className="hidden xs:inline">{t('nav.dnsAttention')}</span>
+                </span>
+                <span>{t('nav.dnsInstruction')}</span>
+                <span
+                  className="font-roboto font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 tracking-wider shadow-inner"
+                  dir="ltr"
+                >
+                  {primaryDns}
+                </span>
+              </div>
 
-            <button
-              onClick={() => setShowDnsWarning(false)}
-              className="p-1 rounded-lg hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
-              title={t('chrome.closeNotice')}
-              aria-label={t('chrome.closeNotice')}
-            >
-              <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            </button>
+              <button
+                onClick={() => setShowDnsWarning(false)}
+                className="p-1 rounded-lg hover:bg-slate-950/15 text-slate-950 shrink-0 transition-colors cursor-pointer"
+                title={t('chrome.closeNotice')}
+                aria-label={t('chrome.closeNotice')}
+              >
+                <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </button>
+            </div>
           </div>
         </div>
       )}

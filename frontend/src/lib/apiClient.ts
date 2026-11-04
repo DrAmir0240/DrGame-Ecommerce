@@ -13,7 +13,7 @@ import {
 } from './authTokens';
 import { i18n } from '@/i18n';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://store.gamedr.ir/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.gamedr.ir/api';
 
 /** Active UI locale, sent to the API so dynamic content comes back localized. */
 function activeLocale(): string {

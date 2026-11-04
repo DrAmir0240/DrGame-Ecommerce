@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://store.gamedr.ir/api",
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://api.gamedr.ir/api",
   },
   images: {
     remotePatterns: [

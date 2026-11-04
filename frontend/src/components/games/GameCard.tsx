@@ -81,18 +81,18 @@ export default function GameCard({ game }: GameCardProps) {
           )}
         </h3>
 
-        {/* Bottom Row: Platform Text Badges + Status Badge */}
-        <div className="flex items-center justify-between gap-1 pt-1 border-t border-white/5">
+        {/* Bottom Row: Platform Text Badges + Status Badge (Strictly single-line, never wrap) */}
+        <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-white/5 flex-nowrap overflow-hidden">
           {/* Platforms Text Badges */}
-          <div className="flex items-center gap-1 flex-wrap">
+          <div className="flex items-center gap-1 flex-nowrap shrink-0 overflow-hidden">
             {platforms
               .map(getPlatformBadgeText)
               .filter(Boolean)
-              .slice(0, 3)
+              .slice(0, 2)
               .map((badge, idx) => (
                 <span
                   key={idx}
-                  className="px-1.5 py-0.5 rounded text-[9px] font-black font-roboto tracking-wider bg-white/5 border border-white/10 text-white/80"
+                  className="px-1.5 py-0.5 rounded text-[9px] font-black font-roboto tracking-wider bg-white/5 border border-white/10 text-white/80 whitespace-nowrap shrink-0"
                 >
                   {badge}
                 </span>
@@ -101,11 +101,11 @@ export default function GameCard({ game }: GameCardProps) {
 
           {/* Status Badge */}
           {isReleased ? (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
               {releasedText}
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0">
               {earlyAccessText}
             </span>
           )}
