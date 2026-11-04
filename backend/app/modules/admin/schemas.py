@@ -115,6 +115,7 @@ class DownloadLinkPayload(BaseModel):
 class GameCreateRequest(BaseModel):
     title_fa: str
     title_en: str
+    source_id: Optional[str] = None
     rawg_id: Optional[int] = None
     slug: Optional[str] = None
     description_fa: Optional[str] = None
@@ -141,6 +142,8 @@ class GameCreateRequest(BaseModel):
 class GameUpdateRequest(BaseModel):
     title_fa: Optional[str] = None
     title_en: Optional[str] = None
+    source_id: Optional[str] = None
+    rawg_id: Optional[int] = None
     slug: Optional[str] = None
     description_fa: Optional[str] = None
     description_en: Optional[str] = None

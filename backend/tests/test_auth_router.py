@@ -7,11 +7,12 @@ async def test_auth_full_journey_via_api(client: AsyncClient):
     # In domestic mode, target must be phone number
     target = "09121112233"
 
-    # 1. Request OTP
+    # 1. Request OTP (should detect unregistered target)
     otp_res = await client.post("/api/auth/otp/send", json={"target": target})
     assert otp_res.status_code == 200
     otp_json = otp_res.json()
     assert "detail" in otp_json
+    assert otp_json["is_registered"] is False
     code = otp_json["detail"].replace("DEBUG_CODE: ", "").strip()
 
     # 2. Register
@@ -49,6 +50,11 @@ async def test_auth_full_journey_via_api(client: AsyncClient):
         "password": "WrongPassword!"
     })
     assert bad_login_res.status_code == 401
+
+    # 5b. Request OTP for already registered user (should detect is_registered=True)
+    otp_registered_res = await client.post("/api/auth/otp/send", json={"target": target})
+    assert otp_registered_res.status_code == 200
+    assert otp_registered_res.json()["is_registered"] is True
 
     # 6. Console login with 7-digit code
     console_res = await client.post("/api/auth/login/console", json={

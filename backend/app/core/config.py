@@ -51,12 +51,18 @@ class Settings(BaseSettings):
     RAWG_API_KEY: str = "91c0c1c9c30c4796bbff63a7471fdfdd"
     RAWG_BASE_URL: str = "https://api.rawg.io/api"
 
+    # IGDB / Twitch OAuth API
+    IGDB_CLIENT_ID: str = "755p4548dxlbbe5n6xud3fnw3zjwsd"
+    IGDB_CLIENT_SECRET: str = "6fddqp62amcta340bymo4gjd4w2io0"
+    IGDB_BASE_URL: str = "https://api.igdb.com/v4"
+    IGDB_TOKEN_URL: str = "https://id.twitch.tv/oauth2/token"
+
     # Liara S3 Object Storage
     LIARA_ENDPOINT: str = "https://storage.c2.liara.site"
     LIARA_BUCKET_NAME: str = "drgame-storage"
     LIARA_ACCESS_KEY: str = "m9rvoec258l68eek"
     LIARA_SECRET_KEY: str = "fb10fbac-cdd6-4ded-b574-4b297c1c678a"
-    LIARA_PUBLIC_URL: str | None = "https://drgame-storage.storage.c2.liara.site"
+    LIARA_PUBLIC_URL: str | None = "https://storage.gamedr.ir"
 
     @property
     def S3_PUBLIC_BASE_URL(self) -> str:
@@ -71,6 +77,12 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://localhost:8000",
     ]
+
+    # Outbound Proxy Settings (Anti-Censorship Sidecar)
+    HTTP_PROXY: str | None = None
+    HTTPS_PROXY: str | None = None
+    NO_PROXY: str | None = None
+    V2RAY_SUB_URL: str | None = None
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

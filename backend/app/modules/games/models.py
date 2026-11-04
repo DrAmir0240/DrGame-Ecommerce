@@ -9,6 +9,7 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    source_id: Mapped[str | None] = mapped_column(String(50), unique=True, index=True, nullable=True)
     rawg_id: Mapped[int | None] = mapped_column(Integer, unique=True, index=True, nullable=True)
     name_fa: Mapped[str] = mapped_column(String(100), nullable=False)
     name_en: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -23,7 +24,8 @@ class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    rawg_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    source_id: Mapped[str | None] = mapped_column(String(50), unique=True, index=True, nullable=True)
+    rawg_id: Mapped[int | None] = mapped_column(Integer, unique=True, index=True, nullable=True)
     title_fa: Mapped[str] = mapped_column(String(200), nullable=False)
     title_en: Mapped[str] = mapped_column(String(200), index=True, nullable=False)
     slug: Mapped[str] = mapped_column(String(200), unique=True, index=True, nullable=False)
@@ -77,3 +79,20 @@ class GameDownloadLink(Base):
     download_url: Mapped[str] = mapped_column(String(1000), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+class CatalogSyncJob(Base):
+    __tablename__ = "catalog_sync_jobs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending, in_progress, completed, failed
+    platforms: Mapped[list] = mapped_column(JSON, default=list)  # ["PS5", "PS4", "Xbox", "Switch"]
+    date_from: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    date_to: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    min_rating: Mapped[float] = mapped_column(Float, default=0.0)
+    sort_by: Mapped[str] = mapped_column(String(50), default="release_date_desc")
+    requested_count: Mapped[int] = mapped_column(Integer, default=10)
+    imported_count: Mapped[int] = mapped_column(Integer, default=0)
+    updated_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

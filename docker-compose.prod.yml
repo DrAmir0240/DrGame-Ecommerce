@@ -107,6 +107,24 @@ services:
     logging: *logging-prod
     stop_grace_period: 10s
 
+  # ── Xray Anti-Censorship Proxy Sidecar ──────────────────────────────────────
+  proxy:
+    image: teddysun/xray:latest
+    container_name: drgame-proxy-prod
+    <<: *restart-unless-stopped
+    volumes:
+      - ./proxy:/etc/xray:ro
+    ports:
+      - "${PROXY_HTTP_PORT:-10809}:10809"
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "128m"
+    logging: *logging-prod
+
   # ── Alembic Migrations (one-shot init container) ──────────────────────────
   migrate:
     container_name: drgame-migrate-prod
@@ -151,14 +169,21 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
       - RAWG_API_KEY=${RAWG_API_KEY:-91c0c1c9c30c4796bbff63a7471fdfdd}
       - RAWG_BASE_URL=${RAWG_BASE_URL:-https://api.rawg.io/api}
+      - IGDB_CLIENT_ID=${IGDB_CLIENT_ID:-}
+      - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET:-}
+      - IGDB_BASE_URL=${IGDB_BASE_URL:-https://api.igdb.com/v4}
+      - IGDB_TOKEN_URL=${IGDB_TOKEN_URL:-https://id.twitch.tv/oauth2/token}
       - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY:?WEBHOOK_SECRET_KEY must be set in .env}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["https://store.gamedr.ir","https://api.gamedr.ir","https://admin.gamedr.ir","https://gamedr.ir","http://localhost:3000","http://127.0.0.1:3000"]}
       - LIARA_ENDPOINT=${LIARA_ENDPOINT:-https://storage.c2.liara.site}
       - LIARA_BUCKET_NAME=${LIARA_BUCKET_NAME:-drgame-storage}
       - LIARA_ACCESS_KEY=${LIARA_ACCESS_KEY:-m9rvoec258l68eek}
       - LIARA_SECRET_KEY=${LIARA_SECRET_KEY:-fb10fbac-cdd6-4ded-b574-4b297c1c678a}
-      - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://drgame-storage.storage.c2.liara.site}
+      - LIARA_PUBLIC_URL=${LIARA_PUBLIC_URL:-https://storage.gamedr.ir}
       - DPOP_BASE_ORIGIN=${DPOP_BASE_ORIGIN:-https://dltest.gamedr.ir}
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1,db,cache,frontend,admin-panel,proxy}
     volumes:
       - drgame_media_prod:/app/media
     ports:
@@ -168,6 +193,15 @@ services:
       - 185.51.200.2
       - 8.8.8.8
       - 1.1.1.1
+    extra_hosts:
+      - "id.twitch.tv:52.85.154.20"
+      - "id.twitch.tv:52.85.154.61"
+      - "api.igdb.com:3.164.206.56"
+      - "api.igdb.com:3.164.206.74"
+      - "images.igdb.com:13.33.235.9"
+      - "images.igdb.com:13.33.235.53"
+      - "api.mymemory.translated.net:63.186.89.50"
+      - "api.mymemory.translated.net:63.186.207.253"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 10s
@@ -200,7 +234,8 @@ services:
       dockerfile: Dockerfile
       target: prod
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://store.gamedr.ir/api}
+        NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-https://storage.gamedr.ir}
         NEXT_PUBLIC_DEPLOYMENT_MODE: ${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
         NEXT_PUBLIC_DEFAULT_CURRENCY: ${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
     <<: *restart-unless-stopped
@@ -208,13 +243,17 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.gamedr.ir/api}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://store.gamedr.ir/api}
+      - NEXT_PUBLIC_STORAGE_URL=${NEXT_PUBLIC_STORAGE_URL:-https://storage.gamedr.ir}
       - NEXT_PUBLIC_DEPLOYMENT_MODE=${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
       - NEXT_PUBLIC_DEFAULT_CURRENCY=${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
       - PORT=3000
       - HOSTNAME=0.0.0.0
     ports:
       - "${FRONTEND_HOST_PORT:-3000}:3000"
+    extra_hosts:
+      - "images.igdb.com:13.33.235.9"
+      - "images.igdb.com:13.33.235.53"
     depends_on:
       backend:
         condition: service_healthy

@@ -7,12 +7,16 @@ RUN apk add --no-cache libc6-compat || true
 
 # Install dependencies
 FROM base AS deps
+WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 
 # Development target (hot-reload)
 FROM base AS dev
-ENV NODE_ENV=development
+WORKDIR /app
+ENV NODE_ENV=development \
+    PATH="/app/node_modules/.bin:$PATH"
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -22,13 +26,23 @@ CMD ["npm", "run", "dev"]
 
 # Builder
 FROM base AS builder
+WORKDIR /app
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    PATH="/app/node_modules/.bin:$PATH"
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NEXT_PUBLIC_API_URL=http://62.60.191.67:8000/api
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL=https://store.gamedr.ir/api
+ARG NEXT_PUBLIC_STORAGE_URL=https://storage.gamedr.ir
+ARG NEXT_PUBLIC_DEPLOYMENT_MODE=domestic
+ARG NEXT_PUBLIC_DEFAULT_CURRENCY=IRT
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_STORAGE_URL=$NEXT_PUBLIC_STORAGE_URL \
+    NEXT_PUBLIC_DEPLOYMENT_MODE=$NEXT_PUBLIC_DEPLOYMENT_MODE \
+    NEXT_PUBLIC_DEFAULT_CURRENCY=$NEXT_PUBLIC_DEFAULT_CURRENCY
 
 RUN npm run build
 
@@ -39,7 +53,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME="0.0.0.0"
+    HOSTNAME="0.0.0.0" \
+    PATH="/app/node_modules/.bin:$PATH"
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs

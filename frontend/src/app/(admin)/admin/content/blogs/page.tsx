@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Newspaper, Plus, Trash2, Edit } from "lucide-react";
 import { apiRequest } from "@/lib/apiClient";
+import { getMediaUrl } from "@/lib/media";
 import { DepartmentAdminProfile } from "@/components/admin/DepartmentLayout";
 
 export default function ContentBlogsPage() {
@@ -148,7 +149,7 @@ export default function ContentBlogsPage() {
                   <td className="py-3 px-4 font-mono text-slate-400">#{b.id}</td>
                   <td className="py-3 px-4">
                     {b.cover_image_url ? (
-                      <img src={b.cover_image_url} alt="" className="w-10 h-10 object-cover rounded-lg" />
+                      <img src={getMediaUrl(b.cover_image_url)} alt="" className="w-10 h-10 object-cover rounded-lg" />
                     ) : (
                       <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-slate-600">📄</div>
                     )}

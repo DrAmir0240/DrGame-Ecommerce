@@ -368,6 +368,20 @@ async def delete_game(
     return res
 
 
+@router.post("/upload", status_code=status.HTTP_200_OK)
+@router.post("/media/upload", status_code=status.HTTP_200_OK)
+async def upload_content_media(
+    file: UploadFile = File(...),
+    folder: str = Query("games", description="Folder name in storage: games, banners, screenshots"),
+    prefix: str = Query("img", description="File prefix"),
+    request: Request = None,
+    current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Directly upload image file from client to Liara S3 / Media storage and return accessible URL."""
+    url = await save_uploaded_file(file, prefix=prefix, folder=folder)
+    return {"status": "success", "url": url, "filename": file.filename}
+
+
 @router.post("/games/{game_id}/upload-media")
 async def upload_game_media(
     game_id: int,
