@@ -84,11 +84,11 @@ export default function GameCarousel({
       {/* Horizontal Scroll Track */}
       <div
         ref={scrollRef}
-        className="flex items-stretch gap-4 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
+        className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {games.map((game) => (
-          <div key={game.id} className="w-[150px] xs:w-[170px] sm:w-[200px] md:w-[220px] 2xl:w-[245px] shrink-0" data-nav>
+          <div key={game.id} className="w-[160px] xs:w-[185px] sm:w-[215px] md:w-[230px] 2xl:w-[250px] shrink-0" data-nav>
             <GameCard game={game} />
           </div>
         ))}

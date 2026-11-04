@@ -184,7 +184,8 @@ html.tv-mode section[aria-label] > div.relative.rounded-3xl h2 {
 
 html.tv-mode [data-nav] > a.group,
 html.tv-mode .game-card-wrapper {
-  max-width: 195px !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Subscription cards in TV mode: compact padding so all tiers fit */
