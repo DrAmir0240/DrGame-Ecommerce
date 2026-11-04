@@ -343,9 +343,9 @@ export default function UserDashboardLayout({
 
       {/* Main Layout Grid */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Desktop Sticky Right Sidebar */}
-        <aside className="hidden lg:block lg:w-80 shrink-0">
-          <div className="glass-card rounded-3xl p-5 border border-white/10 sticky top-24 shadow-2xl backdrop-blur-xl bg-[#0c1017]/90 max-h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar">
+        {/* Desktop Sticky Right Sidebar (Fixed on scroll just like FilterSidebar) */}
+        <aside className="hidden lg:block lg:w-80 shrink-0 text-start font-vazir select-none sticky top-20 z-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto pr-1 no-scrollbar">
+          <div className="rounded-3xl bg-[#0c1017]/95 border border-white/10 p-5 shadow-2xl backdrop-blur-xl">
             {renderSidebarContent()}
           </div>
         </aside>
