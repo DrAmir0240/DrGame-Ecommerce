@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation';
 import { Tv, LogOut, Clock, ZoomIn } from 'lucide-react';
 import { useTvModeStore } from '@/stores/useTvModeStore';
 import { useTranslation } from '@/i18n';
+import { useConsoleDevice } from '@/hooks/useConsoleDevice';
+import PlatformIcon from '@/components/games/PlatformIcons';
 
 export default function TvBottomBar() {
   const router = useRouter();
   const { isTvMode, closeTvMode, zoomLevel, showZoomHud } = useTvModeStore();
   const { t, locale, dir } = useTranslation();
   const [currentTime, setCurrentTime] = useState<string>('21:40');
+  const deviceInfo = useConsoleDevice();
 
   useEffect(() => {
     const updateClock = () => {
@@ -72,17 +75,19 @@ export default function TvBottomBar() {
         role="region"
         aria-label={t('chrome.tvBarRegion')}
       >
-        {/* Brand & Metrics */}
+        {/* Device & UA Info (Replaces Nebula TV icon with PlayStation Device & Firmware) */}
         <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 p-0.5 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.55)]">
-              <Tv className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="h-8 sm:h-9 px-2.5 rounded-xl bg-gradient-to-br from-blue-700 via-indigo-700 to-purple-800 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.45)] border border-blue-400/30">
+              <PlatformIcon platform={deviceInfo.platform} size={22} className="brightness-125" />
             </div>
-            <div className="hidden sm:flex flex-col">
-              <span className="font-black text-white text-xs sm:text-sm leading-tight tracking-tight">
-                DrGame <span className="text-purple-400 font-black">Nebula TV</span>
+            <div className="flex flex-col">
+              <span className="font-black text-white text-xs sm:text-sm leading-tight tracking-tight font-roboto">
+                {deviceInfo.device}
               </span>
-              <span className="text-[10px] text-purple-300 font-mono mt-0.5">10-Foot Console UI</span>
+              <span className="text-[10px] sm:text-[11px] text-amber-300 font-mono font-bold mt-0.5 tracking-wider" dir="ltr">
+                {deviceInfo.firmware}
+              </span>
             </div>
           </div>
 

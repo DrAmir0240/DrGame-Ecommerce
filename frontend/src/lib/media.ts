@@ -4,17 +4,11 @@
  */
 export function getMediaUrl(url: string | null | undefined): string {
   if (!url) return '';
-<<<<<<< HEAD
-  if (url.startsWith('/media')) {
-    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'https://api.gamedr.ir/api').replace(/\/api\/?$/, '');
-    return `${apiBase}${url}`;
-=======
   const storageBase = (process.env.NEXT_PUBLIC_STORAGE_URL || 'https://storage.gamedr.ir').replace(/\/+$/, '');
 
   // 1. If already on custom storage domain, return as-is
   if (url.startsWith('https://storage.gamedr.ir') || url.startsWith('http://storage.gamedr.ir')) {
     return url;
->>>>>>> main
   }
 
   // 2. If it's a relative path like /media/games/... or games/...

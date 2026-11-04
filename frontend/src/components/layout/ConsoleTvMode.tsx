@@ -23,6 +23,8 @@ import { getMediaUrl } from '@/lib/media';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { useTranslation } from '@/i18n';
+import { useConsoleDevice } from '@/hooks/useConsoleDevice';
+import PlatformIcon from '@/components/games/PlatformIcons';
 
 interface ConsoleTvModeProps {
   isOpen: boolean;
@@ -34,6 +36,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
   const { t, locale, dir } = useTranslation();
   const { user, isAuthenticated } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
+  const deviceInfo = useConsoleDevice();
 
   const [games, setGames] = useState<GameCardItem[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
@@ -627,8 +630,13 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
         className="relative z-30 bg-[#0a0d14]/95 border-t border-purple-500/30 backdrop-blur-xl px-6 sm:px-12 py-2.5 flex items-center justify-between text-xs shadow-2xl pointer-events-auto"
       >
         <div className="flex items-center gap-2 text-slate-300">
-          <Tv className="w-3.5 h-3.5 text-purple-400" />
-          <span className="font-bold text-white hidden sm:inline">{t('tv.modeTitle')}</span>
+          <PlatformIcon platform={deviceInfo.platform} size={18} className="brightness-125" />
+          <div className="flex items-center gap-2">
+            <span className="font-black text-white text-xs font-roboto">{deviceInfo.device}</span>
+            <span className="text-[10px] text-amber-300 font-mono font-bold px-1.5 py-0.5 rounded bg-white/10" dir="ltr">
+              {deviceInfo.firmware}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 sm:gap-5 flex-wrap justify-end font-medium text-[11px]">
