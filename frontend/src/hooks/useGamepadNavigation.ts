@@ -1,17 +1,25 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTvModeStore } from '@/stores/useTvModeStore';
 
 export function useGamepadNavigation() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isTvMode, toggleTvMode, closeTvMode, adjustZoom } = useTvModeStore();
   const lastPressRef = useRef<number>(0);
   const lastZoomTickRef = useRef<number>(0);
   const currentFocusedElRef = useRef<HTMLElement | null>(null);
 
+  // CRITICAL: When the user is on the gamepad diagnostics/testing page,
+  // do NOT intercept gamepad buttons for site navigation!
+  const isTestingPage = pathname?.startsWith('/gamepad') || pathname?.startsWith('/tools/gamepad');
+
   useEffect(() => {
+    if (isTestingPage) {
+      return;
+    }
     let animationFrameId: number;
 
     const setGamepadFocus = (el: HTMLElement) => {
@@ -220,5 +228,5 @@ export function useGamepadNavigation() {
         currentFocusedElRef.current.removeAttribute('data-tv-focused');
       }
     };
-  }, [router, isTvMode, toggleTvMode, closeTvMode, adjustZoom]);
+  }, [router, isTvMode, toggleTvMode, closeTvMode, adjustZoom, isTestingPage]);
 }
