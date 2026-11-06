@@ -46,6 +46,8 @@ class CatalogGameItem(BaseModel):
     platforms: List[str] = []
     genres: List[str] = []
     cover_image_url: Optional[str] = None
+    ps5_title_id: Optional[str] = None
+    ps4_title_id: Optional[str] = None
     is_updated: bool = False
 
 

@@ -159,6 +159,17 @@ class GamesService:
         if not game:
             raise NotFoundError("بازی مورد نظر یافت نشد.")
 
+        # Dynamic title ID auto-resolution if missing
+        if not game.ps5_title_id and not game.ps4_title_id:
+            from app.modules.catalog_sync.title_resolver import resolve_playstation_title_ids
+            p5, p4 = resolve_playstation_title_ids(game.title_en, slug=game.slug)
+            if p5:
+                game.ps5_title_id = p5
+            if p4:
+                game.ps4_title_id = p4
+            if p5 or p4:
+                await db.commit()
+
         # Download links
         links_stmt = select(GameDownloadLink).where(GameDownloadLink.game_id == game.id, GameDownloadLink.is_active == True).order_by(GameDownloadLink.part_number.asc())
         links_res = await db.execute(links_stmt)
@@ -769,4 +780,163 @@ class GamesService:
         await db.delete(genre)
         await db.commit()
         return {"status": "deleted", "id": genre_id}
+
+    @staticmethod
+    async def get_game_download_options(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        game_id: int,
+        user_agent: Optional[str] = None,
+    ) -> dict:
+        """
+        Step 19: Dynamic Game Download Options & Firmware Compatibility Engine.
+        Inspects User-Agent, fetches or synthesizes available storage formats (FPKG vs FAT32),
+        and returns structured options for console auto-flow or desktop modal.
+        """
+        from app.core.exceptions import NotFoundException
+        from app.modules.games.storage_bridge import StorageBridgeService
+
+        game = await db.scalar(select(Game).where(Game.id == game_id, Game.is_active == True))
+        if not game:
+            raise NotFoundException("بازی مورد نظر یافت نشد یا غیرفعال است.")
+
+        return await StorageBridgeService.get_game_download_options(
+            game=game,
+            user_agent=user_agent,
+            db=db,
+            redis=redis,
+        )
+
+    @staticmethod
+    async def execute_dynamic_handoff(
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        user_id: int,
+        game_id: int,
+        job_id: str,
+        handoff_secret: str,
+        selected_format: Optional[str] = None,
+    ) -> dict:
+        """
+        Step 19: Execute seamless Handoff to Download32 on PS5 console.
+        Validates game and job, verifies active subscription & quota,
+        atomically deducts size_gb, logs download history, and approves the PS5 DPoP session.
+        """
+        from datetime import datetime, timezone
+        from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+        from app.modules.games.storage_bridge import StorageBridgeService
+        from app.modules.games.download_models import UserDownloadHistory
+        from app.modules.subscriptions.models import UserSubscription, FreeTierAllowedGame
+        from app.modules.quota.models import UserQuota, QuotaConsumptionLog
+        from app.modules.dpop.services import DPoPService
+        from app.modules.users.models import User
+
+        # 1. Fetch game and user
+        game = await db.scalar(select(Game).where(Game.id == game_id, Game.is_active == True))
+        if not game:
+            raise NotFoundException("بازی مورد نظر یافت نشد.")
+
+        user = await db.scalar(select(User).where(User.id == user_id, User.is_active == True))
+        if not user:
+            raise NotFoundException("کاربر یافت نشد.")
+
+        # 2. Resolve job metadata and size
+        options = await StorageBridgeService.get_game_download_options(game=game, db=db, redis=redis)
+        available = options.get("available_formats", [])
+        matched_job = next((j for j in available if j.get("job_id") == job_id), None)
+        if not matched_job:
+            matched_job = available[0] if available else {
+                "job_id": job_id,
+                "title": f"{game.title_en} Package",
+                "format_category": selected_format or "fpkg",
+                "size_gb": game.download_size_gb or 40.0,
+            }
+
+        size_gb = float(matched_job.get("size_gb") or game.download_size_gb or 40.0)
+        format_cat = matched_job.get("format_category") or selected_format or "fpkg"
+
+        # 3. Check Subscription & Quota
+        is_free_game = (await db.execute(
+            select(FreeTierAllowedGame).where(FreeTierAllowedGame.game_id == game_id)
+        )).scalar_one_or_none() is not None
+
+        now = datetime.now(timezone.utc)
+        sub_stmt = (
+            select(UserSubscription)
+            .where(
+                UserSubscription.user_id == user_id,
+                UserSubscription.status == "active",
+                UserSubscription.end_date > now,
+            )
+            .order_by(UserSubscription.end_date.desc())
+        )
+        active_sub = (await db.execute(sub_stmt)).scalar_one_or_none()
+
+        if not active_sub and not is_free_game:
+            raise ForbiddenException("برای ارسال بازی به کنسول، اشتراک فعال مورد نیاز است.")
+
+        # Fetch quota
+        quota_stmt = select(UserQuota).where(UserQuota.user_id == user_id)
+        quota = (await db.execute(quota_stmt)).scalar_one_or_none()
+        if not quota:
+            quota = UserQuota(
+                user_id=user_id,
+                total_quota_gb=100.0,
+                used_quota_gb=0.0,
+                remaining_quota_gb=100.0,
+            )
+            db.add(quota)
+            await db.flush()
+
+        if quota.remaining_quota_gb < size_gb:
+            raise BadRequestException(
+                f"حجم سهمیه شما کافی نیست. حجم فایل: {size_gb:.1f} گیگابایت، باقیمانده شما: {quota.remaining_quota_gb:.1f} گیگابایت."
+            )
+
+        # 4. Atomic quota deduction
+        quota.used_quota_gb = round(quota.used_quota_gb + size_gb, 2)
+        quota.remaining_quota_gb = max(0.0, round(quota.remaining_quota_gb - size_gb, 2))
+
+        # 5. Log audit records
+        log_entry = QuotaConsumptionLog(
+            user_id=user_id,
+            game_id=game_id,
+            bytes_downloaded=int(size_gb * (1024 ** 3)),
+            gb_deducted=size_gb,
+            download_server_id=f"storage:{format_cat.upper()}:{job_id}",
+        )
+        db.add(log_entry)
+
+        history_entry = UserDownloadHistory(
+            user_id=user_id,
+            game_id=game_id,
+            file_id=game_id,
+            file_type="data",
+            file_title=f"{game.title_en} [{format_cat.upper()}]",
+            file_size_gb=size_gb,
+        )
+        db.add(history_entry)
+
+        # 6. Execute DPoP claim handoff
+        await DPoPService.claim_handoff(
+            user=user,
+            handoff_secret=handoff_secret,
+            job_id=job_id,
+            db=db,
+        )
+
+        await db.commit()
+
+        # Invalidate quota cache
+        await redis.delete(f"user:quota:{user_id}")
+
+        return {
+            "success": True,
+            "game_id": game_id,
+            "job_id": job_id,
+            "format_category": format_cat,
+            "size_gb": size_gb,
+            "remaining_quota_gb": quota.remaining_quota_gb,
+            "message": f"بسته {format_cat.upper()} بازی {game.title_fa} با موفقیت به کنسول ارسال شد و سهمیه کسر گردید.",
+        }
 

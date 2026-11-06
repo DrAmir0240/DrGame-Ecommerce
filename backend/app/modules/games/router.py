@@ -20,6 +20,9 @@ from app.modules.games.schemas import (
     GenreOut,
     GameDownloadFileOut,
     GenerateDownloadResponse,
+    GameDownloadOptionsOut,
+    HandoffExecuteRequest,
+    HandoffExecuteResponse,
 )
 from app.modules.games.services import GamesService
 
@@ -127,6 +130,68 @@ async def toggle_wishlist(
 ):
     """Toggle game in user wishlist (Authenticated users only)."""
     return await GamesService.toggle_wishlist(db, redis, game_id, current_user.id)
+
+
+# --- Step 19: Dynamic Game Downloads, Title IDs & Firmware Engine ---
+
+@router.get("/{game_id}/download-options", response_model=GameDownloadOptionsOut, status_code=status.HTTP_200_OK)
+async def get_game_download_options(
+    game_id: int,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """
+    Step 19: Dynamic Game Download Options with Firmware Detection.
+    Inspects User-Agent, detects console platform & firmware version (<= 11.40 vs > 11.40),
+    recommends optimal format (FPKG vs FAT32), and returns available packages and Title IDs.
+    """
+    ua = request.headers.get("user-agent")
+    return await GamesService.get_game_download_options(
+        db=db,
+        redis=redis,
+        game_id=game_id,
+        user_agent=ua,
+    )
+
+
+@router.post("/{game_id}/handoff", response_model=HandoffExecuteResponse, status_code=status.HTTP_200_OK)
+async def execute_game_handoff(
+    game_id: int,
+    payload: HandoffExecuteRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """
+    Step 19: Execute seamless Handoff to Download32 on PS5 console.
+    Validates game and job, verifies active subscription & quota,
+    atomically deducts size_gb, logs download history, and approves the PS5 DPoP session.
+    """
+    return await GamesService.execute_dynamic_handoff(
+        db=db,
+        redis=redis,
+        user_id=current_user.id,
+        game_id=game_id,
+        job_id=payload.job_id,
+        handoff_secret=payload.handoff_secret,
+        selected_format=payload.selected_format,
+    )
+
+
+@router.post("/sync-storage", status_code=status.HTTP_200_OK)
+async def sync_games_storage(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    game_id: Optional[int] = Query(None, description="Optional specific game ID to sync"),
+):
+    """
+    Sync storage metadata from dltest.gamedr.ir for all games or specific game.
+    Matches tags with PS5/PS4 Title IDs, infers missing IDs, and updates available formats.
+    """
+    from app.modules.games.storage_bridge import StorageBridgeService
+    return await StorageBridgeService.sync_game_storage_metadata(db=db, redis=redis, game_id=game_id)
 
 
 # --- 5-Part Game Downloads & Instant Quota Deduction ---

@@ -22,6 +22,7 @@ from app.modules.games.models import (
 from app.modules.games.download_models import GameDownloadFile, UserDownloadHistory
 from app.modules.catalog_sync.client import CatalogClient
 from app.modules.catalog_sync.schemas import CatalogSyncRequest, CatalogGameItem
+from app.modules.catalog_sync.title_resolver import resolve_playstation_title_ids
 
 logger = logging.getLogger("drgame.catalog_sync")
 
@@ -379,6 +380,9 @@ class CatalogSyncService:
                         if not banner_image_url:
                             banner_image_url = cover_image_url
 
+                        # Resolve official PlayStation Title IDs (Offline-first 3-tier resolution)
+                        ps5_title_id, ps4_title_id = resolve_playstation_title_ids(game_title=name, slug=slug)
+
                         # Database Upsert
                         existing_game = await db.scalar(
                             select(Game).where(or_(Game.source_id == source_id, Game.slug == slug))
@@ -400,6 +404,10 @@ class CatalogSyncService:
                             existing_game.publisher = pub
                             existing_game.is_two_player = is_two_player
                             existing_game.has_vr = has_vr
+                            if ps5_title_id and not existing_game.ps5_title_id:
+                                existing_game.ps5_title_id = ps5_title_id
+                            if ps4_title_id and not existing_game.ps4_title_id:
+                                existing_game.ps4_title_id = ps4_title_id
                             if cover_image_url:
                                 existing_game.cover_image_url = cover_image_url
                             if banner_image_url:
@@ -411,6 +419,8 @@ class CatalogSyncService:
                             updated_count += 1
                             game_record_id = existing_game.id
                             is_updated = True
+                            final_ps5_id = existing_game.ps5_title_id
+                            final_ps4_id = existing_game.ps4_title_id
                         else:
                             new_game = Game(
                                 source_id=source_id,
@@ -433,6 +443,10 @@ class CatalogSyncService:
                                 cover_image_url=cover_image_url,
                                 banner_image_url=banner_image_url,
                                 screenshots=screenshots,
+                                ps5_title_id=ps5_title_id,
+                                ps4_title_id=ps4_title_id,
+                                storage_sync_status="unknown",
+                                available_formats=[],
                                 is_active=True,
                             )
                             db.add(new_game)
@@ -441,6 +455,8 @@ class CatalogSyncService:
                             imported_count += 1
                             game_record_id = new_game.id
                             is_updated = False
+                            final_ps5_id = ps5_title_id
+                            final_ps4_id = ps4_title_id
 
                         # Commit each game to persist incrementally
                         await db.commit()
@@ -456,6 +472,8 @@ class CatalogSyncService:
                             platforms=platforms,
                             genres=genres,
                             cover_image_url=cover_image_url,
+                            ps5_title_id=final_ps5_id,
+                            ps4_title_id=final_ps4_id,
                             is_updated=is_updated,
                         )
                         synced_items.append(game_item)

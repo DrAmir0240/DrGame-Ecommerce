@@ -53,6 +53,15 @@ class Game(models.Model):
     dislikes_count = models.IntegerField(default=0, verbose_name="ناپسندها")
     wishlist_count = models.IntegerField(default=0, verbose_name="علاقه‌مندی‌ها")
     is_active = models.BooleanField(default=True, verbose_name="فعال")
+
+    # شناسه‌های رسمی سونی پلی‌استیشن و استوریج
+    ps5_title_id = ERPCharField(max_length=20, verbose_name="شناسه PS5 (PPSA)", blank=True, null=True)
+    ps4_title_id = ERPCharField(max_length=20, verbose_name="شناسه PS4 (CUSA)", blank=True, null=True)
+    storage_sync_status = ERPCharField(max_length=20, default="unknown", verbose_name="وضعیت سینک استوریج")
+    available_formats = ERPJSONField(blank=True, null=True, verbose_name="فرمت‌های آماده (FPKG / FAT32)")
+    file_size_bytes = models.BigIntegerField(blank=True, null=True, verbose_name="حجم دقیق فایل به بایت")
+    sha256_checksum = ERPCharField(max_length=64, verbose_name="هش SHA-256", blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
 
     class Meta:

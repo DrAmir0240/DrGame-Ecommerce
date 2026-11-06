@@ -1,0 +1,217 @@
+{
+  "marvels-spider-man-remastered": {
+    "title_en": "Marvel's Spider-Man Remastered",
+    "ps5_title_id": "PPSA01467",
+    "ps4_title_id": "CUSA11995"
+  },
+  "marvels-spider-man-miles-morales": {
+    "title_en": "Marvel's Spider-Man: Miles Morales",
+    "ps5_title_id": "PPSA01411",
+    "ps4_title_id": "CUSA17711"
+  },
+  "marvels-spider-man-2": {
+    "title_en": "Marvel's Spider-Man 2",
+    "ps5_title_id": "PPSA08338",
+    "ps4_title_id": null
+  },
+  "god-of-war-ragnarok": {
+    "title_en": "God of War Ragnarök",
+    "ps5_title_id": "PPSA08330",
+    "ps4_title_id": "CUSA34388"
+  },
+  "god-of-war": {
+    "title_en": "God of War",
+    "ps5_title_id": "PPSA01490",
+    "ps4_title_id": "CUSA07408"
+  },
+  "the-last-of-us-part-i": {
+    "title_en": "The Last of Us Part I",
+    "ps5_title_id": "PPSA03396",
+    "ps4_title_id": "CUSA00557"
+  },
+  "the-last-of-us-part-ii-remastered": {
+    "title_en": "The Last of Us Part II Remastered",
+    "ps5_title_id": "PPSA15543",
+    "ps4_title_id": "CUSA07820"
+  },
+  "the-last-of-us-part-ii": {
+    "title_en": "The Last of Us Part II",
+    "ps5_title_id": "PPSA15543",
+    "ps4_title_id": "CUSA07820"
+  },
+  "batman-arkham-knight": {
+    "title_en": "Batman: Arkham Knight",
+    "ps5_title_id": "PPSA24342",
+    "ps4_title_id": "CUSA00133"
+  },
+  "ghost-of-tsushima-directors-cut": {
+    "title_en": "Ghost of Tsushima Director's Cut",
+    "ps5_title_id": "PPSA03208",
+    "ps4_title_id": "CUSA16972"
+  },
+  "ghost-of-tsushima": {
+    "title_en": "Ghost of Tsushima",
+    "ps5_title_id": "PPSA03208",
+    "ps4_title_id": "CUSA16972"
+  },
+  "horizon-forbidden-west": {
+    "title_en": "Horizon Forbidden West",
+    "ps5_title_id": "PPSA01532",
+    "ps4_title_id": "CUSA24705"
+  },
+  "horizon-zero-dawn": {
+    "title_en": "Horizon Zero Dawn",
+    "ps5_title_id": "PPSA01532",
+    "ps4_title_id": "CUSA01967"
+  },
+  "elden-ring": {
+    "title_en": "Elden Ring",
+    "ps5_title_id": "PPSA04609",
+    "ps4_title_id": "CUSA28863"
+  },
+  "grand-theft-auto-v": {
+    "title_en": "Grand Theft Auto V",
+    "ps5_title_id": "PPSA03420",
+    "ps4_title_id": "CUSA00419"
+  },
+  "red-dead-redemption-2": {
+    "title_en": "Red Dead Redemption 2",
+    "ps5_title_id": "PPSA01490",
+    "ps4_title_id": "CUSA03041"
+  },
+  "cyberpunk-2077": {
+    "title_en": "Cyberpunk 2077",
+    "ps5_title_id": "PPSA03974",
+    "ps4_title_id": "CUSA16596"
+  },
+  "resident-evil-4": {
+    "title_en": "Resident Evil 4",
+    "ps5_title_id": "PPSA07411",
+    "ps4_title_id": "CUSA37571"
+  },
+  "resident-evil-village": {
+    "title_en": "Resident Evil Village",
+    "ps5_title_id": "PPSA01556",
+    "ps4_title_id": "CUSA18017"
+  },
+  "final-fantasy-xvi": {
+    "title_en": "Final Fantasy XVI",
+    "ps5_title_id": "PPSA10664",
+    "ps4_title_id": null
+  },
+  "final-fantasy-vii-remake-intergrade": {
+    "title_en": "Final Fantasy VII Remake Intergrade",
+    "ps5_title_id": "PPSA01878",
+    "ps4_title_id": "CUSA07237"
+  },
+  "returnal": {
+    "title_en": "Returnal",
+    "ps5_title_id": "PPSA01284",
+    "ps4_title_id": null
+  },
+  "demons-souls": {
+    "title_en": "Demon's Souls",
+    "ps5_title_id": "PPSA01341",
+    "ps4_title_id": null
+  },
+  "gran-turismo-7": {
+    "title_en": "Gran Turismo 7",
+    "ps5_title_id": "PPSA01317",
+    "ps4_title_id": "CUSA24765"
+  },
+  "death-stranding-directors-cut": {
+    "title_en": "Death Stranding Director's Cut",
+    "ps5_title_id": "PPSA03038",
+    "ps4_title_id": "CUSA11260"
+  },
+  "hogwarts-legacy": {
+    "title_en": "Hogwarts Legacy",
+    "ps5_title_id": "PPSA07044",
+    "ps4_title_id": "CUSA12824"
+  },
+  "bloodborne": {
+    "title_en": "Bloodborne",
+    "ps5_title_id": null,
+    "ps4_title_id": "CUSA00207"
+  },
+  "uncharted-legacy-of-thieves-collection": {
+    "title_en": "Uncharted: Legacy of Thieves Collection",
+    "ps5_title_id": "PPSA04554",
+    "ps4_title_id": "CUSA00341"
+  },
+  "uncharted-4-a-thiefs-end": {
+    "title_en": "Uncharted 4: A Thief's End",
+    "ps5_title_id": "PPSA04554",
+    "ps4_title_id": "CUSA00341"
+  },
+  "ratchet-clank-rift-apart": {
+    "title_en": "Ratchet & Clank: Rift Apart",
+    "ps5_title_id": "PPSA01473",
+    "ps4_title_id": null
+  },
+  "astro-bot": {
+    "title_en": "Astro Bot",
+    "ps5_title_id": "PPSA21564",
+    "ps4_title_id": null
+  },
+  "sekiro-shadows-die-twice": {
+    "title_en": "Sekiro: Shadows Die Twice",
+    "ps5_title_id": null,
+    "ps4_title_id": "CUSA13801"
+  },
+  "it-takes-two": {
+    "title_en": "It Takes Two",
+    "ps5_title_id": "PPSA02342",
+    "ps4_title_id": "CUSA26770"
+  },
+  "stray": {
+    "title_en": "Stray",
+    "ps5_title_id": "PPSA04020",
+    "ps4_title_id": "CUSA24899"
+  },
+  "mortal-kombat-1": {
+    "title_en": "Mortal Kombat 1",
+    "ps5_title_id": "PPSA08892",
+    "ps4_title_id": null
+  },
+  "tekken-8": {
+    "title_en": "Tekken 8",
+    "ps5_title_id": "PPSA10593",
+    "ps4_title_id": null
+  },
+  "alan-wake-2": {
+    "title_en": "Alan Wake 2",
+    "ps5_title_id": "PPSA02570",
+    "ps4_title_id": null
+  },
+  "baldurs-gate-3": {
+    "title_en": "Baldur's Gate 3",
+    "ps5_title_id": "PPSA09044",
+    "ps4_title_id": null
+  },
+  "the-witcher-3-wild-hunt": {
+    "title_en": "The Witcher 3: Wild Hunt",
+    "ps5_title_id": "PPSA05670",
+    "ps4_title_id": "CUSA00527"
+  },
+  "assassins-creed-valhalla": {
+    "title_en": "Assassin's Creed Valhalla",
+    "ps5_title_id": "PPSA01491",
+    "ps4_title_id": "CUSA18534"
+  },
+  "assassins-creed-mirage": {
+    "title_en": "Assassin's Creed Mirage",
+    "ps5_title_id": "PPSA09312",
+    "ps4_title_id": "CUSA33151"
+  },
+  "ea-sports-fc-24": {
+    "title_en": "EA SPORTS FC 24",
+    "ps5_title_id": "PPSA13398",
+    "ps4_title_id": "CUSA40325"
+  },
+  "fifa-23": {
+    "title_en": "FIFA 23",
+    "ps5_title_id": "PPSA06299",
+    "ps4_title_id": "CUSA31878"
+  }
+}

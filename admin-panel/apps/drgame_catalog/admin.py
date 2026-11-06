@@ -13,9 +13,9 @@ class GenreAdmin(BaseERPAdmin):
 
 @admin.register(Game)
 class GameAdmin(BaseERPAdmin):
-    list_display = ["id", "title_fa", "title_en", "rating", "metacritic", "download_size_gb", "likes_count", "is_active"]
-    search_fields = ["title_fa", "title_en", "slug", "publisher", "developer"]
-    list_filter = ["is_active", "is_two_player", "has_vr"]
+    list_display = ["id", "title_fa", "title_en", "ps5_title_id", "ps4_title_id", "storage_sync_status", "rating", "metacritic", "download_size_gb", "likes_count", "is_active"]
+    search_fields = ["title_fa", "title_en", "slug", "ps5_title_id", "ps4_title_id", "publisher", "developer"]
+    list_filter = ["storage_sync_status", "is_active", "is_two_player", "has_vr"]
 
 
 @admin.register(GameDownloadFile)

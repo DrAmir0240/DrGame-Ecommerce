@@ -1,6 +1,6 @@
 """Game catalog, genres, interactions, and download links database models."""
 from datetime import datetime, timezone
-from sqlalchemy import String, Boolean, DateTime, Integer, Float, Text, JSON
+from sqlalchemy import String, Boolean, DateTime, Integer, Float, Text, JSON, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base
 from app.modules.games.download_models import GameDownloadFile, UserDownloadHistory
@@ -56,6 +56,17 @@ class Game(Base):
     dislikes_count: Mapped[int] = mapped_column(Integer, default=0)
     wishlist_count: Mapped[int] = mapped_column(Integer, default=0, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+
+    # Official Sony PlayStation Title IDs
+    ps5_title_id: Mapped[str | None] = mapped_column(String(20), index=True, nullable=True, comment="Sony PS5 Title ID (e.g. PPSA01467)")
+    ps4_title_id: Mapped[str | None] = mapped_column(String(20), index=True, nullable=True, comment="Sony PS4 Title ID (e.g. CUSA00123)")
+
+    # Storage server integration & firmware format metadata
+    storage_sync_status: Mapped[str] = mapped_column(String(20), default="unknown", index=True, comment="unknown, ready, not_found, pending")
+    available_formats: Mapped[list] = mapped_column(JSON, default=list, comment="Cached array of available storage jobs: [{id, format, content_format, size_bytes}]")
+    file_size_bytes: Mapped[int | None] = mapped_column(BigInteger, nullable=True, comment="Default/Primary file size in bytes from storage")
+    sha256_checksum: Mapped[str | None] = mapped_column(String(64), nullable=True, comment="Official 64-char lowercase hex SHA-256")
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
 class GameInteraction(Base):

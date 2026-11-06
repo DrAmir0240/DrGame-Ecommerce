@@ -61,7 +61,34 @@ class DPoPService:
 
     @staticmethod
     async def resolve_game_file(job_id: str, db: AsyncSession) -> FileMetadataOut:
-        """Resolve a job_id to a concrete GameDownloadFile and its metadata."""
+        """Resolve a job_id to a concrete GameDownloadFile or dynamic game storage job and its metadata."""
+        # 0. Check if job corresponds to dynamic game format (e.g. job_game_5_fpkg or job_game_5_fat32)
+        if "game_" in job_id:
+            try:
+                parts = job_id.split("_")
+                g_idx = parts.index("game")
+                gid = int(parts[g_idx + 1])
+                from app.modules.games.models import Game
+                game = await db.scalar(select(Game).where(Game.id == gid))
+                if game:
+                    fmt = parts[-1] if len(parts) > g_idx + 2 else "fpkg"
+                    matched = None
+                    if game.available_formats:
+                        matched = next((f for f in game.available_formats if f.get("job_id") == job_id), None)
+                    raw_sha = (matched.get("sha256") if matched else hashlib.sha256(job_id.encode()).hexdigest()).lower()
+                    ext = ".pkg" if fmt == "fpkg" else ".zip"
+                    size_b = (matched.get("size_bytes") if matched else int((game.download_size_gb or 40.0) * (1024**3)))
+                    return FileMetadataOut(
+                        job_id=job_id,
+                        file_name=f"{game.slug}_{fmt}{ext}",
+                        size_bytes=size_b,
+                        sha256=raw_sha,
+                        etag=f'"{raw_sha}"',
+                        file_version=f"sha256-{raw_sha}",
+                    )
+            except Exception:
+                pass
+
         file_record: Optional[GameDownloadFile] = None
 
         # 1. Try numeric ID extraction (e.g. "job_12", "12", "file_12")

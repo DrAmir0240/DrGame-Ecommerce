@@ -41,14 +41,16 @@ sequenceDiagram
     participant WebUI as فرانت‌اند سایت (DrGame)
     participant Backend as وب‌سرور سایت (FastAPI)
     participant DB as پایگاه داده پلتفرم (PostgreSQL)
-    participant PSStore as وب‌سرویس سونی / IGDB
+    participant OfflineData as دیتابیس محلی (JSON) / سرور استوریج
     participant StorageServer as سرور مستقل استوریج (dltest.gamedr.ir)
     participant PS5App as اپلیکیشن Download32 کنسول
 
-    Note over Backend, PSStore: فاز ۱: جمع‌آوری خودکار کاتالوگ
-    Backend->>PSStore: استعلام بازی + استخراج Title ID (PPSA / CUSA)
-    PSStore-->>Backend: بازگشت PPSA01467 و CUSA12345
-    Backend->>DB: ذخیره در ستون‌های ps5_title_id و ps4_title_id
+    Note over Backend, StorageServer: فاز ۱: جمع‌آوری خودکار و رزولوشن آفلاین‌محور Title ID
+    Backend->>OfflineData: تطبیق اسلاگ/عنوان با دیتابیس محلی (playstation_title_ids.json)
+    OfflineData-->>Backend: استخراج فوری PPSA01467 و CUSA12345 (۱۰۰٪ آفلاین و بدون نیاز به اینترنت جهانی)
+    Backend->>StorageServer: استعلام تگ‌های فایل‌های آپلودشده (/api/account/jobs)
+    StorageServer-->>Backend: انطباق تگ فایل‌ها (مانند content_tag: ppsa01467)
+    Backend->>DB: ذخیره شناسه‌ها در ستون‌های ps5_title_id و ps4_title_id
 
     Note over Gamer, StorageServer: فاز ۲: تصمیم‌گیری هوشمند پلتفرم و فریمور
     Gamer->>WebUI: باز کردن صفحه بازی (/games/[id])
@@ -189,44 +191,148 @@ class Game(Base):
 
 ---
 
-## ۴. خط لوله استخراج Title ID در سرویس کاتالوگ (`CatalogSyncService`)
+## ۴. معماری استخراج و انطباق شناسه‌های کنسولی بدون وابستگی به اینترنت جهانی (Offline-First 3-Tier Title ID Resolution Engine)
 
-در فایل `backend/app/modules/catalog_sync/services.py`، همزمان با جمع‌آوری متادیتا و کاورها، فرآیند واکشی Title ID از منابع رسمی اجرا می‌شود:
+### ۴.۱. تحلیل مسئله و چرایی عدم وابستگی به وب‌سرویس‌های خارجی در محیط ایران:
+1. **بررسی دیتابیس IGDB:**
+   تحلیل فنی اسناد و خروجی‌های API سرویس IGDB نشان می‌دهد که فیلد `external_games` تنها دسته‌بندی‌های فروشگاهی (مانند `category: 36` معادل PlayStation Store Concept ID یا `uid: 200520`) را بازمی‌گرداند و شماره‌سریال‌های فیزیکی/دیجیتالی دیسک‌های کنسول سونی (`PPSAxxxxx` و `CUSAxxxxx`) در ساختار داده‌های IGDB ذخیره **نمی‌شوند**.
+2. **چالش وب‌سرویس مستقیم سونی (`store.playstation.com`):**
+   استعلام زنده از سرورهای سونی در زمان اجرا (Runtime) با دو چالش مرگبار مواجه است:
+   - **تحریم و فیلترینگ شدید:** سرویس‌های فروشگاهی سونی از داخل ایران به شدت دچار Geo-blocking و فیلترینگ هستند.
+   - **قطع اینترنت بین‌الملل (اینترنت ملی):** در زمان قطعی اینترنت جهانی، پلتفرم دکترگیم باید بتواند به صورت ۱۰۰٪ آفلاین و پایدار بازی‌ها را به کاربران داخلی و کنسول‌های PS5 تحویل دهد. بنابراین تکیه به یک وب‌سرویس خارجی برای دریافت Title ID ناقض اصل تاب‌آوری ملی سیستم است.
+
+```mermaid
+flowchart TD
+    Req([درخواست ثبت یا انطباق بازی]) --> T1{لایه ۱: آیا سرور استوریج تگ Title ID دارد؟}
+    T1 -->|بله: content_tag یا نام فایل| ResT1[تخصیص مستقیم از استوریج: ppsa / cusa]
+    T1 -->|خیر| T2{لایه ۲: آیا در دیتابیس لوکال آفلاین وجود دارد؟}
+    
+    T2 -->|بله: تطبیق اسلاگ یا عنوان| ResT2[استخراج از backend/app/data/playstation_title_ids.json]
+    T2 -->|خیر| T3[لایه ۳: ثبت پیش‌فرض و امکان Override در پنل ادمین جنگو]
+    
+    ResT1 --> SaveDB[(ذخیره در دیتابیس PostgreSQL)]
+    ResT2 --> SaveDB
+    T3 --> SaveDB
+```
+
+---
+
+### ۴.۲. معماری ۳ لایه آفلاین‌محور استخراج Title ID (3-Tier Resolution):
+
+#### لایه اول: کشف از سرور استوریج (Storage-First Discovery - اولویت ۱)
+سرور آبجکت استوریج و دانلود داخلی (`tgstorage` روی `https://dltest.gamedr.ir`) پکیج‌ها و پارت‌های بازی‌ها را نگهداری می‌کند. هر رکورد در خروجی اندپوینت `GET /api/account/jobs` دارای ویژگی‌های ساختاری است:
+- `content_tag` یا `tag`: مستقیماً برابر با کد رسمی سونی است (مثال: `"content_tag": "ppsa24342"` یا `"cusa00123"`).
+- در صورت عدم وجود فیلد صریح تگ، عبارات باقاعده (Regex) نام فایل‌های آپلودشده پکیج (`.pkg` یا `.zip`) را برای یافتن الگوی `PPSA\d{5}` و `CUSA\d{5}` اسکن می‌کنند.
+
+#### لایه دوم: دیتابیس غنی آفلاین محلی (Curated Offline Dataset - اولویت ۲)
+یک فایل جیسون ساختاریافته در مسیر `backend/app/data/playstation_title_ids.json` به همراه کدهای پروژه مستقر می‌شود. این فایل شامل شناسه‌های بازی‌های معتبر و محبوب است و نیازی به هیچ‌گونه اتصال اینترنتی ندارد:
+
+```json
+{
+  "marvels-spider-man-remastered": {
+    "title_en": "Marvel's Spider-Man Remastered",
+    "ps5_title_id": "PPSA01467",
+    "ps4_title_id": "CUSA11995"
+  },
+  "god-of-war-ragnarok": {
+    "title_en": "God of War Ragnarök",
+    "ps5_title_id": "PPSA08330",
+    "ps4_title_id": "CUSA34388"
+  },
+  "the-last-of-us-part-i": {
+    "title_en": "The Last of Us Part I",
+    "ps5_title_id": "PPSA03396",
+    "ps4_title_id": "CUSA00557"
+  }
+}
+```
+
+#### لایه سوم: بازنویسی و مدیریت دستی در ادمین پنل جنگو (Zero-Trust Admin Override - اولویت ۳)
+در مدل‌های `admin-panel`، فیلدهای `ps5_title_id` و `ps4_title_id` در فرم مدیریت بازی‌ها قابل مشاهده و ویرایش هستند تا در صورت اضافه شدن عناوین جدید قبل از به‌روزرسانی فایل محلی، ادمین بتواند با یک کلیک شناسه‌ها را ثبت یا اصلاح کند.
+
+---
+
+### ۴.۳. پیاده‌سازی رزولور آفلاین (`backend/app/modules/catalog_sync/title_resolver.py`):
 
 ```python
+import os
 import re
-import httpx
-from typing import Tuple, Optional
+import json
+import logging
+from typing import Optional, Tuple
 
-SONY_SEARCH_URL = "https://store.playstation.com/store/api/chihiro/00_09_000/tumbler/US/en/999/{query}?suggested_size=5&mode=game"
+logger = logging.getLogger("drgame.title_resolver")
+
+DATA_FILE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "data",
+    "playstation_title_ids.json",
+)
 
 PPSA_REGEX = re.compile(r"PPSA\d{5}", re.IGNORECASE)
 CUSA_REGEX = re.compile(r"CUSA\d{5}", re.IGNORECASE)
 
-async def resolve_playstation_ids(game_title: str, client: httpx.AsyncClient) -> Tuple[Optional[str], Optional[str]]:
-    """Query Sony PlayStation Store API and extract canonical PS5 (PPSA) and PS4 (CUSA) Title IDs."""
-    clean_title = re.sub(r"[™®©]", "", game_title).strip()
+_OFFLINE_CACHE: dict = {}
+
+
+def _load_offline_dataset() -> dict:
+    """Load curated offline PlayStation Title IDs dataset into memory."""
+    global _OFFLINE_CACHE
+    if not _OFFLINE_CACHE and os.path.isfile(DATA_FILE_PATH):
+        try:
+            with open(DATA_FILE_PATH, "r", encoding="utf-8") as f:
+                _OFFLINE_CACHE = json.load(f)
+            logger.info(f"Loaded {len(_OFFLINE_CACHE)} offline Title ID entries from {DATA_FILE_PATH}")
+        except Exception as e:
+            logger.error(f"Failed to load offline title IDs dataset: {e}")
+    return _OFFLINE_CACHE
+
+
+def normalize_title_slug(title: str) -> str:
+    """Normalize game title to matching key."""
+    clean = re.sub(r"[™®©'\"’]", "", title.lower())
+    clean = re.sub(r"[^a-z0-9]+", "-", clean).strip("-")
+    return clean
+
+
+def resolve_playstation_title_ids(
+    game_title: str,
+    slug: Optional[str] = None,
+    storage_tag: Optional[str] = None,
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    100% Offline-Resilient Title ID Resolution Engine.
+    Tier 1: Inspect storage server tag/content_tag.
+    Tier 2: Match against offline JSON dictionary by slug or normalized title.
+    Returns: (ps5_title_id, ps4_title_id)
+    """
     ps5_id = None
     ps4_id = None
-    try:
-        url = SONY_SEARCH_URL.format(query=httpx.URL(clean_title))
-        resp = await client.get(url, timeout=6.0, headers={"User-Agent": "Mozilla/5.0"})
-        if resp.status_code == 200:
-            data = resp.json()
-            for link in data.get("links", []):
-                prod_id = str(link.get("id", "")).upper()
-                if not ps5_id:
-                    m5 = PPSA_REGEX.search(prod_id)
-                    if m5:
-                        ps5_id = m5.group(0).upper()
-                if not ps4_id:
-                    m4 = CUSA_REGEX.search(prod_id)
-                    if m4:
-                        ps4_id = m4.group(0).upper()
-                if ps5_id and ps4_id:
-                    break
-    except Exception as e:
-        logger.warning(f"Failed to resolve PS Title IDs for '{game_title}': {e}")
+
+    # Tier 1: Storage Tag inspection
+    if storage_tag:
+        tag_upper = storage_tag.upper().strip()
+        m5 = PPSA_REGEX.search(tag_upper)
+        if m5:
+            ps5_id = m5.group(0)
+        m4 = CUSA_REGEX.search(tag_upper)
+        if m4:
+            ps4_id = m4.group(0)
+
+    # Tier 2: Offline Curated Dataset
+    if not (ps5_id and ps4_id):
+        dataset = _load_offline_dataset()
+        target_slug = slug or normalize_title_slug(game_title)
+
+        entry = dataset.get(target_slug)
+        if not entry:
+            # Fuzzy match by normalized key
+            norm_key = normalize_title_slug(game_title)
+            entry = dataset.get(norm_key)
+
+        if entry:
+            ps5_id = ps5_id or entry.get("ps5_title_id")
+            ps4_id = ps4_id or entry.get("ps4_title_id")
 
     return ps5_id, ps4_id
 ```

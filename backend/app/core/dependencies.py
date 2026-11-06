@@ -91,3 +91,9 @@ async def get_optional_current_user(
         return None
     except Exception:
         return None
+
+
+def get_client_device_firmware(user_agent: Annotated[str | None, Header()] = None) -> dict:
+    """Dependency that extracts PlayStation console platform and firmware from User-Agent."""
+    from app.modules.games.storage_bridge import detect_console_firmware
+    return detect_console_firmware(user_agent)

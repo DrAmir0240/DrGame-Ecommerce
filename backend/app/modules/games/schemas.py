@@ -66,6 +66,11 @@ class GameCardOut(BaseModel):
     released: Optional[str] = None
     likes_count: int = 0
     wishlist_count: int = 0
+    ps5_title_id: Optional[str] = None
+    ps4_title_id: Optional[str] = None
+    storage_sync_status: Optional[str] = "unknown"
+    file_size_bytes: Optional[int] = None
+    sha256_checksum: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -154,4 +159,59 @@ class UserDownloadHistoryOut(BaseModel):
     status: str = "completed"
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- Step 19: Dynamic Game Downloads & Firmware Engine Schemas ---
+
+class StorageFormatItemOut(BaseModel):
+    job_id: str
+    title: str
+    tag: Optional[str] = None
+    platform: str
+    format_category: str  # "fpkg" (FW <= 11.40) or "fat32" (FW > 11.40)
+    download_format: str
+    content_format: str
+    size_bytes: int
+    size_gb: float
+    sha256: Optional[str] = None
+    release_version: Optional[str] = "v1.00"
+    status: str = "ready"
+
+
+class ClientDeviceOut(BaseModel):
+    platform: str
+    firmware: Optional[float] = None
+    recommended_format: Optional[str] = None
+    is_console: bool = False
+    display_notice: str
+
+
+class GameDownloadOptionsOut(BaseModel):
+    game_id: int
+    title_fa: str
+    title_en: str
+    slug: str
+    ps5_title_id: Optional[str] = None
+    ps4_title_id: Optional[str] = None
+    storage_sync_status: str
+    client_device: ClientDeviceOut
+    recommended_job_id: Optional[str] = None
+    recommended_format: Optional[str] = None
+    available_formats: List[StorageFormatItemOut] = []
+
+
+class HandoffExecuteRequest(BaseModel):
+    job_id: str
+    handoff_secret: str
+    selected_format: Optional[str] = None  # "fpkg" or "fat32"
+
+
+class HandoffExecuteResponse(BaseModel):
+    success: bool
+    game_id: int
+    job_id: str
+    format_category: str
+    size_gb: float
+    remaining_quota_gb: float
+    message: str
 
