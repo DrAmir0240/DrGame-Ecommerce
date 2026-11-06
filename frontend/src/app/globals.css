@@ -170,18 +170,7 @@ html.tv-mode body {
 /* ── TV Mode Card & Banner Compact Sizing ────────────────────────────────────
    Ensures cards, banners, and subscription tiers are clean, proportionate,
    and fully visible without taking up the entire viewport.                     */
-html.tv-mode section[aria-label] > div.relative.rounded-3xl,
-html.tv-mode .tv-hero-banner {
-  min-height: 220px !important;
-  max-height: 270px !important;
-  height: 240px !important;
-}
-
-html.tv-mode section[aria-label] > div.relative.rounded-3xl h2 {
-  font-size: 1.35rem !important;
-  line-height: 1.25 !important;
-}
-
+/* Hero banners preserve exact desktop form in TV mode */
 html.tv-mode [data-nav] > a.group,
 html.tv-mode .game-card-wrapper {
   width: 100% !important;
