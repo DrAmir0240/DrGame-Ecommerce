@@ -3,13 +3,16 @@
 # =============================================================================
 FROM node:20-alpine AS base
 WORKDIR /app
-RUN apk add --no-cache libc6-compat || true
+# Configure Alpine APK to use Liara high-speed mirror
+RUN sed -i 's|https://dl-cdn.alpinelinux.org/alpine|https://linux-mirror.liara.ir/repository/alpine|g' /etc/apk/repositories 2>/dev/null || true && \
+    apk add --no-cache libc6-compat || true
 
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm config set registry https://package-mirror.liara.ir/repository/npm/ && \
+    npm install
 
 # Development target (hot-reload)
 FROM base AS dev

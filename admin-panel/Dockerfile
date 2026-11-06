@@ -1,22 +1,28 @@
 # ==========================================
 # Stage 1: base image with Python dependencies
 # ==========================================
-FROM python:3.12-slim AS base
+FROM python:3.12-slim-bookworm AS base
 
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    DJANGO_SETTINGS_MODULE=config.settings
+    DJANGO_SETTINGS_MODULE=config.settings \
+    PIP_INDEX_URL=https://package-mirror.liara.ir/repository/pypi/simple
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure Debian repositories to use Liara high-speed mirror
+RUN sed -i 's|http://deb.debian.org/debian-security|http://linux-mirror.liara.ir/repository/debian-security|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || \
+    sed -i 's|http://deb.debian.org/debian-security|http://linux-mirror.liara.ir/repository/debian-security|g' /etc/apt/sources.list 2>/dev/null || true && \
+    sed -i 's|http://deb.debian.org/debian|http://linux-mirror.liara.ir/repository/debian|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || \
+    sed -i 's|http://deb.debian.org/debian|http://linux-mirror.liara.ir/repository/debian|g' /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --index-url https://package-mirror.liara.ir/repository/pypi/simple -r requirements.txt
 
 # ==========================================
 # Stage 2: Development target
