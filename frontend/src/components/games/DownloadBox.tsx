@@ -120,25 +120,21 @@ export default function DownloadBox({ links, gameTitle, gameId, game }: Download
   }, [gameId]);
 
   // 2. Fetch current user subscription & quota status
-  useEffect(() => {
-    let isMounted = true;
+  const fetchSubStatus = () => {
     if (isAuthenticated) {
       setLoadingSub(true);
       apiRequest<MySubscriptionStatus>('/subscriptions/my-status')
-        .then((res) => {
-          if (isMounted) setMySubStatus(res);
-        })
+        .then((res) => setMySubStatus(res))
         .catch((err) => console.error('Failed to fetch subscription status:', err))
-        .finally(() => {
-          if (isMounted) setLoadingSub(false);
-        });
+        .finally(() => setLoadingSub(false));
     } else {
       setMySubStatus(null);
       setLoadingSub(false);
     }
-    return () => {
-      isMounted = false;
-    };
+  };
+
+  useEffect(() => {
+    fetchSubStatus();
   }, [isAuthenticated]);
 
   const handleCopyLink = (url: string, partNum: number, isAllowed: boolean) => {
@@ -739,9 +735,7 @@ export default function DownloadBox({ links, gameTitle, gameId, game }: Download
         downloadOptions={downloadOptions}
         gameTitle={gameTitle}
         gameId={gameId}
-        onSuccess={() => {
-          fetchQuota();
-        }}
+        onSuccess={fetchSubStatus}
       />
     </div>
   );
