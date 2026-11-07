@@ -6,6 +6,7 @@ import {
   Sparkles,
   Zap,
   Info,
+  HelpCircle,
   Tv,
 } from 'lucide-react';
 
@@ -174,11 +175,11 @@ export default function InteractiveControllerStage({
             <button
               type="button"
               onClick={onOpenModal}
-              className="flex items-center gap-1 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-[10px] font-bold text-slate-300 hover:text-white transition-all cursor-pointer border border-white/10"
-              title="مشاهده لیست مراحل و راهنما"
+              className="flex items-center gap-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 px-2.5 py-1 text-[11px] font-black text-amber-300 hover:text-white transition-all cursor-pointer border border-amber-400/30 hover:border-amber-400/60 shadow-sm"
+              title="مشاهده راهنمای این مرحله"
             >
-              <Info className="h-3 w-3 text-cyan-400" />
-              <span className="hidden sm:inline">راهنما</span>
+              <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
+              <span>راهنمای این مرحله</span>
             </button>
           )}
         </div>

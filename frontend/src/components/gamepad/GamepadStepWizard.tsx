@@ -72,6 +72,70 @@ const STEPS: { id: WizardStep; label: string; icon: any; description: string }[]
   { id: 'report', label: 'گزارش و نتیجه', icon: ShieldCheck, description: 'صدور شناسنامه سلامت، نمره فنی ۱۰۰ و چاپ گزارش' },
 ];
 
+export interface StepGuide {
+  title: string;
+  action: string;
+  passCondition: string;
+  tip?: string;
+}
+
+const STEP_GUIDES: Record<WizardStep, StepGuide> = {
+  connect: {
+    title: 'شناسایی و اتصال دسته',
+    action: 'دسته را با کابل USB یا بلوتوث متصل کرده و یک دکمه از آن را بزنید.',
+    passCondition: 'روشن شدن نشانگر اتصال و فشردن کلید تایید (✕ / A).',
+    tip: 'اتصال با کابل USB همواره کمترین تاخیر و بیشترین نرخ پاسخ‌دهی را دارد.',
+  },
+  action_btns: {
+    title: 'دکمه‌های اصلی (✕ ◯ □ △ / A B X Y)',
+    action: 'دکمه‌های مشخص‌شده روی شکل دسته را به نوبت یک‌بار فشار دهید.',
+    passCondition: 'فشردن و تایید هر ۴ کلید اصلی اکشن.',
+    tip: 'کلیدها باید نرم برگردند؛ اگر سفت هستند پد زغالی زیر آن‌ها فرسوده است.',
+  },
+  dpad: {
+    title: 'کلیدهای جهت‌نما (D-Pad)',
+    action: 'کلیدهای جهت (بالا ⬆️، راست ➡️، پایین ⬇️، چپ ⬅️) را به نوبت فشار دهید.',
+    passCondition: 'ثبت موفق هر ۴ جهت اصلی پد D-Pad.',
+    tip: 'در بازی‌های فایتینگ، سلامت این ۴ جهت برای اجرای کمبوها ضروری است.',
+  },
+  triggers: {
+    title: 'تریگرها و بامپرها (L1/R1/L2/R2)',
+    action: 'کلیدهای L1 و R1 را زده و ماشه‌های L2 و R2 را تا انتها (۱۰۰٪) فشار دهید.',
+    passCondition: 'ثبت کلیک L1/R1 و پر شدن ماشه‌های L2/R2 تا بالای ۹۰٪.',
+    tip: 'نرسیدن ماشه به ۱۰۰٪ مانع شتاب حداکثری خودرو در بازی‌های ریسینگ می‌شود.',
+  },
+  sticks: {
+    title: 'استیک‌ها و خطای دریفت (Drift)',
+    action: 'استیک‌ها را رها کنید تا نقطه صفر سنجیده شود، سپس هر دو را ۳۶۰ درجه چرخانده و کلیک L3/R3 را بزنید.',
+    passCondition: 'چرخش کامل هر دو استیک و ثبت کلیک L3 و R3.',
+    tip: 'انحراف زیر ۱۰٪ عالی است؛ بالای ۱۵٪ نشان‌دهنده نیاز به سرویس آنالوگ است.',
+  },
+  gyro: {
+    title: 'ژیروسکوپ و سنسور حرکتی ۳بعدی',
+    action: 'دسته را به جهات مختلف بچرخانید تا مدل ۳بعدی همگام با دست شما حرکت کند.',
+    passCondition: 'ثبت داده‌های حرکتی سنسور ژیروسکوپ.',
+    tip: 'دسته‌های ایکس‌باکس ژیروسکوپ ندارند و با زدن «مرحله بعد» رد می‌شوند.',
+  },
+  vibration: {
+    title: 'موتورهای لرزش (Rumble & Haptic)',
+    action: 'دکمه بنفش «تست لرزش دسته» را بزنید و لرزش را در دو طرف دسته احساس کنید.',
+    passCondition: 'احساس لرزش و کلیک روی دکمه سبز «تایید لرزش و ادامه».',
+    tip: 'در صورت عدم لرزش در بلوتوث، اتصال کابل USB را تست فرمایید.',
+  },
+  mic: {
+    title: 'میکروفون داخلی و جک صدا',
+    action: 'دکمه شروع تست را زده و نزدیک دسته صحبت کنید تا نوار صدا سبز شود.',
+    passCondition: 'ثبت نوسان صدا یا رد کردن اختیاری با «رد شدن از این مرحله».',
+    tip: 'میکروفون داخلی مختص دسته PS5 است؛ سایر دسته‌ها می‌توانند این بخش را رد کنند.',
+  },
+  report: {
+    title: 'کارنامه سلامت و نمره فنی',
+    action: 'ریز نمرات و گزارش نهایی سلامت کنترلر را بازبینی نمایید.',
+    passCondition: 'بررسی کارنامه فنی از ۱۰۰ نمره.',
+    tip: 'نمره بالای ۸۵ نشان‌دهنده سلامت کامل دسته برای بازی‌های رقابتی است.',
+  },
+};
+
 export default function GamepadStepWizard({
   pad,
   controller,
@@ -90,6 +154,7 @@ export default function GamepadStepWizard({
   const { isTvMode } = useTvModeStore();
   const [currentStep, setCurrentStep] = useState<WizardStep>('connect');
   const [showStepsModal, setShowStepsModal] = useState(false);
+  const [modalTab, setModalTab] = useState<'help' | 'steps'>('help');
 
   // Track testing state for each part
   const [btnHits, setBtnHits] = useState<{ [btnIndex: number]: number }>({
@@ -511,6 +576,7 @@ export default function GamepadStepWizard({
     if (now - lastNavPressRef.current > 400) {
       if (optionsPressed) {
         lastNavPressRef.current = now;
+        setModalTab('help');
         setShowStepsModal((prev) => !prev);
         return;
       }
@@ -581,6 +647,8 @@ export default function GamepadStepWizard({
     return Math.max(20, Math.min(100, score));
   }, [driftStats, isActionBtnsDone, isDpadDone, isTriggersDone, vibrationPassed]);
 
+  const activeGuide = STEP_GUIDES[currentStep] || STEP_GUIDES.connect;
+
   return (
     <div className="w-full space-y-4" dir={dir}>
       {/* ─────────────────────────────────────────────────────────────────
@@ -620,7 +688,7 @@ export default function GamepadStepWizard({
           ))}
         </div>
 
-        {/* Action: Open Steps Modal button & Gamepad shortcuts */}
+        {/* Action: Help button & Steps Modal button & Gamepad shortcuts */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 font-mono" dir="ltr">
             <kbd className="rounded bg-white/10 px-1 py-0.5 text-slate-300 border border-white/15">Options</kbd>
@@ -628,12 +696,28 @@ export default function GamepadStepWizard({
 
           <button
             type="button"
-            onClick={() => setShowStepsModal(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600/30 to-cyan-600/30 hover:from-violet-600/50 hover:to-cyan-600/50 border border-violet-400/30 hover:border-violet-400/60 px-3 py-1.5 text-xs font-black text-white transition-all cursor-pointer shadow-lg active:scale-95"
-            title="مشاهده نقشه کامل مراحل و راهنمای کلیدها"
+            onClick={() => {
+              setModalTab('help');
+              setShowStepsModal(true);
+            }}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-violet-600/35 hover:from-amber-500/40 hover:to-violet-600/50 border border-amber-400/40 hover:border-amber-400/70 px-3 py-1.5 text-xs font-black text-amber-200 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.25)] active:scale-95"
+            title="مشاهده راهنمای کامل آزمون این مرحله"
+          >
+            <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
+            <span>راهنمای این مرحله</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setModalTab('steps');
+              setShowStepsModal(true);
+            }}
+            className="flex items-center gap-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 px-2.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95"
+            title="مشاهده نقشه کامل مراحل و جابجایی"
           >
             <ListOrdered className="h-3.5 w-3.5 text-cyan-400" />
-            <span>لیست مراحل و راهنما</span>
+            <span className="hidden sm:inline">لیست مراحل</span>
           </button>
         </div>
       </div>
@@ -642,23 +726,27 @@ export default function GamepadStepWizard({
           MASTER STEPS & GUIDE MODAL (پاپ‌آپ نقشه کامل مراحل و راهنما)
          ───────────────────────────────────────────────────────────────── */}
       {showStepsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md px-4 py-14 sm:py-16 animate-in fade-in duration-150">
           <div
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-b from-[#141b2d] to-[#0a0f1d] p-6 sm:p-7 shadow-[0_0_60px_rgba(139,92,246,0.35)] space-y-5 scrollbar-none"
+            className="relative w-full max-w-lg max-h-[72vh] sm:max-h-[66vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-[#0d121f] p-4 sm:p-5 shadow-[0_0_60px_rgba(139,92,246,0.35)] space-y-3 scrollbar-none"
             dir="rtl"
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)]">
-                  <Gamepad2 className="h-5 w-5" />
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className={`grid h-8 w-8 place-items-center rounded-xl ${
+                  modalTab === 'help'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
+                    : 'bg-violet-600/30 text-violet-300 border border-violet-400/30'
+                }`}>
+                  {modalTab === 'help' ? <HelpCircle className="h-4 w-4" /> : <Gamepad2 className="h-4 w-4" />}
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-white">
-                    مراحل آزمون جامع و راهنمای کاربری
+                  <h3 className="text-xs sm:text-sm font-black text-white">
+                    {modalTab === 'help' ? `راهنمای گام ${currentStepIdx + 1}: ${STEPS[currentStepIdx]?.label}` : 'مراحل آزمون جامع و نقشه راه'}
                   </h3>
-                  <p className="text-xs text-slate-400">
-                    برای تغییر مرحله یا مشاهده راهنما می‌توانید از گزینه‌های زیر استفاده نمایید.
+                  <p className="text-[10px] text-slate-400">
+                    {modalTab === 'help' ? 'راهنمای سریع و فشرده این مرحله' : 'برای تغییر مرحله از گزینه‌های زیر استفاده نمایید.'}
                   </p>
                 </div>
               </div>
@@ -666,99 +754,163 @@ export default function GamepadStepWizard({
               <button
                 type="button"
                 onClick={() => setShowStepsModal(false)}
-                className="grid h-8 w-8 place-items-center rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+                className="grid h-7 w-7 place-items-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+                title="بستن"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            {/* Steps Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {STEPS.map((st, i) => {
-                const isActive = st.id === currentStep;
-                const isCompleted = i < currentStepIdx;
+            {/* TAB SELECTOR */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-black/40 border border-white/10 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setModalTab('help')}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 font-black transition-all cursor-pointer ${
+                  modalTab === 'help'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-400/30 shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <HelpCircle className="h-3 w-3 text-amber-400" />
+                <span>راهنمای این مرحله</span>
+              </button>
 
-                return (
-                  <button
-                    key={st.id}
-                    type="button"
-                    onClick={() => {
-                      setCurrentStep(st.id);
-                      setShowStepsModal(false);
-                    }}
-                    className={`flex items-start gap-3 rounded-2xl p-3 text-start transition-all cursor-pointer border ${
-                      isActive
-                        ? 'bg-violet-600/20 border-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.3)]'
-                        : isCompleted
-                        ? 'bg-emerald-500/10 border-emerald-500/25 hover:bg-emerald-500/20'
-                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                    }`}
-                  >
-                    <div
-                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl text-xs font-black ${
-                        isActive
-                          ? 'bg-violet-500 text-white shadow-md'
-                          : isCompleted
-                          ? 'bg-emerald-400 text-slate-950 shadow-md'
-                          : 'bg-white/10 text-slate-400'
-                      }`}
-                    >
-                      {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
-                    </div>
-
-                    <div className="flex-1 min-w-0 space-y-0.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-xs font-black text-white truncate">{st.label}</span>
-                        {isActive ? (
-                          <span className="text-[10px] font-bold text-violet-300 bg-violet-500/20 px-1.5 py-0.5 rounded">
-                            در حال آزمون
-                          </span>
-                        ) : isCompleted ? (
-                          <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded">
-                            ✓ تایید شد
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="text-[10px] text-slate-400 line-clamp-1">{st.description}</p>
-                    </div>
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                onClick={() => setModalTab('steps')}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 font-black transition-all cursor-pointer ${
+                  modalTab === 'steps'
+                    ? 'bg-violet-600/30 text-violet-200 border border-violet-400/30 shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <ListOrdered className="h-3 w-3 text-cyan-400" />
+                <span>لیست تمام مراحل</span>
+              </button>
             </div>
 
-            {/* TV & Controller Navigation Shortcuts */}
-            <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
-              <span className="text-xs font-bold text-cyan-400">کلیدهای میانبر کنترلر در حالت تلویزیون:</span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs" dir="ltr">
-                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
-                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-white text-[11px]">
-                    {isXbox ? 'A' : '✕'}
-                  </kbd>
-                  <span className="text-slate-300 text-[11px]">بعدی / تایید</span>
+            {/* TAB 1: ULTRA-COMPACT STEP HELP (FITS COMFORTABLY IN TV MODE) */}
+            {modalTab === 'help' ? (
+              <div className="space-y-2.5 text-xs">
+                {/* 1. What to do (دستورالعمل آزمون) */}
+                <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-2.5 space-y-1">
+                  <span className="flex items-center gap-1.5 font-black text-amber-300 text-[11px]">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>نحوه انجام آزمون:</span>
+                  </span>
+                  <p className="text-slate-200 leading-relaxed text-[11px]">
+                    {activeGuide.action}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
-                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-slate-300 text-[11px]">
-                    {isXbox ? 'B' : '◯'}
-                  </kbd>
-                  <span className="text-slate-300 text-[11px]">قبلی / بستن مودال</span>
+
+                {/* 2. Pass Condition (شرط تایید مرحله) */}
+                <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-2.5 space-y-1">
+                  <span className="flex items-center gap-1.5 font-black text-emerald-300 text-[11px]">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>شرط تایید و عبور به مرحله بعد:</span>
+                  </span>
+                  <p className="text-slate-200 leading-relaxed text-[11px]">
+                    {activeGuide.passCondition}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
-                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-slate-300 text-[11px]">
-                    Options
-                  </kbd>
-                  <span className="text-slate-300 text-[11px]">باز و بسته کردن مودال</span>
-                </div>
+
+                {/* 3. Pro Tip (نکته مهم) */}
+                {activeGuide.tip && (
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 space-y-1">
+                    <span className="flex items-center gap-1.5 font-black text-indigo-300 text-[11px]">
+                      <Cpu className="h-3.5 w-3.5" />
+                      <span>نکته فنی:</span>
+                    </span>
+                    <p className="text-slate-300 leading-relaxed text-[11px]">
+                      {activeGuide.tip}
+                    </p>
+                  </div>
+                )}
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowStepsModal(false)}
+                  className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 py-2.5 text-xs font-black text-white shadow-md transition-all cursor-pointer active:scale-95"
+                >
+                  متوجه شدم — ادامه آزمون
+                </button>
               </div>
-            </div>
+            ) : (
+              /* TAB 2: STEPS GRID (COMPACT) */
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {STEPS.map((st, i) => {
+                    const isActive = st.id === currentStep;
+                    const isCompleted = i < currentStepIdx;
 
-            {/* Modal Footer */}
-            <button
-              type="button"
-              onClick={() => setShowStepsModal(false)}
-              className="w-full rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 hover:brightness-110 py-3 text-xs sm:text-sm font-black text-white shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all cursor-pointer active:scale-95"
-            >
-              متوجه شدم — بستن راهنما و ادامه آزمون
-            </button>
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => {
+                          setCurrentStep(st.id);
+                          setShowStepsModal(false);
+                        }}
+                        className={`flex items-center gap-2.5 rounded-xl p-2 text-start transition-all cursor-pointer border ${
+                          isActive
+                            ? 'bg-violet-600/25 border-violet-400 shadow-sm'
+                            : isCompleted
+                            ? 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/15'
+                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <div
+                          className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[10px] font-black ${
+                            isActive
+                              ? 'bg-violet-500 text-white'
+                              : isCompleted
+                              ? 'bg-emerald-400 text-slate-950'
+                              : 'bg-white/10 text-slate-400'
+                          }`}
+                        >
+                          {isCompleted ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-black text-white block truncate">{st.label}</span>
+                          <span className="text-[10px] text-slate-400 block truncate">{st.description}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* TV & Controller Navigation Shortcuts */}
+                <div className="rounded-xl border border-white/10 bg-black/40 p-2.5 space-y-1.5 text-xs">
+                  <span className="text-[11px] font-bold text-cyan-400">کلیدهای میانبر در تلویزیون:</span>
+                  <div className="grid grid-cols-3 gap-1.5 text-[10px]" dir="ltr">
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
+                      <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-white text-[9px]">{isXbox ? 'A' : '✕'}</kbd>
+                      <span className="text-slate-300">تایید</span>
+                    </div>
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
+                      <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-slate-300 text-[9px]">{isXbox ? 'B' : '◯'}</kbd>
+                      <span className="text-slate-300">بستن</span>
+                    </div>
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
+                      <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-slate-300 text-[9px]">Options</kbd>
+                      <span className="text-slate-300">راهنما</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowStepsModal(false)}
+                  className="w-full rounded-xl bg-white/10 hover:bg-white/15 py-2 text-xs font-bold text-white transition-all cursor-pointer active:scale-95"
+                >
+                  بستن
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -942,7 +1094,10 @@ export default function GamepadStepWizard({
             stageTitle="تست دکمه‌های اصلی و عملکردی"
             stageDescription="دکمه مشخص‌شده روی شکل دسته را فشار دهید"
             isCompleted={isActionBtnsDone}
-            onOpenModal={() => setShowStepsModal(true)}
+            onOpenModal={() => {
+              setModalTab('help');
+              setShowStepsModal(true);
+            }}
             onTargetClick={(idx) => {
               setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
               const nextIdx = actionTargets.findIndex((t) => t.idx === idx);
@@ -987,7 +1142,10 @@ export default function GamepadStepWizard({
             stageTitle="تست کلیدهای جهت‌نما (D-Pad)"
             stageDescription="کلید جهت مشخص‌شده روی پد جهت را فشار دهید"
             isCompleted={isDpadDone}
-            onOpenModal={() => setShowStepsModal(true)}
+            onOpenModal={() => {
+              setModalTab('help');
+              setShowStepsModal(true);
+            }}
             onTargetClick={(idx) => {
               setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
               const nextIdx = dpadTargets.findIndex((t) => t.idx === idx);
@@ -1033,7 +1191,10 @@ export default function GamepadStepWizard({
             stageDescription="بامپرها را زده و تریگرها را تا ۱۰۰٪ فشار دهید"
             analogValue={triggersSubStep === 2 ? (pad.buttons[6]?.value ?? 0) : triggersSubStep === 3 ? (pad.buttons[7]?.value ?? 0) : 0}
             isCompleted={isTriggersDone}
-            onOpenModal={() => setShowStepsModal(true)}
+            onOpenModal={() => {
+              setModalTab('help');
+              setShowStepsModal(true);
+            }}
             onTargetClick={(idx) => {
               setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
               if (idx === 6) setMaxTrigger((prev) => ({ ...prev, L2: 1 }));
@@ -1080,7 +1241,10 @@ export default function GamepadStepWizard({
             stageTitle="تست استیک‌ها، کلیک L3/R3 و خطای دریفت"
             stageDescription="استیک‌ها را به اطراف چرخانده و کلیک داخل را فشار دهید"
             isCompleted={isSticksDone}
-            onOpenModal={() => setShowStepsModal(true)}
+            onOpenModal={() => {
+              setModalTab('help');
+              setShowStepsModal(true);
+            }}
             onTargetClick={(idx) => {
               setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
               const nextIdx = stickTargets.findIndex((t) => t.idx === idx);
