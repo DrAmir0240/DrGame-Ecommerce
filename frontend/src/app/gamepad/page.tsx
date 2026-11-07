@@ -146,7 +146,7 @@ export default function GamepadPage() {
     : { label: t('gamepad.connection.wired'), Icon: Cable };
 
   return (
-    <div className="min-h-screen w-full bg-oled font-vazir pb-12 select-none" dir={dir}>
+    <div id="gamepad-page-root" className="min-h-screen w-full bg-oled font-vazir pb-4 select-none" dir={dir}>
       {/* ─────────────────────────────────────────────────────────────────
           TOP BAR (Navigation & Status)
          ───────────────────────────────────────────────────────────────── */}

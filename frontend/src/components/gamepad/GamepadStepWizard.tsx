@@ -24,9 +24,14 @@ import {
   Mic,
   MicOff,
   Volume2,
+  ListOrdered,
+  X,
+  Gamepad2,
 } from 'lucide-react';
+import { useTvModeStore } from '@/stores/useTvModeStore';
 import { useTranslation } from '@/i18n';
 import ControllerModel3D from './ControllerModel3D';
+import InteractiveControllerStage, { type TargetButtonDef } from './InteractiveControllerStage';
 import type { ControllerInfo, PadSnapshot } from './useGamepad';
 import type { Quaternion, PS5Telemetry, PS4HardwareInfo } from './useWebHIDController';
 
@@ -56,16 +61,16 @@ export type WizardStep =
   | 'mic'         // 7: تست میکروفون
   | 'report';     // 8: کارنامه نهایی
 
-const STEPS: { id: WizardStep; label: string; icon: any }[] = [
-  { id: 'connect', label: 'شناسایی و اتصال', icon: Cpu },
-  { id: 'action_btns', label: 'دکمه‌های اصلی', icon: Sparkles },
-  { id: 'dpad', label: 'کلیدهای جهت', icon: Compass },
-  { id: 'triggers', label: 'تریگرها و بامپر', icon: Layers },
-  { id: 'sticks', label: 'استیک‌ها و دریفت', icon: Activity },
-  { id: 'gyro', label: 'ژیروسکوپ سه‌بعدی', icon: RotateCcw },
-  { id: 'vibration', label: 'موتورهای ویبره', icon: Vibrate },
-  { id: 'mic', label: 'تست میکروفون', icon: Mic },
-  { id: 'report', label: 'گزارش و نتیجه', icon: ShieldCheck },
+const STEPS: { id: WizardStep; label: string; icon: any; description: string }[] = [
+  { id: 'connect', label: 'شناسایی و اتصال', icon: Cpu, description: 'بررسی اتصال کابل/بلوتوث و اصالت چیپ‌ست سخت‌افزاری' },
+  { id: 'action_btns', label: 'دکمه‌های اصلی', icon: Sparkles, description: 'تست کلیدهای اکشن ۴گانه (✕ ◯ □ △ / A B X Y)' },
+  { id: 'dpad', label: 'کلیدهای جهت', icon: Compass, description: 'تست ۴ جهت اصلی پد D-Pad (بالا، راست، پایین، چپ)' },
+  { id: 'triggers', label: 'تریگرها و بامپر', icon: Layers, description: 'تست کلیدهای L1, R1 و آنالوگ دقیق تریگرهای L2, R2' },
+  { id: 'sticks', label: 'استیک‌ها و دریفت', icon: Activity, description: 'تست کلیک L3/R3، چرخش ۳۶۰ درجه و درصد خطای انحراف (Drift)' },
+  { id: 'gyro', label: 'ژیروسکوپ سه‌بعدی', icon: RotateCcw, description: 'تست سنسور زاویه و ژیروسکوپ ۶محوره با مدل تعاملی سه‌بعدی' },
+  { id: 'vibration', label: 'موتورهای ویبره', icon: Vibrate, description: 'تست لرزش موتورهای هپتیک سبک و سنگین دسته' },
+  { id: 'mic', label: 'تست میکروفون', icon: Mic, description: 'تست ورودی صوتی میکروفون داخلی دسته و سنجش دسی‌بل' },
+  { id: 'report', label: 'گزارش و نتیجه', icon: ShieldCheck, description: 'صدور شناسنامه سلامت، نمره فنی ۱۰۰ و چاپ گزارش' },
 ];
 
 export default function GamepadStepWizard({
@@ -83,7 +88,9 @@ export default function GamepadStepWizard({
   onSwitchToDashboard,
 }: GamepadStepWizardProps) {
   const { t, locale, dir } = useTranslation();
+  const { isTvMode } = useTvModeStore();
   const [currentStep, setCurrentStep] = useState<WizardStep>('connect');
+  const [showStepsModal, setShowStepsModal] = useState(false);
 
   // Track testing state for each part
   const [btnHits, setBtnHits] = useState<{ [btnIndex: number]: number }>({
@@ -97,6 +104,10 @@ export default function GamepadStepWizard({
   const [driftStats, setDriftStats] = useState<{ leftMax: number; rightMax: number }>({ leftMax: 0, rightMax: 0 });
   const [gyroPassed, setGyroPassed] = useState(false);
   const [vibrationPassed, setVibrationPassed] = useState(false);
+  const [actionSubStep, setActionSubStep] = useState(0);
+  const [dpadSubStep, setDpadSubStep] = useState(0);
+  const [triggersSubStep, setTriggersSubStep] = useState(0);
+  const [sticksSubStep, setSticksSubStep] = useState(0);
   const [rumbleBusy, setRumbleBusy] = useState(false);
 
   // Microphone testing state
@@ -242,6 +253,38 @@ export default function GamepadStepWizard({
     };
   }, [currentStep, startMic, stopMic]);
 
+
+
+  const isXbox = controller?.key === 'xbox-series';
+  const isPS5 = controller?.key === 'dualsense' || controller?.key === 'dualsense-edge' || (pad.id && /054c|dualsense/i.test(pad.id));
+  const isPS4 = controller?.key === 'dualshock4' || (pad.id && /05c4|09cc|dualshock/i.test(pad.id));
+
+  const actionTargets: TargetButtonDef[] = useMemo(() => [
+    { idx: 0, glyph: isXbox ? 'A' : '✕', name: isXbox ? 'دکمه A' : 'دکمه ضربدر (✕)', color: '#38bdf8' },
+    { idx: 1, glyph: isXbox ? 'B' : '◯', name: isXbox ? 'دکمه B' : 'دکمه دایره (◯)', color: '#f43f5e' },
+    { idx: 2, glyph: isXbox ? 'X' : '□', name: isXbox ? 'دکمه X' : 'دکمه مربع (□)', color: '#ec4899' },
+    { idx: 3, glyph: isXbox ? 'Y' : '△', name: isXbox ? 'دکمه Y' : 'دکمه مثلث (△)', color: '#10b981' },
+  ], [isXbox]);
+
+  const dpadTargets: TargetButtonDef[] = useMemo(() => [
+    { idx: 12, glyph: '▲', name: 'جهت بالا (▲)', color: '#a855f7' },
+    { idx: 15, glyph: '▶', name: 'جهت راست (▶)', color: '#a855f7' },
+    { idx: 13, glyph: '▼', name: 'جهت پایین (▼)', color: '#a855f7' },
+    { idx: 14, glyph: '◀', name: 'جهت چپ (◀)', color: '#a855f7' },
+  ], []);
+
+  const triggerTargets: TargetButtonDef[] = useMemo(() => [
+    { idx: 4, glyph: 'L1', name: 'بامپر چپ (L1)', color: '#06b6d4' },
+    { idx: 5, glyph: 'R1', name: 'بامپر راست (R1)', color: '#06b6d4' },
+    { idx: 6, glyph: 'L2', name: 'تریگر چپ (L2)', color: '#8b5cf6', isAnalog: true },
+    { idx: 7, glyph: 'R2', name: 'تریگر راست (R2)', color: '#8b5cf6', isAnalog: true },
+  ], []);
+
+  const stickTargets: TargetButtonDef[] = useMemo(() => [
+    { idx: 10, glyph: 'L3', name: 'استیک چپ (L3)', color: '#3b82f6' },
+    { idx: 11, glyph: 'R3', name: 'استیک راست (R3)', color: '#3b82f6' },
+  ], []);
+
   // Auto-detect button presses during relevant step
   const prevButtonsRef = useRef<boolean[]>([]);
   useEffect(() => {
@@ -256,6 +299,28 @@ export default function GamepadStepWizard({
           ...prev,
           [idx]: (prev[idx] || 0) + 1,
         }));
+
+        if (currentStep === 'action_btns') {
+          const t = actionTargets[actionSubStep];
+          if (t && t.idx === idx) {
+            setActionSubStep((prev) => Math.min(actionTargets.length - 1, prev + 1));
+          }
+        } else if (currentStep === 'dpad') {
+          const t = dpadTargets[dpadSubStep];
+          if (t && t.idx === idx) {
+            setDpadSubStep((prev) => Math.min(dpadTargets.length - 1, prev + 1));
+          }
+        } else if (currentStep === 'triggers') {
+          const t = triggerTargets[triggersSubStep];
+          if (t && t.idx === idx && !t.isAnalog) {
+            setTriggersSubStep((prev) => Math.min(triggerTargets.length - 1, prev + 1));
+          }
+        } else if (currentStep === 'sticks') {
+          const t = stickTargets[sticksSubStep];
+          if (t && t.idx === idx) {
+            setSticksSubStep((prev) => Math.min(stickTargets.length - 1, prev + 1));
+          }
+        }
       }
     });
 
@@ -268,6 +333,12 @@ export default function GamepadStepWizard({
       L2: Math.max(prev.L2, l2Val),
       R2: Math.max(prev.R2, r2Val),
     }));
+
+    if (currentStep === 'triggers') {
+      if (triggersSubStep === 2 && l2Val > 0.85) {
+        setTriggersSubStep(3);
+      }
+    }
 
     // Track stick drift
     const lx = pad.axes[0] ?? 0;
@@ -289,9 +360,6 @@ export default function GamepadStepWizard({
     }
   }, [motionEnergy, gyroRates]);
 
-  const isXbox = controller?.key === 'xbox-series';
-  const isPS5 = controller?.key === 'dualsense' || controller?.key === 'dualsense-edge' || (pad.id && /054c|dualsense/i.test(pad.id));
-  const isPS4 = controller?.key === 'dualshock4' || (pad.id && /05c4|09cc|dualshock/i.test(pad.id));
 
   // Determine current step index
   const currentStepIdx = STEPS.findIndex((s) => s.id === currentStep);
@@ -335,6 +403,10 @@ export default function GamepadStepWizard({
     setVibrationPassed(false);
     setMicPassed(false);
     micPassedRef.current = false;
+    setActionSubStep(0);
+    setDpadSubStep(0);
+    setTriggersSubStep(0);
+    setSticksSubStep(0);
     setCurrentStep('connect');
   }, []);
 
@@ -434,9 +506,25 @@ export default function GamepadStepWizard({
 
     const crossPressed = !!pad.buttons[0]?.pressed; // Cross (PS) / A (Xbox)
     const circlePressed = !!pad.buttons[1]?.pressed; // Circle (PS) / B (Xbox)
+    const optionsPressed = !!pad.buttons[9]?.pressed; // Options (PS) / Menu (Xbox)
     const now = Date.now();
 
-    if (now - lastNavPressRef.current > 450) {
+    if (now - lastNavPressRef.current > 400) {
+      if (optionsPressed) {
+        lastNavPressRef.current = now;
+        setShowStepsModal((prev) => !prev);
+        return;
+      }
+
+      if (showStepsModal) {
+        if (circlePressed) {
+          lastNavPressRef.current = now;
+          setShowStepsModal(false);
+          return;
+        }
+        return;
+      }
+
       if (crossPressed) {
         lastNavPressRef.current = now;
         if (currentStep === 'connect') {
@@ -467,6 +555,7 @@ export default function GamepadStepWizard({
   }, [
     pad.buttons,
     currentStep,
+    showStepsModal,
     isActionBtnsDone,
     isDpadDone,
     isTriggersDone,
@@ -494,75 +583,186 @@ export default function GamepadStepWizard({
   }, [driftStats, isActionBtnsDone, isDpadDone, isTriggersDone, vibrationPassed]);
 
   return (
-    <div className="w-full space-y-5" dir={dir}>
+    <div className="w-full space-y-4" dir={dir}>
       {/* ─────────────────────────────────────────────────────────────────
-          STEP TIMELINE (Clean, numbered progress indicator)
+          STEP HEADER & TV-FRIENDLY TIMELINE
+          On TV mode or controller test steps, renders a sleek 38px bar
+          and moves the full timeline into an interactive modal so the
+          controller is 100% visible on-screen with ZERO scrolling!
          ───────────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-white/10 bg-[#0d121f]/90 p-3 sm:p-4 shadow-xl backdrop-blur-md">
-        <div className="flex items-center justify-between overflow-x-auto pb-1 scrollbar-none gap-2">
-          {STEPS.map((st, i) => {
-            const isActive = st.id === currentStep;
-            const isCompleted = i < currentStepIdx;
-            const Icon = st.icon;
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0d121f]/95 px-3.5 py-2 shadow-xl backdrop-blur-md">
+        {/* Step indicator & title */}
+        <div className="flex items-center gap-2.5 truncate">
+          <span className="flex items-center gap-1.5 rounded-xl bg-violet-600/30 border border-violet-500/40 px-2.5 py-1 text-xs font-black text-violet-300 shrink-0">
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-ping" />
+            <span>گام {currentStepIdx + 1} از {STEPS.length}</span>
+          </span>
+          <span className="text-xs sm:text-sm font-black text-white truncate">
+            {STEPS[currentStepIdx]?.label}
+          </span>
+        </div>
 
-            return (
-              <button
-                key={st.id}
-                type="button"
-                onClick={() => setCurrentStep(st.id)}
-                className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)] scale-102 border border-violet-400'
-                    : isCompleted
-                      ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20'
-                      : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                <div
-                  className={`grid h-5 w-5 place-items-center rounded-lg text-[10px] ${
-                    isActive
-                      ? 'bg-white text-violet-700 font-black'
-                      : isCompleted
-                        ? 'bg-emerald-400 text-slate-950 font-black'
-                        : 'bg-white/10 text-slate-300'
-                  }`}
-                >
-                  {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
+        {/* Step mini progress dots */}
+        <div className="hidden md:flex items-center gap-1.5 shrink-0">
+          {STEPS.map((st, i) => (
+            <button
+              key={st.id}
+              type="button"
+              onClick={() => setCurrentStep(st.id)}
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                i === currentStepIdx
+                  ? 'w-6 bg-violet-400 shadow-[0_0_8px_#a855f7]'
+                  : i < currentStepIdx
+                  ? 'w-2.5 bg-emerald-400 shadow-[0_0_4px_#34d399]'
+                  : 'w-1.5 bg-white/20 hover:bg-white/40'
+              }`}
+              title={st.label}
+            />
+          ))}
+        </div>
+
+        {/* Action: Open Steps Modal button & Gamepad shortcuts */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 font-mono" dir="ltr">
+            <kbd className="rounded bg-white/10 px-1 py-0.5 text-slate-300 border border-white/15">Options</kbd>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowStepsModal(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600/30 to-cyan-600/30 hover:from-violet-600/50 hover:to-cyan-600/50 border border-violet-400/30 hover:border-violet-400/60 px-3 py-1.5 text-xs font-black text-white transition-all cursor-pointer shadow-lg active:scale-95"
+            title="مشاهده نقشه کامل مراحل و راهنمای کلیدها"
+          >
+            <ListOrdered className="h-3.5 w-3.5 text-cyan-400" />
+            <span>لیست مراحل و راهنما</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────────
+          MASTER STEPS & GUIDE MODAL (پاپ‌آپ نقشه کامل مراحل و راهنما)
+         ───────────────────────────────────────────────────────────────── */}
+      {showStepsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-b from-[#141b2d] to-[#0a0f1d] p-6 sm:p-7 shadow-[0_0_60px_rgba(139,92,246,0.35)] space-y-5 scrollbar-none"
+            dir="rtl"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+                  <Gamepad2 className="h-5 w-5" />
                 </div>
-                <span>{st.label}</span>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    مراحل آزمون جامع و راهنمای کاربری
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    برای تغییر مرحله یا مشاهده راهنما می‌توانید از گزینه‌های زیر استفاده نمایید.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowStepsModal(false)}
+                className="grid h-8 w-8 place-items-center rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+              >
+                <X className="h-4 w-4" />
               </button>
-            );
-          })}
-        </div>
-      </div>
+            </div>
 
-      {/* ─────────────────────────────────────────────────────────────────
-          TV MODE BANNER & AUTO-ADVANCING STATUS
-         ───────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 backdrop-blur-md text-xs">
-        <div className="flex items-center gap-2">
-          <Tv className="h-4 w-4 text-cyan-400 shrink-0" />
-          <span className="font-bold text-slate-200">سازگار با تلویزیون و کنترلر:</span>
-          <span className="text-slate-400 hidden sm:inline">
-            انتقال خودکار به مرحله بعد پس از تکمیل هر تست فعال است.
-          </span>
-        </div>
+            {/* Steps Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {STEPS.map((st, i) => {
+                const isActive = st.id === currentStep;
+                const isCompleted = i < currentStepIdx;
 
-        <div className="flex items-center gap-3 font-mono text-[11px]" dir="ltr">
-          <span className="flex items-center gap-1.5 text-slate-300">
-            <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-bold text-white border border-white/20">
-              {isXbox ? 'A' : '✕'}
-            </kbd>
-            <span>بعدی / تایید</span>
-          </span>
-          <span className="flex items-center gap-1.5 text-slate-400">
-            <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-bold text-slate-300 border border-white/15">
-              {isXbox ? 'B' : '◯'}
-            </kbd>
-            <span>قبلی</span>
-          </span>
+                return (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => {
+                      setCurrentStep(st.id);
+                      setShowStepsModal(false);
+                    }}
+                    className={`flex items-start gap-3 rounded-2xl p-3 text-start transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-violet-600/20 border-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.3)]'
+                        : isCompleted
+                        ? 'bg-emerald-500/10 border-emerald-500/25 hover:bg-emerald-500/20'
+                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl text-xs font-black ${
+                        isActive
+                          ? 'bg-violet-500 text-white shadow-md'
+                          : isCompleted
+                          ? 'bg-emerald-400 text-slate-950 shadow-md'
+                          : 'bg-white/10 text-slate-400'
+                      }`}
+                    >
+                      {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-xs font-black text-white truncate">{st.label}</span>
+                        {isActive ? (
+                          <span className="text-[10px] font-bold text-violet-300 bg-violet-500/20 px-1.5 py-0.5 rounded">
+                            در حال آزمون
+                          </span>
+                        ) : isCompleted ? (
+                          <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded">
+                            ✓ تایید شد
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-1">{st.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* TV & Controller Navigation Shortcuts */}
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
+              <span className="text-xs font-bold text-cyan-400">کلیدهای میانبر کنترلر در حالت تلویزیون:</span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs" dir="ltr">
+                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
+                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-white text-[11px]">
+                    {isXbox ? 'A' : '✕'}
+                  </kbd>
+                  <span className="text-slate-300 text-[11px]">بعدی / تایید</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
+                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-slate-300 text-[11px]">
+                    {isXbox ? 'B' : '◯'}
+                  </kbd>
+                  <span className="text-slate-300 text-[11px]">قبلی / بستن مودال</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl">
+                  <kbd className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-slate-300 text-[11px]">
+                    Options
+                  </kbd>
+                  <span className="text-slate-300 text-[11px]">باز و بسته کردن مودال</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <button
+              type="button"
+              onClick={() => setShowStepsModal(false)}
+              className="w-full rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 hover:brightness-110 py-3 text-xs sm:text-sm font-black text-white shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all cursor-pointer active:scale-95"
+            >
+              متوجه شدم — بستن راهنما و ادامه آزمون
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {autoAdvancing && (
         <div className="flex items-center justify-center gap-2.5 rounded-2xl border border-emerald-500/50 bg-emerald-500/20 px-5 py-3 text-xs sm:text-sm font-black text-emerald-300 shadow-[0_0_25px_rgba(52,211,153,0.35)] animate-pulse">
@@ -731,68 +931,31 @@ export default function GamepadStepWizard({
           STEP 1: ACTION BUTTONS (✕ ◯ □ △ / A B X Y)
          ───────────────────────────────────────────────────────────────── */}
       {currentStep === 'action_btns' && (
-        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست دکمه‌های اصلی و اکشن</h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              لطفاً هر یک از دکمه‌های زیر را روی دسته فشار دهید (حداقل یک بار) تا صحت سوئیچ فیزیکی بررسی شود.
-            </p>
-          </div>
+        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-3.5 sm:p-5 shadow-2xl space-y-3">
+          <InteractiveControllerStage
+            model={controller?.key}
+            pressed={pad.buttons.map((b) => b.pressed || b.value > 0.5)}
+            triggerValues={[pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0]}
+            axes={pad.axes}
+            currentTarget={actionTargets[actionSubStep] || null}
+            subStepIndex={actionSubStep}
+            targetList={actionTargets}
+            stageTitle="تست دکمه‌های اصلی و عملکردی"
+            stageDescription="دکمه مشخص‌شده روی شکل دسته را فشار دهید"
+            isCompleted={isActionBtnsDone}
+            onOpenModal={() => setShowStepsModal(true)}
+            onTargetClick={(idx) => {
+              setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
+              const nextIdx = actionTargets.findIndex((t) => t.idx === idx);
+              if (nextIdx !== -1) setActionSubStep(Math.min(actionTargets.length - 1, nextIdx + 1));
+            }}
+          />
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {[
-              { idx: 0, label: isXbox ? 'A' : '✕', color: 'from-blue-600 to-indigo-600', name: isXbox ? 'دکمه A' : 'دکمه ضربدر' },
-              { idx: 1, label: isXbox ? 'B' : '◯', color: 'from-rose-600 to-red-600', name: isXbox ? 'دکمه B' : 'دکمه دایره' },
-              { idx: 2, label: isXbox ? 'X' : '□', color: 'from-pink-600 to-purple-600', name: isXbox ? 'دکمه X' : 'دکمه مربع' },
-              { idx: 3, label: isXbox ? 'Y' : '△', color: 'from-emerald-600 to-teal-600', name: isXbox ? 'دکمه Y' : 'دکمه مثلث' },
-            ].map((btn) => {
-              const hits = btnHits[btn.idx] || 0;
-              const isPressedNow = pad.buttons[btn.idx]?.pressed || (pad.buttons[btn.idx]?.value ?? 0) > 0.5;
-              const isDone = hits >= 1;
-
-              return (
-                <div
-                  key={btn.idx}
-                  onClick={() => {
-                    setBtnHits((prev) => ({ ...prev, [btn.idx]: (prev[btn.idx] || 0) + 1 }));
-                  }}
-                  className={`relative overflow-hidden rounded-2xl border p-5 text-center transition-all cursor-pointer select-none active:scale-95 ${
-                    isPressedNow
-                      ? 'scale-105 border-white bg-white/20 shadow-[0_0_25px_rgba(255,255,255,0.4)]'
-                      : isDone
-                        ? 'border-emerald-500/40 bg-emerald-500/10 shadow-[0_0_15px_rgba(52,211,153,0.15)]'
-                        : 'border-white/10 bg-white/[0.02]'
-                  }`}
-                >
-                  <div
-                    className={`mx-auto grid h-16 w-16 place-items-center rounded-2xl text-2xl font-black text-white shadow-lg bg-gradient-to-tr ${btn.color} ${
-                      isPressedNow ? 'ring-4 ring-white animate-ping' : ''
-                    }`}
-                  >
-                    {btn.label}
-                  </div>
-
-                  <p className="mt-3 text-xs font-bold text-white">{btn.name}</p>
-                  <div className="mt-2 flex items-center justify-center gap-1.5">
-                    {isDone ? (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        تایید شد ({hits} بار)
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-mono text-slate-500">فشار دهید</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center justify-between max-w-2xl mx-auto pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between max-w-2xl mx-auto pt-2.5 border-t border-white/10">
             <button
               type="button"
               onClick={goToPrevStep}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
               <span>مرحله قبل</span>
@@ -802,7 +965,7 @@ export default function GamepadStepWizard({
               type="button"
               disabled={!isActionBtnsDone}
               onClick={goToNextStep}
-              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
               <span>مرحله بعد: کلیدهای جهت</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
@@ -812,67 +975,32 @@ export default function GamepadStepWizard({
         </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────────
-          STEP 2: D-PAD (DIRECTIONAL BUTTONS: ↑ ↓ ← →)
-         ───────────────────────────────────────────────────────────────── */}
       {currentStep === 'dpad' && (
-        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست کلیدهای جهت‌نما (D-Pad)</h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              کلیدهای بالا، پایین، چپ و راست را یکی‌یکی فشار دهید تا پاسخ‌دهی جهت‌ها بررسی شود.
-            </p>
-          </div>
+        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-3.5 sm:p-5 shadow-2xl space-y-3">
+          <InteractiveControllerStage
+            model={controller?.key}
+            pressed={pad.buttons.map((b) => b.pressed || b.value > 0.5)}
+            triggerValues={[pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0]}
+            axes={pad.axes}
+            currentTarget={dpadTargets[dpadSubStep] || null}
+            subStepIndex={dpadSubStep}
+            targetList={dpadTargets}
+            stageTitle="تست کلیدهای جهت‌نما (D-Pad)"
+            stageDescription="کلید جهت مشخص‌شده روی پد جهت را فشار دهید"
+            isCompleted={isDpadDone}
+            onOpenModal={() => setShowStepsModal(true)}
+            onTargetClick={(idx) => {
+              setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
+              const nextIdx = dpadTargets.findIndex((t) => t.idx === idx);
+              if (nextIdx !== -1) setDpadSubStep(Math.min(dpadTargets.length - 1, nextIdx + 1));
+            }}
+          />
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {[
-              { idx: 12, label: '↑', name: 'جهت بالا' },
-              { idx: 13, label: '↓', name: 'جهت پایین' },
-              { idx: 14, label: '←', name: 'جهت چپ' },
-              { idx: 15, label: '→', name: 'جهت راست' },
-            ].map((d) => {
-              const hits = btnHits[d.idx] || 0;
-              const isPressedNow = pad.buttons[d.idx]?.pressed || (pad.buttons[d.idx]?.value ?? 0) > 0.5;
-              const isDone = hits >= 1;
-
-              return (
-                <div
-                  key={d.idx}
-                  onClick={() => {
-                    setBtnHits((prev) => ({ ...prev, [d.idx]: (prev[d.idx] || 0) + 1 }));
-                  }}
-                  className={`rounded-2xl border p-5 text-center transition-all cursor-pointer select-none active:scale-95 ${
-                    isPressedNow
-                      ? 'scale-105 border-cyan-400 bg-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.4)]'
-                      : isDone
-                        ? 'border-emerald-500/40 bg-emerald-500/10'
-                        : 'border-white/10 bg-white/[0.02]'
-                  }`}
-                >
-                  <div className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-slate-800 text-2xl font-mono font-black text-cyan-300">
-                    {d.label}
-                  </div>
-                  <p className="mt-2 text-xs font-bold text-white">{d.name}</p>
-                  <div className="mt-1 flex items-center justify-center">
-                    {isDone ? (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400">
-                        <CheckCircle2 className="h-3 w-3" />
-                        تایید شد
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-slate-500">فشار دهید</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center justify-between max-w-2xl mx-auto pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between max-w-2xl mx-auto pt-2.5 border-t border-white/10">
             <button
               type="button"
               onClick={goToPrevStep}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
               <span>مرحله قبل</span>
@@ -882,7 +1010,7 @@ export default function GamepadStepWizard({
               type="button"
               disabled={!isDpadDone}
               onClick={goToNextStep}
-              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
               <span>مرحله بعد: تریگرها و بامپرها</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
@@ -892,105 +1020,35 @@ export default function GamepadStepWizard({
         </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────────
-          STEP 3: TRIGGERS & BUMPERS (L1, R1, L2, R2)
-         ───────────────────────────────────────────────────────────────── */}
       {currentStep === 'triggers' && (
-        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست تریگرها و بامپرهای پشتی</h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              دکمه‌های L1 و R1 را فشار داده و سپس تریگرهای آنالوگ L2 و R2 را تا انتها (۱۰۰٪) بکشید.
-            </p>
-          </div>
+        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-3.5 sm:p-5 shadow-2xl space-y-3">
+          <InteractiveControllerStage
+            model={controller?.key}
+            pressed={pad.buttons.map((b) => b.pressed || b.value > 0.5)}
+            triggerValues={[pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0]}
+            axes={pad.axes}
+            currentTarget={triggerTargets[triggersSubStep] || null}
+            subStepIndex={triggersSubStep}
+            targetList={triggerTargets}
+            stageTitle="تست تریگرها و بامپرهای پشتی (L1, R1, L2, R2)"
+            stageDescription="بامپرها را زده و تریگرها را تا ۱۰۰٪ فشار دهید"
+            analogValue={triggersSubStep === 2 ? (pad.buttons[6]?.value ?? 0) : triggersSubStep === 3 ? (pad.buttons[7]?.value ?? 0) : 0}
+            isCompleted={isTriggersDone}
+            onOpenModal={() => setShowStepsModal(true)}
+            onTargetClick={(idx) => {
+              setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
+              if (idx === 6) setMaxTrigger((prev) => ({ ...prev, L2: 1 }));
+              if (idx === 7) setMaxTrigger((prev) => ({ ...prev, R2: 1 }));
+              const nextIdx = triggerTargets.findIndex((t) => t.idx === idx);
+              if (nextIdx !== -1) setTriggersSubStep(Math.min(triggerTargets.length - 1, nextIdx + 1));
+            }}
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {/* LEFT TRIGGER & BUMPER */}
-            <div
-              onClick={() => {
-                setBtnHits((prev) => ({ ...prev, 4: (prev[4] || 0) + 1 }));
-                setMaxTrigger((prev) => ({ ...prev, L2: 1 }));
-              }}
-              className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-4 cursor-pointer select-none hover:border-violet-500/40 transition-all"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">L1 (بامپر چپ)</span>
-                <span
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                    pad.buttons[4]?.pressed
-                      ? 'bg-emerald-500 text-slate-950 shadow-[0_0_10px_#10b981]'
-                      : (btnHits[4] || 0) >= 1
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-white/5 text-slate-500'
-                  }`}
-                >
-                  {(btnHits[4] || 0) >= 1 ? 'تایید شد' : 'فشار یا کلیک کنید'}
-                </span>
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-white/10">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-300">L2 (تریگر آنالوگ)</span>
-                  <span className="font-mono font-bold text-violet-400">
-                    {Math.round(Math.max(pad.buttons[6]?.value ?? 0, maxTrigger.L2) * 100)}%
-                  </span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-75"
-                    style={{ width: `${Math.max(pad.buttons[6]?.value ?? 0, maxTrigger.L2) * 100}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400">حداکثر کشش ثبت‌شده: {Math.round(maxTrigger.L2 * 100)}%</p>
-              </div>
-            </div>
-
-            {/* RIGHT TRIGGER & BUMPER */}
-            <div
-              onClick={() => {
-                setBtnHits((prev) => ({ ...prev, 5: (prev[5] || 0) + 1 }));
-                setMaxTrigger((prev) => ({ ...prev, R2: 1 }));
-              }}
-              className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-4 cursor-pointer select-none hover:border-cyan-500/40 transition-all"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">R1 (بامپر راست)</span>
-                <span
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                    pad.buttons[5]?.pressed
-                      ? 'bg-emerald-500 text-slate-950 shadow-[0_0_10px_#10b981]'
-                      : (btnHits[5] || 0) >= 1
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-white/5 text-slate-500'
-                  }`}
-                >
-                  {(btnHits[5] || 0) >= 1 ? 'تایید شد' : 'فشار یا کلیک کنید'}
-                </span>
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-white/10">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-300">R2 (تریگر آنالوگ)</span>
-                  <span className="font-mono font-bold text-cyan-400">
-                    {Math.round(Math.max(pad.buttons[7]?.value ?? 0, maxTrigger.R2) * 100)}%
-                  </span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-600 to-blue-500 transition-all duration-75"
-                    style={{ width: `${Math.max(pad.buttons[7]?.value ?? 0, maxTrigger.R2) * 100}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400">حداکثر کشش ثبت‌شده: {Math.round(maxTrigger.R2 * 100)}%</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between max-w-2xl mx-auto pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between max-w-2xl mx-auto pt-2.5 border-t border-white/10">
             <button
               type="button"
               onClick={goToPrevStep}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
               <span>مرحله قبل</span>
@@ -1000,7 +1058,7 @@ export default function GamepadStepWizard({
               type="button"
               disabled={!isTriggersDone}
               onClick={goToNextStep}
-              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
               <span>مرحله بعد: استیک‌ها و دریفت</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
@@ -1010,99 +1068,97 @@ export default function GamepadStepWizard({
         </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────────
-          STEP 4: THUMBSTICKS & DRIFT ANALYSIS
-         ───────────────────────────────────────────────────────────────── */}
       {currentStep === 'sticks' && (
-        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست استیک‌ها، کلیک L3/R3 و خطای دریفت</h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              استیک‌ها را در جهات مختلف بچرخانید و رها کنید تا خطای بازگشت به مرکز سنجیده شود. هر دو استیک را به داخل فشار دهید (L3 و R3).
-            </p>
-          </div>
+        <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-3.5 sm:p-5 shadow-2xl space-y-3">
+          <InteractiveControllerStage
+            model={controller?.key}
+            pressed={pad.buttons.map((b) => b.pressed || b.value > 0.5)}
+            triggerValues={[pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0]}
+            axes={pad.axes}
+            currentTarget={stickTargets[sticksSubStep] || null}
+            subStepIndex={sticksSubStep}
+            targetList={stickTargets}
+            stageTitle="تست استیک‌ها، کلیک L3/R3 و خطای دریفت"
+            stageDescription="استیک‌ها را به اطراف چرخانده و کلیک داخل را فشار دهید"
+            isCompleted={isSticksDone}
+            onOpenModal={() => setShowStepsModal(true)}
+            onTargetClick={(idx) => {
+              setBtnHits((prev) => ({ ...prev, [idx]: (prev[idx] || 0) + 1 }));
+              const nextIdx = stickTargets.findIndex((t) => t.idx === idx);
+              if (nextIdx !== -1) setSticksSubStep(Math.min(stickTargets.length - 1, nextIdx + 1));
+            }}
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          {/* DUAL PRECISION STICK GAUGES - COMPACT FOR ZERO SCROLL */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto pt-1">
             {/* LEFT STICK */}
-            <div className="rounded-2xl border border-white/10 bg-black/40 p-5 text-center space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center space-y-1.5">
               <span className="text-xs font-black text-white">استیک چپ (Left Stick)</span>
-              <div className="relative mx-auto h-36 w-36 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-4" />
+              <div className="relative mx-auto h-20 w-20 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-2" />
                 <div
-                  className="h-8 w-8 rounded-full bg-violet-500 shadow-[0_0_15px_#8b5cf6] transition-transform duration-75"
+                  className="h-5 w-5 rounded-full bg-violet-500 shadow-[0_0_10px_#8b5cf6] transition-transform duration-75"
                   style={{
-                    transform: `translate(${(pad.axes[0] ?? 0) * 45}px, ${(pad.axes[1] ?? 0) * 45}px)`,
+                    transform: `translate(${(pad.axes[0] ?? 0) * 26}px, ${(pad.axes[1] ?? 0) * 26}px)`,
                   }}
                 />
               </div>
-
-              <div className="flex items-center justify-between text-xs pt-2">
+              <div className="flex items-center justify-between text-[11px] pt-0.5">
                 <span className="text-slate-400">کلیک L3:</span>
                 <span
-                  className={`font-bold px-2 py-0.5 rounded ${
+                  className={`font-bold px-2 py-0.5 rounded text-[10px] ${
                     pad.buttons[10]?.pressed || (btnHits[10] || 0) >= 1
                       ? 'bg-emerald-500/20 text-emerald-300'
                       : 'bg-white/5 text-slate-500'
                   }`}
                 >
-                  {(btnHits[10] || 0) >= 1 ? 'تایید شد' : 'فشار دهید'}
+                  {(btnHits[10] || 0) >= 1 ? '✓ تایید شد' : 'فشار دهید'}
                 </span>
               </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">خطای دریفت مرکز:</span>
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-slate-400">خطای دریفت:</span>
                 <span
-                  className={`font-mono font-bold ${
-                    driftStats.leftMax < 0.07
-                      ? 'text-emerald-400'
-                      : driftStats.leftMax < 0.12
-                        ? 'text-amber-400'
-                        : 'text-rose-400'
+                  className={`font-mono font-bold text-[10px] ${
+                    driftStats.leftMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.07 ? '(سالم)' : '(دریفت)'}
+                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.08 ? '(سالم)' : '(دریفت)'}
                 </span>
               </div>
             </div>
 
             {/* RIGHT STICK */}
-            <div className="rounded-2xl border border-white/10 bg-black/40 p-5 text-center space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center space-y-1.5">
               <span className="text-xs font-black text-white">استیک راست (Right Stick)</span>
-              <div className="relative mx-auto h-36 w-36 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-4" />
+              <div className="relative mx-auto h-20 w-20 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-2" />
                 <div
-                  className="h-8 w-8 rounded-full bg-cyan-400 shadow-[0_0_15px_#22d3ee] transition-transform duration-75"
+                  className="h-5 w-5 rounded-full bg-cyan-500 shadow-[0_0_10px_#06b6d4] transition-transform duration-75"
                   style={{
-                    transform: `translate(${(pad.axes[2] ?? 0) * 45}px, ${(pad.axes[3] ?? 0) * 45}px)`,
+                    transform: `translate(${(pad.axes[2] ?? 0) * 26}px, ${(pad.axes[3] ?? 0) * 26}px)`,
                   }}
                 />
               </div>
-
-              <div className="flex items-center justify-between text-xs pt-2">
+              <div className="flex items-center justify-between text-[11px] pt-0.5">
                 <span className="text-slate-400">کلیک R3:</span>
                 <span
-                  className={`font-bold px-2 py-0.5 rounded ${
+                  className={`font-bold px-2 py-0.5 rounded text-[10px] ${
                     pad.buttons[11]?.pressed || (btnHits[11] || 0) >= 1
                       ? 'bg-emerald-500/20 text-emerald-300'
                       : 'bg-white/5 text-slate-500'
                   }`}
                 >
-                  {(btnHits[11] || 0) >= 1 ? 'تایید شد' : 'فشار دهید'}
+                  {(btnHits[11] || 0) >= 1 ? '✓ تایید شد' : 'فشار دهید'}
                 </span>
               </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">خطای دریفت مرکز:</span>
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-slate-400">خطای دریفت:</span>
                 <span
-                  className={`font-mono font-bold ${
-                    driftStats.rightMax < 0.07
-                      ? 'text-emerald-400'
-                      : driftStats.rightMax < 0.12
-                        ? 'text-amber-400'
-                        : 'text-rose-400'
+                  className={`font-mono font-bold text-[10px] ${
+                    driftStats.rightMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.07 ? '(سالم)' : '(دریفت)'}
+                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.08 ? '(سالم)' : '(دریفت)'}
                 </span>
               </div>
             </div>
@@ -1132,9 +1188,6 @@ export default function GamepadStepWizard({
         </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────────
-          STEP 5: 3D GYROSCOPE & MOTION TEST
-         ───────────────────────────────────────────────────────────────── */}
       {currentStep === 'gyro' && (
         <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">

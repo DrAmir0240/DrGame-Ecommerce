@@ -161,6 +161,10 @@ html.tv-mode body {
   padding-bottom: 92px !important;
 }
 
+html.tv-mode body:has(#gamepad-page-root) {
+  padding-bottom: 16px !important;
+}
+
 @media (min-width: 1920px) {
   html.tv-mode body {
     padding-bottom: 104px !important;
