@@ -18,8 +18,10 @@ import { useTranslation } from '@/i18n';
 export interface ControllerModel3DProps {
   /** Public URL of the glb file. */
   modelUrl?: string;
-  /** Slow idle rotation (paused while dragging). */
+  /** Slow idle rotation (paused while dragging or when orientation is active). */
   autoSpin?: boolean;
+  /** Orientation quaternion { x, y, z, w } from physical gyroscope / WebHID */
+  orientation?: { x: number; y: number; z: number; w: number } | null;
   className?: string;
 }
 
@@ -31,10 +33,16 @@ const SPIN_SPEED = 0.0025;
 export default function ControllerModel3D({
   modelUrl = '/models/dualsense.glb',
   autoSpin = true,
+  orientation = null,
   className,
 }: ControllerModel3DProps) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const orientationRef = useRef(orientation);
+  useEffect(() => {
+    orientationRef.current = orientation;
+  }, [orientation]);
+
   const [progress, setProgress] = useState<number | null>(0);
   const [ready, setReady] = useState(false);
   /** i18n key of the failure, not the message — keeps it in sync with the locale. */
@@ -183,9 +191,16 @@ export default function ControllerModel3D({
 
       /* ---- render loop ---- */
       let raf = 0;
+      const targetQuat = new THREE.Quaternion();
       const frame = () => {
-        if (autoSpin && !dragging) spinGroup.rotation.y += SPIN_SPEED;
-        dragGroup.rotation.set(rotX, rotY, 0);
+        const curOri = orientationRef.current;
+        if (curOri && (curOri.x !== 0 || curOri.y !== 0 || curOri.z !== 0 || curOri.w !== 1)) {
+          targetQuat.set(curOri.x, curOri.y, curOri.z, curOri.w);
+          dragGroup.quaternion.slerp(targetQuat, 0.28);
+        } else {
+          if (autoSpin && !dragging) spinGroup.rotation.y += SPIN_SPEED;
+          dragGroup.rotation.set(rotX, rotY, 0);
+        }
         renderer.render(scene, camera);
         raf = requestAnimationFrame(frame);
       };

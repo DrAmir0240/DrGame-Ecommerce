@@ -1,17 +1,25 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTvModeStore } from '@/stores/useTvModeStore';
 
 export function useGamepadNavigation() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isTvMode, toggleTvMode, closeTvMode, adjustZoom } = useTvModeStore();
   const lastPressRef = useRef<number>(0);
   const lastZoomTickRef = useRef<number>(0);
   const currentFocusedElRef = useRef<HTMLElement | null>(null);
 
+  // CRITICAL: When the user is on the gamepad diagnostics/testing page,
+  // do NOT intercept gamepad buttons for site navigation!
+  const isTestingPage = pathname?.startsWith('/gamepad') || pathname?.startsWith('/tools/gamepad');
+
   useEffect(() => {
+    if (isTestingPage) {
+      return;
+    }
     let animationFrameId: number;
 
     const setGamepadFocus = (el: HTMLElement) => {
@@ -21,16 +29,104 @@ export function useGamepadNavigation() {
       currentFocusedElRef.current = el;
       el.setAttribute('data-tv-focused', 'true');
       el.focus({ preventScroll: true });
-      el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+      // If inside a horizontal carousel track, scroll smoothly to center the card horizontally
+      const carouselTrack =
+        el.closest<HTMLElement>('[data-carousel-track]') ||
+        el.closest<HTMLElement>('.overflow-x-auto');
+
+      if (carouselTrack) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      }
     };
 
     const handleSpatialMove = (up: boolean, down: boolean, left: boolean, right: boolean) => {
+      const current = (document.activeElement as HTMLElement) || currentFocusedElRef.current;
+
+      // ─────────────────────────────────────────────────────────────────
+      // 1. CAROUSEL-AWARE HORIZONTAL NAVIGATION (ورق خوردن اسلایدر)
+      // When current element is inside a horizontal slider, pressing Left
+      // or Right moves card-by-card and scrolls the slider horizontally.
+      // It STRICTLY stays inside this carousel and NEVER jumps down/up!
+      // ─────────────────────────────────────────────────────────────────
+      if (current && (left || right)) {
+        const carouselTrack =
+          current.closest<HTMLElement>('[data-carousel-track]') ||
+          current.closest<HTMLElement>('.overflow-x-auto');
+
+        if (carouselTrack) {
+          const items = Array.from(
+            carouselTrack.querySelectorAll<HTMLElement>('[data-carousel-item], a, button')
+          ).filter((el) => {
+            if (
+              el.hasAttribute('data-no-gamepad') ||
+              el.getAttribute('tabindex') === '-1' ||
+              el.hasAttribute('disabled')
+            ) {
+              return false;
+            }
+            return (
+              el.offsetParent !== null &&
+              window.getComputedStyle(el).visibility !== 'hidden' &&
+              window.getComputedStyle(el).display !== 'none'
+            );
+          });
+
+          // Deduplicate nested matches so only the primary interactive card is navigated
+          const uniqueItems = items.filter(
+            (el) => !items.some((other) => other !== el && other.contains(el))
+          );
+
+          if (uniqueItems.length > 0) {
+            let currentIndex = uniqueItems.findIndex(
+              (it) => it === current || it.contains(current)
+            );
+
+            if (currentIndex === -1) {
+              currentIndex = 0;
+            }
+
+            const isRtl =
+              document.documentElement.dir === 'rtl' ||
+              document.dir === 'rtl' ||
+              document.documentElement.lang === 'fa' ||
+              document.documentElement.lang === 'ar';
+
+            // In RTL: Left moves to next card (+1), Right moves to previous card (-1)
+            // In LTR: Right moves to next card (+1), Left moves to previous card (-1)
+            const targetIndex = isRtl
+              ? left ? currentIndex + 1 : currentIndex - 1
+              : right ? currentIndex + 1 : currentIndex - 1;
+
+            if (targetIndex >= 0 && targetIndex < uniqueItems.length) {
+              const nextTarget = uniqueItems[targetIndex];
+              setGamepadFocus(nextTarget);
+              return;
+            } else {
+              // Boundary hit (at start or end of this carousel):
+              // DO NOT jump down to next section! Keep card focused and centered.
+              const boundaryIndex = Math.max(0, Math.min(uniqueItems.length - 1, targetIndex));
+              const boundaryItem = uniqueItems[boundaryIndex];
+              if (boundaryItem) {
+                setGamepadFocus(boundaryItem);
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────────
+      // 2. GENERAL 2D SPATIAL NAVIGATION (FOR UP/DOWN & NON-CAROUSEL)
+      // ─────────────────────────────────────────────────────────────────
       const focusables = Array.from(
         document.querySelectorAll<HTMLElement>(
           'a, button, input, select, textarea, [tabindex="0"], [data-nav], [role="button"]'
         )
       ).filter((el) => {
-        // STRICT RULE: Controller MUST NEVER navigate into the fixed bottom bar
+        // Controller MUST NEVER navigate into the fixed TV bottom bar or footer
         if (
           el.closest('footer') ||
           el.closest('[data-tv-bar]') ||
@@ -51,7 +147,6 @@ export function useGamepadNavigation() {
 
       if (focusables.length === 0) return;
 
-      const current = (document.activeElement as HTMLElement) || currentFocusedElRef.current;
       if (!current || !focusables.includes(current)) {
         setGamepadFocus(focusables[0]);
         return;
@@ -62,24 +157,37 @@ export function useGamepadNavigation() {
       let minDistance = Infinity;
 
       focusables.forEach((target) => {
-        if (target === current) return;
+        if (target === current || target.contains(current) || current.contains(target)) return;
         const targetRect = target.getBoundingClientRect();
 
+        const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
+        const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
+
         let isValidDirection = false;
-        if (down && targetRect.top >= currentRect.bottom - 20) isValidDirection = true;
-        if (up && targetRect.bottom <= currentRect.top + 20) isValidDirection = true;
-        if (right && targetRect.left >= currentRect.right - 20) isValidDirection = true;
-        if (left && targetRect.right <= currentRect.left + 20) isValidDirection = true;
+        if (down && targetRect.top >= currentRect.bottom - 20) {
+          // Downward target: must not be drastically more horizontal than vertical
+          if (Math.abs(dx) <= Math.abs(dy) * 2.8) isValidDirection = true;
+        }
+        if (up && targetRect.bottom <= currentRect.top + 20) {
+          // Upward target: must not be drastically more horizontal than vertical
+          if (Math.abs(dx) <= Math.abs(dy) * 2.8) isValidDirection = true;
+        }
+        if (right && targetRect.left >= currentRect.right - 20) {
+          // Rightward target: must be on roughly the same horizontal level, not jumping down/up
+          if (Math.abs(dy) <= Math.abs(dx) * 1.2 || Math.abs(dy) < 80) isValidDirection = true;
+        }
+        if (left && targetRect.right <= currentRect.left + 20) {
+          // Leftward target: must be on roughly the same horizontal level, not jumping down/up
+          if (Math.abs(dy) <= Math.abs(dx) * 1.2 || Math.abs(dy) < 80) isValidDirection = true;
+        }
 
         if (isValidDirection) {
-          const dx = targetRect.left + targetRect.width / 2 - (currentRect.left + currentRect.width / 2);
-          const dy = targetRect.top + targetRect.height / 2 - (currentRect.top + currentRect.height / 2);
-
           let axisPenalty = 1;
           if (up || down) {
-            axisPenalty += Math.abs(dx) * 1.5;
+            axisPenalty += Math.abs(dx) * 2;
           } else if (left || right) {
-            axisPenalty += Math.abs(dy) * 1.5;
+            // Heavily penalize vertical drift when moving horizontally
+            axisPenalty += Math.abs(dy) * 6;
           }
 
           const distance = Math.hypot(dx, dy) + axisPenalty;
@@ -220,5 +328,5 @@ export function useGamepadNavigation() {
         currentFocusedElRef.current.removeAttribute('data-tv-focused');
       }
     };
-  }, [router, isTvMode, toggleTvMode, closeTvMode, adjustZoom]);
+  }, [router, isTvMode, toggleTvMode, closeTvMode, adjustZoom, isTestingPage]);
 }

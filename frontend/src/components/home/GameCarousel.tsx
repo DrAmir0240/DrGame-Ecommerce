@@ -64,7 +64,8 @@ export default function GameCarousel({
             <button
               onClick={() => scroll('right')}
               aria-label={t('chrome.scrollRight')}
-              data-nav
+              data-no-gamepad="true"
+              tabIndex={-1}
               className="w-8 h-8 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
             >
               <ChevronRight className="w-4 h-4" />
@@ -72,7 +73,8 @@ export default function GameCarousel({
             <button
               onClick={() => scroll('left')}
               aria-label={t('chrome.scrollLeft')}
-              data-nav
+              data-no-gamepad="true"
+              tabIndex={-1}
               className="w-8 h-8 rounded-xl glass-card border border-white/10 hover:border-cosmic-purple/50 text-white flex items-center justify-center transition-all"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -84,11 +86,12 @@ export default function GameCarousel({
       {/* Horizontal Scroll Track */}
       <div
         ref={scrollRef}
+        data-carousel-track="true"
         className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {games.map((game) => (
-          <div key={game.id} className="w-[160px] xs:w-[185px] sm:w-[215px] md:w-[230px] 2xl:w-[250px] shrink-0" data-nav>
+          <div key={game.id} className="w-[160px] xs:w-[185px] sm:w-[215px] md:w-[230px] 2xl:w-[250px] shrink-0">
             <GameCard game={game} />
           </div>
         ))}

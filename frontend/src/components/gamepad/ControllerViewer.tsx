@@ -25,9 +25,10 @@ type ViewMode = '3d' | 'map';
 export interface ControllerViewerProps {
   pad: PadSnapshot;
   controller: ControllerInfo | null;
+  orientation?: { x: number; y: number; z: number; w: number } | null;
 }
 
-export default function ControllerViewer({ pad, controller }: ControllerViewerProps) {
+export default function ControllerViewer({ pad, controller, orientation }: ControllerViewerProps) {
   const { t, locale } = useTranslation();
   const supports3d = controller?.has3d === true;
   const [view, setView] = useState<ViewMode>('3d');
@@ -103,7 +104,7 @@ export default function ControllerViewer({ pad, controller }: ControllerViewerPr
         ) : (
           <div className="aspect-[4/3] w-full">
             {view === '3d' ? (
-              <ControllerModel3D className="h-full w-full" />
+              <ControllerModel3D className="h-full w-full" orientation={orientation} />
             ) : (
               <div className="grid h-full w-full place-items-center p-3">
                 <ControllerMap

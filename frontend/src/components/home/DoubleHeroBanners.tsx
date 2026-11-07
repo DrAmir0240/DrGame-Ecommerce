@@ -175,14 +175,14 @@ export default function DoubleHeroBanners() {
                       )
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label={t('chrome.prevSlide')}
+                    aria-label={t('chrome.prevSlide')} data-no-gamepad="true" tabIndex={-1}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setGameIdx((prev) => (prev + 1) % gameBanners.length)}
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label={t('chrome.nextSlide')}
+                    aria-label={t('chrome.nextSlide')} data-no-gamepad="true" tabIndex={-1}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -203,7 +203,7 @@ export default function DoubleHeroBanners() {
                       ? 'w-6 bg-cyan-400 shadow-[0_0_8px_#22d3ee]'
                       : 'w-2 bg-white/30 hover:bg-white/60'
                   }`}
-                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })}
+                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })} data-no-gamepad="true" tabIndex={-1}
                 />
               ))}
             </div>
@@ -273,7 +273,7 @@ export default function DoubleHeroBanners() {
                       )
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label={t('chrome.prevSlide')}
+                    aria-label={t('chrome.prevSlide')} data-no-gamepad="true" tabIndex={-1}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -282,7 +282,7 @@ export default function DoubleHeroBanners() {
                       setServiceIdx((prev) => (prev + 1) % serviceBanners.length)
                     }
                     className="p-1.5 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    aria-label={t('chrome.nextSlide')}
+                    aria-label={t('chrome.nextSlide')} data-no-gamepad="true" tabIndex={-1}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -303,7 +303,7 @@ export default function DoubleHeroBanners() {
                       ? 'w-6 bg-amber-400 shadow-[0_0_8px_#f59e0b]'
                       : 'w-2 bg-white/30 hover:bg-white/60'
                   }`}
-                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })}
+                  aria-label={t('chrome.goToSlide', { index: n(idx + 1) })} data-no-gamepad="true" tabIndex={-1}
                 />
               ))}
             </div>
