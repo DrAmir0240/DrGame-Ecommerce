@@ -123,6 +123,19 @@ export default function ReferralDashboardPage() {
 
   const activeStats = stats || emptyStats;
 
+  if (!mounted) {
+    return (
+      <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10 font-vazir text-start animate-pulse">
+        <div className="h-10 w-64 bg-white/10 rounded-2xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-44 rounded-3xl bg-white/5 border border-white/5" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10 font-vazir text-start">
       {mounted && !isAuthenticated && (

@@ -81,6 +81,16 @@ export default function AuthModal() {
     }
   }, [authModalInitialTab, isAuthModalOpen]);
 
+  useEffect(() => {
+    if (isAuthModalOpen && typeof window !== 'undefined') {
+      const urlRef = new URLSearchParams(window.location.search).get('ref');
+      const savedRef = urlRef || localStorage.getItem('drgame_referral_code');
+      if (savedRef) {
+        setRegReferralCode(savedRef.trim().toUpperCase());
+      }
+    }
+  }, [isAuthModalOpen]);
+
   if (!isAuthModalOpen) return null;
 
   const resetForms = () => {
@@ -191,11 +201,18 @@ export default function AuthModal() {
     setLoading(true);
     setError(null);
     try {
+      const savedRef =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('ref') ||
+            localStorage.getItem('drgame_referral_code')
+          : undefined;
+
       const res = await apiRequest<TokenResponse>('/auth/login/otp', {
         method: 'POST',
         body: JSON.stringify({
           target: cleanTarget,
           code: cleanCode,
+          referral_code: savedRef ? savedRef.trim().toUpperCase() : undefined,
         }),
       });
       setAuth(res);

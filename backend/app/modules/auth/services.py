@@ -179,15 +179,21 @@ class AuthService:
 
         # Create wallet with default currency
         from app.modules.wallet.models import UserWallet
+        from app.modules.wallet.services import WalletService
         wallet = UserWallet(
             user_id=user.id,
             currency=settings.DEFAULT_CURRENCY,
             withdrawable_balance_toman=0,
+            pending_balance_toman=0,
             total_earned_toman=0,
             total_withdrawn_toman=0,
         )
         db.add(wallet)
         await db.commit()
+
+        # Bind referral if referral code provided
+        if data.referral_code and data.referral_code.strip():
+            await WalletService.bind_referral(db, user.id, data.referral_code.strip())
 
         return await AuthService.create_user_session(db, user, client_info)
 
@@ -245,6 +251,23 @@ class AuthService:
             db.add(user)
             await db.commit()
             await db.refresh(user)
+
+            from app.modules.wallet.models import UserWallet
+            from app.modules.wallet.services import WalletService
+            wallet = UserWallet(
+                user_id=user.id,
+                currency=settings.DEFAULT_CURRENCY,
+                withdrawable_balance_toman=0,
+                pending_balance_toman=0,
+                total_earned_toman=0,
+                total_withdrawn_toman=0,
+            )
+            db.add(wallet)
+            await db.commit()
+
+            ref_code = getattr(data, "referral_code", None)
+            if ref_code and ref_code.strip():
+                await WalletService.bind_referral(db, user.id, ref_code.strip())
 
         if not user.is_active:
             raise AuthorizationError("حساب کاربری شما مسدود شده است.")

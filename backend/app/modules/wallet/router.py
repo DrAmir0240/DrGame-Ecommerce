@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.modules.users.models import User
+from app.core.exceptions import BadRequestException
 from app.modules.wallet.schemas import (
     ReferralSummaryResponse,
     CommissionTransactionListResponse,
@@ -19,6 +20,7 @@ from app.modules.wallet.schemas import (
     WithdrawalHistoryItem,
     SendPhoneOtpRequest,
     SendPhoneOtpResponse,
+    BindReferralRequest,
 )
 from app.modules.wallet.services import WalletService
 from app.modules.wallet.settlement_service import WeeklySettlementService
@@ -34,6 +36,19 @@ async def send_settlement_otp(
 ):
     """Send test OTP to phone for settlement account verification."""
     return await IdentityService.send_phone_verification_otp(phone=data.phone)
+
+
+@router.post("/bind", status_code=status.HTTP_200_OK)
+async def bind_referral_code(
+    data: BindReferralRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Link authenticated user to an upline referrer by referral code."""
+    chain = await WalletService.bind_referral(db, current_user.id, data.referral_code)
+    if not chain:
+        raise BadRequestException("کد معرف نامعتبر است یا نمی‌توانید خودتان را معرفی کنید.")
+    return {"status": "success", "message": "کد معرف با موفقیت ثبت شد."}
 
 
 @router.get("/stats", response_model=ReferralSummaryResponse, status_code=status.HTTP_200_OK)

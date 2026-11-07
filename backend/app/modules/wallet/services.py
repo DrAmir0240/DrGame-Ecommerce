@@ -158,8 +158,9 @@ class WalletService:
         if existing_chain:
             return existing_chain
 
-        # Find referrer by code
-        referrer_stmt = select(User).where(User.referral_code == referral_code.strip())
+        # Find referrer by code (case-insensitive)
+        clean_code = referral_code.strip().upper()
+        referrer_stmt = select(User).where(func.upper(User.referral_code) == clean_code)
         referrer = (await db.execute(referrer_stmt)).scalar_one_or_none()
 
         # Cannot refer oneself

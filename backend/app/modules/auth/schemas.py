@@ -24,6 +24,7 @@ class PasswordLoginRequest(BaseModel):
 class OTPLoginRequest(BaseModel):
     target: str = Field(..., description="Phone number or email address", min_length=5, max_length=255)
     code: str = Field(..., description="OTP verification code received", min_length=4, max_length=8)
+    referral_code: str | None = Field(None, description="Optional inviter referral code")
 
 
 class ConsoleLoginRequest(BaseModel):

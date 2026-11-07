@@ -187,3 +187,7 @@ class WithdrawalHistoryItem(BaseModel):
     created_at: datetime
     processed_at: datetime | None = None
 
+
+class BindReferralRequest(BaseModel):
+    referral_code: str = Field(..., min_length=3, max_length=20, description="Inviter referral code")
+

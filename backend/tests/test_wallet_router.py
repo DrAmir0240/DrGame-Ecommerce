@@ -54,3 +54,39 @@ async def test_wallet_router_endpoints(client: AsyncClient, test_db: AsyncSessio
     res_tx = await client.get("/api/referral/transactions", headers=headers)
     assert res_tx.status_code == 200
     assert "items" in res_tx.json()
+
+    # 6. Create invitee user and test POST /api/referral/bind
+    invitee = User(
+        full_name="Invitee Gamer",
+        username="invitee_gamer",
+        password_hash=hash_password("password123"),
+        referral_code="INVITEE1",
+        console_auth_code="IV12345",
+        is_active=True,
+        is_verified=True,
+    )
+    test_db.add(invitee)
+    await test_db.commit()
+    await test_db.refresh(invitee)
+
+    invitee_token, _, _ = create_access_token(subject=invitee.id, claims={"username": invitee.username})
+    invitee_headers = {"Authorization": f"Bearer {invitee_token}"}
+
+    # Bind to referrer (User 1)
+    bind_res = await client.post("/api/referral/bind", json={"referral_code": "REFTEST1"}, headers=invitee_headers)
+    assert bind_res.status_code == 200
+    assert bind_res.json()["status"] == "success"
+
+    # Now verify referrer's network tree has 1 member
+    tree_res = await client.get("/api/referral/network-tree", headers=headers)
+    assert tree_res.status_code == 200
+    tree_data = tree_res.json()
+    assert tree_data["total_members"] == 1
+    assert len(tree_data["levels"]) == 1
+    assert tree_data["levels"][0]["level"] == 1
+    assert tree_data["levels"][0]["members_count"] == 1
+
+    # Verify referrer's stats direct_referrals_count is 1
+    stats_updated = await client.get("/api/referral/stats", headers=headers)
+    assert stats_updated.status_code == 200
+    assert stats_updated.json()["direct_referrals_count"] == 1
