@@ -20,7 +20,8 @@ export interface GameDownloadLink {
 
 export interface GameCardItem {
   id: number;
-  rawg_id: number;
+  source_id?: string | null;
+  rawg_id?: number | null;
   title_fa: string;
   title_en: string;
   slug: string;
@@ -36,6 +37,64 @@ export interface GameCardItem {
   likes_count: number;
   dislikes_count: number;
   wishlist_count: number;
+  ps5_title_id?: string | null;
+  ps4_title_id?: string | null;
+  storage_sync_status?: string;
+  file_size_bytes?: number | null;
+  sha256_checksum?: string | null;
+}
+
+export interface StorageFormatItem {
+  job_id: string;
+  title: string;
+  tag?: string | null;
+  platform: 'ps5' | 'ps4' | string;
+  format_category: 'fpkg' | 'fat32' | string;
+  download_format: string;
+  content_format: string;
+  size_bytes: number;
+  size_gb: number;
+  sha256?: string | null;
+  release_version?: string | null;
+  status: string;
+}
+
+export interface ClientDeviceInfo {
+  platform: 'ps5' | 'ps4' | 'desktop_or_mobile' | string;
+  firmware?: number | null;
+  recommended_format?: 'fpkg' | 'fat32' | string | null;
+  is_console: boolean;
+  display_notice: string;
+}
+
+export interface GameDownloadOptions {
+  game_id: number;
+  title_fa: string;
+  title_en: string;
+  slug: string;
+  ps5_title_id?: string | null;
+  ps4_title_id?: string | null;
+  storage_sync_status: string;
+  client_device: ClientDeviceInfo;
+  recommended_job_id?: string | null;
+  recommended_format?: string | null;
+  available_formats: StorageFormatItem[];
+}
+
+export interface HandoffExecutePayload {
+  job_id: string;
+  handoff_secret: string;
+  selected_format?: 'fpkg' | 'fat32' | string | null;
+}
+
+export interface HandoffExecuteResult {
+  success: boolean;
+  game_id: number;
+  job_id: string;
+  format_category: string;
+  size_gb: number;
+  remaining_quota_gb: number;
+  message: string;
 }
 
 export interface GameDetail extends GameCardItem {
@@ -50,6 +109,7 @@ export interface GameDetail extends GameCardItem {
   download_links: GameDownloadLink[];
   user_interaction?: 'like' | 'dislike' | null;
   in_wishlist: boolean;
+  available_formats?: StorageFormatItem[];
 }
 
 export interface PaginatedGames {

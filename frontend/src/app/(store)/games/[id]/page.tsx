@@ -219,6 +219,20 @@ export default function GameDetailPage() {
                     {p}
                   </span>
                 ))}
+
+                {/* PlayStation Title IDs */}
+                {game.ps5_title_id && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-bold font-mono shadow-[0_0_10px_rgba(59,130,246,0.25)]">
+                    <Gamepad2 className="w-3.5 h-3.5 text-blue-400" />
+                    <span>PS5 ID: {game.ps5_title_id}</span>
+                  </span>
+                )}
+                {game.ps4_title_id && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold font-mono shadow-[0_0_10px_rgba(99,102,241,0.25)]">
+                    <Gamepad2 className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>PS4 ID: {game.ps4_title_id}</span>
+                  </span>
+                )}
               </div>
 
               {/* Game Main Titles */}
@@ -627,7 +641,12 @@ export default function GameDetailPage() {
           <h2 className="text-xl sm:text-2xl font-black text-white">{t('gameDetail.filesTitle')}</h2>
         </div>
 
-        <DownloadBox gameId={game.id} links={game.download_links} gameTitle={localizedField(game, 'title', locale) || game.title_fa || game.title_en} />
+        <DownloadBox
+          gameId={game.id}
+          links={game.download_links}
+          gameTitle={localizedField(game, 'title', locale) || game.title_fa || game.title_en}
+          game={game}
+        />
       </section>
 
       {/* 5. SIMILAR & RECOMMENDED GAMES CAROUSEL */}

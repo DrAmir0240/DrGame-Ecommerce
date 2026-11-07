@@ -178,7 +178,7 @@ class StorageBridgeService:
         jobs: List[Dict[str, Any]] = []
         try:
             url = f"{TGSTORAGE_BASE_URL}/api/account/jobs"
-            async with httpx.AsyncClient(timeout=6.0) as client:
+            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
                 res = await client.get(url)
                 if res.status_code == 200:
                     raw_data = res.json()
@@ -307,6 +307,19 @@ class StorageBridgeService:
         - Canonical Title IDs (PPSA / CUSA)
         """
         client_info = detect_console_firmware(user_agent)
+
+        # Dynamic title ID auto-resolution if missing
+        if not game.ps5_title_id and not game.ps4_title_id:
+            p5, p4 = resolve_playstation_title_ids(game.title_en, slug=game.slug)
+            if p5:
+                game.ps5_title_id = p5
+            if p4:
+                game.ps4_title_id = p4
+            if (p5 or p4) and db:
+                try:
+                    await db.commit()
+                except Exception:
+                    pass
 
         formats = game.available_formats or []
         # If formats empty, synthesize standard compatible options based on game metadata

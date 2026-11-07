@@ -87,7 +87,21 @@
     "partNumber": "#{{number}}",
     "copyTitle": "کپی لینک مستقیم فایل",
     "copyDisabledTitle": "دانلود برای شما مجاز نیست",
-    "copyLink": "کپی لینک"
+    "copyLink": "کپی لینک",
+    "titleId": "شناسه بازی:",
+    "ps5TitleId": "شناسه رسمی PS5:",
+    "ps4TitleId": "شناسه رسمی PS4:",
+    "fpkgTitle": "نسخه جیلبریک FPKG سونی (فریمور ۱۱.۴۰ و پایین‌تر)",
+    "fpkgBadge": "FPKG (v4.xx تا v11.40)",
+    "fpkgDesc": "مخصوص کنسول‌های کپی‌خور با فریمورهای ۴.xx تا ۱۱.۴۰ (نصب مستقیم با Package Installer / itemzflow)",
+    "fat32Title": "نسخه ساختاریافته FAT32 (فریمورهای بالاتر از ۱۱.۴۰)",
+    "fat32Badge": "FAT32 (فریمور > 11.40)",
+    "fat32Desc": "پارت‌های تفکیک‌شده سازگار با هارد دیسک FAT32 و فریمورهای جدیدتر کنسول",
+    "recommendedForYou": "پیشنهاد شده برای دستگاه شما",
+    "sendToPs5": "ارسال مستقیم به PS5",
+    "desktopSelectNotice": "مرورگر دسکتاپ/موبایل — انتخاب پلتفرم و فرمت فریمور بر عهده شماست",
+    "copyChecksum": "کپی SHA-256",
+    "checksumCopied": "کد SHA-256 کپی شد"
   },
   "downloadModal": {
     "title": "تایید دانلود و کسر سهمیه",
@@ -107,7 +121,17 @@
     "warningTitle": "توجه:",
     "warningBody": "با تایید و آغاز دانلود، مقدار {{size}} از سهمیه مصرفی اشتراک شما کسر خواهد شد و در تاریخچه دانلودهای شما ثبت می‌گردد.",
     "confirm": "تایید و شروع دانلود",
-    "processing": "در حال ثبت..."
+    "processing": "در حال ثبت...",
+    "selectPlatformStep": "مرحله ۱: انتخاب پلتفرم کنسول",
+    "selectFirmwareStep": "مرحله ۲: انتخاب فرمت فریمور مقصد",
+    "fpkgOptionTitle": "نسخه FPKG (فریمور ۱۱.۴۰ و پایین‌تر)",
+    "fpkgOptionDesc": "پکیج نصبی ویژه کنسول‌های کپی‌خور فریمور ۴.xx تا ۱۱.۴۰ (Package Installer)",
+    "fat32OptionTitle": "نسخه FAT32 (فریمورهای بالاتر از ۱۱.۴۰)",
+    "fat32OptionDesc": "ساختار دایرکتوری و پارت‌های سازگار با فایل‌سیستم FAT32 و فریمورهای بالاتر",
+    "sendDirectToPs5": "ارسال مستقیم به Download32 در PS5",
+    "consoleDetectedTitle": "کنسول پلی‌استیشن شناسایی شد",
+    "sha256Label": "کد اعتبارسنجی سلامت (SHA-256):",
+    "titleIdLabel": "شناسه رسمی کنسولی:"
   },
   "quotaWidget": {
     "cta": "خرید اشتراک و دانلود بازی‌ها",

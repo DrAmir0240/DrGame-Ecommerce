@@ -87,7 +87,21 @@
     "partNumber": "#{{number}}",
     "copyTitle": "Copy the direct file link",
     "copyDisabledTitle": "Download is not available for you",
-    "copyLink": "Copy link"
+    "copyLink": "Copy link",
+    "titleId": "Title ID:",
+    "ps5TitleId": "PS5 Title ID:",
+    "ps4TitleId": "PS4 Title ID:",
+    "fpkgTitle": "FPKG Jailbreak Edition (FW <= 11.40)",
+    "fpkgBadge": "FPKG (v4.xx to v11.40)",
+    "fpkgDesc": "Direct install package for jailbroken consoles running FW 4.xx up to 11.40 (Package Installer / itemzflow)",
+    "fat32Title": "FAT32 Structured Edition (FW > 11.40)",
+    "fat32Badge": "FAT32 (FW > 11.40)",
+    "fat32Desc": "Directory and chunks compatible with FAT32 drives and higher firmware consoles",
+    "recommendedForYou": "Recommended for your device",
+    "sendToPs5": "Send to PS5",
+    "desktopSelectNotice": "Desktop/Mobile browser — please select console platform and target firmware format",
+    "copyChecksum": "Copy SHA-256",
+    "checksumCopied": "SHA-256 Copied"
   },
   "downloadModal": {
     "title": "Confirm Download & Quota Deduction",
@@ -107,7 +121,17 @@
     "warningTitle": "Note:",
     "warningBody": "By confirming and starting the download, {{size}} will be deducted from your subscription quota and recorded in your download history.",
     "confirm": "Confirm & start download",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "selectPlatformStep": "Step 1: Select Console Platform",
+    "selectFirmwareStep": "Step 2: Select Target Firmware Format",
+    "fpkgOptionTitle": "FPKG Edition (FW <= 11.40)",
+    "fpkgOptionDesc": "Package installer bundle for jailbroken consoles with firmware 4.xx to 11.40",
+    "fat32OptionTitle": "FAT32 Edition (FW > 11.40)",
+    "fat32OptionDesc": "Directory structure and chunks compatible with FAT32 filesystems and higher firmwares",
+    "sendDirectToPs5": "Direct Send to Download32 on PS5",
+    "consoleDetectedTitle": "PlayStation Console Detected",
+    "sha256Label": "SHA-256 Checksum:",
+    "titleIdLabel": "Official Console Title ID:"
   },
   "quotaWidget": {
     "cta": "Buy a subscription and download games",
