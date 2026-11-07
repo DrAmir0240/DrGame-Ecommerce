@@ -7,12 +7,15 @@ import {
   CommissionTransaction,
   CommissionTransactionListResponse,
   SettlementAccount,
+  NetworkTreeResponse,
 } from '@/types/referral';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ReferralStatsCards from '@/components/referral/ReferralStatsCards';
 import SettlementAccountsModal from '@/components/referral/SettlementAccountsModal';
 import WithdrawalModal from '@/components/referral/WithdrawalModal';
 import TransactionsTable from '@/components/referral/TransactionsTable';
+import ReferralCalculatorModal from '@/components/referral/ReferralCalculatorModal';
+import ReferralNetworkTable from '@/components/referral/ReferralNetworkTable';
 import {
   Building2,
   Coins,
@@ -27,6 +30,7 @@ import {
   CheckCircle,
   XCircle,
   ArrowDownLeft,
+  Calculator,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
@@ -48,6 +52,7 @@ export default function ReferralDashboardPage() {
 
   const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<ReferralStats | null>(null);
+  const [networkTree, setNetworkTree] = useState<NetworkTreeResponse | null>(null);
   const [accounts, setAccounts] = useState<SettlementAccount[]>([]);
   const [transactions, setTransactions] = useState<CommissionTransaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalHistoryItem[]>([]);
@@ -56,22 +61,29 @@ export default function ReferralDashboardPage() {
   const [page, setPage] = useState(1);
   const [totalTx, setTotalTx] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedLayer, setSelectedLayer] = useState<'1' | '2' | '3' | 'all'>('1');
+  const [selectedLayer, setSelectedLayer] = useState<'1' | '2' | '3' | 'all'>('all');
 
   // Modals state
   const [isAccountsModalOpen, setIsAccountsModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   const loadAllData = async () => {
     try {
       const layerParam = selectedLayer !== 'all' ? `&layer=${selectedLayer}` : '';
-      const [statsData, accountsData, txData, withdrawalsData] = await Promise.all([
+      const [statsData, treeData, accountsData, txData, withdrawalsData] = await Promise.all([
         apiRequest<ReferralStats>('/referral/stats'),
+        apiRequest<NetworkTreeResponse>('/referral/network-tree').catch(() => null),
         apiRequest<SettlementAccount[]>('/referral/settlement-accounts'),
-        apiRequest<CommissionTransactionListResponse>(`/referral/transactions?page=${page}&page_size=15${layerParam}`),
-        apiRequest<{items: WithdrawalHistoryItem[]; total: number; page: number; page_size: number}>(`/referral/withdrawals?page=${withdrawalsPage}&page_size=10`).catch(() => ({items: [], total: 0, page: 1, page_size: 10})),
+        apiRequest<CommissionTransactionListResponse>(
+          `/referral/transactions?page=${page}&page_size=15${layerParam}`
+        ),
+        apiRequest<{ items: WithdrawalHistoryItem[]; total: number; page: number; page_size: number }>(
+          `/referral/withdrawals?page=${withdrawalsPage}&page_size=10`
+        ).catch(() => ({ items: [], total: 0, page: 1, page_size: 10 })),
       ]);
       setStats(statsData);
+      setNetworkTree(treeData);
       setAccounts(accountsData || []);
       setTransactions(txData.items || []);
       setTotalTx(txData.total || 0);
@@ -96,10 +108,11 @@ export default function ReferralDashboardPage() {
     }
   }, [isAuthenticated, page, selectedLayer, withdrawalsPage]);
 
-  // Clean empty state instead of fake demo data
   const emptyStats: ReferralStats = {
     referral_code: '...',
     withdrawable_balance_toman: 0,
+    pending_balance_toman: 0,
+    next_settlement_date: null,
     total_earned_toman: 0,
     total_withdrawn_toman: 0,
     direct_referrals_count: 0,
@@ -109,7 +122,7 @@ export default function ReferralDashboardPage() {
   const activeStats = stats || emptyStats;
 
   return (
-    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10">
+    <div className="max-w-[1700px] 2xl:max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-10 space-y-10 font-vazir text-start">
       {mounted && !isAuthenticated && (
         <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cyan-300">
           <div className="flex items-center gap-2">
@@ -131,15 +144,24 @@ export default function ReferralDashboardPage() {
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <span>{t('referral.title')}</span>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-              {t('referral.settlementBadge')}
+              تسویه هفتگی جمعه‌ها
             </span>
           </h1>
           <p className="text-xs text-text-secondary mt-1">
-            {t('referral.subtitle')}
+            سیستم پورسانت چندلایه‌ای نامحدود با مدل تقسیم نصف‌شونده و تسویه منظم هفتگی
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsCalculatorOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a2133] hover:bg-[#222b42] border border-purple-500/30 text-purple-300 text-xs font-bold transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)] cursor-pointer"
+          >
+            <Calculator className="w-4 h-4 text-purple-400" />
+            <span>شبیه‌ساز درآمد من</span>
+          </button>
+
           <button
             onClick={() => setIsAccountsModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card border border-white/10 hover:border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
@@ -158,79 +180,89 @@ export default function ReferralDashboardPage() {
         </div>
       </div>
 
-      {/* Layer Filter Dropdown Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0d121f] border border-white/10 shadow-lg">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold text-white">{t('referral.layerFilterLabel')}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedLayer}
-            onChange={(e) => setSelectedLayer(e.target.value as any)}
-            className="px-4 py-2 rounded-xl bg-[#141b2d] border border-white/10 text-white text-xs font-bold focus:outline-none focus:border-cyan-400 cursor-pointer"
-          >
-            <option value="1">{t('referral.layers.one')}</option>
-            <option value="2">{t('referral.layers.two')}</option>
-            <option value="3">{t('referral.layers.three')}</option>
-            <option value="all">{t('referral.layers.all')}</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Stats Cards & Referral Link */}
+      {/* Stats Cards & Marketing Toolkit */}
       <ReferralStatsCards
         stats={activeStats}
         onOpenWithdrawModal={() => setIsWithdrawModalOpen(true)}
+        onOpenCalculator={() => setIsCalculatorOpen(true)}
       />
 
-      {/* Halving Model Explanation & Legal Disclaimer Box */}
+      {/* Dynamic Multi-Tier Waterfall Network Visualizer */}
       <div className="rounded-3xl bg-[#0d121f] border border-white/10 p-6 sm:p-8 space-y-6 shadow-2xl">
-        <div>
-          <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-amber-400" />
-            <span>{t('referral.formula.title')}</span>
-          </h3>
-          <p className="text-xs text-text-secondary leading-relaxed mt-1">
-            {t('referral.formula.description')}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
+          <div>
+            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <Layers className="w-5 h-5 text-amber-400" />
+              <span>پوشش سطوح شبکه و توزیع آبشاری سود (Infinite Waterfall)</span>
+            </h3>
+            <p className="text-xs text-text-secondary leading-relaxed mt-1">
+              کل بودجه بازاریابی پلتفرم ۲۱٪ از هر خرید اشتراک است که به صورت نصف‌شونده (Halving) تا عمق شبکه بین معرف‌ها توزیع می‌شود.
+            </p>
+          </div>
+          <div className="text-xs text-slate-400">
+            کل اعضای شبکه شما: <span className="font-bold text-white">{n(networkTree?.total_members || 0)}</span> نفر
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-          <div className="p-4 rounded-2xl bg-[#141b2d] border border-emerald-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer1Label')}</span>
-            <span className="text-lg font-black text-emerald-400">{t('referral.formula.layer1Value')}</span>
-            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer1Note')}</span>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-[#141b2d] border border-cyan-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer2Label')}</span>
-            <span className="text-lg font-black text-cyan-400">{t('referral.formula.layer2Value')}</span>
-            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer2Note')}</span>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-[#141b2d] border border-amber-500/20 space-y-1">
-            <span className="text-text-muted block text-[11px]">{t('referral.formula.layer3Label')}</span>
-            <span className="text-lg font-black text-amber-400">{t('referral.formula.layer3Value')}</span>
-            <span className="text-[10px] text-text-muted block">{t('referral.formula.layer3Note')}</span>
-          </div>
+        {/* Dynamic Level Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          {(networkTree?.levels || [
+            { level: 1, percentage: 10.5, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
+            { level: 2, percentage: 5.25, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
+            { level: 3, percentage: 2.625, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
+            { level: 4, percentage: 1.313, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
+          ]).map((lvl) => (
+            <div
+              key={lvl.level}
+              className={`p-4 rounded-2xl border transition-all space-y-2 ${
+                lvl.level === 1
+                  ? 'bg-[#141f2d] border-cyan-500/30'
+                  : lvl.level === 2
+                  ? 'bg-[#19152b] border-purple-500/30'
+                  : lvl.level === 3
+                  ? 'bg-[#221c17] border-amber-500/30'
+                  : 'bg-[#141b2d] border-white/10'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-xs">لایه {n(lvl.level)}</span>
+                <span className="font-mono font-black text-xs text-emerald-400">{lvl.percentage}٪</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                <span>تعداد اعضا:</span>
+                <span className="font-bold text-white">{n(lvl.members_count)} نفر</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                <span>مشترکین فعال:</span>
+                <span className="font-bold text-cyan-400">{n(lvl.active_subscribers_count)} نفر</span>
+              </div>
+              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] text-slate-400">سود تجمیعی:</span>
+                <span className="font-mono font-bold text-emerald-300 text-xs" dir="ltr">
+                  {price(lvl.total_earned_toman)}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Legal Disclaimer Box */}
         <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 space-y-2 leading-relaxed">
           <div className="flex items-center gap-2 text-amber-400 font-bold">
             <HelpCircle className="w-4 h-4 shrink-0" />
-            <span>{t('referral.terms.title')}</span>
+            <span>نکات و ضوابط تسویه هفتگی و صندوق پلتفرم</span>
           </div>
           <p className="text-[11px] text-text-secondary leading-relaxed">
-            {t('referral.terms.item1')}
+            ۱. پورسانت‌های هر سفارش تا پایان هفته در وضعیت «معلق» قرار داشته و در پایان هر هفته (جمعه ساعت ۲۳:۵۹) به صورت خودکار به موجودی قابل برداشت واریز می‌شوند.
           </p>
           <p className="text-[11px] text-text-secondary leading-relaxed">
-            {t('referral.terms.item2')}
+            ۲. سهم پورسانت اعضایی که در لحظه خرید اشتراک فعال ندارند به صندوق پلتفرم منظور می‌شود و کاربران پنهان‌شده در زنجیره دور زده می‌شوند (Pass-Through).
           </p>
         </div>
       </div>
+
+      {/* Downlines Roster Table with Privacy Masking */}
+      <ReferralNetworkTable />
 
       {/* Withdrawals Request History Table */}
       {withdrawals.length > 0 && (
@@ -321,7 +353,7 @@ export default function ReferralDashboardPage() {
         </div>
       )}
 
-      {/* Transactions Table */}
+      {/* Transactions Table with Settlement Status */}
       <TransactionsTable
         transactions={transactions}
         isLoading={isLoading}
@@ -348,6 +380,12 @@ export default function ReferralDashboardPage() {
           onWithdrawSuccess={loadAllData}
         />
       )}
+
+      <ReferralCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+        referralCode={activeStats.referral_code}
+      />
     </div>
   );
 }

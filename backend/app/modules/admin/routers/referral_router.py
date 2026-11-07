@@ -26,6 +26,10 @@ from app.modules.admin.schemas import (
 )
 from app.modules.admin.services import AdminService
 from app.modules.wallet.models import SettlementAccount, ReferralChain
+from app.modules.wallet.services import WalletService
+from app.modules.wallet.settlement_service import WeeklySettlementService
+from app.modules.users.models import User
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/admin-referral", tags=["Admin: Referral Department"])
 
@@ -331,3 +335,158 @@ async def process_payout_request(
         request=request,
     )
     return res
+
+
+# --- Step 20: Weekly Settlement Center ---
+
+@router.get("/settlement/preview")
+async def preview_weekly_settlement(
+    db: AsyncSession = Depends(get_db),
+    _: ReferralAdmin = Depends(require_referral_admin()),
+):
+    """Preview pending commission amounts and beneficiaries before executing settlement."""
+    return await WeeklySettlementService.preview_weekly_settlement(db)
+
+
+@router.post("/settlement/execute")
+async def execute_weekly_settlement(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: ReferralAdmin = Depends(require_referral_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Execute weekly batch settlement, credit user wallets, and mark ledgers as settled."""
+    res = await WeeklySettlementService.execute_weekly_settlement(
+        db=db,
+        executed_by_admin_id=current_admin.id,
+        executed_by_type="admin",
+    )
+    await log_admin_action(
+        db=db,
+        department="referral",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="EXECUTE_WEEKLY_SETTLEMENT",
+        target_entity=f"SettlementBatch:{res.get('batch_code')}",
+        details=res,
+        request=request,
+    )
+    return res
+
+
+@router.get("/settlement/history")
+async def get_settlement_history(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    _: ReferralAdmin = Depends(require_referral_admin()),
+):
+    """Get paginated history of executed weekly settlements."""
+    return await WeeklySettlementService.get_settlement_history(db, page, page_size)
+
+
+@router.get("/settlement/batches/{batch_code}")
+async def get_settlement_batch_details(
+    batch_code: str,
+    db: AsyncSession = Depends(get_db),
+    _: ReferralAdmin = Depends(require_referral_admin()),
+):
+    """Get details and ledgers of a specific settlement batch."""
+    return await WeeklySettlementService.get_batch_details(db, batch_code)
+
+
+# --- Step 20: Admin Tree Pedigree Explorer & Hidden Flag ---
+
+class UpdateHiddenStatusRequest(BaseModel):
+    is_referral_hidden: bool
+
+
+@router.get("/tree/{user_id}")
+async def get_user_pedigree_tree(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: ReferralAdmin = Depends(require_referral_admin()),
+):
+    """Explore a user's upline pedigree and direct downlines."""
+    return await WeeklySettlementService.get_admin_user_tree(db, user_id)
+
+
+@router.put("/users/{user_id}/hidden-status")
+async def toggle_user_hidden_status(
+    user_id: int,
+    payload: UpdateHiddenStatusRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: ReferralAdmin = Depends(require_referral_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Toggle is_referral_hidden flag for a user to bypass or include them in referral waterfall."""
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="کاربر مورد نظر یافت نشد.")
+
+    old_status = user.is_referral_hidden
+    user.is_referral_hidden = payload.is_referral_hidden
+    await db.commit()
+
+    await log_admin_action(
+        db=db,
+        department="referral",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="UPDATE_REFERRAL_HIDDEN_STATUS",
+        target_entity=f"User:{user_id}",
+        details={"old_status": old_status, "new_status": user.is_referral_hidden},
+        request=request,
+    )
+    return {"status": "success", "user_id": user_id, "is_referral_hidden": user.is_referral_hidden}
+
+
+# --- Step 20: Treasury Pool Dashboard & Grant ---
+
+class TreasuryRewardRequest(BaseModel):
+    user_id: int
+    amount_toman: int
+    description: str = ""
+
+
+@router.get("/treasury")
+async def get_treasury_status(
+    db: AsyncSession = Depends(get_db),
+    _: ReferralAdmin = Depends(require_referral_admin()),
+):
+    """Get platform treasury pool balance, totals, and audit logs."""
+    from app.modules.wallet.treasury_models import TreasuryLog
+    pool = await WalletService.get_or_create_treasury_pool(db)
+    logs_stmt = select(TreasuryLog).order_by(TreasuryLog.created_at.desc()).limit(50)
+    logs = (await db.execute(logs_stmt)).scalars().all()
+    return {
+        "pool": pool,
+        "recent_logs": logs,
+    }
+
+
+@router.post("/treasury/grant-reward")
+async def grant_treasury_reward(
+    payload: TreasuryRewardRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: ReferralAdmin = Depends(require_referral_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Grant an admin reward to a user directly from the treasury pool."""
+    res = await WalletService.admin_grant_treasury_reward(
+        db=db,
+        user_id=payload.user_id,
+        amount_toman=payload.amount_toman,
+        description=payload.description,
+    )
+    await log_admin_action(
+        db=db,
+        department="referral",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="GRANT_TREASURY_REWARD",
+        target_entity=f"User:{payload.user_id}",
+        details={"amount_toman": payload.amount_toman, "description": payload.description},
+        request=request,
+    )
+    return res
+

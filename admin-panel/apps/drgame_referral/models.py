@@ -95,6 +95,9 @@ class CommissionLedger(models.Model):
     tier_level = models.IntegerField(default=1, verbose_name="سطح معرف (۱ تا ۳)")
     amount_toman = models.BigIntegerField(verbose_name="مبلغ پورسانت (تومان)")
     description = ERPCharField(max_length=255, verbose_name="شرح", blank=True, null=True)
+    settlement_status = models.CharField(max_length=20, default="pending", verbose_name="وضعیت تسویه")
+    settled_at = models.DateTimeField(blank=True, null=True, verbose_name="تاریخ تسویه")
+    settlement_batch_id = ERPCharField(max_length=50, blank=True, null=True, verbose_name="کد بچ تسویه")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
 
     class Meta:
@@ -103,6 +106,29 @@ class CommissionLedger(models.Model):
         verbose_name = "دفتر پورسانت رفرال"
         verbose_name_plural = "دفتر پورسانت‌های رفرال"
         ordering = ["-id"]
+
+
+class SettlementBatch(models.Model):
+    id = models.AutoField(primary_key=True)
+    batch_code = models.CharField(max_length=50, unique=True, verbose_name="کد بچ تسویه")
+    total_amount_toman = models.BigIntegerField(verbose_name="مجموع مبلغ تسویه (تومان)")
+    total_transactions_count = models.IntegerField(verbose_name="تعداد تراکنش‌ها")
+    beneficiaries_count = models.IntegerField(verbose_name="تعداد ذینفعان")
+    executed_by_type = models.CharField(max_length=20, default="admin", verbose_name="مجری تسویه")
+    executed_by_admin_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه ادمین مجری")
+    period_start = models.DateTimeField(blank=True, null=True, verbose_name="شروع دوره")
+    period_end = models.DateTimeField(verbose_name="پایان دوره")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ اجرا")
+
+    class Meta:
+        managed = False
+        db_table = "settlement_batches"
+        verbose_name = "بچ تسویه هفتگی"
+        verbose_name_plural = "بچ‌های تسویه هفتگی"
+        ordering = ["-id"]
+
+    def __str__(self):
+        return f"Batch {self.batch_code} ({self.total_amount_toman:,} تومان)"
 
 
 class TreasuryLog(models.Model):

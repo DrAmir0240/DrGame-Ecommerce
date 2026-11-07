@@ -19,6 +19,7 @@ class SubscriptionTierOut(BaseModel):
     allow_dubbing: bool = False
     allow_themes: bool = False
     durations: Optional[dict] = None
+    user_discount: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
 

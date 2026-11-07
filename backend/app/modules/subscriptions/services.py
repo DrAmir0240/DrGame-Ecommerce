@@ -155,15 +155,48 @@ class SubscriptionService:
         return durations
 
     @staticmethod
-    async def get_all_tiers(db: AsyncSession) -> list[SubscriptionTier]:
-        """Fetch all active tiers with 1, 3, and 6 month pricing duration breakdowns from DB."""
+    async def get_all_tiers(db: AsyncSession, user_id: int | None = None) -> list[SubscriptionTier]:
+        """Fetch all active tiers with 1, 3, and 6 month pricing duration breakdowns from DB.
+        If user_id is provided and user has an active UserDiscount, inject discounted prices and promo badge.
+        """
         await SubscriptionService.seed_tiers(db)
         stmt = select(SubscriptionTier).where(SubscriptionTier.is_active == True).order_by(SubscriptionTier.price_toman.asc())
         result = await db.execute(stmt)
         tiers = list(result.scalars().all())
 
+        user_discount = None
+        if user_id:
+            from app.modules.subscriptions.discount_service import UserDiscountService
+            user_discount = await UserDiscountService.get_active_user_discount(db, user_id)
+
         for t in tiers:
-            setattr(t, "durations", SubscriptionService.format_tier_durations(t))
+            formatted_dur = SubscriptionService.format_tier_durations(t)
+            is_tier_eligible = False
+            if user_discount:
+                if not user_discount.applicable_tier_codes or t.code in user_discount.applicable_tier_codes:
+                    is_tier_eligible = True
+
+            if is_tier_eligible and user_discount:
+                for k, dur in formatted_dur.items():
+                    orig = dur.get("price_toman", 0)
+                    if orig > 0:
+                        disc = int(orig * (user_discount.discount_percent / 100))
+                        if user_discount.max_discount_toman:
+                            disc = min(disc, user_discount.max_discount_toman)
+                        dur["discounted_price_toman"] = max(0, orig - disc)
+                    else:
+                        dur["discounted_price_toman"] = 0
+
+                setattr(t, "user_discount", {
+                    "id": user_discount.id,
+                    "title": user_discount.title,
+                    "discount_percent": user_discount.discount_percent,
+                    "expires_at": user_discount.expires_at.isoformat(),
+                })
+            else:
+                setattr(t, "user_discount", None)
+
+            setattr(t, "durations", formatted_dur)
 
         return tiers
 
@@ -309,6 +342,7 @@ class SubscriptionService:
             quota_to_add = int(tier.quota_gb * duration_months)
         discount_amount = 0
         used_code = None
+        user_discount_obj = None
 
         if discount_code and original_price > 0:
             disc_res = await SubscriptionService.validate_discount_code(db, discount_code, original_price)
@@ -318,6 +352,15 @@ class SubscriptionService:
             dc_record = await db.scalar(select(DiscountCode).where(DiscountCode.code == used_code))
             if dc_record:
                 dc_record.used_count += 1
+        elif original_price > 0:
+            # Check user-bound promotion discount
+            from app.modules.subscriptions.discount_service import UserDiscountService
+            user_discount_obj = await UserDiscountService.get_active_user_discount(db, user_id, tier.code)
+            if user_discount_obj:
+                calc = int(original_price * (user_discount_obj.discount_percent / 100))
+                if user_discount_obj.max_discount_toman:
+                    calc = min(calc, user_discount_obj.max_discount_toman)
+                discount_amount = calc
 
         final_price = max(0, original_price - discount_amount)
         tx_ref = f"DRG-{uuid.uuid4().hex[:10].upper()}"
@@ -329,12 +372,17 @@ class SubscriptionService:
             discount_amount=discount_amount,
             final_price=final_price,
             discount_code_used=used_code,
+            user_discount_id=user_discount_obj.id if user_discount_obj else None,
             payment_method=payment_method,
             transaction_ref=tx_ref,
             status="paid"
         )
         db.add(payment)
         await db.flush()
+
+        if user_discount_obj:
+            from app.modules.subscriptions.discount_service import UserDiscountService
+            await UserDiscountService.consume_user_discount(db, user_discount_obj.id, payment.id)
 
         now = datetime.now(timezone.utc)
         end_date = now + timedelta(days=cfg["days"])

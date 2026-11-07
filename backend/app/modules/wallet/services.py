@@ -265,10 +265,9 @@ class WalletService:
             if has_sub:
                 distributed_sum += share
 
-                # Credit to upline user wallet
+                # Credit to upline user wallet as weekly pending balance
                 wallet = await cls.get_or_create_wallet(db, upline_id)
-                wallet.withdrawable_balance_toman += share
-                wallet.total_earned_toman += share
+                wallet.pending_balance_toman += share
 
                 ledger = CommissionLedger(
                     order_payment_id=order_payment_id or 0,
@@ -276,6 +275,7 @@ class WalletService:
                     user_id=upline_id,
                     tier_level=level,
                     amount_toman=share,
+                    settlement_status="pending",
                     description=f"پورسانت ارجاع سطح {level} از سفارش {order_payment_id or buyer_id}",
                 )
                 db.add(ledger)
@@ -287,6 +287,8 @@ class WalletService:
                     user_id=None,
                     tier_level=level,
                     amount_toman=share,
+                    settlement_status="settled",
+                    settled_at=datetime.now(timezone.utc),
                     description=f"سهم سطح {level} به علت عدم اشتراک فعال به صندوق پلتفرم منظور شد",
                 )
                 db.add(ledger)
@@ -308,6 +310,8 @@ class WalletService:
                     user_id=None,
                     tier_level=0,
                     amount_toman=leftover_amount,
+                    settlement_status="settled",
+                    settled_at=datetime.now(timezone.utc),
                     description="انتقال مانده تقسیم‌نشده پورسانت به صندوق پلتفرم",
                 )
             )
@@ -377,9 +381,13 @@ class WalletService:
             )
             active_subs_count = (await db.execute(subs_stmt)).scalar() or 0
 
+        from app.modules.wallet.settlement_service import calculate_next_settlement_date
+
         return {
             "referral_code": user.referral_code,
             "withdrawable_balance_toman": wallet.withdrawable_balance_toman,
+            "pending_balance_toman": wallet.pending_balance_toman,
+            "next_settlement_date": calculate_next_settlement_date().isoformat(),
             "total_earned_toman": wallet.total_earned_toman,
             "total_withdrawn_toman": wallet.total_withdrawn_toman,
             "direct_referrals_count": direct_count,

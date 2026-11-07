@@ -59,6 +59,25 @@ class DiscountCode(Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
+class UserDiscount(Base):
+    __tablename__ = "user_discounts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(150), nullable=False)
+    discount_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    max_discount_toman: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    applicable_tier_codes: Mapped[list | None] = mapped_column(JSON, default=list, nullable=True)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    order_payment_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_by_admin_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
 class OrderPayment(Base):
     __tablename__ = "order_payments"
 
@@ -69,6 +88,7 @@ class OrderPayment(Base):
     discount_amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     final_price: Mapped[int] = mapped_column(Integer, nullable=False)
     discount_code_used: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    user_discount_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     payment_method: Mapped[str] = mapped_column(String(30), default="simulation")  # "simulation", "zarinpal", "crypto_usdt"
     transaction_ref: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="paid", index=True, nullable=False)

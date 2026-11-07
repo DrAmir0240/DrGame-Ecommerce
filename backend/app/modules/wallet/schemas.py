@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field, ConfigDict
 class ReferralSummaryResponse(BaseModel):
     referral_code: str
     withdrawable_balance_toman: int
+    pending_balance_toman: int = 0
+    next_settlement_date: str | None = None
     total_earned_toman: int
     total_withdrawn_toman: int
     direct_referrals_count: int
@@ -21,7 +23,79 @@ class CommissionTransactionItem(BaseModel):
     tier_level: int
     amount_toman: int
     description: str
+    settlement_status: str = "pending"
+    settled_at: datetime | None = None
+    settlement_batch_id: str | None = None
     created_at: datetime
+
+
+class NetworkLevelStat(BaseModel):
+    level: int
+    percentage: float
+    members_count: int
+    active_subscribers_count: int
+    total_earned_toman: int
+
+
+class NetworkTreeResponse(BaseModel):
+    total_members: int
+    total_active_subscribers: int
+    levels: list[NetworkLevelStat]
+
+
+class ReferralMemberItem(BaseModel):
+    user_id: int
+    masked_username: str
+    masked_phone: str | None = None
+    level: int
+    joined_at: datetime
+    has_active_subscription: bool
+    total_contributed_commission_toman: int
+
+
+class ReferralMemberListResponse(BaseModel):
+    items: list[ReferralMemberItem]
+    total: int
+    page: int
+    page_size: int
+
+
+class SettlementPreviewBeneficiary(BaseModel):
+    user_id: int
+    username: str
+    full_name: str
+    pending_amount_toman: int
+    transactions_count: int
+
+
+class SettlementPreviewResponse(BaseModel):
+    total_pending_amount_toman: int
+    total_pending_transactions: int
+    total_beneficiaries: int
+    beneficiaries: list[SettlementPreviewBeneficiary]
+    period_end: datetime
+
+
+class SettlementBatchResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    batch_code: str
+    total_amount_toman: int
+    total_transactions_count: int
+    beneficiaries_count: int
+    executed_by_type: str
+    executed_by_admin_id: int | None = None
+    period_start: datetime | None = None
+    period_end: datetime
+    created_at: datetime
+
+
+class SettlementBatchListResponse(BaseModel):
+    items: list[SettlementBatchResponse]
+    total: int
+    page: int
+    page_size: int
 
 
 class CommissionTransactionListResponse(BaseModel):

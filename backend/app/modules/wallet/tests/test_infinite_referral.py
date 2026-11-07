@@ -7,6 +7,7 @@ from app.modules.users.models import User
 from app.modules.wallet.models import UserWallet, ReferralChain, SettlementAccount
 from app.modules.wallet.treasury_models import ReferralTreasuryPool, TreasuryLog
 from app.modules.wallet.services import WalletService
+from app.modules.wallet.settlement_service import WeeklySettlementService
 from app.modules.auth.identity_service import IdentityService
 from app.core.exceptions import ForbiddenException, BadRequestException
 
@@ -48,12 +49,37 @@ async def test_infinite_halving_commission_and_leftover_to_treasury(test_db: Asy
     assert result["leftover_amount"] == 25000
     assert result["layers_processed"] == 3
 
-    # Check wallets
+    # Check wallets BEFORE weekly settlement: amounts are in pending_balance_toman!
     w3 = await WalletService.get_or_create_wallet(test_db, u3.id)
     w2 = await WalletService.get_or_create_wallet(test_db, u2.id)
     w1 = await WalletService.get_or_create_wallet(test_db, u1.id)
+    assert w3.pending_balance_toman == 100000
+    assert w3.withdrawable_balance_toman == 0
+    assert w2.pending_balance_toman == 50000
+    assert w2.withdrawable_balance_toman == 0
+    assert w1.pending_balance_toman == 25000
+    assert w1.withdrawable_balance_toman == 0
+
+    # Preview weekly settlement
+    preview = await WeeklySettlementService.preview_weekly_settlement(test_db)
+    assert preview["total_pending_amount_toman"] == 175000
+    assert preview["total_beneficiaries"] == 3
+
+    # Execute weekly settlement
+    settle_res = await WeeklySettlementService.execute_weekly_settlement(test_db, executed_by_type="test")
+    assert settle_res["status"] == "success"
+    assert settle_res["settled_amount_toman"] == 175000
+    assert settle_res["beneficiaries_count"] == 3
+
+    # Check wallets AFTER weekly settlement: transferred to withdrawable_balance_toman!
+    await test_db.refresh(w3)
+    await test_db.refresh(w2)
+    await test_db.refresh(w1)
+    assert w3.pending_balance_toman == 0
     assert w3.withdrawable_balance_toman == 100000
+    assert w2.pending_balance_toman == 0
     assert w2.withdrawable_balance_toman == 50000
+    assert w1.pending_balance_toman == 0
     assert w1.withdrawable_balance_toman == 25000
 
     # Check Treasury Pool
@@ -94,9 +120,17 @@ async def test_pass_through_bypass_for_hidden_referral_user(test_db: AsyncSessio
     # Hidden user received 0
     w_hidden = await WalletService.get_or_create_wallet(test_db, u2.id)
     assert w_hidden.withdrawable_balance_toman == 0
+    assert w_hidden.pending_balance_toman == 0
 
-    # Top user received Layer 1 commission directly
+    # Top user received Layer 1 commission directly in pending balance
     w_top = await WalletService.get_or_create_wallet(test_db, u1.id)
+    assert w_top.pending_balance_toman == 100000
+    assert w_top.withdrawable_balance_toman == 0
+
+    # Settle
+    await WeeklySettlementService.execute_weekly_settlement(test_db, executed_by_type="test")
+    await test_db.refresh(w_top)
+    assert w_top.pending_balance_toman == 0
     assert w_top.withdrawable_balance_toman == 100000
 
 

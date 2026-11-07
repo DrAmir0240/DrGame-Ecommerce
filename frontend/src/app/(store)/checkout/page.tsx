@@ -58,12 +58,21 @@ function CheckoutContent() {
   const totalQuotaGb = customDurationCfg?.quota_gb ?? Math.round((tier?.quota_gb || 0) * duration);
   const durationDays = duration === 6 ? 180 : duration === 3 ? 90 : 30;
 
-  const discountToman = discountResult ? (discountResult.discount_amount ?? Math.floor((discountResult.discount_amount_irr || 0) / 10)) : 0;
-  const finalPriceToman = discountResult ? (discountResult.final_price ?? Math.floor((discountResult.final_price_irr || 0) / 10)) : originalPriceToman;
+  const dKey = duration === 1 ? '1_month' : `${duration}_months`;
+  const tierDurConfig = (tier?.durations as any)?.[dKey];
+  const userAutoDiscountToman =
+    !discountResult && tier?.user_discount && tierDurConfig?.discounted_price_toman !== undefined
+      ? Math.max(0, originalPriceToman - tierDurConfig.discounted_price_toman)
+      : 0;
+
+  const discountToman = discountResult
+    ? (discountResult.discount_amount ?? Math.floor((discountResult.discount_amount_irr || 0) / 10))
+    : userAutoDiscountToman;
+  const finalPriceToman = Math.max(0, originalPriceToman - discountToman);
   const calculatedDiscountPercent = discountResult?.discount_percent ?? (
     originalPriceToman > 0 && discountToman > 0
       ? Math.round((discountToman / originalPriceToman) * 100)
-      : 0
+      : (tier?.user_discount?.discount_percent ?? 0)
   );
 
   const handleApplyDiscount = async (e: React.FormEvent) => {
@@ -307,6 +316,15 @@ function CheckoutContent() {
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>
                       کد تخفیف {discountResult.code} اعمال شد ({n(calculatedDiscountPercent)}٪ تخفیف)
+                    </span>
+                  </div>
+                )}
+
+                {!discountResult && userAutoDiscountToman > 0 && tier.user_discount && (
+                  <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>
+                      تخفیف کاربرمحور اختصاصی شما ({tier.user_discount.discount_percent}٪) به صورت خودکار اعمال شد.
                     </span>
                   </div>
                 )}

@@ -8,6 +8,7 @@ from .models import (
     WithdrawalRequest,
     CommissionLedger,
     TreasuryLog,
+    SettlementBatch,
 )
 
 
@@ -38,9 +39,16 @@ class WithdrawalRequestAdmin(BaseERPAdmin):
 
 @admin.register(CommissionLedger)
 class CommissionLedgerAdmin(BaseERPAdmin):
-    list_display = ["id", "order_payment", "beneficiary_type", "user", "tier_level", "amount_toman", "created_at"]
-    search_fields = ["user__username", "description"]
-    list_filter = ["beneficiary_type", "tier_level"]
+    list_display = ["id", "order_payment", "beneficiary_type", "user", "tier_level", "amount_toman", "settlement_status", "created_at"]
+    search_fields = ["user__username", "description", "settlement_batch_id"]
+    list_filter = ["beneficiary_type", "tier_level", "settlement_status"]
+
+
+@admin.register(SettlementBatch)
+class SettlementBatchAdmin(BaseERPAdmin):
+    list_display = ["id", "batch_code", "total_amount_toman", "total_transactions_count", "beneficiaries_count", "executed_by_type", "created_at"]
+    search_fields = ["batch_code"]
+    list_filter = ["executed_by_type"]
 
 
 @admin.register(TreasuryLog)

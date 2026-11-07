@@ -65,6 +65,15 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
   };
 
   const dynamicPrice = getDynamicPrice();
+  const dKey = duration === 1 ? '1_month' : `${duration}_months`;
+  const durConfig = tier.durations ? tier.durations[dKey] : null;
+  const hasUserDiscount = Boolean(
+    tier.user_discount &&
+    durConfig &&
+    durConfig.discounted_price_toman !== undefined &&
+    durConfig.discounted_price_toman < dynamicPrice
+  );
+  const discountedPrice = hasUserDiscount && durConfig ? durConfig.discounted_price_toman : null;
 
   // Period label
   const periodLabel =
@@ -194,9 +203,24 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
 
           {/* Price Header */}
           <div className="text-center mb-5">
-            <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
-              <span>{priceText}</span>
-            </div>
+            {hasUserDiscount && discountedPrice !== null ? (
+              <>
+                <div className="mb-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                  <Sparkles className="w-3 h-3 text-emerald-400" />
+                  <span>تخفیف ویژه اختصاصی: {tier.user_discount?.discount_percent}٪</span>
+                </div>
+                <div className="text-xs text-slate-500 line-through font-mono">
+                  {priceText}
+                </div>
+                <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-vazir mb-1">
+                  <span>{price(discountedPrice)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
+                <span>{priceText}</span>
+              </div>
+            )}
             <div className="text-xs text-slate-400 font-medium font-vazir">{periodLabel}</div>
           </div>
 
@@ -294,9 +318,24 @@ export default function TierCard({ tier, isCurrent = false, duration = 1 }: Tier
 
           {/* Price Header */}
           <div className="text-center mb-5">
-            <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
-              <span>{priceText}</span>
-            </div>
+            {hasUserDiscount && discountedPrice !== null ? (
+              <>
+                <div className="mb-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                  <Sparkles className="w-3 h-3 text-emerald-400" />
+                  <span>تخفیف ویژه اختصاصی: {tier.user_discount?.discount_percent}٪</span>
+                </div>
+                <div className="text-xs text-slate-500 line-through font-mono">
+                  {priceText}
+                </div>
+                <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-vazir mb-1">
+                  <span>{price(discountedPrice)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-3xl sm:text-4xl font-black text-white font-vazir mb-1">
+                <span>{priceText}</span>
+              </div>
+            )}
             <div className="text-xs text-slate-400 font-medium font-vazir">{periodLabel}</div>
           </div>
 

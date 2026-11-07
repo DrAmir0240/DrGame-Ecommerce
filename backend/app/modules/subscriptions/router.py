@@ -7,7 +7,7 @@ import redis.asyncio as aioredis
 
 from app.core.database import get_db
 from app.core.redis_client import get_redis
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_optional_current_user
 from app.modules.users.models import User
 from app.modules.subscriptions.models import SubscriptionTier
 from app.modules.subscriptions.schemas import (
@@ -19,6 +19,7 @@ from app.modules.subscriptions.schemas import (
     MySubscriptionStatus,
 )
 from app.modules.subscriptions.services import SubscriptionService
+from app.modules.subscriptions.discount_service import UserDiscountService
 from app.modules.quota.services import QuotaService
 
 router = APIRouter(tags=["Subscriptions"])
@@ -26,9 +27,33 @@ router = APIRouter(tags=["Subscriptions"])
 @router.get("/tiers", response_model=List[SubscriptionTierOut], status_code=status.HTTP_200_OK)
 async def list_subscription_tiers(
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User | None, Depends(get_optional_current_user)] = None,
 ):
-    """Retrieve 4 official subscription tiers (Free, Bronze, Silver, Gold)."""
-    return await SubscriptionService.get_all_tiers(db)
+    """Retrieve official subscription tiers with customized user discounts if authenticated."""
+    return await SubscriptionService.get_all_tiers(db, user_id=current_user.id if current_user else None)
+
+
+@router.get("/my-discount", status_code=status.HTTP_200_OK)
+async def get_my_active_discount(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Retrieve current authenticated user's active promotional discount if any."""
+    disc = await UserDiscountService.get_active_user_discount(db, current_user.id)
+    if not disc:
+        return {"has_discount": False, "discount": None}
+    return {
+        "has_discount": True,
+        "discount": {
+            "id": disc.id,
+            "title": disc.title,
+            "discount_percent": disc.discount_percent,
+            "max_discount_toman": disc.max_discount_toman,
+            "applicable_tier_codes": disc.applicable_tier_codes or [],
+            "starts_at": disc.starts_at.isoformat(),
+            "expires_at": disc.expires_at.isoformat(),
+        },
+    }
 
 @router.get("/my-status", response_model=MySubscriptionStatus, status_code=status.HTTP_200_OK)
 async def get_my_subscription_status(

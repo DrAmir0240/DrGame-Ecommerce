@@ -27,7 +27,14 @@ export interface SubscriptionTier {
     price_toman: number;
     quota_gb: number;
     discount_percent: number;
+    discounted_price_toman?: number;
   }>;
+  user_discount?: {
+    id: number;
+    title: string;
+    discount_percent: number;
+    expires_at: string;
+  } | null;
   features?: string[];
   is_active?: boolean;
 }

@@ -15,6 +15,8 @@ import {
   Ban,
   Gift,
   Loader2,
+  Tag,
+  Sparkles,
 } from "lucide-react";
 import { AdminUserListItem, AdminUserDossier } from "@/types/admin";
 import { apiRequest } from "@/lib/apiClient";
@@ -54,6 +56,57 @@ export default function AdminUsersPage() {
   const [grantDays, setGrantDays] = useState(30);
   const [grantSubmitting, setGrantSubmitting] = useState(false);
   const [grantMessage, setGrantMessage] = useState<string | null>(null);
+
+  // Bulk Discount modal state (Step 20)
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [showBulkDiscountModal, setShowBulkDiscountModal] = useState(false);
+  const [bulkDiscountPercent, setBulkDiscountPercent] = useState(20);
+  const [bulkDurationDays, setBulkDurationDays] = useState(7);
+  const [bulkTitle, setBulkTitle] = useState('تخفیف ویژه اشتراک');
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [bulkMsg, setBulkMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const toggleSelectUser = (id: number) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.length === users.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(users.map((u) => u.id));
+    }
+  };
+
+  const handleApplyBulkDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedUserIds.length === 0) return;
+    setBulkSubmitting(true);
+    setBulkMsg(null);
+    try {
+      const res = await apiRequest<any>('/admin-finance/user-discounts/bulk', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_ids: selectedUserIds,
+          discount_percent: Number(bulkDiscountPercent),
+          duration_days: Number(bulkDurationDays),
+          title: bulkTitle.trim() || 'تخفیف ویژه اشتراک',
+        }),
+      });
+      setBulkMsg({ type: 'success', text: res.message || 'تخفیف با موفقیت به کاربران اعمال شد.' });
+      setTimeout(() => {
+        setShowBulkDiscountModal(false);
+        setSelectedUserIds([]);
+        setBulkMsg(null);
+      }, 1500);
+    } catch (err: any) {
+      setBulkMsg({ type: 'error', text: err.message || 'خطا در اعطای تخفیف گروهی' });
+    } finally {
+      setBulkSubmitting(false);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -237,6 +290,14 @@ export default function AdminUsersPage() {
           <table className="w-full text-start text-xs">
             <thead className="bg-[#121721] text-slate-400 border-b border-slate-800">
               <tr>
+                <th className="py-3.5 px-3 text-center w-10">
+                  <input
+                    type="checkbox"
+                    checked={users.length > 0 && selectedUserIds.length === users.length}
+                    onChange={toggleSelectAll}
+                    className="rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-0 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.user")}</th>
                 <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.contact")}</th>
                 <th className="py-3.5 px-4 font-semibold">{t("admin.users.table.referralCode")}</th>
@@ -249,20 +310,33 @@ export default function AdminUsersPage() {
             <tbody className="divide-y divide-slate-800/50">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
                     <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                     {t("admin.users.loading")}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
                     {t("admin.users.empty")}
                   </td>
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-800/20 transition-colors">
+                  <tr
+                    key={u.id}
+                    className={`transition-colors ${
+                      selectedUserIds.includes(u.id) ? 'bg-amber-950/20' : 'hover:bg-slate-800/20'
+                    }`}
+                  >
+                    <td className="py-3.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.includes(u.id)}
+                        onChange={() => toggleSelectUser(u.id)}
+                        className="rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-0 cursor-pointer"
+                      />
+                    </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-slate-200">
                         {u.full_name || u.username}
@@ -686,6 +760,129 @@ export default function AdminUsersPage() {
                 >
                   {grantSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Gift className="w-3.5 h-3.5" />}
                   اعطای اشتراک
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Bulk Action Bar (Step 20) */}
+      {selectedUserIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#121824] border border-amber-500/40 rounded-2xl p-4 shadow-2xl flex items-center gap-4 text-xs animate-in slide-in-from-bottom duration-200">
+          <div className="text-white font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>{n(selectedUserIds.length)} کاربر انتخاب شده</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowBulkDiscountModal(true)}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-95 text-black font-black flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
+          >
+            <Tag className="w-4 h-4" />
+            <span>اعطای تخفیف گروهی</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedUserIds([])}
+            className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+          >
+            لغو انتخاب
+          </button>
+        </div>
+      )}
+
+      {/* Bulk Discount Modal (Step 20) */}
+      {showBulkDiscountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-md bg-[#0c1017] border border-amber-500/30 rounded-3xl p-6 shadow-2xl space-y-4 text-start font-vazir">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <Tag className="w-4 h-4 text-amber-400" />
+                <span>اعطای تخفیف اشتراک به {n(selectedUserIds.length)} کاربر انتخاب‌شده</span>
+              </div>
+              <button
+                onClick={() => setShowBulkDiscountModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleApplyBulkDiscount} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 mb-1 font-bold">عنوان کمپین / پروموشن:</label>
+                <input
+                  type="text"
+                  required
+                  value={bulkTitle}
+                  onChange={(e) => setBulkTitle(e.target.value)}
+                  placeholder="مثال: تخفیف ویژه وفاداری"
+                  className="w-full bg-[#121721] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-bold">درصد تخفیف (٪):</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    required
+                    value={bulkDiscountPercent}
+                    onChange={(e) => setBulkDiscountPercent(Number(e.target.value))}
+                    className="w-full bg-[#121721] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-bold">مدت اعتبار (روز):</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={365}
+                    required
+                    value={bulkDurationDays}
+                    onChange={(e) => setBulkDurationDays(Number(e.target.value))}
+                    className="w-full bg-[#121721] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {bulkMsg && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 border ${
+                    bulkMsg.type === 'success'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  }`}
+                >
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span>{bulkMsg.text}</span>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowBulkDiscountModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs cursor-pointer"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={bulkSubmitting}
+                  className="px-5 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-black rounded-xl text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
+                >
+                  {bulkSubmitting ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5" />
+                  )}
+                  اعمال تخفیف روی کاربران
                 </button>
               </div>
             </form>

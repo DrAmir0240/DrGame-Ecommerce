@@ -102,15 +102,24 @@ async def test_commission_waterfall_calculation(test_db: AsyncSession):
     assert res["shop_share"] == 790000
     assert res["commission_pool"] == 210000
 
-    # User B is Level 1 upline: gets 50% of 210,000 = 105,000 Toman
+    # User B is Level 1 upline: gets 50% of 210,000 = 105,000 Toman (Pending until weekly settlement)
     wallet_b = await WalletService.get_or_create_wallet(test_db, user_b.id)
-    assert wallet_b.withdrawable_balance_toman == 105000
-    assert wallet_b.total_earned_toman == 105000
+    assert wallet_b.pending_balance_toman == 105000
+    assert wallet_b.withdrawable_balance_toman == 0
 
     # User A is Level 2 upline: 25% of 210,000 = 52,500 Toman, but has NO active sub!
-    # So User A gets 0 and CEO gets the share
+    # So User A gets 0 and treasury gets the share
     wallet_a = await WalletService.get_or_create_wallet(test_db, user_a.id)
     assert wallet_a.withdrawable_balance_toman == 0
+    assert wallet_a.pending_balance_toman == 0
+
+    # Execute weekly settlement
+    from app.modules.wallet.settlement_service import WeeklySettlementService
+    await WeeklySettlementService.execute_weekly_settlement(test_db, executed_by_type="test")
+    await test_db.refresh(wallet_b)
+    assert wallet_b.pending_balance_toman == 0
+    assert wallet_b.withdrawable_balance_toman == 105000
+    assert wallet_b.total_earned_toman == 105000
 
 
 @pytest.mark.asyncio

@@ -8,10 +8,16 @@ import {
   Share2,
   Landmark,
   Users,
+  Clock,
+  GitFork,
+  Coins,
 } from "lucide-react";
 
 const referralNavItems: DeptNavItem[] = [
-  { label: "خزانه‌داری رفرال", href: "/admin/referral", icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: "داشبورد رفرال", href: "/admin/referral", icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: "مرکز تسویه هفتگی", href: "/admin/referral/settlement", icon: <Clock className="w-5 h-5" /> },
+  { label: "کاوشگر شجره‌نامه", href: "/admin/referral/tree", icon: <GitFork className="w-5 h-5" /> },
+  { label: "خزانه‌داری پلتفرم", href: "/admin/referral/treasury", icon: <Coins className="w-5 h-5" /> },
   { label: "درخواست‌های تسویه", href: "/admin/referral/payouts", icon: <CreditCard className="w-5 h-5" /> },
   { label: "زنجیره‌های دعوت", href: "/admin/referral/chains", icon: <Share2 className="w-5 h-5" /> },
   { label: "حساب‌های بانکی و شبا", href: "/admin/referral/accounts", icon: <Landmark className="w-5 h-5" /> },

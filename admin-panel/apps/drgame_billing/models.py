@@ -104,6 +104,7 @@ class UserWallet(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="user_id", verbose_name="کاربر")
     withdrawable_balance_toman = models.BigIntegerField(default=0, verbose_name="موجودی قابل برداشت (تومان)")
+    pending_balance_toman = models.BigIntegerField(default=0, verbose_name="موجودی معلق تسویه هفتگی (تومان)")
     total_earned_toman = models.BigIntegerField(default=0, verbose_name="مجموع درآمد رفرال (تومان)")
     total_withdrawn_toman = models.BigIntegerField(default=0, verbose_name="مجموع تسویه‌شده (تومان)")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="آخرین بروزرسانی")
@@ -117,6 +118,33 @@ class UserWallet(models.Model):
 
     def __str__(self):
         return f"Wallet {self.user} ({self.withdrawable_balance_toman:,} تومان)"
+
+
+class UserDiscount(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="user_id", verbose_name="کاربر")
+    title = models.CharField(max_length=150, verbose_name="عنوان تخفیف")
+    discount_percent = models.IntegerField(default=0, verbose_name="درصد تخفیف")
+    max_discount_toman = models.IntegerField(blank=True, null=True, verbose_name="سقف تخفیف (تومان)")
+    applicable_tier_codes = ERPJSONField(blank=True, null=True, verbose_name="پلن‌های مجاز")
+    starts_at = models.DateTimeField(verbose_name="شروع اعتبار")
+    expires_at = models.DateTimeField(verbose_name="پایان اعتبار")
+    is_used = models.BooleanField(default=False, verbose_name="مصرف شده")
+    used_at = models.DateTimeField(blank=True, null=True, verbose_name="تاریخ مصرف")
+    order_payment_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه سفارش مرتبط")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+    created_by_admin_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه ادمین ایجادکننده")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+
+    class Meta:
+        managed = False
+        db_table = "user_discounts"
+        verbose_name = "تخفیف کاربرمحور"
+        verbose_name_plural = "تخفیف‌های کاربرمحور"
+        ordering = ["-id"]
+
+    def __str__(self):
+        return f"{self.user} - {self.discount_percent}% ({self.title})"
 
 
 class UserQuota(models.Model):

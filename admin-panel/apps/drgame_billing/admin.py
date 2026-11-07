@@ -6,6 +6,7 @@ from .models import (
     UserSubscription,
     OrderPayment,
     DiscountCode,
+    UserDiscount,
     UserWallet,
     UserQuota,
     QuotaConsumptionLog,
@@ -41,9 +42,16 @@ class DiscountCodeAdmin(BaseERPAdmin):
     list_filter = ["is_active"]
 
 
+@admin.register(UserDiscount)
+class UserDiscountAdmin(BaseERPAdmin):
+    list_display = ["id", "user", "title", "discount_percent", "starts_at", "expires_at", "is_used", "is_active"]
+    search_fields = ["user__username", "title"]
+    list_filter = ["is_used", "is_active"]
+
+
 @admin.register(UserWallet)
 class UserWalletAdmin(BaseERPAdmin):
-    list_display = ["id", "user", "withdrawable_balance_toman", "total_earned_toman", "total_withdrawn_toman", "updated_at"]
+    list_display = ["id", "user", "withdrawable_balance_toman", "pending_balance_toman", "total_earned_toman", "total_withdrawn_toman", "updated_at"]
     search_fields = ["user__username", "user__phone"]
 
 

@@ -51,6 +51,7 @@ export default function ReferralSummaryBanner() {
   const activeStats: ReferralStats = stats || {
     referral_code: user.referral_code || (user.phone ? `DG-${user.phone.slice(-4)}` : 'DG-PRO'),
     withdrawable_balance_toman: 0,
+    pending_balance_toman: 0,
     total_earned_toman: 0,
     total_withdrawn_toman: 0,
     direct_referrals_count: 0,

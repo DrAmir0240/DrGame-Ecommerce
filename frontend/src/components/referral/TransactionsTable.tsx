@@ -62,6 +62,7 @@ export default function TransactionsTable({
                 <th className="py-3 px-3">{t('referralUI.transactions.colId')}</th>
                 <th className="py-3 px-3">{t('referralUI.transactions.colTier')}</th>
                 <th className="py-3 px-3">{t('referralUI.transactions.colAmount')}</th>
+                <th className="py-3 px-3">وضعیت تسویه</th>
                 <th className="py-3 px-3">{t('referralUI.transactions.colDescription')}</th>
                 <th className="py-3 px-3">{t('referralUI.transactions.colDate')}</th>
               </tr>
@@ -77,6 +78,21 @@ export default function TransactionsTable({
                   </td>
                   <td className="py-3.5 px-3 font-mono font-bold text-emerald-400">
                     + {price(tx.amount_toman)}
+                  </td>
+                  <td className="py-3.5 px-3">
+                    {tx.settlement_status === 'settled' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">
+                        تسویه‌شده
+                      </span>
+                    ) : tx.settlement_status === 'cancelled' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-bold text-[10px] border border-rose-500/30">
+                        لغوشده
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] border border-amber-500/30">
+                        در انتظار تسویه هفتگی
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 px-3 text-white text-[11px]">{tx.description}</td>
                   <td className="py-3.5 px-3 text-text-muted font-mono text-[11px]">

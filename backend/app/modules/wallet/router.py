@@ -9,6 +9,8 @@ from app.modules.users.models import User
 from app.modules.wallet.schemas import (
     ReferralSummaryResponse,
     CommissionTransactionListResponse,
+    NetworkTreeResponse,
+    ReferralMemberListResponse,
     SettlementAccountCreate,
     SettlementAccountResponse,
     SettlementAccountUpdate,
@@ -19,6 +21,7 @@ from app.modules.wallet.schemas import (
     SendPhoneOtpResponse,
 )
 from app.modules.wallet.services import WalletService
+from app.modules.wallet.settlement_service import WeeklySettlementService
 from app.modules.auth.identity_service import IdentityService
 
 router = APIRouter(tags=["Referral & Wallet"])
@@ -130,4 +133,28 @@ async def delete_settlement_account(
 ):
     """Deactivate or delete user settlement account."""
     return await WalletService.delete_settlement_account(db, current_user.id, account_id)
+
+
+@router.get("/network-tree", response_model=NetworkTreeResponse, status_code=status.HTTP_200_OK)
+async def get_network_tree(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    """Get multi-tier downline network distribution, counts, and earnings across all levels."""
+    return await WeeklySettlementService.get_user_network_tree(db, current_user.id)
+
+
+@router.get("/members", response_model=ReferralMemberListResponse, status_code=status.HTTP_200_OK)
+async def get_referral_members(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    level: int | None = Query(None, description="Filter by network level (e.g. 1, 2, 3...)"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+):
+    """Retrieve masked downline roster with membership level and subscription status."""
+    return await WeeklySettlementService.get_user_downline_members(
+        db, current_user.id, level=level, page=page, page_size=page_size
+    )
+
 

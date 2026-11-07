@@ -29,6 +29,8 @@ from app.modules.admin.schemas import (
 from app.modules.admin.services import AdminService
 from app.modules.subscriptions.models import SubscriptionTier
 from app.modules.subscriptions.schemas import SubscriptionTierUpdate
+from app.modules.subscriptions.discount_service import UserDiscountService
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/admin-finance", tags=["Admin: Finance Department"])
 
@@ -430,6 +432,99 @@ async def grant_manual_subscription(
         action="GRANT_SUBSCRIPTION",
         target_entity=f"User:{user_id}",
         details={"tier_code": payload.tier_code, "months": payload.duration_months},
+        request=request,
+    )
+    return res
+
+
+# --- Step 20: User-Bound Bulk Discounts ---
+
+class BulkUserDiscountRequest(BaseModel):
+    user_ids: List[int] = Field(..., min_length=1, description="لیست شناسه‌های کاربران هدف")
+    discount_percent: int = Field(..., ge=1, le=100, description="درصد تخفیف")
+    duration_days: int = Field(..., ge=1, le=365, description="مدت اعتبار تخفیف به روز")
+    title: str = Field(default="تخفیف ویژه اشتراک", description="عنوان نمایشی تخفیف")
+    applicable_tier_codes: Optional[List[str]] = Field(default=None, description="پلن‌های مجاز (اختیاری)")
+    max_discount_toman: Optional[int] = Field(default=None, description="سقف ریالی تخفیف (اختیاری)")
+
+
+@router.post("/user-discounts/bulk", status_code=status.HTTP_201_CREATED)
+async def create_bulk_user_discounts(
+    payload: BulkUserDiscountRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: FinanceAdmin = Depends(require_finance_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Assign promotional discounts to multiple users simultaneously (Bulk Promotion Assignment)."""
+    discounts = await UserDiscountService.create_bulk_user_discounts(
+        db=db,
+        user_ids=payload.user_ids,
+        discount_percent=payload.discount_percent,
+        duration_days=payload.duration_days,
+        title=payload.title,
+        applicable_tier_codes=payload.applicable_tier_codes,
+        max_discount_toman=payload.max_discount_toman,
+        admin_id=current_admin.id,
+    )
+    await log_admin_action(
+        db=db,
+        department="finance",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="CREATE_BULK_USER_DISCOUNTS",
+        target_entity=f"BulkDiscounts:{len(discounts)}",
+        details={
+            "user_ids": payload.user_ids,
+            "discount_percent": payload.discount_percent,
+            "duration_days": payload.duration_days,
+            "created_count": len(discounts),
+        },
+        request=request,
+    )
+    return {
+        "status": "success",
+        "created_count": len(discounts),
+        "message": f"تخفیف {payload.discount_percent}٪ با موفقیت به {len(discounts)} کاربر اختصاص یافت.",
+    }
+
+
+@router.get("/user-discounts")
+async def list_user_discounts(
+    user_id: Optional[int] = None,
+    is_active: Optional[bool] = None,
+    is_used: Optional[bool] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    _: FinanceAdmin = Depends(require_finance_admin()),
+):
+    """Retrieve paginated list of user-bound discounts with status filters."""
+    return await UserDiscountService.list_user_discounts(
+        db=db,
+        user_id=user_id,
+        is_active=is_active,
+        is_used=is_used,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.delete("/user-discounts/{discount_id}")
+async def cancel_user_discount(
+    discount_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: FinanceAdmin = Depends(require_finance_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    """Deactivate or revoke an unconsumed user promotional discount."""
+    res = await UserDiscountService.cancel_user_discount(db, discount_id)
+    await log_admin_action(
+        db=db,
+        department="finance",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="CANCEL_USER_DISCOUNT",
+        target_entity=f"UserDiscount:{discount_id}",
         request=request,
     )
     return res

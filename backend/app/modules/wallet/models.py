@@ -13,6 +13,7 @@ class UserWallet(Base):
     user_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
     currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     withdrawable_balance_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    pending_balance_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_earned_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     total_withdrawn_toman: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
@@ -41,12 +42,34 @@ class CommissionLedger(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     order_payment_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    beneficiary_type: Mapped[str] = mapped_column(String(20), nullable=False)  # "user", "ceo", "reserve"
+    beneficiary_type: Mapped[str] = mapped_column(String(20), nullable=False)  # "user", "ceo", "reserve", "treasury"
     user_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     tier_level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     amount_toman: Mapped[int] = mapped_column(BigInteger, nullable=False)
     currency: Mapped[str] = mapped_column(String(10), default="IRT", nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=False)
+    settlement_status: Mapped[str] = mapped_column(String(20), default="pending", index=True, nullable=False)  # "pending", "settled", "cancelled"
+    settled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    settlement_batch_id: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
+class SettlementBatch(Base):
+    __tablename__ = "settlement_batches"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    batch_code: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    total_amount_toman: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    total_transactions_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    beneficiaries_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    executed_by_type: Mapped[str] = mapped_column(String(20), default="admin", nullable=False)  # "admin", "cron", "system"
+    executed_by_admin_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    period_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
