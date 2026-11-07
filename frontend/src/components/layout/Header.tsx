@@ -37,6 +37,12 @@ export default function Header() {
   const [showDnsWarning, setShowDnsWarning] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isPlayStationUA, setIsPlayStationUA] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    useAuthStore.getState().initAuth();
+  }, []);
 
   useEffect(() => {
     if (typeof navigator !== 'undefined') {
@@ -90,7 +96,7 @@ export default function Header() {
   const navItems = [
     { href: '/', label: t('nav.home'), icon: Home, exact: true, activeColor: 'text-purple-400' },
     { href: '/games', label: t('nav.games'), icon: Gamepad2, activeColor: 'text-cosmic-purple' },
-    ...(isAuthenticated
+    ...(mounted && isAuthenticated
       ? [{ href: '/dashboard/downloads', label: t('nav.downloads'), icon: DownloadCloud, activeColor: 'text-cyan-400' }]
       : []),
     { href: '/tools', label: t('nav.tools'), icon: Wrench, activeColor: 'text-amber-400' },
@@ -266,7 +272,7 @@ export default function Header() {
             </div>
 
             {/* User Profile / Dashboard Button (Only User Panel, No Logout in Header) */}
-            {isAuthenticated && user ? (
+            {mounted && isAuthenticated && user ? (
               <div className="flex items-center shrink-0">
                 <Link
                   href="/profile"

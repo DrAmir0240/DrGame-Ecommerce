@@ -20,6 +20,7 @@ interface AuthState {
   authModalInitialTab: 'otp' | 'password' | 'console';
 
   // Actions
+  initAuth: () => void;
   setAuthModalOpen: (open: boolean, tab?: 'otp' | 'password' | 'console') => void;
   setAuth: (data: TokenResponse) => void;
   logout: () => Promise<void>;
@@ -29,12 +30,22 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: typeof window !== 'undefined' ? getAccessToken() : null,
-  refreshToken: typeof window !== 'undefined' ? getRefreshToken() : null,
-  isAuthenticated: typeof window !== 'undefined' ? !!getAccessToken() : false,
+  token: null,
+  refreshToken: null,
+  isAuthenticated: false,
   isLoading: false,
   isAuthModalOpen: false,
   authModalInitialTab: 'otp',
+
+  initAuth: () => {
+    if (typeof window !== 'undefined') {
+      const token = getAccessToken();
+      const refreshToken = getRefreshToken();
+      if (token) {
+        set({ token, refreshToken, isAuthenticated: true });
+      }
+    }
+  },
 
   setAuthModalOpen: (open, tab = 'otp') => {
     set({ isAuthModalOpen: open, authModalInitialTab: tab });
@@ -80,7 +91,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    set({ isLoading: true });
+    set({ token, isAuthenticated: true, isLoading: true });
     try {
       // Server is the single source of truth for user profile & role verification
       const user = await apiRequest<User>('/users/me');

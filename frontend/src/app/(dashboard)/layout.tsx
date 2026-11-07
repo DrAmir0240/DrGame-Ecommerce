@@ -98,6 +98,7 @@ export default function UserDashboardLayout({
   }, []);
 
   useEffect(() => {
+    useAuthStore.getState().initAuth();
     fetchCurrentUser();
     fetchQuota();
   }, []);

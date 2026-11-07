@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Crown, Sparkles, Zap, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -11,6 +11,11 @@ export default function SubscriptionBadge() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const { quota, fetchQuota } = useQuotaStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -18,8 +23,8 @@ export default function SubscriptionBadge() {
     }
   }, [isAuthenticated]);
 
-  // If not authenticated or no active subscription, show "خرید اشتراک"
-  if (!isAuthenticated || !quota || !quota.tier_code || quota.tier_code === 'free') {
+  // If not mounted, not authenticated or no active subscription, show "خرید اشتراک"
+  if (!mounted || !isAuthenticated || !quota || !quota.tier_code || quota.tier_code === 'free') {
     return (
       <Link
         href="/subscriptions"

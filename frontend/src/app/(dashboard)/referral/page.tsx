@@ -10,6 +10,7 @@ import {
   NetworkTreeResponse,
 } from '@/types/referral';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { getAccessToken } from '@/lib/authTokens';
 import ReferralStatsCards from '@/components/referral/ReferralStatsCards';
 import SettlementAccountsModal from '@/components/referral/SettlementAccountsModal';
 import WithdrawalModal from '@/components/referral/WithdrawalModal';
@@ -103,7 +104,7 @@ export default function ReferralDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated || getAccessToken()) {
       loadAllData();
     } else {
       setIsLoading(false);
