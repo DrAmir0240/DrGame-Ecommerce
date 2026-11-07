@@ -8,11 +8,13 @@ import { Users, ShieldCheck, ShieldAlert, ChevronLeft, ChevronRight, Layers, Spa
 
 interface ReferralNetworkTableProps {
   currentLevelFilter?: number | null;
+  availableLevels?: number[];
   onSelectLevelFilter?: (level: number | null) => void;
 }
 
 export default function ReferralNetworkTable({
   currentLevelFilter = null,
+  availableLevels = [],
   onSelectLevelFilter,
 }: ReferralNetworkTableProps) {
   const { t, n, price, d } = useTranslation();
@@ -21,6 +23,10 @@ export default function ReferralNetworkTable({
   const [page, setPage] = useState(1);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(currentLevelFilter || null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedLevel(currentLevelFilter);
+  }, [currentLevelFilter]);
 
   const pageSize = 15;
 
@@ -73,31 +79,39 @@ export default function ReferralNetworkTable({
 
         {/* Level Filter Chips */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => handleLevelChange(null)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              selectedLevel === null
-                ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                : 'bg-[#141b2d] text-slate-400 hover:text-white border border-white/5'
-            }`}
-          >
-            همه لایه‌ها
-          </button>
-          {[1, 2, 3, 4].map((lvl) => (
-            <button
-              key={lvl}
-              type="button"
-              onClick={() => handleLevelChange(lvl)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedLevel === lvl
-                  ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                  : 'bg-[#141b2d] text-slate-400 hover:text-white border border-white/5'
-              }`}
-            >
-              لایه {n(lvl)}
-            </button>
-          ))}
+          {!availableLevels || availableLevels.length === 0 ? (
+            <span className="text-xs text-slate-500 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 font-bold">
+              بدون لایه فعال
+            </span>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => handleLevelChange(null)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedLevel === null
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                    : 'bg-[#141b2d] text-slate-400 hover:text-white border border-white/5'
+                }`}
+              >
+                همه لایه‌ها
+              </button>
+              {availableLevels.map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => handleLevelChange(lvl)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedLevel === lvl
+                      ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                      : 'bg-[#141b2d] text-slate-400 hover:text-white border border-white/5'
+                  }`}
+                >
+                  لایه {n(lvl)}
+                </button>
+              ))}
+            </>
+          )}
         </div>
       </div>
 

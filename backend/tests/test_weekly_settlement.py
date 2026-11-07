@@ -81,3 +81,47 @@ async def test_weekly_settlement_lifecycle_and_idempotency(test_db: AsyncSession
     details = await WeeklySettlementService.get_batch_details(test_db, batch_code)
     assert details["batch"].batch_code == batch_code
     assert len(details["ledgers"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_user_network_tree_dynamic_layers(test_db: AsyncSession):
+    """Verify that network tree returns empty levels for 0 referrals, and dynamically increments as levels are added."""
+    # 1. New user with no referrals
+    solo_user = User(full_name="Solo User", username="solo_user", referral_code="SOLO001", console_auth_code="SL01", password_hash="h")
+    test_db.add(solo_user)
+    await test_db.commit()
+    await test_db.refresh(solo_user)
+
+    tree = await WeeklySettlementService.get_user_network_tree(test_db, solo_user.id)
+    assert tree["total_members"] == 0
+    assert tree["levels"] == []  # No active levels for new account
+
+    # 2. Add Layer 1 referral
+    l1_user = User(full_name="L1 User", username="l1_user", referral_code="L1REF01", console_auth_code="L101", password_hash="h")
+    test_db.add(l1_user)
+    await test_db.commit()
+    await test_db.refresh(l1_user)
+
+    await WalletService.bind_referral(test_db, l1_user.id, "SOLO001")
+
+    tree_l1 = await WeeklySettlementService.get_user_network_tree(test_db, solo_user.id)
+    assert tree_l1["total_members"] == 1
+    assert len(tree_l1["levels"]) == 1
+    assert tree_l1["levels"][0]["level"] == 1
+    assert tree_l1["levels"][0]["members_count"] == 1
+
+    # 3. Add Layer 2 referral (L1 invites L2)
+    l2_user = User(full_name="L2 User", username="l2_user", referral_code="L2REF02", console_auth_code="L202", password_hash="h")
+    test_db.add(l2_user)
+    await test_db.commit()
+    await test_db.refresh(l2_user)
+
+    await WalletService.bind_referral(test_db, l2_user.id, "L1REF01")
+
+    tree_l2 = await WeeklySettlementService.get_user_network_tree(test_db, solo_user.id)
+    assert tree_l2["total_members"] == 2
+    assert len(tree_l2["levels"]) == 2
+    assert tree_l2["levels"][0]["level"] == 1
+    assert tree_l2["levels"][1]["level"] == 2
+    assert tree_l2["levels"][1]["members_count"] == 1
+

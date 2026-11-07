@@ -269,7 +269,7 @@ class WeeklySettlementService:
                        SELECT 1 FROM user_subscriptions us
                        WHERE us.user_id = d.user_id
                          AND us.status = 'active'
-                         AND us.end_date > NOW()
+                         AND us.end_date > CURRENT_TIMESTAMP
                          AND us.tier_code != 'free'
                    ) AS is_active
             FROM downlines d;
@@ -310,23 +310,24 @@ class WeeklySettlementService:
         # Base percentages calculation
         # Base commission budget is 21%. Level 1 gets 50% of budget = 10.5%, Level 2 gets 25% = 5.25%, etc.
         level_stats = []
-        max_level_seen = max(level_counts.keys()) if level_counts else 4
-        display_max = max(4, max_level_seen)
+        active_levels = set(level_counts.keys()) | set(earnings_map.keys())
+        max_level_seen = max(active_levels) if active_levels else 0
 
-        for lvl in range(1, display_max + 1):
-            fraction_percent = round(21.0 / (2**lvl), 3)  # 10.5, 5.25, 2.625, 1.313...
-            counts = level_counts.get(lvl, {"members": 0, "active": 0})
-            earned = earnings_map.get(lvl, 0)
+        if max_level_seen > 0:
+            for lvl in range(1, max_level_seen + 1):
+                fraction_percent = round(21.0 / (2**lvl), 3)  # 10.5, 5.25, 2.625, 1.313...
+                counts = level_counts.get(lvl, {"members": 0, "active": 0})
+                earned = earnings_map.get(lvl, 0)
 
-            level_stats.append(
-                {
-                    "level": lvl,
-                    "percentage": fraction_percent,
-                    "members_count": counts["members"],
-                    "active_subscribers_count": counts["active"],
-                    "total_earned_toman": earned,
-                }
-            )
+                level_stats.append(
+                    {
+                        "level": lvl,
+                        "percentage": fraction_percent,
+                        "members_count": counts["members"],
+                        "active_subscribers_count": counts["active"],
+                        "total_earned_toman": earned,
+                    }
+                )
 
         return {
             "total_members": total_members,
@@ -362,7 +363,7 @@ class WeeklySettlementService:
                        SELECT 1 FROM user_subscriptions us
                        WHERE us.user_id = d.user_id
                          AND us.status = 'active'
-                         AND us.end_date > NOW()
+                         AND us.end_date > CURRENT_TIMESTAMP
                          AND us.tier_code != 'free'
                    ) AS is_active,
                    COALESCE((

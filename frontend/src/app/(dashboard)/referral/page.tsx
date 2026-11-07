@@ -31,6 +31,7 @@ import {
   XCircle,
   ArrowDownLeft,
   Calculator,
+  ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
@@ -62,6 +63,7 @@ export default function ReferralDashboardPage() {
   const [totalTx, setTotalTx] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLayer, setSelectedLayer] = useState<'1' | '2' | '3' | 'all'>('all');
+  const [selectedTreeLevel, setSelectedTreeLevel] = useState<number | 'all'>('all');
 
   // Modals state
   const [isAccountsModalOpen, setIsAccountsModalOpen] = useState(false);
@@ -188,81 +190,196 @@ export default function ReferralDashboardPage() {
       />
 
       {/* Dynamic Multi-Tier Waterfall Network Visualizer */}
-      <div className="rounded-3xl bg-[#0d121f] border border-white/10 p-6 sm:p-8 space-y-6 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
-          <div>
-            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-amber-400" />
-              <span>پوشش سطوح شبکه و توزیع آبشاری سود (Infinite Waterfall)</span>
-            </h3>
-            <p className="text-xs text-text-secondary leading-relaxed mt-1">
-              کل بودجه بازاریابی پلتفرم ۲۱٪ از هر خرید اشتراک است که به صورت نصف‌شونده (Halving) تا عمق شبکه بین معرف‌ها توزیع می‌شود.
-            </p>
-          </div>
-          <div className="text-xs text-slate-400">
-            کل اعضای شبکه شما: <span className="font-bold text-white">{n(networkTree?.total_members || 0)}</span> نفر
-          </div>
-        </div>
+      {(() => {
+        const activeLevels = networkTree?.levels || [];
+        return (
+          <div className="rounded-3xl bg-[#0d121f] border border-white/10 p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-amber-400" />
+                  <span>پوشش سطوح شبکه و توزیع آبشاری سود (Infinite Waterfall)</span>
+                </h3>
+                <p className="text-xs text-text-secondary leading-relaxed mt-1">
+                  کل بودجه بازاریابی پلتفرم ۲۱٪ از هر خرید اشتراک است که به صورت نصف‌شونده (Halving) تا عمق شبکه بین معرف‌ها توزیع می‌شود.
+                </p>
+              </div>
 
-        {/* Dynamic Level Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          {(networkTree?.levels || [
-            { level: 1, percentage: 10.5, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
-            { level: 2, percentage: 5.25, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
-            { level: 3, percentage: 2.625, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
-            { level: 4, percentage: 1.313, members_count: 0, active_subscribers_count: 0, total_earned_toman: 0 },
-          ]).map((lvl) => (
-            <div
-              key={lvl.level}
-              className={`p-4 rounded-2xl border transition-all space-y-2 ${
-                lvl.level === 1
-                  ? 'bg-[#141f2d] border-cyan-500/30'
-                  : lvl.level === 2
-                  ? 'bg-[#19152b] border-purple-500/30'
-                  : lvl.level === 3
-                  ? 'bg-[#221c17] border-amber-500/30'
-                  : 'bg-[#141b2d] border-white/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-xs">لایه {n(lvl.level)}</span>
-                <span className="font-mono font-black text-xs text-emerald-400">{lvl.percentage}٪</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                <span>تعداد اعضا:</span>
-                <span className="font-bold text-white">{n(lvl.members_count)} نفر</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                <span>مشترکین فعال:</span>
-                <span className="font-bold text-cyan-400">{n(lvl.active_subscribers_count)} نفر</span>
-              </div>
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">سود تجمیعی:</span>
-                <span className="font-mono font-bold text-emerald-300 text-xs" dir="ltr">
-                  {price(lvl.total_earned_toman)}
-                </span>
+              <div className="flex flex-wrap items-center gap-3">
+                {activeLevels.length === 0 ? (
+                  <span className="text-xs px-3.5 py-1.5 rounded-xl bg-slate-800/80 text-slate-400 font-bold border border-slate-700/50 inline-flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-slate-500" />
+                    بدون لایه فعال
+                  </span>
+                ) : (
+                  <div className="relative">
+                    <select
+                      value={selectedTreeLevel}
+                      onChange={(e) => setSelectedTreeLevel(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                      className="appearance-none bg-[#141b2d] border border-cyan-500/40 hover:border-cyan-400 text-white text-xs font-bold rounded-xl px-4 py-2 pe-8 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/40 shadow-sm"
+                    >
+                      <option value="all">همه لایه‌های فعال ({n(activeLevels.length)} لایه)</option>
+                      {activeLevels.map((lvl) => (
+                        <option key={lvl.level} value={lvl.level}>
+                          لایه {n(lvl.level)} ({lvl.percentage}٪ سود - {n(lvl.members_count)} عضو)
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-cyan-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                )}
+                <div className="text-xs text-slate-400 hidden sm:block">
+                  کل اعضای شبکه: <span className="font-bold text-white">{n(networkTree?.total_members || 0)}</span> نفر
+                </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Legal Disclaimer Box */}
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 space-y-2 leading-relaxed">
-          <div className="flex items-center gap-2 text-amber-400 font-bold">
-            <HelpCircle className="w-4 h-4 shrink-0" />
-            <span>نکات و ضوابط تسویه هفتگی و صندوق پلتفرم</span>
+            {/* Dynamic Content: Empty State vs All Levels Grid vs Single Level Detail */}
+            {activeLevels.length === 0 ? (
+              <div className="py-10 px-6 rounded-2xl bg-[#141a29]/40 border border-dashed border-white/10 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+                  <Layers className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-white">بدون لایه فعال</h4>
+                  <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
+                    در حال حاضر هیچ لایه‌ای در شبکه شما فعال نیست. با ارسال لینک یا کد معرف خود به اولین دوست، لایه ۱ شما (با سهم ۱۰.۵٪ سود مستقیم از هر خرید) به طور خودکار فعال خواهد شد.
+                  </p>
+                </div>
+              </div>
+            ) : selectedTreeLevel === 'all' ? (
+              <div
+                className={`grid gap-4 text-xs ${
+                  activeLevels.length === 1
+                    ? 'grid-cols-1'
+                    : activeLevels.length === 2
+                    ? 'grid-cols-1 sm:grid-cols-2'
+                    : activeLevels.length === 3
+                    ? 'grid-cols-1 sm:grid-cols-3'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                }`}
+              >
+                {activeLevels.map((lvl) => (
+                  <div
+                    key={lvl.level}
+                    onClick={() => setSelectedTreeLevel(lvl.level)}
+                    className={`p-4 rounded-2xl border transition-all space-y-2 cursor-pointer hover:scale-[1.02] ${
+                      lvl.level === 1
+                        ? 'bg-[#141f2d] border-cyan-500/30 hover:border-cyan-500/60'
+                        : lvl.level === 2
+                        ? 'bg-[#19152b] border-purple-500/30 hover:border-purple-500/60'
+                        : lvl.level === 3
+                        ? 'bg-[#221c17] border-amber-500/30 hover:border-amber-500/60'
+                        : 'bg-[#141b2d] border-white/10 hover:border-white/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white text-xs">لایه {n(lvl.level)}</span>
+                      <span className="font-mono font-black text-xs text-emerald-400">{lvl.percentage}٪</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>تعداد اعضا:</span>
+                      <span className="font-bold text-white">{n(lvl.members_count)} نفر</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>مشترکین فعال:</span>
+                      <span className="font-bold text-cyan-400">{n(lvl.active_subscribers_count)} نفر</span>
+                    </div>
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400">سود تجمیعی:</span>
+                      <span className="font-mono font-bold text-emerald-300 text-xs" dir="ltr">
+                        {price(lvl.total_earned_toman)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              (() => {
+                const lvl = activeLevels.find((l) => l.level === selectedTreeLevel);
+                if (!lvl) return null;
+                const conversionRate =
+                  lvl.members_count > 0
+                    ? Math.round((lvl.active_subscribers_count / lvl.members_count) * 100)
+                    : 0;
+                return (
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-[#141f2d] to-[#0c1420] border border-cyan-500/40 shadow-xl space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-sm">
+                          L{lvl.level}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-black text-white">جزئیات درآمد لایه {n(lvl.level)}</h4>
+                          <p className="text-[11px] text-text-secondary">
+                            {lvl.level === 1
+                              ? 'زیرمجموعه‌های مستقیم شما'
+                              : `زیرمجموعه‌های معرفی‌شده توسط لایه ${n(lvl.level - 1)}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-slate-400">سهم پورسانت از هر خرید:</span>
+                          <span className="font-mono font-black text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+                            {lvl.percentage}٪
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevel('all')}
+                          className="text-xs text-cyan-400 hover:text-cyan-300 underline font-bold cursor-pointer"
+                        >
+                          نمایش همه لایه‌ها
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-xl bg-[#0e1320] border border-white/5 space-y-1">
+                        <span className="text-[11px] text-slate-400">تعداد کل اعضا</span>
+                        <div className="text-lg font-black text-white">{n(lvl.members_count)} نفر</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-[#0e1320] border border-white/5 space-y-1">
+                        <span className="text-[11px] text-slate-400">مشترکین فعال (درآمدزا)</span>
+                        <div className="text-lg font-black text-cyan-400">{n(lvl.active_subscribers_count)} نفر</div>
+                        <div className="text-[10px] text-slate-500 font-bold">نرخ اشتراک: {n(conversionRate)}٪</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-[#0e1320] border border-white/5 space-y-1">
+                        <span className="text-[11px] text-slate-400">سود تجمیعی کسب‌شده</span>
+                        <div className="text-lg font-mono font-black text-emerald-300" dir="ltr">
+                          {price(lvl.total_earned_toman)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+
+            {/* Legal Disclaimer Box */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 space-y-2 leading-relaxed">
+              <div className="flex items-center gap-2 text-amber-400 font-bold">
+                <HelpCircle className="w-4 h-4 shrink-0" />
+                <span>نکات و ضوابط تسویه هفتگی و صندوق پلتفرم</span>
+              </div>
+              <p className="text-[11px] text-text-secondary leading-relaxed">
+                ۱. پورسانت‌های هر سفارش تا پایان هفته در وضعیت «معلق» قرار داشته و در پایان هر هفته (جمعه ساعت ۲۳:۵۹) به صورت خودکار به موجودی قابل برداشت واریز می‌شوند.
+              </p>
+              <p className="text-[11px] text-text-secondary leading-relaxed">
+                ۲. سهم پورسانت اعضایی که در لحظه خرید اشتراک فعال ندارند به صندوق پلتفرم منظور می‌شود و کاربران پنهان‌شده در زنجیره دور زده می‌شوند (Pass-Through).
+              </p>
+            </div>
           </div>
-          <p className="text-[11px] text-text-secondary leading-relaxed">
-            ۱. پورسانت‌های هر سفارش تا پایان هفته در وضعیت «معلق» قرار داشته و در پایان هر هفته (جمعه ساعت ۲۳:۵۹) به صورت خودکار به موجودی قابل برداشت واریز می‌شوند.
-          </p>
-          <p className="text-[11px] text-text-secondary leading-relaxed">
-            ۲. سهم پورسانت اعضایی که در لحظه خرید اشتراک فعال ندارند به صندوق پلتفرم منظور می‌شود و کاربران پنهان‌شده در زنجیره دور زده می‌شوند (Pass-Through).
-          </p>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* Downlines Roster Table with Privacy Masking */}
-      <ReferralNetworkTable />
+      <ReferralNetworkTable
+        currentLevelFilter={selectedTreeLevel === 'all' ? null : selectedTreeLevel}
+        availableLevels={networkTree?.levels?.map((l) => l.level) || []}
+        onSelectLevelFilter={(lvl) => setSelectedTreeLevel(lvl === null ? 'all' : lvl)}
+      />
 
       {/* Withdrawals Request History Table */}
       {withdrawals.length > 0 && (
