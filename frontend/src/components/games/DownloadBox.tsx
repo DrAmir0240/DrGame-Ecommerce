@@ -739,6 +739,9 @@ export default function DownloadBox({ links, gameTitle, gameId, game }: Download
         downloadOptions={downloadOptions}
         gameTitle={gameTitle}
         gameId={gameId}
+        onSuccess={() => {
+          fetchQuota();
+        }}
       />
     </div>
   );

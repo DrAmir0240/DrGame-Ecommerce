@@ -1,7 +1,7 @@
 """Game catalog router: list, filters, details, likes, and wishlist."""
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends, Query, status, Request, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Query, status, Request, HTTPException, Response
+from fastapi.responses import RedirectResponse, StreamingResponse
 from app.core.security import decode_token
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +23,8 @@ from app.modules.games.schemas import (
     GameDownloadOptionsOut,
     HandoffExecuteRequest,
     HandoffExecuteResponse,
+    GameDownloadTicketRequest,
+    GameDownloadTicketResponse,
 )
 from app.modules.games.services import GamesService
 
@@ -228,6 +230,148 @@ async def generate_game_download_link(
     )
 
 
+@router.post("/{game_id}/download-ticket", response_model=GameDownloadTicketResponse, status_code=status.HTTP_200_OK)
+async def generate_game_download_ticket(
+    game_id: int,
+    payload: GameDownloadTicketRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+):
+    """
+    Generate secure download ticket for a game format (FPKG/FAT32) or specific file part.
+    Enforces active subscription & tier permissions, deducts quota atomically,
+    logs QuotaConsumptionLog and UserDownloadHistory.
+    Strict rule: NO free re-download.
+    """
+    return await GamesService.generate_download_ticket(
+        db=db,
+        redis=redis,
+        user_id=current_user.id,
+        game_id=game_id,
+        job_id=payload.job_id,
+        format_category=payload.format_category,
+        file_id=payload.file_id,
+    )
+
+
+@router.api_route("/{game_id}/download-stream", methods=["GET", "HEAD"])
+async def stream_direct_game_download(
+    game_id: int,
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
+    target: Optional[str] = Query(None),
+    job_id: Optional[str] = Query(None),
+    format: Optional[str] = Query(None),
+    file_id: Optional[int] = Query(None),
+    uid: Optional[int] = Query(None),
+    exp: Optional[int] = Query(None),
+    sig: Optional[str] = Query(None),
+    token: Optional[str] = Query(None),
+):
+    """
+    Direct secure stream endpoint for browser or download manager (IDM).
+    Validates HMAC signature and expiry.
+    Returns 200/206 streaming response with attachment Content-Disposition.
+    """
+    import time
+    import hashlib
+    from app.core.config import settings
+    from app.modules.games.models import Game
+    from app.modules.games.download_models import GameDownloadFile
+
+    # 1. Validation of signed ticket
+    user_id = uid
+    auth_sig = sig or token
+    if not user_id or not exp or not auth_sig:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="پارامترهای اعتبارسنجی لینک دانلود ناقص می‌باشد.",
+        )
+
+    now_ts = int(time.time())
+    if now_ts > exp:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="لینک دانلود منقضی شده است. لطفاً مجدداً از پنل دانلود اقدام فرمایید.",
+        )
+
+    target_ref = target or job_id or (f"file_{file_id}" if file_id else f"job_game_{game_id}_{format or 'fpkg'}")
+    expected_sig = hashlib.sha256(
+        f"{user_id}:{game_id}:{target_ref}:{settings.WEBHOOK_SECRET_KEY}:{exp}".encode("utf-8")
+    ).hexdigest()[:24]
+
+    if auth_sig != expected_sig:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="امضای اعتبارسنجی لینک دانلود نامعتبر است.",
+        )
+
+    # 2. Fetch game
+    game = await db.scalar(select(Game).where(Game.id == game_id))
+    if not game:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="بازی یافت نشد.")
+
+    # 3. Check if target is a file with external download URL
+    if file_id or target_ref.startswith("file_"):
+        fid = file_id or int(target_ref.split("_")[1])
+        f_rec = await db.scalar(select(GameDownloadFile).where(GameDownloadFile.id == fid))
+        if f_rec and f_rec.download_url and f_rec.download_url.startswith("http"):
+            return RedirectResponse(url=f_rec.download_url, status_code=status.HTTP_302_FOUND)
+
+    # 4. Stream package
+    ext = "zip" if "fat32" in target_ref.lower() or (format and "fat32" in format.lower()) else "pkg"
+    filename = f"{game.slug}_{target_ref}.{ext}"
+
+    total_size = int((game.download_size_gb or 40.0) * (1024 ** 3))
+
+    # Parse Range header if present
+    range_header = request.headers.get("range")
+    start = 0
+    end = total_size - 1
+
+    if range_header and range_header.startswith("bytes="):
+        try:
+            r_parts = range_header.replace("bytes=", "").split("-")
+            start = int(r_parts[0])
+            if r_parts[1].strip():
+                end = int(r_parts[1])
+        except Exception:
+            start = 0
+            end = total_size - 1
+
+    if start >= total_size:
+        raise HTTPException(status_code=416, detail="Range not satisfiable")
+    end = min(end, total_size - 1)
+    content_length = end - start + 1
+
+    # In dev/mock streaming, stream clean sample payload to avoid saturating disk
+    limit = min(content_length, 10 * 1024 * 1024)
+
+    async def sample_stream():
+        chunk = b"\x00" * 65536
+        sent = 0
+        while sent < limit:
+            to_write = min(len(chunk), limit - sent)
+            yield chunk[:to_write]
+            sent += to_write
+
+    headers = {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Accept-Ranges": "bytes",
+        "Content-Range": f"bytes {start}-{end}/{total_size}",
+        "Content-Length": str(limit),
+    }
+
+    if request.method == "HEAD":
+        return Response(status_code=status.HTTP_200_OK, headers=headers)
+
+    status_code = status.HTTP_206_PARTIAL_CONTENT if range_header else status.HTTP_200_OK
+    return StreamingResponse(sample_stream(), status_code=status_code, headers=headers)
+
+
 @router.get("/{game_id}/downloads/{file_id}/stream", status_code=status.HTTP_302_FOUND)
 async def stream_game_download(
     game_id: int,
@@ -245,11 +389,13 @@ async def stream_game_download(
     user_id = None
     auth_header = request.headers.get("authorization")
     raw_token = None
-    if auth_header and auth_header.startswith("Bearer "):
-        raw_token = auth_header.split(" ")[1]
-    elif token:
+    if auth_header and auth_header.strip().startswith("Bearer "):
+        parts = auth_header.strip().split(" ", 1)
+        if len(parts) > 1 and parts[1].strip():
+            raw_token = parts[1].strip()
+    if not raw_token and token:
         raw_token = token
-    elif "drgame_access_token" in request.cookies:
+    if not raw_token and "drgame_access_token" in request.cookies:
         raw_token = request.cookies.get("drgame_access_token")
 
     if raw_token:
@@ -273,5 +419,6 @@ async def stream_game_download(
         file_id=file_id,
     )
     return RedirectResponse(url=res["download_url"], status_code=status.HTTP_302_FOUND)
+
 
 

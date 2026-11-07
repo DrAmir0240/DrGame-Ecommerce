@@ -26,6 +26,7 @@ import {
   StorageFormatItem,
   GameDownloadOptions,
   HandoffExecuteResult,
+  GameDownloadTicketResponse,
 } from '@/types/game';
 import { apiRequest } from '@/lib/apiClient';
 import { useTranslation, DynamicText } from '@/i18n';
@@ -174,53 +175,58 @@ export default function DownloadConfirmModal({
    * Action: Trigger Direct File Download for PC/Desktop or Flash Drive
    */
   const handleConfirmDesktopDownload = async () => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true, 'otp');
+      return;
+    }
+    if (!gameId) {
+      setDownloadError('شناسه بازی معتبر نمی‌باشد.');
+      return;
+    }
+
     setIsProcessing(true);
     setDownloadError(null);
+
     try {
-      let finalDownloadUrl = link?.download_url || '';
+      // Step 20/21: Call backend download-ticket endpoint
+      // This validates tier permission, deducts quota atomically, logs download history, and generates signed streaming URL
+      const ticketRes = await apiRequest<GameDownloadTicketResponse>(
+        `/games/${gameId}/download-ticket`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            job_id: activeFormat?.job_id || null,
+            format_category: activeFormat?.format_category || (link ? null : 'fpkg'),
+            file_id: link?.id || null,
+          }),
+        }
+      );
 
-      // Step 14/19 stream endpoint for atomic quota deduction + 302 redirect
-      if (gameId && link?.id) {
-        try {
-          const streamRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.gamedr.ir/api'}/games/${gameId}/downloads/${link.id}/stream`,
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('drgame_access_token') || ''}`,
-                'Accept-Language': (typeof window !== 'undefined' && localStorage.getItem('drgame_lang')) || 'fa',
-              },
-              redirect: 'manual',
-            }
-          );
+      if (!ticketRes?.download_url) {
+        throw new Error(ticketRes?.message || 'خطا در صدور لینک دانلود');
+      }
 
-          if (streamRes.status === 302 || streamRes.status === 307) {
-            const location = streamRes.headers.get('Location');
-            if (location) {
-              finalDownloadUrl = location;
-            }
-          } else if (!streamRes.ok) {
-            const errData = await streamRes.json().catch(() => ({}));
-            throw new Error(errData.detail || 'خطا در صدور لینک دانلود');
-          }
-        } catch (err: any) {
-          console.error('Failed to stream download via API:', err);
-          setDownloadError(err.message || 'خطا در صدور لینک دانلود امن و کسر سهمیه');
-          setIsProcessing(false);
-          return;
+      // Format full URL if relative
+      let downloadLink = ticketRes.download_url;
+      if (downloadLink.startsWith('/')) {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+        if (downloadLink.startsWith('/api/') && baseUrl.endsWith('/api')) {
+          downloadLink = `${baseUrl.slice(0, -4)}${downloadLink}`;
+        } else {
+          downloadLink = `${baseUrl.replace(/\/+$/, '')}/${downloadLink.replace(/^\/+/, '')}`;
         }
       }
 
-      if (finalDownloadUrl) {
-        const a = document.createElement('a');
-        a.href = finalDownloadUrl;
-        a.download = `${gameTitle}-${activeFormat?.format_category || link?.part_name || 'game'}`;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
+      // Trigger browser download via invisible link
+      const a = document.createElement('a');
+      a.href = downloadLink;
+      const fileExt = activeFormat?.download_format === 'zip' ? 'zip' : 'pkg';
+      a.download = `${ticketRes.file_title || gameTitle}.${fileExt}`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
       setDownloadStarted(true);
       fetchQuota();
@@ -232,9 +238,9 @@ export default function DownloadConfirmModal({
         setDownloadStarted(false);
         onClose();
       }, 2500);
-    } catch (e: any) {
-      console.error('Download trigger error:', e);
-      setDownloadError(e.message || 'خطا در دریافت فایل');
+    } catch (err: any) {
+      console.error('Download trigger error:', err);
+      setDownloadError(err.message || 'خطا در دریافت و ثبت دانلود فایل');
     } finally {
       setIsProcessing(false);
     }

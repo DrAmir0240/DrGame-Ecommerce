@@ -97,6 +97,24 @@ export interface HandoffExecuteResult {
   message: string;
 }
 
+export interface GameDownloadTicketRequest {
+  job_id?: string | null;
+  format_category?: string | null;
+  file_id?: number | null;
+}
+
+export interface GameDownloadTicketResponse {
+  status: string;
+  download_url: string;
+  file_title: string;
+  file_size_gb: number;
+  remaining_quota_gb: number;
+  job_id?: string | null;
+  format_category?: string | null;
+  file_id?: number | null;
+  message: string;
+}
+
 export interface GameDetail extends GameCardItem {
   description_fa?: string | null;
   description_en?: string | null;

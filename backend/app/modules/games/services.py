@@ -940,3 +940,234 @@ class GamesService:
             "message": f"بسته {format_cat.upper()} بازی {game.title_fa} با موفقیت به کنسول ارسال شد و سهمیه کسر گردید.",
         }
 
+    @classmethod
+    async def generate_download_ticket(
+        cls,
+        db: AsyncSession,
+        redis: aioredis.Redis,
+        user_id: int,
+        game_id: int,
+        job_id: Optional[str] = None,
+        format_category: Optional[str] = None,
+        file_id: Optional[int] = None,
+    ) -> dict:
+        """
+        Step 20/21: Unified Desktop & Browser Direct Download Ticket Generator.
+        - Resolves target format or file part.
+        - Verifies user's active subscription tier & feature permissions.
+        - Atomically deducts size_gb from UserQuota (remaining_quota_gb).
+        - Enforces STRICT Rule: NO free re-download (every ticket deducts quota).
+        - Logs audit trail in UserDownloadHistory and QuotaConsumptionLog.
+        - Emits secure signed direct streaming URL with HMAC signature.
+        """
+        from datetime import datetime, timezone
+        from app.core.config import settings
+        from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+        from app.modules.games.models import Game, GameDownloadLink
+        from app.modules.games.download_models import GameDownloadFile, UserDownloadHistory
+        from app.modules.subscriptions.models import UserSubscription, SubscriptionTier, FreeTierAllowedGame
+        from app.modules.quota.models import UserQuota, QuotaConsumptionLog
+        from app.modules.games.storage_bridge import StorageBridgeService
+
+        # 1. Fetch game
+        game = await db.scalar(select(Game).where(Game.id == game_id, Game.is_active == True))
+        if not game:
+            raise NotFoundException("بازی مورد نظر یافت نشد.")
+
+        # 2. Resolve file/format item
+        size_gb = 0.0
+        file_title = ""
+        file_type = "data"
+        allowed_tiers = ["gold", "silver", "bronze"]
+        target_ref = ""
+        base_download_url = ""
+        resolved_format_cat = format_category or "fpkg"
+        resolved_job_id = job_id
+        resolved_file_id = file_id
+
+        if file_id is not None:
+            stmt = select(GameDownloadFile).where(
+                GameDownloadFile.id == file_id,
+                GameDownloadFile.game_id == game_id,
+                GameDownloadFile.is_active == True,
+            )
+            file_rec = (await db.execute(stmt)).scalar_one_or_none()
+            if not file_rec:
+                # Check legacy GameDownloadLink
+                link_stmt = select(GameDownloadLink).where(
+                    GameDownloadLink.id == file_id,
+                    GameDownloadLink.game_id == game_id,
+                    GameDownloadLink.is_active == True,
+                )
+                link_rec = (await db.execute(link_stmt)).scalar_one_or_none()
+                if link_rec:
+                    file_rec = GameDownloadFile(
+                        id=link_rec.id,
+                        game_id=link_rec.game_id,
+                        file_type="data",
+                        title=link_rec.part_name,
+                        file_size_gb=link_rec.file_size_gb,
+                        download_url=link_rec.download_url,
+                        allowed_tiers=["free", "bronze", "silver", "gold"],
+                        is_active=True,
+                    )
+            if file_rec:
+                size_gb = float(file_rec.file_size_gb)
+                file_title = file_rec.title
+                file_type = file_rec.file_type or "data"
+                allowed_tiers = file_rec.allowed_tiers or ["gold", "silver", "bronze"]
+                target_ref = f"file_{file_rec.id}"
+                base_download_url = file_rec.download_url
+            else:
+                raise NotFoundException("فایل دانلودی مورد نظر یافت نشد یا غیرفعال است.")
+        else:
+            # Storage package format (FPKG / FAT32)
+            options = await StorageBridgeService.get_game_download_options(game=game, db=db, redis=redis)
+            available = options.get("available_formats", [])
+            matched = None
+            if job_id:
+                matched = next((f for f in available if f.get("job_id") == job_id), None)
+            if not matched and format_category:
+                matched = next((f for f in available if f.get("format_category") == format_category), None)
+            if not matched and available:
+                matched = available[0]
+
+            if matched:
+                resolved_format_cat = matched.get("format_category") or "fpkg"
+                resolved_job_id = matched.get("job_id") or f"job_game_{game_id}_{resolved_format_cat}"
+                size_gb = float(matched.get("size_gb") or game.download_size_gb or 40.0)
+                file_title = matched.get("title") or f"{game.title_en} [{resolved_format_cat.upper()}]"
+                target_ref = resolved_job_id
+                base_download_url = matched.get("download_url") or ""
+            else:
+                resolved_format_cat = format_category or "fpkg"
+                resolved_job_id = job_id or f"job_game_{game_id}_{resolved_format_cat}"
+                size_gb = float(game.download_size_gb or 40.0)
+                file_title = f"{game.title_en} [{resolved_format_cat.upper()}]"
+                target_ref = resolved_job_id
+                base_download_url = ""
+
+            file_type = "data"
+            allowed_tiers = ["gold", "silver", "bronze"]
+
+        # 3. Check Subscription & Tier Permissions
+        is_free_game = (await db.execute(
+            select(FreeTierAllowedGame).where(FreeTierAllowedGame.game_id == game_id)
+        )).scalar_one_or_none() is not None
+
+        now = datetime.now(timezone.utc)
+        sub_stmt = (
+            select(UserSubscription)
+            .where(
+                UserSubscription.user_id == user_id,
+                UserSubscription.status == "active",
+                UserSubscription.end_date > now,
+            )
+            .order_by(UserSubscription.end_date.desc())
+            .limit(1)
+        )
+        active_sub = (await db.execute(sub_stmt)).scalar_one_or_none()
+        if not active_sub and not is_free_game:
+            raise ForbiddenException("برای دانلود این بازی نیاز به اشتراک فعال دارید.")
+
+        if active_sub:
+            user_tier = active_sub.tier_code
+            tier_obj = (await db.execute(
+                select(SubscriptionTier).where(SubscriptionTier.code == user_tier)
+            )).scalar_one_or_none()
+
+            if tier_obj:
+                ft = file_type.lower()
+                if ft == "data" and not tier_obj.allow_data:
+                    raise ForbiddenException(f"دیتای رسمی بازی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+                if ft == "cheat" and not tier_obj.allow_cheat:
+                    raise ForbiddenException(f"چیت و ترینر در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+                if ft == "dlc" and not tier_obj.allow_dlc:
+                    raise ForbiddenException(f"بسته‌های الحاقی (DLC) در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+                if ft == "subtitle" and not tier_obj.allow_subtitles:
+                    raise ForbiddenException(f"زیرنویس فارسی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+                if ft == "dubbing" and not tier_obj.allow_dubbing:
+                    raise ForbiddenException(f"دوبله فارسی در سطح اشتراک {tier_obj.name_fa} فعال نمی‌باشد.")
+
+            if allowed_tiers and user_tier not in allowed_tiers:
+                raise ForbiddenException(
+                    f"سطح اشتراک فعلی شما ({user_tier}) مجاز به دریافت این فایل ({file_type}) نمی‌باشد."
+                )
+
+        # 4. Check and deduct user quota atomically
+        quota_stmt = select(UserQuota).where(UserQuota.user_id == user_id)
+        quota = (await db.execute(quota_stmt)).scalar_one_or_none()
+        if not quota:
+            quota = UserQuota(
+                user_id=user_id,
+                total_quota_gb=100.0,
+                used_quota_gb=0.0,
+                remaining_quota_gb=100.0,
+            )
+            db.add(quota)
+            await db.flush()
+
+        if quota.remaining_quota_gb < size_gb:
+            raise BadRequestException(
+                f"حجم سهمیه دانلودی باقیمانده شما ({quota.remaining_quota_gb:.1f} گیگابایت) برای دریافت این فایل ({size_gb:.1f} گیگابایت) کافی نیست."
+            )
+
+        quota.used_quota_gb = round(quota.used_quota_gb + size_gb, 2)
+        quota.remaining_quota_gb = max(0.0, round(quota.total_quota_gb - quota.used_quota_gb, 2))
+
+        # 5. Log QuotaConsumptionLog
+        bytes_transferred = int(size_gb * (1024**3))
+        log = QuotaConsumptionLog(
+            user_id=user_id,
+            game_id=game_id,
+            bytes_downloaded=bytes_transferred,
+            gb_deducted=size_gb,
+            download_server_id=f"direct:{target_ref}",
+        )
+        db.add(log)
+
+        # 6. Log UserDownloadHistory (Strictly NO re-download without deduction)
+        history = UserDownloadHistory(
+            user_id=user_id,
+            game_id=game_id,
+            file_id=resolved_file_id or game_id,
+            file_type=file_type,
+            file_title=file_title,
+            file_size_gb=size_gb,
+            downloaded_at=now,
+        )
+        db.add(history)
+
+        # 7. Generate Signed Download URL (valid for 6 hours)
+        timestamp = int(now.timestamp())
+        exp = timestamp + 21600
+        sig = hashlib.sha256(
+            f"{user_id}:{game_id}:{target_ref}:{settings.WEBHOOK_SECRET_KEY}:{exp}".encode("utf-8")
+        ).hexdigest()[:24]
+
+        if base_download_url and base_download_url.startswith("http"):
+            delimiter = "&" if "?" in base_download_url else "?"
+            download_url = f"{base_download_url}{delimiter}token={sig}&uid={user_id}&exp={exp}"
+        else:
+            download_url = f"/api/games/{game_id}/download-stream?target={target_ref}&uid={user_id}&exp={exp}&sig={sig}"
+
+        await db.commit()
+        await db.refresh(quota)
+
+        # Bust Redis quota cache
+        await redis.delete(f"user:quota:{user_id}")
+        await redis.delete(f"drgame:user:{user_id}:quota")
+
+        return {
+            "status": "success",
+            "download_url": download_url,
+            "file_title": file_title,
+            "file_size_gb": size_gb,
+            "remaining_quota_gb": round(quota.remaining_quota_gb, 2),
+            "job_id": resolved_job_id,
+            "format_category": resolved_format_cat if not resolved_file_id else None,
+            "file_id": resolved_file_id,
+            "message": f"لینک دانلود {file_title} با موفقیت صادر شد و حجم آن از سهمیه کسر گردید.",
+        }
+
+

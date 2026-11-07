@@ -215,3 +215,22 @@ class HandoffExecuteResponse(BaseModel):
     remaining_quota_gb: float
     message: str
 
+
+class GameDownloadTicketRequest(BaseModel):
+    job_id: Optional[str] = None
+    format_category: Optional[str] = None  # "fpkg" | "fat32"
+    file_id: Optional[int] = None
+
+
+class GameDownloadTicketResponse(BaseModel):
+    status: str = "success"
+    download_url: str
+    file_title: str
+    file_size_gb: float
+    remaining_quota_gb: float
+    job_id: Optional[str] = None
+    format_category: Optional[str] = None
+    file_id: Optional[int] = None
+    message: str
+
+
