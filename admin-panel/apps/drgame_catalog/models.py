@@ -5,7 +5,7 @@ from apps.drgame_core.models import User
 
 class Genre(models.Model):
     id = models.AutoField(primary_key=True)
-    rawg_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه RAWG")
+    rawg_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه مرجع")
     name_fa = models.CharField(max_length=100, verbose_name="نام فارسی")
     name_en = ERPCharField(max_length=100, verbose_name="نام انگلیسی", blank=True, null=True)
     slug = models.CharField(max_length=100, verbose_name="اسلاگ")
@@ -28,7 +28,7 @@ class Genre(models.Model):
 
 class Game(models.Model):
     id = models.AutoField(primary_key=True)
-    rawg_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه RAWG")
+    rawg_id = models.IntegerField(blank=True, null=True, verbose_name="شناسه مرجع")
     title_fa = models.CharField(max_length=200, verbose_name="عنوان فارسی")
     title_en = ERPCharField(max_length=200, verbose_name="عنوان انگلیسی", blank=True, null=True)
     slug = models.CharField(max_length=200, verbose_name="اسلاگ")

@@ -61,7 +61,7 @@
     "playerCount": "Joueurs",
     "playtime": "Temps de jeu",
     "playtimeValue": "{{hours}} heures d'histoire principale",
-    "playtimeSource": "Source de récréation : HowLongToBeat",
+    "playtimeSource": "Temps de jeu estimé",
     "ageRating": "classification par catégorie dâge",
     "platforms": "Plateformes",
     "storyTag": "Heart of the game",

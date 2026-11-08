@@ -61,7 +61,7 @@
     "playerCount": "تعداد بازیکن",
     "playtime": "مدت زمان بازی",
     "playtimeValue": "{{hours}} ساعت داستان اصلی",
-    "playtimeSource": "منبع زمان بازی: HowLongToBeat",
+    "playtimeSource": "زمان تخمینی اتمام بازی",
     "ageRating": "رده سنی",
     "platforms": "پلتفرم‌ها",
     "storyTag": "قلب بازی",

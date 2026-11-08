@@ -38,7 +38,7 @@ async def list_games(
     genre: Optional[str] = Query(None, description="Filter by genre slug"),
     platform: Optional[str] = Query(None, description="Filter by platform (PS5, PS4, Xbox, Switch)"),
     max_size: Optional[float] = Query(None, description="Maximum download size in GB"),
-    min_rating: Optional[float] = Query(None, description="Minimum RAWG rating (0 to 5)"),
+    min_rating: Optional[float] = Query(None, description="Minimum rating (0 to 5)"),
     is_two_player: Optional[bool] = Query(None, description="Filter for 2-player / co-op games"),
     has_vr: Optional[bool] = Query(None, description="Filter for VR supported games"),
     release_status: Optional[str] = Query(None, description="Filter by release status: 'released' or 'early'"),

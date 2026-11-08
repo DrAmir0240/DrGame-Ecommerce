@@ -61,7 +61,7 @@
     "playerCount": "Игроки",
     "playtime": "Время игры",
     "playtimeValue": "{{hours}} часов основного сюжета",
-    "playtimeSource": "Источник игрового времени: HowLongToBeat",
+    "playtimeSource": "Примерное время прохождения",
     "ageRating": "Возрастной рейтинг",
     "platforms": "Платформы",
     "storyTag": "Сердце игры",

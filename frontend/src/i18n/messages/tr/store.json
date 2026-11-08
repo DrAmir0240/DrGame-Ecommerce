@@ -61,7 +61,7 @@
     "playerCount": "Oyuncular",
     "playtime": "Oyun zamanı",
     "playtimeValue": "{{hours}} saatlik ana hikaye",
-    "playtimeSource": "Çalma süresi kaynağı: HowLongToBeat",
+    "playtimeSource": "Tahmini oynama süresi",
     "ageRating": "Yaş derecelendirmesi",
     "platforms": "Platformlar",
     "storyTag": "Oyunun kalbi",

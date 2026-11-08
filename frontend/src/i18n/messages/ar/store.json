@@ -61,7 +61,7 @@
     "playerCount": "عدد اللاعبين",
     "playtime": "مدة اللعب",
     "playtimeValue": "{{hours}} ساعة للقصة الرئيسية",
-    "playtimeSource": "مصدر مدة اللعب: HowLongToBeat",
+    "playtimeSource": "الوقت المقدر لإكمال اللعبة",
     "ageRating": "التصنيف العمري",
     "platforms": "المنصات",
     "storyTag": "قلب اللعبة",
