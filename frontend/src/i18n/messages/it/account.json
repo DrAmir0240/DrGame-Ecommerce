@@ -7,14 +7,14 @@
       "payments": "Payment History",
       "notifications": "Notification Center",
       "referral": "Wallet & Referral Earnings",
-      "sessions": "Sessioni e dispositivi attivi",
+      "sessions": "Active Sessions & Devices",
       "subscriptions": "Upgrade & Renew Subscription"
     },
     "userAlt": "User",
-    "activeAccount": "Conto attivo",
+    "activeAccount": "Active account",
     "defaultUserName": "DrGame User",
-    "consoleCodeLabel": "Codice di accesso alla console di 7 cifre:",
-    "copyConsoleCode": "Copia il codice della console",
+    "consoleCodeLabel": "7-digit console sign-in code:",
+    "copyConsoleCode": "Copy console code",
     "quotaTitle": "Traffic quota",
     "quotaRemaining": "{{size}} left",
     "quotaUsed": "Used: {{size}}",
@@ -25,8 +25,8 @@
   },
   "downloads": {
     "fileType": {
-      "cheat": "Trucchi e formatori",
-      "dlc": "Pacchetto aggiuntivo (DLC)",
+      "cheat": "Cheats & Trainers",
+      "dlc": "Add-on Pack (DLC)",
       "subtitle": "Persian Subtitles",
       "dubbing": "Exclusive Dubbing",
       "official": "Official Game Data"
@@ -36,7 +36,7 @@
     "loginButton": "Sign in to account",
     "eyebrow": "File delivery and traffic quota usage history",
     "title": "My Downloads",
-    "subtitle": "Un archivio registrato di dati di gioco, patch e file forniti con il tuo abbonamento attuale",
+    "subtitle": "A recorded archive of game data, patches and files delivered under your current subscription",
     "catalogButton": "Game catalog",
     "stats": {
       "totalDownloads": "Total downloads",
@@ -45,7 +45,7 @@
     },
     "unitFiles": "files",
     "unitGigabyte": "GB",
-    "historyTitle": "Cronologia dei file consegnati",
+    "historyTitle": "Delivered files history",
     "showingRecords": "Showing {{count}} records",
     "loading": "Loading your download history...",
     "emptyTitle": "No downloads yet",
@@ -60,25 +60,25 @@
     "subtitle": "Subscription updates, referral rewards, new releases and support messages",
     "markAllRead": "Mark all as read",
     "tabs": {
-      "all": "Tutte le notifiche",
+      "all": "All notifications",
       "unread": "Unread",
       "bonus": "Rewards & commission",
-      "warning": "Avvisi e sicurezza"
+      "warning": "Alerts & security"
     },
     "loading": "Loading notifications...",
     "emptyTitle": "No notifications found",
     "emptyDescription": "There are no messages in this category.",
     "newBadge": "New",
     "viewLink": "View related page",
-    "deleteTitle": "Elimina notifica"
+    "deleteTitle": "Delete notification"
   },
   "payments": {
     "loginPrompt": "Sign in to view your payment history and official invoices.",
     "loginButton": "Sign in",
     "eyebrow": "Transaction history and digital invoices",
     "title": "Payment History",
-    "subtitle": "Un archivio completo dei pagamenti per abbonamenti, ricariche portafoglio e servizi premium",
-    "buySubscription": "Acquista o rinnova l'abbonamento",
+    "subtitle": "A complete archive of payments for subscriptions, wallet top-ups and premium services",
+    "buySubscription": "Buy or renew subscription",
     "stats": {
       "totalPaid": "Total successful payments",
       "successfulOrders": "Successful orders",
@@ -89,62 +89,62 @@
     "unitOrders": "orders",
     "searchPlaceholder": "Search by tracking code, plan name or gateway...",
     "filter": {
-      "all": "Tutte le transazioni",
+      "all": "All transactions",
       "success": "Successful payments only",
-      "pending": "In attesa di conferma",
+      "pending": "Awaiting confirmation",
       "failed": "Failed payments"
     },
     "status": {
       "success": "Successful",
       "failed": "Failed",
-      "pending": "In attesa di conferma"
+      "pending": "Awaiting confirmation"
     },
     "loading": "Loading payment history...",
     "table": {
       "tracking": "Tracking code",
       "plan": "Plan / Service",
-      "amount": "Importo (Toman)",
+      "amount": "Amount (Toman)",
       "gateway": "Gateway",
-      "dateTime": "Data e ora",
+      "dateTime": "Date & time",
       "status": "Status",
       "invoice": "Official invoice"
     },
     "empty": "No transactions found.",
     "defaultPlanName": "Premium game service subscription",
-    "defaultGateway": "Portale della banca",
+    "defaultGateway": "Bank gateway",
     "viewInvoice": "View invoice"
   },
   "dashboardTickets": {
     "loginPrompt": "Sign in to view and follow up on your support tickets.",
     "loginButton": "Sign in",
-    "eyebrow": "Centro di contatto e supporto dedicato per gli abbonati",
+    "eyebrow": "Dedicated subscriber contact & support center",
     "title": "Support Tickets",
     "subtitle": "Talk directly with the DrGame technical and billing team, report issues and get fast resolutions",
     "newTicket": "Open new ticket",
     "stats": {
       "total": "Total tickets opened",
       "inProgress": "In progress",
-      "answered": "Risposto"
+      "answered": "Answered"
     },
     "unitTickets": "tickets",
     "searchPlaceholder": "Search by subject or tracking code...",
     "filter": {
-      "all": "Tutti gli stati",
-      "open": "In attesa di risposta",
+      "all": "All statuses",
+      "open": "Awaiting reply",
       "inProgress": "Under review",
-      "answered": "Risposto",
-      "closed": "Chiuso"
+      "answered": "Answered",
+      "closed": "Closed"
     },
     "status": {
-      "open": "In attesa di risposta",
+      "open": "Awaiting reply",
       "inProgress": "Under review",
-      "answered": "Risposto",
-      "closed": "Chiuso"
+      "answered": "Answered",
+      "closed": "Closed"
     },
     "department": {
       "technical": "Technical support",
       "downloads": "Game data downloads",
-      "financial": "Fatturazione e abbonamenti",
+      "financial": "Billing & subscriptions",
       "general": "General"
     },
     "priority": {
@@ -173,8 +173,8 @@
       "badge": "Earn in USD & Toman",
       "description": "Share your personal code with friends and earn automatic commissions across 3 levels on every purchase they make."
     },
-    "copyCode": "Copia il codice",
-    "copied": "Copiato",
+    "copyCode": "Copy code",
+    "copied": "Copied",
     "form": {
       "title": "Edit personal details",
       "fullName": "Full name",
@@ -184,8 +184,8 @@
       "saveSuccess": "Your details were updated successfully."
     },
     "password": {
-      "title": "Cambia password",
-      "current": "Password attuale",
+      "title": "Change password",
+      "current": "Current password",
       "new": "New password",
       "submit": "Update password",
       "success": "Your password was updated successfully.",
@@ -196,7 +196,7 @@
     "loginPrompt": "You are viewing a sample marketing dashboard. Sign in to access your personal link and withdraw commissions.",
     "loginButton": "Sign in",
     "title": "Referral Marketing & Wallet Dashboard",
-    "settlementBadge": "Liquidazione diretta",
+    "settlementBadge": "Direct settlement",
     "subtitle": "Earn steady income from every subscription purchase across up to 10 levels of your referral network",
     "accountsButton": "Settlement accounts ({{count}})",
     "withdraw": "Withdraw funds",
@@ -205,25 +205,25 @@
       "one": "Layer 1 (direct - 10% commission) - default",
       "two": "Layer 2 (indirect - 5% commission)",
       "three": "Layer 3 (indirect - 2.5% commission)",
-      "all": "Tutti i livelli di rete"
+      "all": "All network layers"
     },
     "formula": {
       "title": "Tiered Halving Commission Formula",
       "description": "In the DrGame earnings model, the system sets the base commission rate, and it is halved at every layer going up the chain:",
       "layer1Label": "Layer 1 (direct referrer)",
-      "layer1Value": "10% dell'importo dell'acquisto",
+      "layer1Value": "10% of purchase amount",
       "layer1Note": "Half of the 20% base commission",
       "layer2Label": "Layer 2 (upline referrer 2)",
-      "layer2Value": "5% dell'importo dell'acquisto",
+      "layer2Value": "5% of purchase amount",
       "layer2Note": "Half of the layer 1 commission",
       "layer3Label": "Layer 3 (upline referrer 3)",
-      "layer3Value": "2,5% dell'importo di acquisto",
+      "layer3Value": "2.5% of purchase amount",
       "layer3Note": "Half of the layer 2 commission (continues indefinitely)"
     },
     "terms": {
       "title": "Terms, payout conditions and legal disclaimer:",
-      "item1": "1. Le commissioni di marketing vengono calcolate e aggiunte al saldo prelevabile solo dopo che l'utente invitato ha completato con successo un pagamento e attivato un abbonamento.",
-      "item2": "2. DrGame si riserva il diritto di monitorare continuamente l'integrità delle transazioni, i comportamenti sospetti e le catene di auto-referral e bloccherà il conto e il saldo se viene rilevata una frode."
+      "item1": "1. Marketing commissions are calculated and added to your withdrawable balance only after the invited user completes a successful payment and activates a subscription.",
+      "item2": "2. DrGame reserves the right to continuously monitor transaction integrity, suspicious behavior and self-referral chains, and will block the account and balance if fraud is detected."
     }
   },
   "sessions": {
@@ -231,19 +231,19 @@
     "subtitle": "Manage the devices with access to your account and your primary devices",
     "loading": "Loading device list...",
     "empty": "No active devices found.",
-    "currentBadge": "Sessione corrente",
+    "currentBadge": "Current session",
     "primaryBadge": "Primary device",
-    "consoleBadge": "Consolle",
+    "consoleBadge": "Console",
     "ip": "IP: {{ip}}",
     "lastActive": "Last active: {{time}}",
     "currentTitle": "You cannot sign out of the current session from here",
     "primaryTitle": "The registered primary console is protected by the system",
-    "currentButton": "Sessione corrente",
+    "currentButton": "Current session",
     "primaryButton": "Primary console",
     "revoking": "Signing out...",
     "revoke": "Revoke access",
-    "revokeSuccess": "Il dispositivo è stato disconnesso correttamente.",
-    "demoDeviceDesktop": "Browser Chrome (questo sistema)",
+    "revokeSuccess": "Device signed out successfully.",
+    "demoDeviceDesktop": "Chrome browser (this system)",
     "demoDeviceConsole": "PlayStation 5 console"
   }
 }

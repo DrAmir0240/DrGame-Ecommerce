@@ -24,14 +24,24 @@ import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
 import TvModeHost from '@/components/layout/TvModeHost';
 import Ps5HandoffListener from '@/components/layout/Ps5HandoffListener';
 import { I18nProvider } from '@/i18n';
+import { cookies } from 'next/headers';
+import { isSupportedLocale, isRtlLocale, type SupportedLocale } from '@/i18n/locale-codes';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const isIntl = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
+  const defaultLocale: SupportedLocale = isIntl ? 'en' : 'fa';
+  const cookieLang = cookieStore.get('drgame_lang')?.value;
+  const initialLocale: SupportedLocale =
+    cookieLang && isSupportedLocale(cookieLang) ? (cookieLang as SupportedLocale) : defaultLocale;
+  const initialDir = isRtlLocale(initialLocale) ? 'rtl' : 'ltr';
+
   return (
-    <html lang="fa" dir="rtl" className="dark" suppressHydrationWarning>
+    <html lang={initialLocale} dir={initialDir} className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -45,7 +55,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-oled text-text-primary selection:bg-cosmic-purple selection:text-white antialiased">
-        <I18nProvider>
+        <I18nProvider initialLocale={initialLocale}>
           <div className="relative min-h-screen flex flex-col">
             {/* Subtle cosmic background glow */}
             <div className="pointer-events-none fixed inset-0 z-0 bg-dark-radial opacity-60" />

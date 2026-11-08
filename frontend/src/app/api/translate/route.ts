@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import http from 'http';
+import https from 'https';
 import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale, IS_INTERNATIONAL } from '@/i18n/locale-codes';
 import { translateWithLexicon } from '@/lib/dynamicLexicon';
 
-// Optional proxy dispatcher for Node.js fetch
-let proxyDispatcher: any = null;
-const proxyUrl = process.env.HTTP_PROXY || process.env.HTTPS_PROXY || (process.env.NODE_ENV === 'production' ? 'http://proxy:10809' : '');
-if (proxyUrl) {
-  try {
-    const getDynamicRequire = new Function('return typeof __non_webpack_require__ !== "undefined" ? __non_webpack_require__ : require');
-    const dynamicRequire = getDynamicRequire();
-    const { ProxyAgent } = dynamicRequire('undici');
-    proxyDispatcher = new ProxyAgent(proxyUrl);
-  } catch {}
-}
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // Server-side in-memory cache to prevent redundant external fetches across all users
 const SERVER_CACHE = new Map<string, string>();
@@ -22,37 +15,293 @@ function getCacheKey(text: string, targetLang: string, sourceLang: string): stri
   return `${sourceLang}->${targetLang}:${text.trim()}`;
 }
 
-async function fetchMyMemory(text: string, sourceLang: string, targetLang: string, signal: AbortSignal): Promise<string | null> {
+// Proxy configuration: supports internal docker proxy (proxy:10809) or custom proxy
+const rawProxy = process.env.HTTP_PROXY || process.env.HTTPS_PROXY || (process.env.NODE_ENV === 'production' ? 'http://proxy:10809' : '');
+let proxyHost: string | null = null;
+let proxyPort: number = 10809;
+
+if (rawProxy) {
   try {
-    const url = `https://api.mymemory.translated.net/get?${new URLSearchParams({
-      q: text,
-      langpair: `${sourceLang}|${targetLang}`,
-    })}`;
-    const opts: RequestInit & { dispatcher?: any } = {
-      signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-    };
-    if (proxyDispatcher) {
-      opts.dispatcher = proxyDispatcher;
-    }
-    const res = await fetch(url, opts);
-    if (res.ok) {
-      const data = await res.json();
-      const trans = data?.responseData?.translatedText;
-      if (trans && typeof trans === 'string' && trans.trim()) {
-        return trans.trim();
-      }
-    }
+    const u = new URL(rawProxy.startsWith('http') ? rawProxy : `http://${rawProxy}`);
+    proxyHost = u.hostname;
+    proxyPort = parseInt(u.port || '10809', 10);
   } catch {}
-  return null;
 }
 
-async function fetchTranslationWithTimeout(
-  text: string,
-  targetLang: string,
-  sourceLang?: string,
-  timeoutMs = 5000
-): Promise<string> {
+/**
+ * Perform a Google Translate request using Node.js native http CONNECT tunnel if proxy is configured,
+ * or direct https.request if no proxy is configured. Zero external dependencies.
+ */
+function requestGoogleTranslate(text: string, sl: string, tl: string, timeoutMs = 6000): Promise<string | null> {
+  return new Promise((resolve) => {
+    const postData = new URLSearchParams({
+      client: 'dict-chrome-ex',
+      sl,
+      tl,
+      dt: 't',
+      q: text,
+    }).toString();
+
+    let resolved = false;
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(null);
+      }
+    }, timeoutMs);
+
+    const handleSuccess = (translated: string) => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timer);
+        resolve(translated);
+      }
+    };
+
+    const handleFailure = () => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timer);
+        resolve(null);
+      }
+    };
+
+    if (proxyHost && proxyPort) {
+      const connectReq = http.request({
+        host: proxyHost,
+        port: proxyPort,
+        method: 'CONNECT',
+        path: 'translate.googleapis.com:443',
+        timeout: timeoutMs,
+      });
+
+      connectReq.on('connect', (_res, socket) => {
+        const tlsReq = (https.request as any)(
+          {
+            host: 'translate.googleapis.com',
+            socket,
+            agent: false,
+            path: '/translate_a/single',
+            method: 'POST',
+            headers: {
+              Host: 'translate.googleapis.com',
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Length': Buffer.byteLength(postData),
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            },
+            timeout: timeoutMs,
+          },
+          (tlsRes: http.IncomingMessage) => {
+            let body = '';
+            tlsRes.on('data', (chunk: Buffer | string) => (body += chunk));
+            tlsRes.on('end', () => {
+              try {
+                const data = JSON.parse(body);
+                if (Array.isArray(data) && Array.isArray(data[0])) {
+                  const trans = data[0].map((c: any) => (Array.isArray(c) ? c[0] : '')).join('');
+                  if (trans && trans.trim()) {
+                    handleSuccess(trans);
+                    return;
+                  }
+                }
+                handleFailure();
+              } catch {
+                handleFailure();
+              }
+            });
+          }
+        );
+
+        tlsReq.on('error', handleFailure);
+        tlsReq.on('timeout', () => {
+          tlsReq.destroy();
+          handleFailure();
+        });
+        tlsReq.write(postData);
+        tlsReq.end();
+      });
+
+      connectReq.on('error', handleFailure);
+      connectReq.on('timeout', () => {
+        connectReq.destroy();
+        handleFailure();
+      });
+      connectReq.end();
+    } else {
+      // Direct POST without proxy
+      const req = https.request(
+        {
+          host: 'translate.googleapis.com',
+          path: '/translate_a/single',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': Buffer.byteLength(postData),
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          },
+          timeout: timeoutMs,
+        },
+        (res) => {
+          let body = '';
+          res.on('data', (chunk) => (body += chunk));
+          res.on('end', () => {
+            try {
+              const data = JSON.parse(body);
+              if (Array.isArray(data) && Array.isArray(data[0])) {
+                const trans = data[0].map((c: any) => (Array.isArray(c) ? c[0] : '')).join('');
+                if (trans && trans.trim()) {
+                  handleSuccess(trans);
+                  return;
+                }
+              }
+              handleFailure();
+            } catch {
+              handleFailure();
+            }
+          });
+        }
+      );
+
+      req.on('error', handleFailure);
+      req.on('timeout', () => {
+        req.destroy();
+        handleFailure();
+      });
+      req.write(postData);
+      req.end();
+    }
+  });
+}
+
+/**
+ * Resilient fallback to MyMemory API via proxy or direct
+ */
+function requestMyMemory(text: string, sl: string, tl: string, timeoutMs = 4000): Promise<string | null> {
+  return new Promise((resolve) => {
+    const query = new URLSearchParams({ q: text, langpair: `${sl}|${tl}` }).toString();
+    const apiPath = `/get?${query}`;
+
+    let resolved = false;
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(null);
+      }
+    }, timeoutMs);
+
+    const handleSuccess = (trans: string) => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timer);
+        resolve(trans);
+      }
+    };
+
+    const handleFailure = () => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timer);
+        resolve(null);
+      }
+    };
+
+    if (proxyHost && proxyPort) {
+      const connectReq = http.request({
+        host: proxyHost,
+        port: proxyPort,
+        method: 'CONNECT',
+        path: 'api.mymemory.translated.net:443',
+        timeout: timeoutMs,
+      });
+
+      connectReq.on('connect', (_res, socket) => {
+        const tlsReq = (https.request as any)(
+          {
+            host: 'api.mymemory.translated.net',
+            socket,
+            agent: false,
+            path: apiPath,
+            method: 'GET',
+            headers: {
+              Host: 'api.mymemory.translated.net',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            },
+            timeout: timeoutMs,
+          },
+          (tlsRes: http.IncomingMessage) => {
+            let body = '';
+            tlsRes.on('data', (chunk: Buffer | string) => (body += chunk));
+            tlsRes.on('end', () => {
+              try {
+                const data = JSON.parse(body);
+                const trans = data?.responseData?.translatedText;
+                if (trans && typeof trans === 'string' && trans.trim()) {
+                  handleSuccess(trans.trim());
+                  return;
+                }
+                handleFailure();
+              } catch {
+                handleFailure();
+              }
+            });
+          }
+        );
+
+        tlsReq.on('error', handleFailure);
+        tlsReq.on('timeout', () => {
+          tlsReq.destroy();
+          handleFailure();
+        });
+        tlsReq.end();
+      });
+
+      connectReq.on('error', handleFailure);
+      connectReq.on('timeout', () => {
+        connectReq.destroy();
+        handleFailure();
+      });
+      connectReq.end();
+    } else {
+      const req = https.request(
+        {
+          host: 'api.mymemory.translated.net',
+          path: apiPath,
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          },
+          timeout: timeoutMs,
+        },
+        (res) => {
+          let body = '';
+          res.on('data', (chunk) => (body += chunk));
+          res.on('end', () => {
+            try {
+              const data = JSON.parse(body);
+              const trans = data?.responseData?.translatedText;
+              if (trans && typeof trans === 'string' && trans.trim()) {
+                handleSuccess(trans.trim());
+                return;
+              }
+              handleFailure();
+            } catch {
+              handleFailure();
+            }
+          });
+        }
+      );
+
+      req.on('error', handleFailure);
+      req.on('timeout', () => {
+        req.destroy();
+        handleFailure();
+      });
+      req.end();
+    }
+  });
+}
+
+async function fetchTranslation(text: string, targetLang: string, sourceLang?: string): Promise<string> {
   const isPersian = /[\u0600-\u06FF]/.test(text);
   const effectiveSource = sourceLang || (isPersian ? 'fa' : (IS_INTERNATIONAL ? 'en' : 'fa'));
 
@@ -60,61 +309,19 @@ async function fetchTranslationWithTimeout(
     return text;
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const fetchOptions: RequestInit & { dispatcher?: any } = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        Accept: 'application/json',
-      },
-      body: new URLSearchParams({
-        client: 'gtx',
-        sl: effectiveSource,
-        tl: targetLang,
-        dt: 't',
-        q: text,
-      }),
-      signal: controller.signal,
-    };
-
-    if (proxyDispatcher) {
-      fetchOptions.dispatcher = proxyDispatcher;
-    }
-
-    const res = await fetch('https://translate.googleapis.com/translate_a/single', fetchOptions);
-
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && Array.isArray(data[0])) {
-        const translated = data[0]
-          .map((chunk: any) => (Array.isArray(chunk) ? chunk[0] : ''))
-          .join('');
-        if (translated && translated.trim()) {
-          clearTimeout(timer);
-          return translated;
-        }
-      }
-    }
-
-    // Google returned 429, 403 or non-OK: resilient fallback to MyMemory API
-    const fallbackTrans = await fetchMyMemory(text, effectiveSource, targetLang, controller.signal);
-    clearTimeout(timer);
-    return fallbackTrans || text;
-  } catch (error) {
-    // Attempt fallback to MyMemory on connection error/timeout
-    try {
-      const fallbackTrans = await fetchMyMemory(text, effectiveSource, targetLang, controller.signal);
-      clearTimeout(timer);
-      return fallbackTrans || text;
-    } catch {
-      clearTimeout(timer);
-      return text;
-    }
+  // 1. Try Google Translate via Proxy
+  const googleTrans = await requestGoogleTranslate(text, effectiveSource, targetLang);
+  if (googleTrans && googleTrans.trim()) {
+    return googleTrans;
   }
+
+  // 2. Resilient fallback to MyMemory via Proxy
+  const myMemoryTrans = await requestMyMemory(text, effectiveSource, targetLang);
+  if (myMemoryTrans && myMemoryTrans.trim()) {
+    return myMemoryTrans;
+  }
+
+  return text;
 }
 
 export async function POST(req: NextRequest) {
@@ -137,7 +344,7 @@ export async function POST(req: NextRequest) {
     const results: Record<string, string> = {};
     const missingTexts: string[] = [];
 
-    // 1. Check server cache and lexicon first (0ms latency)
+    // 1. Check server memory cache and gaming lexicon first (0ms)
     for (const text of texts) {
       if (!text || typeof text !== 'string') continue;
       const isPersian = /[\u0600-\u06FF]/.test(text);
@@ -155,7 +362,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // Check gaming lexicon for all 15 supported locales
+      // Check gaming lexicon
       const lex = translateWithLexicon(text, targetLang as SupportedLocale);
       if (lex.translated && lex.translated.trim() !== text.trim()) {
         results[text] = lex.translated;
@@ -166,59 +373,24 @@ export async function POST(req: NextRequest) {
       missingTexts.push(text);
     }
 
-    // 2. Translate missing items
+    // 2. Translate missing items in parallel
     if (missingTexts.length > 0) {
-      const longTexts = missingTexts.filter((t) => t.length > 200);
-      const shortTexts = missingTexts.filter((t) => t.length <= 200);
+      await Promise.all(
+        missingTexts.map(async (item) => {
+          const isPersian = /[\u0600-\u06FF]/.test(item);
+          const effSource = sourceLang || (isPersian ? 'fa' : defaultSource);
+          const trans = await fetchTranslation(item, targetLang, effSource);
+          results[item] = trans;
 
-      // Translate long texts individually
-      if (longTexts.length > 0) {
-        await Promise.all(
-          longTexts.map(async (item) => {
-            const isPersian = /[\u0600-\u06FF]/.test(item);
-            const effSource = sourceLang || (isPersian ? 'fa' : defaultSource);
-            const trans = await fetchTranslationWithTimeout(item, targetLang, effSource);
-            results[item] = trans;
-            if (trans && trans !== item) {
-              SERVER_CACHE.set(getCacheKey(item, targetLang, effSource), trans);
-            }
-          })
-        );
-      }
-
-      // Batch short texts together using a clean delimiter
-      if (shortTexts.length > 0) {
-        const DELIMITER = '\n<<<999>>>\n';
-        const combined = shortTexts.join(DELIMITER);
-
-        const translatedCombined = await fetchTranslationWithTimeout(
-          combined,
-          targetLang,
-          sourceLang
-        );
-        const pieces = translatedCombined.split(/\n*<<<\s*999\s*>>>\n*/).map((s) => s.trim());
-
-        shortTexts.forEach((orig, idx) => {
-          let trans = pieces[idx] || orig;
-          if ((!trans || trans === orig) && targetLang !== defaultSource) {
-            const fallbackLex = translateWithLexicon(orig, targetLang as SupportedLocale);
-            if (fallbackLex.translated && fallbackLex.translated !== orig) {
-              trans = fallbackLex.translated;
-            }
-          }
-          results[orig] = trans;
-
-          if (trans && trans !== orig) {
+          if (trans && trans !== item) {
             if (SERVER_CACHE.size >= MAX_SERVER_CACHE_SIZE) {
               const firstKey = SERVER_CACHE.keys().next().value;
               if (firstKey) SERVER_CACHE.delete(firstKey);
             }
-            const isPersian = /[\u0600-\u06FF]/.test(orig);
-            const effSource = sourceLang || (isPersian ? 'fa' : defaultSource);
-            SERVER_CACHE.set(getCacheKey(orig, targetLang, effSource), trans);
+            SERVER_CACHE.set(getCacheKey(item, targetLang, effSource), trans);
           }
-        });
-      }
+        })
+      );
     }
 
     return NextResponse.json(

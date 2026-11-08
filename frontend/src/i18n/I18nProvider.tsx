@@ -70,18 +70,27 @@ export function getInitialLocale(): SupportedLocale {
   return DEFAULT_LOCALE;
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState<SupportedLocale>(DEFAULT_LOCALE);
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale?: SupportedLocale;
+}) {
+  const [locale, setLocale] = useState<SupportedLocale>(initialLocale || DEFAULT_LOCALE);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Initialize from client storage
   useEffect(() => {
     const init = getInitialLocale();
-    setLocale(init);
+    if (init && init !== locale) {
+      setLocale(init);
+    }
     setIsHydrated(true);
 
-    const dir = isRtlLocale(init) ? 'rtl' : 'ltr';
-    document.documentElement.lang = init;
+    const active = init || locale;
+    const dir = isRtlLocale(active) ? 'rtl' : 'ltr';
+    document.documentElement.lang = active;
     document.documentElement.dir = dir;
   }, []);
 
