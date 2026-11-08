@@ -61,7 +61,7 @@
     "playerCount": "玩家",
     "playtime": "游戏时间",
     "playtimeValue": "{{hours}} 小时的主要故事",
-    "playtimeSource": "游戏时间来源：HowLongToBeat",
+    "playtimeSource": "预计游戏通关时间",
     "ageRating": "年龄分级",
     "platforms": "平台",
     "storyTag": "游戏的核心",

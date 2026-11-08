@@ -798,7 +798,7 @@ export default function ContentGamesPage() {
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                        شناسه سورس مرجع (IGDB ID)
+                        شناسه سورس مرجع
                       </label>
                       <input
                         type="text"

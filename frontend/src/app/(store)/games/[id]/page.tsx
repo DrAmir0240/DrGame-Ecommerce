@@ -521,9 +521,6 @@ export default function GameDetailPage() {
                     <span className="text-white font-bold font-roboto">
                       {t('gameDetail.playtimeValue', { hours: n(playtimeEstimate) })}
                     </span>
-                    <span className="text-[10px] text-text-muted block">
-                      {t('gameDetail.playtimeSource')}
-                    </span>
                   </div>
                 </div>
 

@@ -61,7 +61,7 @@
     "playerCount": "Players",
     "playtime": "Playtime",
     "playtimeValue": "{{hours}} hours of main story",
-    "playtimeSource": "Playtime source: HowLongToBeat",
+    "playtimeSource": "推定プレイ時間",
     "ageRating": "Age rating",
     "platforms": "Platforms",
     "storyTag": "Heart of the game",
