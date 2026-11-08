@@ -107,6 +107,13 @@ class AuthService:
     async def verify_otp(redis: aioredis.Redis, target: str, code: str) -> bool:
         """Verify OTP code from Redis and invalidate immediately upon verification."""
         clean_target = target.strip().lower()
+        if "@" not in clean_target:
+            clean_phone = clean_target.replace(" ", "").replace("-", "")
+            if clean_phone.startswith("+98"):
+                clean_phone = "0" + clean_phone[3:]
+            elif clean_phone.startswith("0098"):
+                clean_phone = "0" + clean_phone[4:]
+            clean_target = clean_phone
         otp_key = f"drgame:otp:{clean_target}"
         cached_code = await redis.get(otp_key)
         is_intl = settings.DEPLOYMENT_MODE == "international"
@@ -268,6 +275,14 @@ class AuthService:
     ) -> TokenResponse:
         """Authenticate existing user with verified OTP code, or auto-create account if not found."""
         clean_target = data.target.strip().lower()
+        if "@" not in clean_target:
+            clean_phone = clean_target.replace(" ", "").replace("-", "")
+            if clean_phone.startswith("+98"):
+                clean_phone = "0" + clean_phone[3:]
+            elif clean_phone.startswith("0098"):
+                clean_phone = "0" + clean_phone[4:]
+            clean_target = clean_phone
+
         is_intl = settings.DEPLOYMENT_MODE == "international"
         await AuthService.verify_otp(redis, clean_target, data.code)
 

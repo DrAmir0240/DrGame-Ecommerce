@@ -65,6 +65,7 @@ AUTH_EN = {
         "passwordMin6": "Password must be at least 6 characters.",
         "credentialsRequired": "Please enter username/phone and password.",
         "consoleCodeRequired": "Please enter the console sign-in code.",
+        "otpSendFailed": "Failed to send verification code.",
         "otpVerifyFailed": "Verification code is invalid or has expired.",
         "registerFailed": "Failed to complete registration.",
         "loginFailed": "Incorrect username or password.",
@@ -128,6 +129,7 @@ AUTH_FA = {
         "passwordMin6": "کلمه عبور باید حداقل ۶ کاراکتر باشد.",
         "credentialsRequired": "لطفاً نام کاربری/شماره و کلمه عبور را وارد کنید.",
         "consoleCodeRequired": "لطفاً کد ورود کنسول را وارد کنید.",
+        "otpSendFailed": "خطا در ارسال کد تایید",
         "otpVerifyFailed": "کد تایید وارد شده نادرست یا منقضی شده است.",
         "registerFailed": "خطا در تکمیل ثبت‌نام",
         "loginFailed": "نام کاربری یا کلمه عبور وارد شده نادرست است.",
@@ -191,10 +193,75 @@ AUTH_NL = {
         "passwordMin6": "Wachtwoord moet minimaal 6 tekens bevatten.",
         "credentialsRequired": "Voer gebruikersnaam/telefoon en wachtwoord in.",
         "consoleCodeRequired": "Voer de console-inlogcode in.",
+        "otpSendFailed": "Verificatiecode verzenden mislukt.",
         "otpVerifyFailed": "Verificatiecode is ongeldig of verlopen.",
         "registerFailed": "Registratie voltooien mislukt.",
         "loginFailed": "Onjuiste gebruikersnaam of wachtwoord.",
         "consoleCodeInvalid": "Consolecode is ongeldig of verlopen."
+    }
+}
+
+AUTH_AR = {
+    "title": "تسجيل الدخول / إنشاء حساب في دكتور جيم",
+    "titleConsole": "تسجيل الدخول على الكونسول",
+    "subtitleConsole": "دخول سريع ومحسّن لمتصفح PS4 و PS5",
+    "subtitleDomestic": "وصول سريع عبر رقم الجوال",
+    "subtitleIntl": "شبكة لاعبي دكتور جيم العالمية",
+    "consoleDetected": "تم اكتشاف جهاز كونسول: بلايستيشن",
+    "tabOtp": "دخول / تسجيل برمز التحقق",
+    "tabPassword": "دخول بكلمة المرور",
+    "phoneLabel": "رقم الهاتف المحمول",
+    "emailLabel": "البريد الإلكتروني",
+    "phonePlaceholder": "09123456789",
+    "emailPlaceholder": "user@example.com",
+    "otpHint": "في حال وجود حساب سيتم تسجيل الدخول، وإلا ستنتقل لإكمال بيانات التسجيل.",
+    "btnSendOtp": "إرسال رمز التحقق والمتابعة",
+    "btnSendingOtp": "جاري إرسال الرمز...",
+    "accountIdentified": "تم التعرف على حسابك. أدخل الرمز المكون من 6 أرقام المرسل إلى",
+    "otpCodeLabel": "رمز التحقق (6 أرقام)",
+    "changeTarget": "تغيير الرقم / البريد",
+    "btnLoginOtp": "تسجيل الدخول الفوري",
+    "btnLoggingIn": "جاري تسجيل الدخول...",
+    "btnSwitchPassword": "الدخول بكلمة المرور بدلاً من الرمز",
+    "noAccountFound": "لم يتم العثور على حساب لـ",
+    "completeProfile": "يرجى إدخال رمز التحقق وإكمال بياناتك لإنشاء حساب:",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "محمد العلي",
+    "usernameLabel": "اسم المستخدم بالإنجليزية",
+    "passwordLabel": "كلمة المرور (6 أحرف على الأقل)",
+    "referralLabel": "رمز الإحالة (اختياري)",
+    "btnRegister": "إكمال التسجيل والدخول",
+    "btnRegistering": "جاري التسجيل...",
+    "loginIdentifierLabel": "اسم المستخدم، رقم الهاتف أو البريد",
+    "loginPasswordLabel": "كلمة المرور",
+    "btnLoginPassword": "الدخول بكلمة المرور",
+    "btnChecking": "جاري التحقق...",
+    "btnSwitchOtp": "الدخول أو التسجيل برمز التحقق (OTP)",
+    "consoleHint": "قم بإنشاء رمز دخول سريع صالح لدقيقتين من لوحة حسابك على الهاتف أو الكمبيوتر وأدخله أدناه.",
+    "consoleCodeLabel": "رمز الدخول السريع للكونسول (6-7 أحرف)",
+    "btnConsoleLogin": "دخول فوري على بلايستيشن",
+    "btnVerifyingConsole": "جاري التحقق من الكونسول...",
+    "debugCodeNotice": "رمز التحقق من الخادم:",
+    "validation": {
+        "onlyPhoneInDomestic": "في النسخة المحلية، التسجيل برقم جوال إيران فقط.",
+        "validIranPhone": "رقم جوال صالح",
+        "enteringPhone": "جاري إدخال الرقم ({{current}}/11 رقم)...",
+        "phoneMustStartWith09": "يجب أن يبدأ رقم الجوال بـ 09.",
+        "onlyEmailInIntl": "في النسخة الدولية، الدخول والتسجيل عبر البريد الإلكتروني فقط.",
+        "validEmail": "عنوان بريد إلكتروني دولي صالح",
+        "invalidEmail": "يرجى كتابة البريد بصيغة صحيحة (مثل name@domain.com)",
+        "enterValidInput": "يرجى إدخال قيمة صحيحة.",
+        "enter6DigitCode": "يرجى إدخال رمز التحقق المكون من 6 أرقام.",
+        "fillAllFields": "يرجى تعبئة كافة حقول الملف الشخصي.",
+        "invalidUsername": "يجب أن يتراوح اسم المستخدم بين 3 و 50 حرفاً (أحرف إنجليزية، أرقام، _).",
+        "passwordMin6": "يجب ألا تقل كلمة المرور عن 6 أحرف.",
+        "credentialsRequired": "يرجى إدخال اسم المستخدم/الرقم وكلمة المرور.",
+        "consoleCodeRequired": "يرجى إدخال رمز الدخول للكونسول.",
+        "otpSendFailed": "فشل إرسال رمز التحقق.",
+        "otpVerifyFailed": "رمز التحقق غير صحيح أو منتهي الصلاحية.",
+        "registerFailed": "فشل إكمال التسجيل.",
+        "loginFailed": "اسم المستخدم أو كلمة المرور غير صحيحة.",
+        "consoleCodeInvalid": "رمز الكونسول غير صالح أو منتهي الصلاحية."
     }
 }
 
@@ -853,19 +920,28 @@ def update_locale(loc: str):
     if "gamepad" not in data:
         data["gamepad"] = {}
 
+    auth_dict = AUTH_EN
+    gamepad_dict = GAMEPAD_WIZARD_EN
+
     if loc == "fa":
-        data["auth"].update(AUTH_FA)
-        data["gamepad"]["wizard"] = GAMEPAD_WIZARD_FA
+        auth_dict = AUTH_FA
+        gamepad_dict = GAMEPAD_WIZARD_FA
     elif loc == "nl":
-        data["auth"].update(AUTH_NL)
-        data["gamepad"]["wizard"] = GAMEPAD_WIZARD_NL
+        auth_dict = AUTH_NL
+        gamepad_dict = GAMEPAD_WIZARD_NL
+    elif loc == "ar":
+        auth_dict = AUTH_AR
+        gamepad_dict = GAMEPAD_WIZARD_EN
     elif loc == "en":
-        data["auth"].update(AUTH_EN)
-        data["gamepad"]["wizard"] = GAMEPAD_WIZARD_EN
-    else:
-        # Fallback to English source for other international languages so keys always resolve
-        data["auth"].update(AUTH_EN)
-        data["gamepad"]["wizard"] = GAMEPAD_WIZARD_EN
+        auth_dict = AUTH_EN
+        gamepad_dict = GAMEPAD_WIZARD_EN
+
+    # Crucial: Populate both auth.modal.* (used by AuthModal.tsx) and auth.* (backwards compatibility)
+    if "modal" not in data["auth"] or not isinstance(data["auth"]["modal"], dict):
+        data["auth"]["modal"] = {}
+    data["auth"]["modal"].update(auth_dict)
+    data["auth"].update(auth_dict)
+    data["gamepad"]["wizard"] = gamepad_dict
 
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

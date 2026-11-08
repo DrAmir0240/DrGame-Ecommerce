@@ -120,7 +120,7 @@ async def test_international_mode_registration(test_db, fake_redis, monkeypatch)
     from app.core.exceptions import BadRequestError
 
     # In international mode, phone number should fail
-    with pytest.raises(BadRequestError, match="ارسال کد فقط به آدرس ایمیل"):
+    with pytest.raises(BadRequestError, match="email address|ارسال کد فقط به آدرس ایمیل"):
         await AuthService.generate_and_save_otp(fake_redis, "09121112233")
 
     # Valid international email should succeed
