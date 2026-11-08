@@ -14,7 +14,7 @@
 #   • Next.js 14 optimized standalone production bundle
 # =============================================================================
 
-name: drgame-prod
+name: ${COMPOSE_PROJECT_NAME:-drgame-prod}
 
 x-logging-prod: &logging-prod
   driver: json-file
@@ -53,7 +53,7 @@ services:
   # ── PostgreSQL 16 Database ──────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
-    container_name: drgame-db-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-db-prod
     <<: *restart-unless-stopped
     env_file:
       - .env
@@ -84,7 +84,7 @@ services:
   # ── Redis 7 In-Memory Cache ────────────────────────────────────────────────
   cache:
     image: redis:7-alpine
-    container_name: drgame-cache-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-cache-prod
     <<: *restart-unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
@@ -110,7 +110,7 @@ services:
   # ── Xray Anti-Censorship Proxy Sidecar ──────────────────────────────────────
   proxy:
     image: teddysun/xray:latest
-    container_name: drgame-proxy-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-proxy-prod
     <<: *restart-unless-stopped
     volumes:
       - ./proxy:/etc/xray:ro
@@ -127,7 +127,7 @@ services:
 
   # ── Alembic Migrations (one-shot init container) ──────────────────────────
   migrate:
-    container_name: drgame-migrate-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-migrate-prod
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -148,7 +148,7 @@ services:
 
   # ── FastAPI Backend (Production Multi-Worker) ─────────────────────────────
   backend:
-    container_name: drgame-backend-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-backend-prod
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -228,7 +228,7 @@ services:
 
   # ── Next.js 14 Frontend (Production Bundle) ────────────────────────────────
   frontend:
-    container_name: drgame-frontend-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-frontend-prod
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -269,7 +269,7 @@ services:
 
   # ── Django Database Admin Microservice (Gunicorn Production) ──────────────
   admin-panel:
-    container_name: drgame-admin-panel-prod
+    container_name: ${CONTAINER_PREFIX:-drgame}-admin-panel-prod
     build:
       context: ./admin-panel
       dockerfile: Dockerfile
