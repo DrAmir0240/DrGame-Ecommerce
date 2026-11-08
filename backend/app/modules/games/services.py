@@ -605,7 +605,10 @@ class GamesService:
         user_id: int,
         limit: int = 50,
     ) -> list[dict]:
-        """Fetch user download history for dashboard."""
+        """Fetch user download history for dashboard with active 6-hour signed URLs."""
+        import time
+        import hashlib
+        from app.core.config import settings
         from app.modules.games.download_models import UserDownloadHistory
         from app.modules.games.models import Game
 
@@ -618,8 +621,21 @@ class GamesService:
         )
         results = (await db.execute(stmt)).all()
 
+        now_ts = int(time.time())
         history_items = []
         for hist, title_fa, title_en, cover_url in results:
+            hist_ts = int(hist.downloaded_at.timestamp())
+            exp = hist_ts + 21600  # 6 hours valid
+            is_expired = now_ts > exp
+
+            download_url = None
+            if not is_expired:
+                target_ref = f"file_{hist.file_id}" if (hist.file_id and hist.file_id != hist.game_id) else f"job_game_{hist.game_id}_fpkg"
+                sig = hashlib.sha256(
+                    f"{user_id}:{hist.game_id}:{target_ref}:{settings.WEBHOOK_SECRET_KEY}:{exp}".encode("utf-8")
+                ).hexdigest()[:24]
+                download_url = f"/api/games/{hist.game_id}/download-stream?target={target_ref}&uid={user_id}&exp={exp}&sig={sig}"
+
             history_items.append({
                 "id": hist.id,
                 "user_id": hist.user_id,
@@ -634,6 +650,8 @@ class GamesService:
                 "file_size_gb": hist.file_size_gb,
                 "downloaded_at": hist.downloaded_at,
                 "status": "completed",
+                "download_url": download_url,
+                "is_expired": is_expired,
             })
         return history_items
 

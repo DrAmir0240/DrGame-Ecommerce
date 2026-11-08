@@ -71,6 +71,23 @@ export default function DownloadConfirmModal({
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copiedChecksum, setCopiedChecksum] = useState(false);
 
+  // Step 21: IDM Direct Link & Ready Step State
+  const [modalStep, setModalStep] = useState<'configure' | 'ready'>('configure');
+  const [issuedDownloadUrl, setIssuedDownloadUrl] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  // Reset state on open
+  useEffect(() => {
+    if (isOpen) {
+      setModalStep('configure');
+      setIssuedDownloadUrl(null);
+      setCopiedUrl(false);
+      setDownloadError(null);
+      setDownloadStarted(false);
+      setPs5DirectSuccess(false);
+    }
+  }, [isOpen]);
+
   // Sync initial format selection
   useEffect(() => {
     if (selectedFormat) {
@@ -217,27 +234,11 @@ export default function DownloadConfirmModal({
         }
       }
 
-      // Trigger browser download via invisible link
-      const a = document.createElement('a');
-      a.href = downloadLink;
-      const fileExt = activeFormat?.download_format === 'zip' ? 'zip' : 'pkg';
-      a.download = `${ticketRes.file_title || gameTitle}.${fileExt}`;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      setDownloadStarted(true);
+      // Step 21: IDM First UX - Store absolute URL and switch to Ready stage (no auto-close)
+      setIssuedDownloadUrl(downloadLink);
+      setModalStep('ready');
       fetchQuota();
-      setTimeout(() => fetchQuota(), 1500);
-
       if (onSuccess) onSuccess();
-
-      setTimeout(() => {
-        setDownloadStarted(false);
-        onClose();
-      }, 2500);
     } catch (err: any) {
       console.error('Download trigger error:', err);
       setDownloadError(err.message || 'خطا در دریافت و ثبت دانلود فایل');
@@ -349,14 +350,106 @@ export default function DownloadConfirmModal({
               <span>مجوز امن DPoP فعال و سهمیه کسر شد</span>
             </div>
           </div>
-        ) : downloadStarted ? (
-          /* Desktop Download Started State */
-          <div className="py-8 text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto animate-bounce" />
-            <h4 className="text-base font-bold text-white">{t('downloadModal.successTitle')}</h4>
-            <p className="text-xs text-text-muted">
-              {t('downloadModal.successBody')}
-            </p>
+        ) : modalStep === 'ready' && issuedDownloadUrl ? (
+          /* Step 21: IDM Direct Link Ready Stage */
+          <div className="py-2 space-y-5 animate-in fade-in duration-300">
+            {/* Header / Success Badge */}
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto shadow-[0_0_25px_rgba(16,185,129,0.3)]">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h4 className="text-lg font-black text-white">لینک دانلود اختصاصی شما صادر شد</h4>
+              <p className="text-xs text-emerald-300/90 leading-relaxed max-w-md mx-auto">
+                حجم پکیج (<span className="font-roboto font-bold text-amber-400">{size(fileSize)}</span>) با موفقیت از سهمیه اشتراک کسر گردید. برای دستیابی به حداکثر سرعت و پایداری، لینک زیر را در دانلود منیجر (IDM) قرار دهید.
+              </p>
+            </div>
+
+            {/* Direct URL Input Box with Select-All and Quick Copy */}
+            <div className="space-y-1.5 p-4 rounded-2xl bg-[#141b2d] border border-white/10">
+              <div className="flex items-center justify-between text-xs text-text-muted">
+                <span className="font-bold text-slate-300">آدرس مستقیم دانلود (معتبر تا ۶ ساعت):</span>
+                <span className="text-[11px] font-mono text-cyan-400">Direct Download Link</span>
+              </div>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  readOnly
+                  value={issuedDownloadUrl}
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                  className="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-emerald-500/40 text-emerald-300 font-mono text-xs select-all focus:outline-none focus:ring-1 focus:ring-emerald-400 pl-11"
+                  dir="ltr"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(issuedDownloadUrl);
+                    setCopiedUrl(true);
+                    setTimeout(() => setCopiedUrl(false), 2500);
+                  }}
+                  className="absolute left-2 p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-all cursor-pointer"
+                  title="کپی لینک"
+                >
+                  {copiedUrl ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Primary Action Button: Copy for IDM */}
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(issuedDownloadUrl);
+                setCopiedUrl(true);
+                setTimeout(() => setCopiedUrl(false), 2500);
+              }}
+              className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+            >
+              {copiedUrl ? (
+                <>
+                  <Check className="w-5 h-5 text-slate-950 stroke-[3]" />
+                  <span>لینک دانلود با موفقیت در کلیپ‌بورد کپی شد (در IDM پیست کنید)</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-5 h-5 stroke-[2.5]" />
+                  <span>کپی لینک دانلود برای IDM (Internet Download Manager)</span>
+                </>
+              )}
+            </button>
+
+            {/* Secondary Action: Direct Browser Download & Close */}
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+              <a
+                href={issuedDownloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="w-full sm:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-all"
+              >
+                <Download className="w-4 h-4 text-cyan-400" />
+                <span>دانلود مستقیم از طریق مرورگر</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-all"
+              >
+                بستن پنجره
+              </button>
+            </div>
+
+            {/* Informational Guidance Note */}
+            <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200/90 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-cyan-300">
+                <Info className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span>نکات مهم دانلود با نهایت سرعت:</span>
+              </div>
+              <ul className="text-[11px] text-slate-300 space-y-1 pr-5 list-disc leading-relaxed">
+                <li>این لینک از قابلیت ادامه دانلود (Resume) و اتصالات موازی تا ۳۲ کانکشن در IDM پشتیبانی می‌کند.</li>
+                <li>مدت اعتبار این توکن ۶ ساعت است. تا ۶ ساعت می‌توانید بدون کسر مجدد سهمیه این لینک را در صفحه <Link href="/dashboard/downloads" onClick={onClose} className="text-cyan-400 underline font-bold">تاریخچه دانلودها</Link> نیز کپی فرمایید.</li>
+              </ul>
+            </div>
           </div>
         ) : (
           /* Main Confirmation and Selection Body */

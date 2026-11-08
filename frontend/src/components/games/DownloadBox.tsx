@@ -437,134 +437,103 @@ export default function DownloadBox({ links, gameTitle, gameId, game }: Download
       {activeTab === 'data' ? (
         <div className="space-y-4">
           {availableFormats.length > 0 ? (
-            <div className="space-y-3">
-              {availableFormats.map((fmt) => {
-                const eligibility = checkEligibility(fmt.size_gb, 'data');
-                const ActionIcon = eligibility.icon;
-                const isRecommended = downloadOptions?.recommended_format === fmt.format_category ||
-                  downloadOptions?.recommended_job_id === fmt.job_id;
-                const isFpkg = fmt.format_category === 'fpkg';
+            /* Step 21: Clean Storefront Mandate - Single Unified Official PlayStation Data Card */
+            (() => {
+              const primaryFormat = downloadOptions?.available_formats?.find(
+                (f) => f.job_id === downloadOptions.recommended_job_id
+              ) || availableFormats[0];
+              const primarySize = primaryFormat?.size_gb || game?.download_size_gb || 40.0;
+              const eligibility = checkEligibility(primarySize, 'data');
+              const ActionIcon = eligibility.icon;
 
-                return (
-                  <div
-                    key={fmt.job_id}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
-                      isRecommended
-                        ? 'bg-gradient-to-r from-[#141b2d] via-[#101a30] to-[#141b2d] border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.15)] ring-1 ring-cyan-500/30'
-                        : 'bg-[#141b2d] border-white/5 hover:border-white/15'
-                    }`}
-                  >
-                    {/* Left Package Info */}
-                    <div className="space-y-2 flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Format Category Badge */}
-                        <span
-                          className={`px-2.5 py-0.5 rounded-lg text-xs font-black font-roboto border ${
-                            isFpkg
-                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]'
-                              : 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-                          }`}
-                        >
-                          {isFpkg ? t('downloadBox.fpkgBadge') : t('downloadBox.fat32Badge')}
+              return (
+                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-[#141b2d] via-[#101a30] to-[#141b2d] border border-cyan-500/30 hover:border-cyan-500/50 transition-all shadow-[0_0_25px_rgba(6,182,212,0.12)] flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                  {/* Left Package Info */}
+                  <div className="space-y-3 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-3 py-1 rounded-xl text-xs font-black font-roboto bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.25)] flex items-center gap-1.5">
+                        <HardDrive className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>دیتای رسمی بازی پلی‌استیشن</span>
+                      </span>
+
+                      {ps5TitleId && (
+                        <span className="px-2.5 py-0.5 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-mono font-bold">
+                          PS5: {ps5TitleId}
                         </span>
+                      )}
 
-                        {/* Recommended Badge */}
-                        {isRecommended && (
-                          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <span>{t('downloadBox.recommendedForYou')}</span>
-                          </span>
-                        )}
-
-                        {/* Title ID Tag */}
-                        {fmt.tag && (
-                          <span className="px-2 py-0.5 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-mono">
-                            {fmt.tag}
-                          </span>
-                        )}
-
-                        {/* Release Version */}
-                        {fmt.release_version && (
-                          <span className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-mono">
-                            {fmt.release_version}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Package Title */}
-                      <h4 className="text-sm sm:text-base font-bold text-white">
-                        {fmt.title}
-                      </h4>
-
-                      {/* Description / Instructions */}
-                      <p className="text-xs text-text-muted leading-relaxed">
-                        {isFpkg ? t('downloadBox.fpkgDesc') : t('downloadBox.fat32Desc')}
-                      </p>
-
-                      {/* Metadata row: Size & Clean Check & SHA-256 */}
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted pt-1">
-                        <span className="flex items-center gap-1 font-roboto text-amber-400 font-bold">
-                          <HardDrive className="w-3.5 h-3.5" />
-                          {size(fmt.size_gb)}
+                      {ps4TitleId && (
+                        <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-mono font-bold">
+                          PS4: {ps4TitleId}
                         </span>
+                      )}
 
-                        <span className="flex items-center gap-1 text-slate-300">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>{t('downloadBox.verifiedClean')}</span>
-                        </span>
-
-                        {fmt.sha256 && (
-                          <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
-                            <span>SHA: {fmt.sha256.slice(0, 12)}...</span>
-                            <button
-                              type="button"
-                              onClick={() => handleCopySha(fmt.sha256!)}
-                              className="hover:text-white p-0.5 cursor-pointer"
-                              title="کپی هش SHA-256"
-                            >
-                              {copiedSha === fmt.sha256 ? (
-                                <Check className="w-3 h-3 text-emerald-400" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </button>
-                          </span>
-                        )}
-                      </div>
+                      <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        <span>نسخه نهایی و تست‌شده</span>
+                      </span>
                     </div>
 
-                    {/* Right Action Button */}
-                    <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0">
-                      {eligibility.allowed ? (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenFormatModal(fmt, true)}
-                          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-black text-xs transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
-                            isConsole
-                              ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white shadow-neon-purple'
-                              : 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.35)]'
-                          }`}
-                        >
-                          {isConsole ? <Gamepad2 className="w-4 h-4" /> : <Download className="w-4 h-4 stroke-[2.5]" />}
-                          <span>
-                            {isConsole ? t('downloadBox.sendToPs5') : t('downloadBox.eligibility.downloadButton')}
-                          </span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={eligibility.action}
-                          className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 font-bold text-xs transition-all cursor-pointer shadow-md hover:border-slate-600"
-                        >
-                          <ActionIcon className="w-4 h-4 text-amber-400" />
-                          <span>{eligibility.buttonText}</span>
-                        </button>
-                      )}
+                    {/* Title */}
+                    <h4 className="text-base sm:text-lg font-black text-white">
+                      دیتای رسمی و کامل {gameTitle}
+                    </h4>
+
+                    {/* Description */}
+                    <p className="text-xs text-text-muted leading-relaxed">
+                      شامل تمامی فایل‌های اصلی دیتای بازی پلی‌استیشن. انتخاب دستگاه (PS5 یا PS4) و ساختار فریمور (FPKG برای ۱۱.۴۰ به پایین یا FAT32 برای فریمورهای بالاتر) در مرحله بعد قابل انتخاب است.
+                    </p>
+
+                    {/* Metadata summary */}
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted pt-1">
+                      <span className="flex items-center gap-1.5 font-roboto text-amber-400 font-bold">
+                        <HardDrive className="w-4 h-4" />
+                        <span>حجم بسته: {size(primarySize)}</span>
+                      </span>
+
+                      <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span>{t('downloadBox.verifiedClean')}</span>
+                      </span>
+
+                      <span className="flex items-center gap-1.5 text-slate-300">
+                        <Layers className="w-4 h-4 text-cyan-400" />
+                        <span>انتخاب فریمور در مرحله بعد</span>
+                      </span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Right Action Button */}
+                  <div className="flex items-center gap-3 shrink-0 pt-2 lg:pt-0">
+                    {eligibility.allowed ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenFormatModal(primaryFormat, true)}
+                        className={`flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-black text-xs sm:text-sm transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
+                          isConsole
+                            ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white shadow-neon-purple'
+                            : 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.4)]'
+                        }`}
+                      >
+                        {isConsole ? <Gamepad2 className="w-5 h-5" /> : <Download className="w-5 h-5 stroke-[2.5]" />}
+                        <span>
+                          {isConsole ? t('downloadBox.sendToPs5') : 'دانلود دیتای بازی'}
+                        </span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={eligibility.action}
+                        className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 font-bold text-xs transition-all cursor-pointer shadow-md hover:border-slate-600"
+                      >
+                        <ActionIcon className="w-4 h-4 text-amber-400" />
+                        <span>{eligibility.buttonText}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
           ) : currentTabLinks.length > 0 ? (
             /* Fallback to legacy parts if no dynamic packages yet */
             <div className="space-y-3">

@@ -357,19 +357,29 @@ async def stream_direct_game_download(
             yield chunk[:to_write]
             sent += to_write
 
+    if request.method == "HEAD":
+        head_headers = {
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(content_length if range_header else total_size),
+        }
+        if range_header:
+            head_headers["Content-Range"] = f"bytes {start}-{end}/{total_size}"
+            return Response(status_code=status.HTTP_206_PARTIAL_CONTENT, headers=head_headers)
+        return Response(status_code=status.HTTP_200_OK, headers=head_headers)
+
     headers = {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": f'attachment; filename="{filename}"',
         "Accept-Ranges": "bytes",
-        "Content-Range": f"bytes {start}-{end}/{total_size}",
         "Content-Length": str(limit),
     }
+    if range_header:
+        headers["Content-Range"] = f"bytes {start}-{end}/{total_size}"
+        return StreamingResponse(sample_stream(), status_code=status.HTTP_206_PARTIAL_CONTENT, headers=headers)
 
-    if request.method == "HEAD":
-        return Response(status_code=status.HTTP_200_OK, headers=headers)
-
-    status_code = status.HTTP_206_PARTIAL_CONTENT if range_header else status.HTTP_200_OK
-    return StreamingResponse(sample_stream(), status_code=status_code, headers=headers)
+    return StreamingResponse(sample_stream(), status_code=status.HTTP_200_OK, headers=headers)
 
 
 @router.get("/{game_id}/downloads/{file_id}/stream", status_code=status.HTTP_302_FOUND)

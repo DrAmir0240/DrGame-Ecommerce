@@ -12,6 +12,9 @@ import {
   Gamepad2,
   Loader2,
   AlertCircle,
+  Copy,
+  Check,
+  Clock,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
@@ -31,6 +34,8 @@ interface DownloadHistoryItem {
   file_size_gb: number;
   downloaded_at: string;
   status: string;
+  download_url?: string | null;
+  is_expired?: boolean;
 }
 
 export default function MyDownloadsPage() {
@@ -40,6 +45,30 @@ export default function MyDownloadsPage() {
   const [history, setHistory] = useState<DownloadHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const getFullDownloadUrl = (item: DownloadHistoryItem) => {
+    if (!item.download_url) return '';
+    let link = item.download_url;
+    if (link.startsWith('/')) {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      if (link.startsWith('/api/') && baseUrl.endsWith('/api')) {
+        link = `${baseUrl.slice(0, -4)}${link}`;
+      } else {
+        link = `${baseUrl.replace(/\/+$/, '')}/${link.replace(/^\/+/, '')}`;
+      }
+    }
+    return link;
+  };
+
+  const handleCopyHistoryLink = (item: DownloadHistoryItem) => {
+    const fullUrl = getFullDownloadUrl(item);
+    if (fullUrl) {
+      navigator.clipboard.writeText(fullUrl);
+      setCopiedId(item.id);
+      setTimeout(() => setCopiedId(null), 2500);
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -231,13 +260,50 @@ export default function MyDownloadsPage() {
                   </div>
                 </div>
 
-                {/* Status Badge (NO RE-DOWNLOAD BUTTON AS REQUESTED) */}
-                <div className="flex items-center gap-2 self-end md:self-center shrink-0">
-                  <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{t('downloads.statusRecorded')}</span>
-                  </span>
-                </div>
+                {/* Step 21: Direct IDM link within 6-hour window or Expired Badge */}
+                {(() => {
+                  const elapsedMs = Date.now() - new Date(item.downloaded_at).getTime();
+                  const isExpired = item.is_expired ?? (elapsedMs > 6 * 3600 * 1000);
+                  const hasLink = Boolean(item.download_url);
+
+                  return (
+                    <div className="flex flex-wrap items-center gap-2.5 self-end md:self-center shrink-0">
+                      {!isExpired && hasLink ? (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyHistoryLink(item)}
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer"
+                          title="کپی لینک مستقیم دانلود برای IDM (بدون کسر مجدد سهمیه)"
+                        >
+                          {copiedId === item.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-300 stroke-[3]" />
+                              <span>کپی شد!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>کپی لینک برای IDM</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <span
+                          className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-400 text-xs font-medium flex items-center gap-1.5"
+                          title="اعتبار ۶ ساعته توکن این فایل به پایان رسیده است. جهت دانلود مجدد از صفحه بازی اقدام فرمایید."
+                        >
+                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <span>لینک منقضی شده</span>
+                        </span>
+                      )}
+
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{t('downloads.statusRecorded')}</span>
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

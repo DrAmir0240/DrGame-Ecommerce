@@ -157,6 +157,8 @@ class UserDownloadHistoryOut(BaseModel):
     file_size_gb: float
     downloaded_at: datetime
     status: str = "completed"
+    download_url: Optional[str] = None
+    is_expired: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
