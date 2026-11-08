@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { GameCardItem } from '@/types/game';
 import { getMediaUrl } from '@/lib/media';
 import { useTranslation, DynamicText } from '@/i18n';
+import { useConsoleStorageStore } from '@/stores/useConsoleStorageStore';
 
 interface GameCardProps {
   game: GameCardItem;
@@ -23,6 +24,7 @@ function getPlatformBadgeText(plat: string): string {
 
 export default function GameCard({ game }: GameCardProps) {
   const { locale, dir, t, n, size } = useTranslation();
+  const { isConsole, freeStorageGb } = useConsoleStorageStore();
 
   // Normalize platforms list
   const platforms = (game.platforms && game.platforms.length > 0)
@@ -65,10 +67,33 @@ export default function GameCard({ game }: GameCardProps) {
           </div>
         )}
 
-        {/* Download Size (top-left) */}
+        {/* Download Size & Console Storage Telemetry (top-left) */}
         {game.download_size_gb > 0 && (
-          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-purple-300 text-[10px] font-bold font-roboto">
-            {size(game.download_size_gb)}
+          <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+            <div className="px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-purple-300 text-[10px] font-bold font-roboto">
+              {size(game.download_size_gb)}
+            </div>
+
+            {/* Step 22: Live Console Storage Telemetry Tag (Only when console active & storage known) */}
+            {isConsole && freeStorageGb !== null && (
+              game.download_size_gb <= freeStorageGb ? (
+                <div
+                  className="px-1.5 py-0.5 rounded-md bg-emerald-500/25 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[9px] font-bold flex items-center gap-0.5 shadow-sm"
+                  title={`فضای کنسول کافی است (آزاد: ${freeStorageGb} GB)`}
+                >
+                  <span className="text-[10px]">✔</span>
+                  <span className="hidden sm:inline">مناسب هارد</span>
+                </div>
+              ) : (
+                <div
+                  className="px-1.5 py-0.5 rounded-md bg-rose-500/35 backdrop-blur-md border border-rose-500/50 text-rose-300 text-[9px] font-bold flex items-center gap-0.5 animate-pulse shadow-sm"
+                  title={`کمبود فضای کنسول (نیاز: ${game.download_size_gb} GB - آزاد: ${freeStorageGb} GB)`}
+                >
+                  <span className="text-[10px]">⚠</span>
+                  <span className="hidden sm:inline">کمبود فضا</span>
+                </div>
+              )
+            )}
           </div>
         )}
       </div>

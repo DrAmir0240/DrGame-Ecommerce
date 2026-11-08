@@ -25,7 +25,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_optional_current_user
 from app.core.dpop import (
     OAuthException,
     attach_dpop_headers,
@@ -327,7 +327,7 @@ async def account_claim_handoff(
 )
 async def account_query_storage(
     body: AccountStorageRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
     db: AsyncSession = Depends(get_db),
 ):
     return await DPoPService.query_account_storage(

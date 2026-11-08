@@ -349,6 +349,15 @@ async def test_console_storage_telemetry_and_account_gauge(
     assert devices[0]["free_bytes"] == 250000000000
     assert devices[0]["stale"] is False
 
+    # 2b. Query storage without Authorization token (unauthenticated console browser with handoff)
+    unauth_storage_res = await client.post(
+        "http://test/api/account/storage",
+        json={"handoff": handoff_secret},
+    )
+    assert unauth_storage_res.status_code == 200
+    assert len(unauth_storage_res.json()["devices"]) == 1
+    assert unauth_storage_res.json()["devices"][0]["volume"] == "/data"
+
     # 3. Periodic report update from console
     report_url = "http://test/api/dpop/device/storage"
     report_proof = create_dpop_proof(priv_key, jwk, "POST", report_url)

@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useQuotaStore } from '@/stores/useQuotaStore';
 import { apiRequest } from '@/lib/apiClient';
 import { useTranslation } from '@/i18n';
+import ConsoleStorageWidget from '@/components/console/ConsoleStorageWidget';
 
 interface DownloadHistoryItem {
   id: number;
@@ -150,6 +151,9 @@ export default function MyDownloadsPage() {
           <span>{error}</span>
         </div>
       )}
+
+      {/* Step 22: Console Storage Telemetry (Displayed only when console session / device detected) */}
+      <ConsoleStorageWidget className="mb-2" />
 
       {/* Summary Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

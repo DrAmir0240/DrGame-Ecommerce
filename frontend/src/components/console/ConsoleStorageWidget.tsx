@@ -42,12 +42,14 @@ export default function ConsoleStorageWidget({
   compact = false,
   className = '',
 }: ConsoleStorageWidgetProps) {
-  const { handoffSecret, isPs5Device } = usePs5Handoff();
+  const { handoffSecret, isConsole, consolePlatform } = usePs5Handoff();
   const [devices, setDevices] = useState<DeviceStorageItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
-  const fetchStorage = async () => {
+  const fetchStorage = async (manual: boolean = false) => {
+    if (manual) setIsRefreshing(true);
     try {
       const res = await apiRequest<{ devices: DeviceStorageItem[] }>('/account/storage', {
         method: 'POST',
@@ -61,17 +63,18 @@ export default function ConsoleStorageWidget({
       // Quiet fail if not logged in or backend storage endpoint unavailable
     } finally {
       setLoading(false);
+      if (manual) setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchStorage();
     // Poll every 10 seconds according to PS5 Download32 specification
-    const timer = setInterval(fetchStorage, 10000);
+    const timer = setInterval(() => fetchStorage(false), 10000);
     return () => clearInterval(timer);
   }, [handoffSecret]);
 
-  if (!isPs5Device && devices.length === 0) {
+  if (!isConsole && devices.length === 0) {
     return null;
   }
 
@@ -82,7 +85,9 @@ export default function ConsoleStorageWidget({
       return (
         <div className={`p-4 rounded-2xl bg-neutral-900/60 border border-white/5 animate-pulse flex items-center gap-3 ${className}`}>
           <HardDrive className="w-5 h-5 text-purple-400" />
-          <span className="text-xs text-neutral-400">در حال دریافت وضعیت حافظه کنسول PS5...</span>
+          <span className="text-xs text-neutral-400">
+            در حال دریافت وضعیت حافظه {consolePlatform === 'ps4' ? 'کنسول پلی‌استیشن ۴' : 'کنسول پلی‌استیشن ۵'}...
+          </span>
         </div>
       );
     }
@@ -97,6 +102,7 @@ export default function ConsoleStorageWidget({
   const freeGb = free / (1024 * 1024 * 1024);
   const isInsufficient = requiredGameSizeGb !== undefined && freeGb < requiredGameSizeGb;
   const isStale = primaryDevice.stale;
+  const consoleDefaultName = consolePlatform === 'ps4' ? 'کنسول پلی‌استیشن ۴' : 'کنسول پلی‌استیشن ۵';
 
   return (
     <div
@@ -115,18 +121,18 @@ export default function ConsoleStorageWidget({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white tracking-wide">
-                {primaryDevice.device_name || 'کنسول پلی‌استیشن ۵'}
+                {primaryDevice.device_name || consoleDefaultName}
               </span>
               <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-neutral-400">
                 {primaryDevice.volume}
               </span>
             </div>
-            <p className="text-[11px] text-neutral-400">حافظه داخلی کنسول</p>
+            <p className="text-[11px] text-neutral-400">حافظه کنسول متصل</p>
           </div>
         </div>
 
-        {/* Live Status Tag */}
-        <div className="flex items-center gap-1.5">
+        {/* Live Status Tag & Manual Refresh Button */}
+        <div className="flex items-center gap-2">
           {isStale ? (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <WifiOff className="w-3 h-3" />
@@ -138,10 +144,20 @@ export default function ConsoleStorageWidget({
               آنلاین
             </span>
           )}
+
+          <button
+            type="button"
+            onClick={() => fetchStorage(true)}
+            disabled={isRefreshing || loading}
+            title="به‌روزرسانی وضعیت حافظه کنسول"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-purple-400' : ''}`} />
+          </button>
         </div>
       </div>
 
-      {/* Progress Bar Gauge */}
+      {/* Main Drive Progress Bar Gauge */}
       <div className="space-y-1.5 mb-3">
         <div className="flex justify-between text-xs text-neutral-300">
           <span>فضای مصرف‌شده: {formatBytes(used)} ({usedPercent}%)</span>
@@ -162,6 +178,33 @@ export default function ConsoleStorageWidget({
           <span>کل: {formatBytes(total)}</span>
         </div>
       </div>
+
+      {/* Additional Drives (e.g. External USB drives) if reported */}
+      {devices.length > 1 && (
+        <div className="pt-2 border-t border-white/5 space-y-2 mb-3">
+          <div className="text-[11px] font-bold text-neutral-400">حافظه‌های جانبی متصل:</div>
+          {devices.slice(1).map((sec, idx) => {
+            const secTotal = sec.total_bytes;
+            const secFree = sec.free_bytes;
+            const secUsed = Math.max(0, secTotal - secFree);
+            const secPercent = Math.min(100, Math.max(0, Math.round((secUsed / secTotal) * 100)));
+            return (
+              <div key={sec.volume || idx} className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-white font-medium">{sec.device_name || `درایو جانبی ${idx + 1}`} ({sec.volume})</span>
+                  <span className="text-cyan-300 font-mono">آزاد: {formatBytes(secFree)} / {formatBytes(secTotal)}</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-neutral-800 overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-400 rounded-full transition-all duration-500"
+                    style={{ width: `${secPercent}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Insufficient Storage Alert or Confirmation */}
       {requiredGameSizeGb !== undefined && (

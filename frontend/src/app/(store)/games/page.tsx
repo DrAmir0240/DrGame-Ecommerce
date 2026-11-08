@@ -7,8 +7,9 @@ import { GameCardItem, Genre, PaginatedGames } from '@/types/game';
 import GameCard from '@/components/games/GameCard';
 import FilterSidebar, { FilterState } from '@/components/games/FilterSidebar';
 import CircularQuotaWidget from '@/components/games/CircularQuotaWidget';
-import { Search, ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft, Gamepad2, Sparkles, Filter } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft, Gamepad2, Sparkles, Filter, HardDrive } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import { useConsoleStorageStore } from '@/stores/useConsoleStorageStore';
 
 function getPaginationRange(currentPage: number, totalPages: number): (number | '...')[] {
   if (totalPages <= 7) {
@@ -48,6 +49,22 @@ function getPaginationRange(currentPage: number, totalPages: number): (number | 
 function GamesCatalogContent() {
   const { t, n, tp } = useTranslation();
   const searchParams = useSearchParams();
+
+  const {
+    isConsole,
+    consolePlatform,
+    freeStorageGb,
+    totalStorageGb,
+    usedPercent,
+    deviceName,
+    volume,
+    isStale,
+    fetchStorage,
+  } = useConsoleStorageStore();
+
+  useEffect(() => {
+    fetchStorage();
+  }, []);
 
   // Read URL query filters
   const paramGenre = searchParams.get('genre') || '';
@@ -205,6 +222,50 @@ function GamesCatalogContent() {
         {/* Main Content Area (Games Grid & Top Bar) */}
         <main className="flex-1 min-w-0 w-full space-y-5">
           
+          {/* Step 22: Live Console Storage Telemetry Banner (Rendered when console detected) */}
+          {isConsole && freeStorageGb !== null && (
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#141b2d] to-indigo-950/40 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_0_20px_rgba(168,85,247,0.15)] animate-in fade-in duration-300">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                  <Gamepad2 className="w-5 h-5 animate-pulse" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-white">
+                      {deviceName || (consolePlatform === 'ps5' ? 'کنسول پلی‌استیشن ۵' : 'کنسول پلی‌استیشن ۴')}
+                    </span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-purple-300 border border-purple-500/20">
+                      {volume || '/data'}
+                    </span>
+                    {!isStale && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        اتصال زنده کنسول
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-text-muted">
+                    فضای آزاد هارد داخلی: <strong className="font-roboto font-bold text-emerald-400">{n(freeStorageGb)} GB</strong> از مجموع <span className="font-roboto">{n(totalStorageGb || 0)} GB</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Storage Gauge */}
+              <div className="w-full sm:w-64 space-y-1">
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>مصرف‌شده: {n(usedPercent || 0)}٪</span>
+                  <span className="font-roboto font-bold text-emerald-400">آزاد: {n(freeStorageGb)} GB</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 transition-all duration-500"
+                    style={{ width: `${usedPercent || 0}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Top Sticky Bar: Search Box (Right) + Mobile Filter Button + Subscription Quota Widgets (Left) */}
           <div className="sticky top-16 z-30 bg-[#0d121f]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 sm:p-3 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-3">
             {/* Search Input Row with Mobile Filter Trigger */}

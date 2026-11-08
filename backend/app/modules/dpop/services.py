@@ -579,7 +579,7 @@ class DPoPService:
     @classmethod
     async def query_account_storage(
         cls,
-        user: User,
+        user: Optional[User],
         handoff_secret: Optional[str],
         db: AsyncSession,
     ) -> AccountStorageResponse:
@@ -601,7 +601,7 @@ class DPoPService:
                 dev_name = device.device_name if device else "PS5-Download32-Client"
                 target_jkts.append((auth.jkt, dev_name))
 
-        if not target_jkts:
+        if not target_jkts and user:
             # Query all registered devices belonging to user
             devs_stmt = select(RegisteredDevice).where(
                 RegisteredDevice.user_id == user.id,
