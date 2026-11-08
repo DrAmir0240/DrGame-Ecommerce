@@ -875,8 +875,11 @@ async def seed_data(mode: str = "domestic"):
             if not wallet:
                 wallet = UserWallet(
                     user_id=user.id,
-                    balance_toman=0,
+                    currency="USD" if is_intl else "IRT",
                     withdrawable_balance_toman=0,
+                    pending_balance_toman=0,
+                    total_earned_toman=0,
+                    total_withdrawn_toman=0,
                     updated_at=now,
                 )
                 session.add(wallet)
@@ -912,21 +915,19 @@ async def seed_data(mode: str = "domestic"):
             res = await session.execute(pay_stmt)
             existing_pay = res.scalar_one_or_none()
 
-            pay_amount = p_usd if is_intl else p_toman
-            pay_curr = "USD" if is_intl else "IRT"
+            pay_amount = int(p_usd) if is_intl else p_toman
 
             if not existing_pay:
                 pay = OrderPayment(
                     user_id=user.id,
                     tier_code=t_code,
-                    amount_toman=p_toman,
-                    currency=pay_curr,
-                    tracking_code=f"PAY-{10000 + u_idx}-{int(now.timestamp()) % 100000}",
-                    gateway="stripe" if is_intl else "zibal",
-                    status="completed",
-                    payment_type="subscription",
+                    original_price=pay_amount,
+                    discount_amount=0,
+                    final_price=pay_amount,
+                    payment_method="crypto_usdt" if is_intl else "simulation",
+                    transaction_ref=f"PAY-{10000 + u_idx}-{int(now.timestamp()) % 100000}",
+                    status="paid",
                     created_at=now - timedelta(days=days_ago),
-                    paid_at=now - timedelta(days=days_ago),
                 )
                 session.add(pay)
                 await session.flush()
@@ -948,27 +949,28 @@ async def seed_data(mode: str = "domestic"):
                 beneficiary_wallet = wallets[parent_idx]
 
                 rate = rate_map[tier_level]
-                commission_amt = int(pay.amount_toman * rate)
+                commission_amt = int(pay.final_price * rate)
 
                 c_stmt = select(CommissionLedger).where(
-                    CommissionLedger.beneficiary_id == beneficiary.id,
+                    CommissionLedger.user_id == beneficiary.id,
                     CommissionLedger.order_payment_id == pay.id,
                     CommissionLedger.tier_level == tier_level,
                 )
                 res = await session.execute(c_stmt)
                 if not res.scalar_one_or_none():
                     session.add(CommissionLedger(
-                        beneficiary_id=beneficiary.id,
                         order_payment_id=pay.id,
-                        source_user_id=user_map[buyer_idx].id,
+                        beneficiary_type="user",
+                        user_id=beneficiary.id,
                         tier_level=tier_level,
-                        commission_percent=rate * 100,
                         amount_toman=commission_amt,
-                        status="matured",
+                        currency="USD" if is_intl else "IRT",
+                        description=f"Level {tier_level} Referral Commission" if is_intl else f"پورسانت معرفی سطح {tier_level}",
+                        settlement_status="settled",
+                        settled_at=pay.created_at + timedelta(minutes=5),
                         created_at=pay.created_at + timedelta(minutes=5),
-                        matured_at=pay.created_at + timedelta(minutes=5),
                     ))
-                    beneficiary_wallet.balance_toman += commission_amt
+                    beneficiary_wallet.total_earned_toman += commission_amt
                     beneficiary_wallet.withdrawable_balance_toman += commission_amt
 
                 curr_child = parent_idx
