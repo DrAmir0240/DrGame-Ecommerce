@@ -296,7 +296,7 @@ services:
       - GUNICORN_WORKERS=${GUNICORN_WORKERS:-3}
       - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
     ports:
-      - "${DJANGO_ADMIN_PORT:-8007}:8007"
+      - "${DJANGO_ADMIN_PORT:-8007}:${DJANGO_ADMIN_PORT:-8007}"
     depends_on:
       db:
         condition: service_healthy
