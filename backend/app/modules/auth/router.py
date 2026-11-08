@@ -62,8 +62,13 @@ async def send_otp(
     user = await db.scalar(stmt)
     is_registered = user is not None
 
+    message_text = (
+        "Verification code sent successfully."
+        if settings.DEPLOYMENT_MODE == "international"
+        else "کد تایید ۶ رقمی با موفقیت ارسال شد."
+    )
     return MessageResponse(
-        message="کد تایید ۶ رقمی با موفقیت ارسال شد.",
+        message=message_text,
         detail=f"DEBUG_CODE: {code}",
         is_registered=is_registered
     )
@@ -136,4 +141,9 @@ async def logout(
     jti = payload.get("jti")
     if jti:
         await AuthService.logout_user(db, redis, jti, current_user.id)
-    return MessageResponse(message="خروج از حساب کاربری با موفقیت انجام شد.")
+    msg = (
+        "Logged out successfully."
+        if settings.DEPLOYMENT_MODE == "international"
+        else "خروج از حساب کاربری با موفقیت انجام شد."
+    )
+    return MessageResponse(message=msg)

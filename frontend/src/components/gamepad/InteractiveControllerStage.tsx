@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Tv,
 } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export interface TargetButtonDef {
   idx: number;
@@ -49,6 +50,7 @@ export default function InteractiveControllerStage({
   isCompleted = false,
   onOpenModal,
 }: InteractiveControllerStageProps) {
+  const { t } = useTranslation();
   const isXbox = model === 'xbox-series';
   const lx = axes?.[0] ?? 0;
   const ly = axes?.[1] ?? 0;
@@ -105,7 +107,7 @@ export default function InteractiveControllerStage({
           {isCompleted ? (
             <div className="flex items-center gap-1.5 text-emerald-300 font-black text-xs sm:text-sm">
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>تمام دکمه‌های این مرحله تایید شدند! ✓</span>
+              <span>{t('gamepad.wizard.ui.allStepButtonsPassed')}</span>
             </div>
           ) : currentTarget ? (
             <div className="flex items-center gap-2">
@@ -120,10 +122,10 @@ export default function InteractiveControllerStage({
               </span>
               <div className="text-start leading-tight">
                 <span className="text-xs font-black text-white">
-                  {currentTarget.name} را فشار دهید
+                  {t('gamepad.wizard.ui.pressButton', { target: currentTarget.name })}
                 </span>
-                <span className="hidden sm:inline-block mr-2 text-[10px] text-slate-400">
-                  {currentTarget.isAnalog ? '(بیش از ۸۵٪ بکشید)' : '(دکمه مشخص‌شده روی دسته)'}
+                <span className="hidden sm:inline-block ms-2 text-[10px] text-slate-400">
+                  {currentTarget.isAnalog ? t('gamepad.wizard.ui.pullOver85') : t('gamepad.wizard.ui.highlightedButton')}
                 </span>
               </div>
             </div>
@@ -176,10 +178,10 @@ export default function InteractiveControllerStage({
               type="button"
               onClick={onOpenModal}
               className="flex items-center gap-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 px-2.5 py-1 text-[11px] font-black text-amber-300 hover:text-white transition-all cursor-pointer border border-amber-400/30 hover:border-amber-400/60 shadow-sm"
-              title="مشاهده راهنمای این مرحله"
+              title={t('gamepad.wizard.ui.stepGuideTitle', { current: subStepIndex + 1, name: stageTitle })}
             >
               <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
-              <span>راهنمای این مرحله</span>
+              <span>{t('gamepad.wizard.ui.stepGuideBtn')}</span>
             </button>
           )}
         </div>
@@ -200,7 +202,7 @@ export default function InteractiveControllerStage({
           className="w-full h-auto select-none"
           style={{ maxHeight: 'min(380px, calc(100vh - 280px))' }}
           role="img"
-          aria-label="نمای گرافیکی واقع‌گرایانه دسته بازی"
+          aria-label={t('gamepad.wizard.ui.controllerAriaLabel')}
         >
           <defs>
             {/* Ambient chassis drop shadow */}
@@ -808,7 +810,7 @@ export default function InteractiveControllerStage({
                   textAnchor="middle"
                   dominantBaseline="central"
                 >
-                  فشار دهید: {currentTarget?.glyph}
+                  {t('gamepad.wizard.ui.pressGlyph', { glyph: currentTarget?.glyph || '' })}
                 </text>
               </g>
             </g>

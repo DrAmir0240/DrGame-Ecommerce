@@ -50,26 +50,26 @@ export interface GamepadStepWizardProps {
 }
 
 export type WizardStep =
-  | 'connect'     // 0: بررسی اتصال و مشخصات سخت‌افزاری
-  | 'action_btns' // 1: دکمه‌های اصلی
-  | 'dpad'        // 2: کلیدهای جهت
-  | 'triggers'    // 3: تریگرها و بامپرها
-  | 'sticks'      // 4: استیک‌ها و دریفت
-  | 'gyro'        // 5: سنسور ژیروسکوپ و مدل ۳بعدی
-  | 'vibration'   // 6: تست ویبره
-  | 'mic'         // 7: تست میکروفون
-  | 'report';     // 8: کارنامه نهایی
+  | 'connect'     // 0: connect
+  | 'action_btns' // 1: action_btns
+  | 'dpad'        // 2: dpad
+  | 'triggers'    // 3: triggers
+  | 'sticks'      // 4: sticks
+  | 'gyro'        // 5: gyro
+  | 'vibration'   // 6: vibration
+  | 'mic'         // 7: mic
+  | 'report';     // 8: report
 
-const STEPS: { id: WizardStep; label: string; icon: any; description: string }[] = [
-  { id: 'connect', label: 'شناسایی و اتصال', icon: Cpu, description: 'بررسی اتصال کابل/بلوتوث و اصالت چیپ‌ست سخت‌افزاری' },
-  { id: 'action_btns', label: 'دکمه‌های اصلی', icon: Sparkles, description: 'تست کلیدهای اکشن ۴گانه (✕ ◯ □ △ / A B X Y)' },
-  { id: 'dpad', label: 'کلیدهای جهت', icon: Compass, description: 'تست ۴ جهت اصلی پد D-Pad (بالا، راست، پایین، چپ)' },
-  { id: 'triggers', label: 'تریگرها و بامپر', icon: Layers, description: 'تست کلیدهای L1, R1 و آنالوگ دقیق تریگرهای L2, R2' },
-  { id: 'sticks', label: 'استیک‌ها و دریفت', icon: Activity, description: 'تست کلیک L3/R3، چرخش ۳۶۰ درجه و درصد خطای انحراف (Drift)' },
-  { id: 'gyro', label: 'ژیروسکوپ سه‌بعدی', icon: RotateCcw, description: 'تست سنسور زاویه و ژیروسکوپ ۶محوره با مدل تعاملی سه‌بعدی' },
-  { id: 'vibration', label: 'موتورهای ویبره', icon: Vibrate, description: 'تست لرزش موتورهای هپتیک سبک و سنگین دسته' },
-  { id: 'mic', label: 'تست میکروفون', icon: Mic, description: 'تست ورودی صوتی میکروفون داخلی دسته و سنجش دسی‌بل' },
-  { id: 'report', label: 'گزارش و نتیجه', icon: ShieldCheck, description: 'صدور شناسنامه سلامت، نمره فنی ۱۰۰ و چاپ گزارش' },
+const getBaseSteps = (t: any): { id: WizardStep; label: string; icon: any; description: string }[] => [
+  { id: 'connect', label: t('gamepad.wizard.steps.connect.label'), icon: Cpu, description: t('gamepad.wizard.steps.connect.description') },
+  { id: 'action_btns', label: t('gamepad.wizard.steps.action_btns.label'), icon: Sparkles, description: t('gamepad.wizard.steps.action_btns.description') },
+  { id: 'dpad', label: t('gamepad.wizard.steps.dpad.label'), icon: Compass, description: t('gamepad.wizard.steps.dpad.description') },
+  { id: 'triggers', label: t('gamepad.wizard.steps.triggers.label'), icon: Layers, description: t('gamepad.wizard.steps.triggers.description') },
+  { id: 'sticks', label: t('gamepad.wizard.steps.sticks.label'), icon: Activity, description: t('gamepad.wizard.steps.sticks.description') },
+  { id: 'gyro', label: t('gamepad.wizard.steps.gyro.label'), icon: RotateCcw, description: t('gamepad.wizard.steps.gyro.description') },
+  { id: 'vibration', label: t('gamepad.wizard.steps.vibration.label'), icon: Vibrate, description: t('gamepad.wizard.steps.vibration.description') },
+  { id: 'mic', label: t('gamepad.wizard.steps.mic.label'), icon: Mic, description: t('gamepad.wizard.steps.mic.description') },
+  { id: 'report', label: t('gamepad.wizard.steps.report.label'), icon: ShieldCheck, description: t('gamepad.wizard.steps.report.description') },
 ];
 
 export interface StepGuide {
@@ -79,62 +79,62 @@ export interface StepGuide {
   tip?: string;
 }
 
-const STEP_GUIDES: Record<WizardStep, StepGuide> = {
+const getBaseStepGuides = (t: any): Record<WizardStep, StepGuide> => ({
   connect: {
-    title: 'شناسایی و اتصال دسته',
-    action: 'دسته را با کابل USB یا بلوتوث متصل کرده و یک دکمه از آن را بزنید.',
-    passCondition: 'روشن شدن نشانگر اتصال و فشردن کلید تایید (✕ / A).',
-    tip: 'اتصال با کابل USB همواره کمترین تاخیر و بیشترین نرخ پاسخ‌دهی را دارد.',
+    title: t('gamepad.wizard.steps.connect.guideTitle'),
+    action: t('gamepad.wizard.steps.connect.guideAction'),
+    passCondition: t('gamepad.wizard.steps.connect.guidePass'),
+    tip: t('gamepad.wizard.steps.connect.guideTip'),
   },
   action_btns: {
-    title: 'دکمه‌های اصلی (✕ ◯ □ △ / A B X Y)',
-    action: 'دکمه‌های مشخص‌شده روی شکل دسته را به نوبت یک‌بار فشار دهید.',
-    passCondition: 'فشردن و تایید هر ۴ کلید اصلی اکشن.',
-    tip: 'کلیدها باید نرم برگردند؛ اگر سفت هستند پد زغالی زیر آن‌ها فرسوده است.',
+    title: t('gamepad.wizard.steps.action_btns.guideTitle'),
+    action: t('gamepad.wizard.steps.action_btns.guideAction'),
+    passCondition: t('gamepad.wizard.steps.action_btns.guidePass'),
+    tip: t('gamepad.wizard.steps.action_btns.guideTip'),
   },
   dpad: {
-    title: 'کلیدهای جهت‌نما (D-Pad)',
-    action: 'کلیدهای جهت (بالا ⬆️، راست ➡️، پایین ⬇️، چپ ⬅️) را به نوبت فشار دهید.',
-    passCondition: 'ثبت موفق هر ۴ جهت اصلی پد D-Pad.',
-    tip: 'در بازی‌های فایتینگ، سلامت این ۴ جهت برای اجرای کمبوها ضروری است.',
+    title: t('gamepad.wizard.steps.dpad.guideTitle'),
+    action: t('gamepad.wizard.steps.dpad.guideAction'),
+    passCondition: t('gamepad.wizard.steps.dpad.guidePass'),
+    tip: t('gamepad.wizard.steps.dpad.guideTip'),
   },
   triggers: {
-    title: 'تریگرها و بامپرها (L1/R1/L2/R2)',
-    action: 'کلیدهای L1 و R1 را زده و ماشه‌های L2 و R2 را تا انتها (۱۰۰٪) فشار دهید.',
-    passCondition: 'ثبت کلیک L1/R1 و پر شدن ماشه‌های L2/R2 تا بالای ۹۰٪.',
-    tip: 'نرسیدن ماشه به ۱۰۰٪ مانع شتاب حداکثری خودرو در بازی‌های ریسینگ می‌شود.',
+    title: t('gamepad.wizard.steps.triggers.guideTitle'),
+    action: t('gamepad.wizard.steps.triggers.guideAction'),
+    passCondition: t('gamepad.wizard.steps.triggers.guidePass'),
+    tip: t('gamepad.wizard.steps.triggers.guideTip'),
   },
   sticks: {
-    title: 'استیک‌ها و خطای دریفت (Drift)',
-    action: 'استیک‌ها را رها کنید تا نقطه صفر سنجیده شود، سپس هر دو را ۳۶۰ درجه چرخانده و کلیک L3/R3 را بزنید.',
-    passCondition: 'چرخش کامل هر دو استیک و ثبت کلیک L3 و R3.',
-    tip: 'انحراف زیر ۱۰٪ عالی است؛ بالای ۱۵٪ نشان‌دهنده نیاز به سرویس آنالوگ است.',
+    title: t('gamepad.wizard.steps.sticks.guideTitle'),
+    action: t('gamepad.wizard.steps.sticks.guideAction'),
+    passCondition: t('gamepad.wizard.steps.sticks.guidePass'),
+    tip: t('gamepad.wizard.steps.sticks.guideTip'),
   },
   gyro: {
-    title: 'ژیروسکوپ و سنسور حرکتی ۳بعدی',
-    action: 'دسته را به جهات مختلف بچرخانید تا مدل ۳بعدی همگام با دست شما حرکت کند.',
-    passCondition: 'ثبت داده‌های حرکتی سنسور ژیروسکوپ.',
-    tip: 'دسته‌های ایکس‌باکس ژیروسکوپ ندارند و با زدن «مرحله بعد» رد می‌شوند.',
+    title: t('gamepad.wizard.steps.gyro.guideTitle'),
+    action: t('gamepad.wizard.steps.gyro.guideAction'),
+    passCondition: t('gamepad.wizard.steps.gyro.guidePass'),
+    tip: t('gamepad.wizard.steps.gyro.guideTip'),
   },
   vibration: {
-    title: 'موتورهای لرزش (Rumble & Haptic)',
-    action: 'دکمه بنفش «تست لرزش دسته» را بزنید و لرزش را در دو طرف دسته احساس کنید.',
-    passCondition: 'احساس لرزش و کلیک روی دکمه سبز «تایید لرزش و ادامه».',
-    tip: 'در صورت عدم لرزش در بلوتوث، اتصال کابل USB را تست فرمایید.',
+    title: t('gamepad.wizard.steps.vibration.guideTitle'),
+    action: t('gamepad.wizard.steps.vibration.guideAction'),
+    passCondition: t('gamepad.wizard.steps.vibration.guidePass'),
+    tip: t('gamepad.wizard.steps.vibration.guideTip'),
   },
   mic: {
-    title: 'میکروفون داخلی و جک صدا',
-    action: 'دکمه شروع تست را زده و نزدیک دسته صحبت کنید تا نوار صدا سبز شود.',
-    passCondition: 'ثبت نوسان صدا یا رد کردن اختیاری با «رد شدن از این مرحله».',
-    tip: 'میکروفون داخلی مختص دسته PS5 است؛ سایر دسته‌ها می‌توانند این بخش را رد کنند.',
+    title: t('gamepad.wizard.steps.mic.guideTitle'),
+    action: t('gamepad.wizard.steps.mic.guideAction'),
+    passCondition: t('gamepad.wizard.steps.mic.guidePass'),
+    tip: t('gamepad.wizard.steps.mic.guideTip'),
   },
   report: {
-    title: 'کارنامه سلامت و نمره فنی',
-    action: 'ریز نمرات و گزارش نهایی سلامت کنترلر را بازبینی نمایید.',
-    passCondition: 'بررسی کارنامه فنی از ۱۰۰ نمره.',
-    tip: 'نمره بالای ۸۵ نشان‌دهنده سلامت کامل دسته برای بازی‌های رقابتی است.',
+    title: t('gamepad.wizard.steps.report.guideTitle'),
+    action: t('gamepad.wizard.steps.report.guideAction'),
+    passCondition: t('gamepad.wizard.steps.report.guidePass'),
+    tip: t('gamepad.wizard.steps.report.guideTip'),
   },
-};
+});
 
 export default function GamepadStepWizard({
   pad,
@@ -152,6 +152,8 @@ export default function GamepadStepWizard({
 }: GamepadStepWizardProps) {
   const { t, locale, dir } = useTranslation();
   const { isTvMode } = useTvModeStore();
+  const STEPS = useMemo(() => getBaseSteps(t), [t]);
+  const STEP_GUIDES = useMemo(() => getBaseStepGuides(t), [t]);
   const [currentStep, setCurrentStep] = useState<WizardStep>('connect');
   const [showStepsModal, setShowStepsModal] = useState(false);
   const [modalTab, setModalTab] = useState<'help' | 'steps'>('help');
@@ -297,7 +299,7 @@ export default function GamepadStepWizard({
         micRafRef.current = requestAnimationFrame(loop);
       } catch (err: unknown) {
         console.warn('Microphone access failed:', err);
-        const msg = err instanceof Error ? err.message : 'دسترسی به میکروفون امکان‌پذیر نشد.';
+        const msg = err instanceof Error ? err.message : t('gamepad.mic.error');
         setMicError(msg);
         stopMic();
       }
@@ -324,30 +326,30 @@ export default function GamepadStepWizard({
   const isPS4 = controller?.key === 'dualshock4' || (pad.id && /05c4|09cc|dualshock/i.test(pad.id));
 
   const actionTargets: TargetButtonDef[] = useMemo(() => [
-    { idx: 0, glyph: isXbox ? 'A' : '✕', name: isXbox ? 'دکمه A' : 'دکمه ضربدر (✕)', color: '#38bdf8' },
-    { idx: 1, glyph: isXbox ? 'B' : '◯', name: isXbox ? 'دکمه B' : 'دکمه دایره (◯)', color: '#f43f5e' },
-    { idx: 2, glyph: isXbox ? 'X' : '□', name: isXbox ? 'دکمه X' : 'دکمه مربع (□)', color: '#ec4899' },
-    { idx: 3, glyph: isXbox ? 'Y' : '△', name: isXbox ? 'دکمه Y' : 'دکمه مثلث (△)', color: '#10b981' },
-  ], [isXbox]);
+    { idx: 0, glyph: isXbox ? 'A' : '✕', name: isXbox ? t('gamepad.wizard.buttons.btnA') : t('gamepad.wizard.buttons.btnCross'), color: '#38bdf8' },
+    { idx: 1, glyph: isXbox ? 'B' : '◯', name: isXbox ? t('gamepad.wizard.buttons.btnB') : t('gamepad.wizard.buttons.btnCircle'), color: '#f43f5e' },
+    { idx: 2, glyph: isXbox ? 'X' : '□', name: isXbox ? t('gamepad.wizard.buttons.btnX') : t('gamepad.wizard.buttons.btnSquare'), color: '#ec4899' },
+    { idx: 3, glyph: isXbox ? 'Y' : '△', name: isXbox ? t('gamepad.wizard.buttons.btnY') : t('gamepad.wizard.buttons.btnTriangle'), color: '#10b981' },
+  ], [isXbox, t]);
 
   const dpadTargets: TargetButtonDef[] = useMemo(() => [
-    { idx: 12, glyph: '▲', name: 'جهت بالا (▲)', color: '#a855f7' },
-    { idx: 15, glyph: '▶', name: 'جهت راست (▶)', color: '#a855f7' },
-    { idx: 13, glyph: '▼', name: 'جهت پایین (▼)', color: '#a855f7' },
-    { idx: 14, glyph: '◀', name: 'جهت چپ (◀)', color: '#a855f7' },
-  ], []);
+    { idx: 12, glyph: '▲', name: t('gamepad.wizard.buttons.dpadUp'), color: '#a855f7' },
+    { idx: 15, glyph: '▶', name: t('gamepad.wizard.buttons.dpadRight'), color: '#a855f7' },
+    { idx: 13, glyph: '▼', name: t('gamepad.wizard.buttons.dpadDown'), color: '#a855f7' },
+    { idx: 14, glyph: '◀', name: t('gamepad.wizard.buttons.dpadLeft'), color: '#a855f7' },
+  ], [t]);
 
   const triggerTargets: TargetButtonDef[] = useMemo(() => [
-    { idx: 4, glyph: 'L1', name: 'بامپر چپ (L1)', color: '#06b6d4' },
-    { idx: 5, glyph: 'R1', name: 'بامپر راست (R1)', color: '#06b6d4' },
-    { idx: 6, glyph: 'L2', name: 'تریگر چپ (L2)', color: '#8b5cf6', isAnalog: true },
-    { idx: 7, glyph: 'R2', name: 'تریگر راست (R2)', color: '#8b5cf6', isAnalog: true },
-  ], []);
+    { idx: 4, glyph: 'L1', name: t('gamepad.wizard.buttons.bumperL1'), color: '#06b6d4' },
+    { idx: 5, glyph: 'R1', name: t('gamepad.wizard.buttons.bumperR1'), color: '#06b6d4' },
+    { idx: 6, glyph: 'L2', name: t('gamepad.wizard.buttons.triggerL2'), color: '#8b5cf6', isAnalog: true },
+    { idx: 7, glyph: 'R2', name: t('gamepad.wizard.buttons.triggerR2'), color: '#8b5cf6', isAnalog: true },
+  ], [t]);
 
   const stickTargets: TargetButtonDef[] = useMemo(() => [
-    { idx: 10, glyph: 'L3', name: 'استیک چپ (L3)', color: '#3b82f6' },
-    { idx: 11, glyph: 'R3', name: 'استیک راست (R3)', color: '#3b82f6' },
-  ], []);
+    { idx: 10, glyph: 'L3', name: t('gamepad.wizard.buttons.stickL3'), color: '#3b82f6' },
+    { idx: 11, glyph: 'R3', name: t('gamepad.wizard.buttons.stickR3'), color: '#3b82f6' },
+  ], [t]);
 
   // Auto-detect button presses during relevant step
   const prevButtonsRef = useRef<boolean[]>([]);
@@ -481,7 +483,7 @@ export default function GamepadStepWizard({
   const isSticksDone = ((btnHits[10] || 0) >= 1 && (btnHits[11] || 0) >= 1) || (driftStats.leftMax > 0.6 && driftStats.rightMax > 0.6);
 
   // ─────────────────────────────────────────────────────────────────
-  // SMART AUTO-ADVANCE ENGINE (هوشمندسازی انتقال خودکار برای تلویزیون)
+  // SMART AUTO-ADVANCE ENGINE
   // ─────────────────────────────────────────────────────────────────
   const [autoAdvancing, setAutoAdvancing] = useState(false);
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -562,7 +564,7 @@ export default function GamepadStepWizard({
   }, [currentStep, handleTestRumble, goToNextStep]);
 
   // ─────────────────────────────────────────────────────────────────
-  // TV CONTROLLER INPUT HANDLING (کنترل مرحله بعد و قبل با دکمه‌های دسته)
+  // TV CONTROLLER INPUT HANDLING
   // ─────────────────────────────────────────────────────────────────
   const lastNavPressRef = useRef(0);
   useEffect(() => {
@@ -662,7 +664,7 @@ export default function GamepadStepWizard({
         <div className="flex items-center gap-2.5 truncate">
           <span className="flex items-center gap-1.5 rounded-xl bg-violet-600/30 border border-violet-500/40 px-2.5 py-1 text-xs font-black text-violet-300 shrink-0">
             <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-ping" />
-            <span>گام {currentStepIdx + 1} از {STEPS.length}</span>
+            <span>{t('gamepad.wizard.ui.stepOf', { current: currentStepIdx + 1, total: STEPS.length })}</span>
           </span>
           <span className="text-xs sm:text-sm font-black text-white truncate">
             {STEPS[currentStepIdx]?.label}
@@ -701,10 +703,10 @@ export default function GamepadStepWizard({
               setShowStepsModal(true);
             }}
             className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-violet-600/35 hover:from-amber-500/40 hover:to-violet-600/50 border border-amber-400/40 hover:border-amber-400/70 px-3 py-1.5 text-xs font-black text-amber-200 hover:text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.25)] active:scale-95"
-            title="مشاهده راهنمای کامل آزمون این مرحله"
+            title={t('gamepad.wizard.ui.stepGuide')}
           >
             <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
-            <span>راهنمای این مرحله</span>
+            <span>{t('gamepad.wizard.ui.stepGuide')}</span>
           </button>
 
           <button
@@ -714,22 +716,22 @@ export default function GamepadStepWizard({
               setShowStepsModal(true);
             }}
             className="flex items-center gap-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 px-2.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95"
-            title="مشاهده نقشه کامل مراحل و جابجایی"
+            title={t('gamepad.wizard.ui.allSteps')}
           >
             <ListOrdered className="h-3.5 w-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">لیست مراحل</span>
+            <span className="hidden sm:inline">{t('gamepad.wizard.ui.stepsList')}</span>
           </button>
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────
-          MASTER STEPS & GUIDE MODAL (پاپ‌آپ نقشه کامل مراحل و راهنما)
+          MASTER STEPS & GUIDE MODAL
          ───────────────────────────────────────────────────────────────── */}
       {showStepsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md px-4 py-14 sm:py-16 animate-in fade-in duration-150">
           <div
             className="relative w-full max-w-lg max-h-[72vh] sm:max-h-[66vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-[#0d121f] p-4 sm:p-5 shadow-[0_0_60px_rgba(139,92,246,0.35)] space-y-3 scrollbar-none"
-            dir="rtl"
+            dir={dir}
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
@@ -743,10 +745,10 @@ export default function GamepadStepWizard({
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-black text-white">
-                    {modalTab === 'help' ? `راهنمای گام ${currentStepIdx + 1}: ${STEPS[currentStepIdx]?.label}` : 'مراحل آزمون جامع و نقشه راه'}
+                    {modalTab === 'help' ? t('gamepad.wizard.ui.stepGuideTitle', { current: currentStepIdx + 1, name: STEPS[currentStepIdx]?.label }) : t('gamepad.wizard.ui.allSteps')}
                   </h3>
                   <p className="text-[10px] text-slate-400">
-                    {modalTab === 'help' ? 'راهنمای سریع و فشرده این مرحله' : 'برای تغییر مرحله از گزینه‌های زیر استفاده نمایید.'}
+                    {modalTab === 'help' ? t('gamepad.wizard.ui.stepGuideSub') : t('gamepad.wizard.ui.allStepsSub')}
                   </p>
                 </div>
               </div>
@@ -755,7 +757,7 @@ export default function GamepadStepWizard({
                 type="button"
                 onClick={() => setShowStepsModal(false)}
                 className="grid h-7 w-7 place-items-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
-                title="بستن"
+                title={t('gamepad.wizard.ui.close')}
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -773,7 +775,7 @@ export default function GamepadStepWizard({
                 }`}
               >
                 <HelpCircle className="h-3 w-3 text-amber-400" />
-                <span>راهنمای این مرحله</span>
+                <span>{t('gamepad.wizard.ui.stepGuide')}</span>
               </button>
 
               <button
@@ -786,41 +788,41 @@ export default function GamepadStepWizard({
                 }`}
               >
                 <ListOrdered className="h-3 w-3 text-cyan-400" />
-                <span>لیست تمام مراحل</span>
+                <span>{t('gamepad.wizard.ui.allSteps')}</span>
               </button>
             </div>
 
             {/* TAB 1: ULTRA-COMPACT STEP HELP (FITS COMFORTABLY IN TV MODE) */}
             {modalTab === 'help' ? (
               <div className="space-y-2.5 text-xs">
-                {/* 1. What to do (دستورالعمل آزمون) */}
+                {/* 1. What to do */}
                 <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-2.5 space-y-1">
                   <span className="flex items-center gap-1.5 font-black text-amber-300 text-[11px]">
                     <Sparkles className="h-3.5 w-3.5" />
-                    <span>نحوه انجام آزمون:</span>
+                    <span>{t('gamepad.wizard.ui.testMethod')}</span>
                   </span>
                   <p className="text-slate-200 leading-relaxed text-[11px]">
                     {activeGuide.action}
                   </p>
                 </div>
 
-                {/* 2. Pass Condition (شرط تایید مرحله) */}
+                {/* 2. Pass Condition */}
                 <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-2.5 space-y-1">
                   <span className="flex items-center gap-1.5 font-black text-emerald-300 text-[11px]">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>شرط تایید و عبور به مرحله بعد:</span>
+                    <span>{t('gamepad.wizard.ui.passCondition')}</span>
                   </span>
                   <p className="text-slate-200 leading-relaxed text-[11px]">
                     {activeGuide.passCondition}
                   </p>
                 </div>
 
-                {/* 3. Pro Tip (نکته مهم) */}
+                {/* 3. Pro Tip */}
                 {activeGuide.tip && (
                   <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 space-y-1">
                     <span className="flex items-center gap-1.5 font-black text-indigo-300 text-[11px]">
                       <Cpu className="h-3.5 w-3.5" />
-                      <span>نکته فنی:</span>
+                      <span>{t('gamepad.wizard.ui.techTip')}</span>
                     </span>
                     <p className="text-slate-300 leading-relaxed text-[11px]">
                       {activeGuide.tip}
@@ -834,7 +836,7 @@ export default function GamepadStepWizard({
                   onClick={() => setShowStepsModal(false)}
                   className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 py-2.5 text-xs font-black text-white shadow-md transition-all cursor-pointer active:scale-95"
                 >
-                  متوجه شدم — ادامه آزمون
+                  {t('gamepad.wizard.ui.gotIt')}
                 </button>
               </div>
             ) : (
@@ -884,19 +886,19 @@ export default function GamepadStepWizard({
 
                 {/* TV & Controller Navigation Shortcuts */}
                 <div className="rounded-xl border border-white/10 bg-black/40 p-2.5 space-y-1.5 text-xs">
-                  <span className="text-[11px] font-bold text-cyan-400">کلیدهای میانبر در تلویزیون:</span>
+                  <span className="text-[11px] font-bold text-cyan-400">{t('gamepad.wizard.ui.keysNav')}:</span>
                   <div className="grid grid-cols-3 gap-1.5 text-[10px]" dir="ltr">
                     <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
                       <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-white text-[9px]">{isXbox ? 'A' : '✕'}</kbd>
-                      <span className="text-slate-300">تایید</span>
+                      <span className="text-slate-300">{t('gamepad.wizard.ui.confirm')}</span>
                     </div>
                     <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
                       <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-slate-300 text-[9px]">{isXbox ? 'B' : '◯'}</kbd>
-                      <span className="text-slate-300">بستن</span>
+                      <span className="text-slate-300">{t('gamepad.wizard.ui.close')}</span>
                     </div>
                     <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
                       <kbd className="rounded bg-white/15 px-1 py-0.5 font-mono text-slate-300 text-[9px]">Options</kbd>
-                      <span className="text-slate-300">راهنما</span>
+                      <span className="text-slate-300">{t('gamepad.wizard.ui.help')}</span>
                     </div>
                   </div>
                 </div>
@@ -907,7 +909,7 @@ export default function GamepadStepWizard({
                   onClick={() => setShowStepsModal(false)}
                   className="w-full rounded-xl bg-white/10 hover:bg-white/15 py-2 text-xs font-bold text-white transition-all cursor-pointer active:scale-95"
                 >
-                  بستن
+                  {t('gamepad.wizard.ui.close')}
                 </button>
               </div>
             )}
@@ -918,7 +920,7 @@ export default function GamepadStepWizard({
       {autoAdvancing && (
         <div className="flex items-center justify-center gap-2.5 rounded-2xl border border-emerald-500/50 bg-emerald-500/20 px-5 py-3 text-xs sm:text-sm font-black text-emerald-300 shadow-[0_0_25px_rgba(52,211,153,0.35)] animate-pulse">
           <Sparkles className="h-4 w-4 text-emerald-400 animate-spin" />
-          <span>تست این بخش با موفقیت تایید شد! در حال انتقال خودکار به مرحله بعد...</span>
+          <span>{t('gamepad.wizard.ui.autoAdvancing')}</span>
         </div>
       )}
 
@@ -934,20 +936,20 @@ export default function GamepadStepWizard({
           <div className="max-w-xl mx-auto space-y-2">
             <h2 className="text-xl sm:text-2xl font-black text-white">
               {pad.connected
-                ? controller?.name || 'دسته بازی متصل است'
-                : 'در انتظار اتصال دسته بازی...'}
+                ? controller?.name || t('gamepad.wizard.ui.controllerConnected')
+                : t('gamepad.viewer.waiting')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               {pad.connected
-                ? 'دسته شما با موفقیت شناسایی شد. لطفاً مشخصات کارکرد و اصالت سخت‌افزاری را در کادر زیر مشاهده کنید.'
-                : 'لطفاً دسته بازی خود را با کابل USB یا بلوتوث متصل کنید و یک دکمه از آن را فشار دهید تا اتصال فعال شود.'}
+                ? t('gamepad.wizard.ui.identifiedDesc')
+                : t('gamepad.connection.help')}
             </p>
           </div>
 
           {pad.connected ? (
             <div className="max-w-2xl mx-auto rounded-2xl border border-white/10 bg-black/40 p-5 space-y-4 text-start">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="text-xs font-bold text-slate-400">مدل شناسایی‌شده</span>
+                <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.identifiedModel')}</span>
                 <span className="text-sm font-black text-white">{controller?.name || pad.id}</span>
               </div>
 
@@ -955,37 +957,37 @@ export default function GamepadStepWizard({
               {isPS5 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">وضعیت کارکرد دستگاه:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.usageStatus')}:</span>
                     {ps5Info ? (
                       ps5Info.condition === 'brand_new' ? (
                         <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.3)]">
                           <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                          آکبند (کاملاً نو و بدون کارکرد)
+                          {t('gamepad.wizard.ui.brandNew')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/20 px-3 py-1 text-xs font-black text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
                           <Clock className="h-3.5 w-3.5 text-amber-400" />
-                          کارکرده (Used)
+                          {t('gamepad.wizard.ui.used')}
                         </span>
                       )
                     ) : (
                       <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-300">
-                        آکبند / در حد نو
+                        {t('gamepad.wizard.ui.likeNew')}
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">ساعت و مدت زمان استفاده:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.operatingHours')}:</span>
                     <span className="font-mono text-xs font-bold text-cyan-300">
-                      {ps5Info?.activeTimeFormatted || (isWebHIDConnected ? '۰ دقیقه (نو)' : 'برای خواندن دقیق اتصال WebHID را بزنید')}
+                      {ps5Info?.activeTimeFormatted || (isWebHIDConnected ? (locale === 'fa' ? '۰ دقیقه (نو)' : '0 min (New)') : t('gamepad.wizard.ui.connectWebHidChipset'))}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">تعداد دفعات روشن شدن / استفاده:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.powerOnCount')}:</span>
                     <span className="font-mono text-xs font-bold text-violet-300">
-                      {ps5Info?.totalRecordCount ? `${ps5Info.totalRecordCount} بار` : '—'}
+                      {ps5Info?.totalRecordCount ? `${ps5Info.totalRecordCount} ${t('gamepad.wizard.ui.times')}` : '—'}
                     </span>
                   </div>
 
@@ -997,7 +999,7 @@ export default function GamepadStepWizard({
                         className="w-full flex items-center justify-center gap-2 rounded-xl border border-violet-500/40 bg-violet-600/20 hover:bg-violet-600/30 px-3 py-2 text-xs font-bold text-violet-200 transition-all cursor-pointer"
                       >
                         <Zap className="h-4 w-4 text-violet-400" />
-                        اتصال مستقیم WebHID برای خواندن ساعت کارکرد دقیق از چیپ‌ست DualSense
+                        {t('gamepad.wizard.ui.connectWebHidChipset')}
                       </button>
                     </div>
                   )}
@@ -1008,28 +1010,28 @@ export default function GamepadStepWizard({
               {isPS4 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">شرکت سازنده:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.manufacturer')}:</span>
                     <span className="text-xs font-black text-emerald-300">
                       {ps4Info?.manufacturer || 'Sony Interactive Entertainment Inc.'}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">وضعیت اصالت و ساخت:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.chipsetAuth')}:</span>
                     <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-300">
                       <ShieldCheck className="h-3.5 w-3.5" />
-                      {ps4Info ? (ps4Info.isAuthentic ? 'اورجینال سونی (Original Sony)' : 'طرح اصلی / شرکتی') : 'اورجینال سونی'}
+                      {ps4Info ? (ps4Info.isAuthentic ? t('gamepad.wizard.ui.originalSony') : t('gamepad.wizard.ui.thirdParty')) : t('gamepad.wizard.ui.originalSony')}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">شناسه سخت‌افزاری (VID/PID):</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.hardwareId')} (VID/PID):</span>
                     <span className="font-mono text-xs text-slate-300">{ps4Info?.vidPid || '0x054C / 0x05C4'}</span>
                   </div>
 
                   {ps4Info?.buildDate && (
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-400">تاریخ ساخت سفت‌افزار:</span>
+                      <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.firmwareVersion')}:</span>
                       <span className="font-mono text-xs text-slate-300">
                         {ps4Info.buildDate} {ps4Info.buildTime || ''}
                       </span>
@@ -1042,13 +1044,13 @@ export default function GamepadStepWizard({
               {!isPS5 && !isPS4 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">شرکت سازنده:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.manufacturer')}:</span>
                     <span className="text-xs font-bold text-slate-200">
-                      {isXbox ? 'Microsoft Corporation' : 'استاندارد W3C DirectInput/XInput'}
+                      {isXbox ? 'Microsoft Corporation' : t('gamepad.wizard.ui.standardDirectInput')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400">پروتکل ارتباطی:</span>
+                    <span className="text-xs font-bold text-slate-400">{t('gamepad.wizard.ui.commStandard')}:</span>
                     <span className="text-xs font-mono text-slate-300">{pad.mapping || 'Standard Gamepad'}</span>
                   </div>
                 </div>
@@ -1057,7 +1059,7 @@ export default function GamepadStepWizard({
           ) : (
             <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 text-amber-300 text-xs flex items-center justify-center gap-2">
               <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span>دسته هنوز متصل نشده است. اگر دسته با بلوتوث متصل است، یک دکمه از آن را بزنید.</span>
+              <span>{t('gamepad.connection.help')}</span>
             </div>
           )}
 
@@ -1068,7 +1070,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-6 py-3 text-sm font-black text-white shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all disabled:opacity-40 cursor-pointer active:scale-95"
             >
-              <span>تایید اتصال و شروع مرحله اول</span>
+              <span>{t('gamepad.wizard.ui.btnNextAction')}</span>
               <kbd className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-mono">
                 {isXbox ? 'A' : '✕'}
               </kbd>
@@ -1091,8 +1093,8 @@ export default function GamepadStepWizard({
             currentTarget={actionTargets[actionSubStep] || null}
             subStepIndex={actionSubStep}
             targetList={actionTargets}
-            stageTitle="تست دکمه‌های اصلی و عملکردی"
-            stageDescription="دکمه مشخص‌شده روی شکل دسته را فشار دهید"
+            stageTitle={STEPS[1]?.label}
+            stageDescription={STEP_GUIDES.action_btns.action}
             isCompleted={isActionBtnsDone}
             onOpenModal={() => {
               setModalTab('help');
@@ -1112,7 +1114,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1121,7 +1123,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
-              <span>مرحله بعد: کلیدهای جهت</span>
+              <span>{t('gamepad.wizard.ui.btnNextDpad')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1139,8 +1141,8 @@ export default function GamepadStepWizard({
             currentTarget={dpadTargets[dpadSubStep] || null}
             subStepIndex={dpadSubStep}
             targetList={dpadTargets}
-            stageTitle="تست کلیدهای جهت‌نما (D-Pad)"
-            stageDescription="کلید جهت مشخص‌شده روی پد جهت را فشار دهید"
+            stageTitle={STEPS[2]?.label}
+            stageDescription={STEP_GUIDES.dpad.action}
             isCompleted={isDpadDone}
             onOpenModal={() => {
               setModalTab('help');
@@ -1160,7 +1162,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1169,7 +1171,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
-              <span>مرحله بعد: تریگرها و بامپرها</span>
+              <span>{t('gamepad.wizard.ui.btnNextTriggers')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1187,8 +1189,8 @@ export default function GamepadStepWizard({
             currentTarget={triggerTargets[triggersSubStep] || null}
             subStepIndex={triggersSubStep}
             targetList={triggerTargets}
-            stageTitle="تست تریگرها و بامپرهای پشتی (L1, R1, L2, R2)"
-            stageDescription="بامپرها را زده و تریگرها را تا ۱۰۰٪ فشار دهید"
+            stageTitle={STEPS[3]?.label}
+            stageDescription={STEP_GUIDES.triggers.action}
             analogValue={triggersSubStep === 2 ? (pad.buttons[6]?.value ?? 0) : triggersSubStep === 3 ? (pad.buttons[7]?.value ?? 0) : 0}
             isCompleted={isTriggersDone}
             onOpenModal={() => {
@@ -1211,7 +1213,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1220,7 +1222,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
-              <span>مرحله بعد: استیک‌ها و دریفت</span>
+              <span>{t('gamepad.wizard.ui.btnNextSticks')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1238,8 +1240,8 @@ export default function GamepadStepWizard({
             currentTarget={stickTargets[sticksSubStep] || null}
             subStepIndex={sticksSubStep}
             targetList={stickTargets}
-            stageTitle="تست استیک‌ها، کلیک L3/R3 و خطای دریفت"
-            stageDescription="استیک‌ها را به اطراف چرخانده و کلیک داخل را فشار دهید"
+            stageTitle={STEPS[4]?.label}
+            stageDescription={STEP_GUIDES.sticks.action}
             isCompleted={isSticksDone}
             onOpenModal={() => {
               setModalTab('help');
@@ -1256,7 +1258,7 @@ export default function GamepadStepWizard({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto pt-1">
             {/* LEFT STICK */}
             <div className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center space-y-1.5">
-              <span className="text-xs font-black text-white">استیک چپ (Left Stick)</span>
+              <span className="text-xs font-black text-white">{t('gamepad.wizard.ui.leftStick')}</span>
               <div className="relative mx-auto h-20 w-20 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-2" />
                 <div
@@ -1267,7 +1269,7 @@ export default function GamepadStepWizard({
                 />
               </div>
               <div className="flex items-center justify-between text-[11px] pt-0.5">
-                <span className="text-slate-400">کلیک L3:</span>
+                <span className="text-slate-400">{t('gamepad.wizard.ui.clickStatus')}</span>
                 <span
                   className={`font-bold px-2 py-0.5 rounded text-[10px] ${
                     pad.buttons[10]?.pressed || (btnHits[10] || 0) >= 1
@@ -1275,24 +1277,24 @@ export default function GamepadStepWizard({
                       : 'bg-white/5 text-slate-500'
                   }`}
                 >
-                  {(btnHits[10] || 0) >= 1 ? '✓ تایید شد' : 'فشار دهید'}
+                  {(btnHits[10] || 0) >= 1 ? t('gamepad.wizard.ui.clickVerified') : t('gamepad.wizard.ui.clickPending')}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">خطای دریفت:</span>
+                <span className="text-slate-400">{t('gamepad.wizard.ui.driftError')}</span>
                 <span
                   className={`font-mono font-bold text-[10px] ${
                     driftStats.leftMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.08 ? '(سالم)' : '(دریفت)'}
+                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.08 ? `(${t('gamepad.wizard.ui.excellent')})` : `(${t('gamepad.wizard.ui.moderateDrift')})`}
                 </span>
               </div>
             </div>
 
             {/* RIGHT STICK */}
             <div className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center space-y-1.5">
-              <span className="text-xs font-black text-white">استیک راست (Right Stick)</span>
+              <span className="text-xs font-black text-white">{t('gamepad.wizard.ui.rightStick')}</span>
               <div className="relative mx-auto h-20 w-20 rounded-full border border-white/10 bg-[#080c14] flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border border-dashed border-white/10 m-2" />
                 <div
@@ -1303,7 +1305,7 @@ export default function GamepadStepWizard({
                 />
               </div>
               <div className="flex items-center justify-between text-[11px] pt-0.5">
-                <span className="text-slate-400">کلیک R3:</span>
+                <span className="text-slate-400">{t('gamepad.wizard.ui.clickStatus')}</span>
                 <span
                   className={`font-bold px-2 py-0.5 rounded text-[10px] ${
                     pad.buttons[11]?.pressed || (btnHits[11] || 0) >= 1
@@ -1311,17 +1313,17 @@ export default function GamepadStepWizard({
                       : 'bg-white/5 text-slate-500'
                   }`}
                 >
-                  {(btnHits[11] || 0) >= 1 ? '✓ تایید شد' : 'فشار دهید'}
+                  {(btnHits[11] || 0) >= 1 ? t('gamepad.wizard.ui.clickVerified') : t('gamepad.wizard.ui.clickPending')}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">خطای دریفت:</span>
+                <span className="text-slate-400">{t('gamepad.wizard.ui.driftError')}</span>
                 <span
                   className={`font-mono font-bold text-[10px] ${
                     driftStats.rightMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.08 ? '(سالم)' : '(دریفت)'}
+                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.08 ? `(${t('gamepad.wizard.ui.excellent')})` : `(${t('gamepad.wizard.ui.moderateDrift')})`}
                 </span>
               </div>
             </div>
@@ -1334,7 +1336,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1343,7 +1345,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all disabled:opacity-40 cursor-pointer"
             >
-              <span>مرحله بعد: ژیروسکوپ سه‌بعدی</span>
+              <span>{t('gamepad.wizard.ui.btnNextGyro')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1354,9 +1356,9 @@ export default function GamepadStepWizard({
       {currentStep === 'gyro' && (
         <section className="rounded-3xl border border-white/10 bg-[#0d121f] p-6 sm:p-8 shadow-2xl space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست ژیروسکوپ و سنسور حرکتی ۳بعدی</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-white">{STEPS[5]?.label}</h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              دسته را در دست خود به چپ، راست، بالا و پایین بچرخانید و تکان دهید. مدل سه‌بعدی به صورت زنده همگام با جهت دسته شما در فضا می‌چرخد.
+              {t('gamepad.wizard.ui.gyroDesc')}
             </p>
           </div>
 
@@ -1387,7 +1389,7 @@ export default function GamepadStepWizard({
                 onClick={onResetOrientation}
                 className="rounded-xl border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer"
               >
-                کالیبره مجدد صفر
+                {t('gamepad.wizard.ui.resetView')}
               </button>
             </div>
           </div>
@@ -1396,7 +1398,7 @@ export default function GamepadStepWizard({
           {!isWebHIDConnected && (
             <div className="max-w-xl mx-auto rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-center space-y-3">
               <p className="text-xs text-violet-200">
-                برای فعال‌سازی ارتباط سخت‌افزاری ژیروسکوپ و چرخش مستقیم مدل بر اساس سنسور داخلی دسته:
+                {t('gamepad.wizard.ui.connectWebHidChipset')}
               </p>
               <button
                 type="button"
@@ -1404,7 +1406,7 @@ export default function GamepadStepWizard({
                 className="inline-flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(139,92,246,0.5)] cursor-pointer"
               >
                 <Zap className="h-4 w-4" />
-                اتصال سنسور ژیروسکوپ (WebHID)
+                {t('gamepad.wizard.ui.connectGyro')}
               </button>
             </div>
           )}
@@ -1412,8 +1414,8 @@ export default function GamepadStepWizard({
           {/* Motion Energy Detection Progress */}
           <div className="max-w-xl mx-auto space-y-2">
             <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-slate-300">پایش تحرک ژیروسکوپ:</span>
-              <span className="text-emerald-400">{gyroPassed ? 'تایید شد (سالم)' : `${motionEnergy}%`}</span>
+              <span className="text-slate-300">{t('gamepad.wizard.ui.gyroSensor')}:</span>
+              <span className="text-emerald-400">{gyroPassed ? t('gamepad.wizard.ui.gyroCalibrated') : `${motionEnergy}%`}</span>
             </div>
             <div className="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
               <div
@@ -1430,7 +1432,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1438,7 +1440,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all cursor-pointer"
             >
-              <span>مرحله بعد: تست ویبره</span>
+              <span>{t('gamepad.wizard.ui.btnNextVibration')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1456,9 +1458,9 @@ export default function GamepadStepWizard({
           </div>
 
           <div className="max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست موتورهای لرزشی (Vibration)</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-white">{t('gamepad.wizard.ui.vibTitle')}</h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              روی دکمه ارسال سیگنال لرزش کلیک کنید تا موتورهای هپتیک دسته فعال شوند و لرزش را تایید کنید.
+              {t('gamepad.wizard.ui.vibDesc')}
             </p>
           </div>
 
@@ -1470,7 +1472,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-2 rounded-2xl bg-violet-600 hover:bg-violet-500 px-6 py-3 text-sm font-black text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all cursor-pointer active:scale-95 disabled:opacity-40"
             >
               <Vibrate className={`h-4 w-4 ${rumbleBusy ? 'animate-spin' : ''}`} />
-              <span>{rumbleBusy ? 'در حال ارسال لرزش...' : 'ارسال تست ویبره به دسته'}</span>
+              <span>{rumbleBusy ? t('gamepad.wizard.ui.sendingRumble') : t('gamepad.wizard.ui.btnSendRumble')}</span>
             </button>
 
             <button
@@ -1482,7 +1484,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/20 hover:bg-emerald-500/30 px-6 py-3 text-sm font-black text-emerald-300 transition-all cursor-pointer"
             >
               <CheckCircle2 className="h-4 w-4" />
-              <span>لرزش را حس کردم (تایید و مرحله بعد)</span>
+              <span>{t('gamepad.wizard.ui.btnRumbleFelt')}</span>
             </button>
           </div>
 
@@ -1493,7 +1495,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1501,7 +1503,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white cursor-pointer"
             >
-              <span>مرحله بعد: تست میکروفون</span>
+              <span>{t('gamepad.wizard.ui.btnNextMic')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1519,9 +1521,9 @@ export default function GamepadStepWizard({
           </div>
 
           <div className="max-w-xl mx-auto space-y-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white">تست میکروفون و ورودی صدا</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-white">{t('gamepad.wizard.ui.micTitle')}</h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              در میکروفون دسته (مانند میکروفون داخلی DualSense PS5) یا هدست خود صحبت کنید تا صحت دریافت سیگنال صدا بررسی شود.
+              {t('gamepad.wizard.ui.micDesc')}
             </p>
           </div>
 
@@ -1530,7 +1532,7 @@ export default function GamepadStepWizard({
             {micPassed ? (
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/20 px-4 py-2 text-xs font-black text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>سیگنال صدا با موفقیت دریافت شد — میکروفون سالم است!</span>
+                <span>{t('gamepad.wizard.ui.micSuccess')}</span>
               </div>
             ) : micError ? (
               <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/20 px-4 py-2 text-xs font-bold text-rose-300">
@@ -1540,7 +1542,7 @@ export default function GamepadStepWizard({
             ) : micActive ? (
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-xs font-bold text-cyan-300 animate-pulse">
                 <Volume2 className="h-4 w-4" />
-                <span>در حال گوش دادن... لطفا صحبت کنید یا ضربه آرامی کنار دسته بزنید</span>
+                <span>{t('gamepad.wizard.ui.micListening')}</span>
               </div>
             ) : (
               <button
@@ -1549,7 +1551,7 @@ export default function GamepadStepWizard({
                 className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 px-5 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.4)]"
               >
                 <Mic className="h-4 w-4" />
-                <span>شروع تست و فعال‌سازی میکروفون</span>
+                <span>{t('gamepad.wizard.ui.btnStartMic')}</span>
               </button>
             )}
           </div>
@@ -1557,7 +1559,7 @@ export default function GamepadStepWizard({
           {/* Live Meter */}
           <div className="max-w-md mx-auto space-y-3 rounded-2xl border border-white/10 bg-black/40 p-5">
             <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-slate-400">میزان شدت صدای ورودی:</span>
+              <span className="text-slate-400">{t('gamepad.wizard.ui.audioLevel')}</span>
               <span className="font-mono text-cyan-400">{micDb.toFixed(1)} dB</span>
             </div>
 
@@ -1576,16 +1578,16 @@ export default function GamepadStepWizard({
             </div>
 
             <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-              <span>-60 dB (سکوت)</span>
-              <span>-30 dB (صدای مناسب)</span>
-              <span>0 dB (حداکثر)</span>
+              <span>{t('gamepad.wizard.ui.micSilence')}</span>
+              <span>-30 dB</span>
+              <span>0 dB</span>
             </div>
           </div>
 
           {/* Device selector if multiple audio inputs */}
           {micDevices.length > 1 && (
             <div className="max-w-md mx-auto flex items-center justify-center gap-2 text-xs">
-              <span className="text-slate-400">دستگاه ورودی:</span>
+              <span className="text-slate-400">{t('gamepad.wizard.ui.inputDevice')}</span>
               <select
                 value={selectedMicId}
                 onChange={(e) => {
@@ -1598,7 +1600,7 @@ export default function GamepadStepWizard({
               >
                 {micDevices.map((d) => (
                   <option key={d.deviceId} value={d.deviceId}>
-                    {d.label || `میکروفون (${d.deviceId.slice(0, 6)})`}
+                    {d.label || `${t('gamepad.wizard.ui.micDefault')} (${d.deviceId.slice(0, 6)})`}
                   </option>
                 ))}
               </select>
@@ -1613,7 +1615,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
-              <span>مرحله قبل</span>
+              <span>{t('gamepad.wizard.ui.btnPrev')}</span>
             </button>
 
             <button
@@ -1621,7 +1623,7 @@ export default function GamepadStepWizard({
               onClick={goToNextStep}
               className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white cursor-pointer shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all"
             >
-              <span>{micPassed ? 'مشاهده کارنامه نهایی' : 'رد کردن و مشاهده کارنامه'}</span>
+              <span>{micPassed ? t('gamepad.wizard.ui.btnViewReport') : t('gamepad.wizard.ui.btnSkipAndReport')}</span>
               <kbd className="rounded bg-white/20 px-1 text-[10px] font-mono">{isXbox ? 'A' : '✕'}</kbd>
               <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
             </button>
@@ -1639,7 +1641,7 @@ export default function GamepadStepWizard({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-6 w-6 text-emerald-400" />
-                <h2 className="text-xl sm:text-2xl font-black text-white">گزارش و شناسنامه سلامت دسته بازی</h2>
+                <h2 className="text-xl sm:text-2xl font-black text-white">{t('gamepad.wizard.ui.reportTitle')}</h2>
               </div>
               <p className="text-xs text-slate-400">DrGame Diagnostic Certificate & Hardware Assessment</p>
             </div>
@@ -1647,7 +1649,7 @@ export default function GamepadStepWizard({
             {/* Overall Score Badge */}
             <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2">
               <div className="text-right">
-                <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">نمره سلامت کلی</p>
+                <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{t('gamepad.wizard.ui.passVerified')}</p>
                 <p className="text-2xl font-black text-emerald-300">{overallScore}%</p>
               </div>
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500 text-slate-950 font-black text-lg">
@@ -1659,8 +1661,8 @@ export default function GamepadStepWizard({
           {/* Controller Identity Card */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-              <span className="text-[11px] font-bold text-slate-400">نام و مدل دستگاه</span>
-              <p className="mt-1 text-sm font-black text-white">{controller?.name || 'گیم‌پد استاندارد'}</p>
+              <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.nameAndModel')}</span>
+              <p className="mt-1 text-sm font-black text-white">{controller?.name || t('gamepad.wizard.ui.controllerConnected')}</p>
               <p className="text-[10px] font-mono text-slate-500 truncate" dir="ltr">{pad.id}</p>
             </div>
 
@@ -1668,31 +1670,31 @@ export default function GamepadStepWizard({
             {isPS5 && (
               <>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">وضعیت کارکرد دستگاه</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.workingStatus')}</span>
                   <div className="mt-1">
                     {ps5Info?.condition === 'brand_new' || !ps5Info ? (
                       <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-300">
                         <Sparkles className="h-3.5 w-3.5" />
-                        آکبند (کاملاً نو)
+                        {t('gamepad.wizard.ui.brandNewFull')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs font-black text-amber-300">
                         <Clock className="h-3.5 w-3.5" />
-                        کارکرده (Used)
+                        {t('gamepad.wizard.ui.used')}
                       </span>
                     )}
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    کارکرد: {ps5Info?.activeTimeFormatted || 'سالم و نو'}
+                    {t('gamepad.wizard.ui.operatingRecord', { time: ps5Info?.activeTimeFormatted || (locale === 'fa' ? 'سالم و نو' : 'Healthy & New') })}
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">دفعات استفاده / روشن شدن</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.powerOnCount')}</span>
                   <p className="mt-1 text-sm font-black text-violet-300">
-                    {ps5Info?.totalRecordCount ? `${ps5Info.totalRecordCount} بار` : '۱ بار (تست جاری)'}
+                    {ps5Info?.totalRecordCount ? `${ps5Info.totalRecordCount} ${t('gamepad.wizard.ui.times')}` : `1 ${t('gamepad.wizard.ui.times')}`}
                   </p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">ثبت در چیپ‌ست داخلی</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{t('gamepad.wizard.ui.registeredInChipset')}</p>
                 </div>
               </>
             )}
@@ -1701,17 +1703,17 @@ export default function GamepadStepWizard({
             {isPS4 && (
               <>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">شرکت سازنده و اصالت</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.chipsetAuth')}</span>
                   <p className="mt-1 text-xs font-black text-emerald-300">
                     {ps4Info?.manufacturer || 'Sony Interactive Entertainment Inc.'}
                   </p>
                   <span className="inline-block mt-0.5 text-[10px] text-emerald-400 font-bold">
-                    {ps4Info?.isAuthentic !== false ? 'اصلی (اورجینال سونی)' : 'طرح اصلی'}
+                    ps4Info?.isAuthentic !== false ? t('gamepad.wizard.ui.originalSonyLabel') : t('gamepad.wizard.ui.thirdParty')
                   </span>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">شناسه و کد سخت‌افزاری</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.hardwareId')}</span>
                   <p className="mt-1 font-mono text-xs text-white">{ps4Info?.vidPid || '0x054C / 0x05C4'}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{ps4Info?.modelCode || 'CUH-ZCT2'}</p>
                 </div>
@@ -1721,13 +1723,13 @@ export default function GamepadStepWizard({
             {!isPS5 && !isPS4 && (
               <>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">سازنده کنترلر</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.manufacturer')}</span>
                   <p className="mt-1 text-xs font-black text-white">
-                    {isXbox ? 'Microsoft' : 'استاندارد DirectInput/XInput'}
+                    {isXbox ? 'Microsoft' : t('gamepad.wizard.ui.standardDirectInput')}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <span className="text-[11px] font-bold text-slate-400">استاندارد مپینگ</span>
+                  <span className="text-[11px] font-bold text-slate-400">{t('gamepad.wizard.ui.commStandard')}</span>
                   <p className="mt-1 font-mono text-xs text-slate-300">{pad.mapping || 'Standard'}</p>
                 </div>
               </>
@@ -1737,81 +1739,81 @@ export default function GamepadStepWizard({
           {/* Detailed Itemized Results Table */}
           <div className="rounded-2xl border border-white/10 bg-black/30 overflow-hidden">
             <div className="border-b border-white/10 bg-white/[0.02] px-4 py-3 text-xs font-bold text-slate-300">
-              چک‌لیست سلامت قطعات و سنسورها
+              {t('gamepad.wizard.ui.checklistTitle')}
             </div>
             <div className="divide-y divide-white/5 text-xs">
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">دکمه‌های اصلی و عملکردی (✕ ◯ □ △)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.actionButtonsBumper')}</span>
                 <span className="flex items-center gap-1 font-bold text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" />
-                  سالم (بدون تاخیر یا پرش)
+                  {t('gamepad.wizard.ui.healthyNoLatency')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">پد کلیدهای جهت (D-Pad)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.dpadPad')}</span>
                 <span className="flex items-center gap-1 font-bold text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" />
-                  سالم و تایید شده
+                  {t('gamepad.wizard.ui.healthyVerified')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">تریگرهای آنالوگ و بامپرها (L1, R1, L2, R2)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.analogTriggers')}</span>
                 <span className="flex items-center gap-1 font-bold text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" />
-                  دامنه فشار کامل ۱۰۰٪
+                  {t('gamepad.wizard.ui.fullRange100')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">دریفت استیک چپ (Left Stick Drift)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.leftStickDrift')}</span>
                 <span
                   className={`font-mono font-bold ${
                     driftStats.leftMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.08 ? '(ایده‌آل)' : '(دریفت خفیف)'}
+                  {(driftStats.leftMax * 100).toFixed(1)}% {driftStats.leftMax < 0.08 ? `(${t('gamepad.wizard.ui.excellent')})` : `(${t('gamepad.wizard.ui.moderateDrift')})`}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">دریفت استیک راست (Right Stick Drift)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.rightStickDrift')}</span>
                 <span
                   className={`font-mono font-bold ${
                     driftStats.rightMax < 0.08 ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.08 ? '(ایده‌آل)' : '(دریفت خفیف)'}
+                  {(driftStats.rightMax * 100).toFixed(1)}% {driftStats.rightMax < 0.08 ? `(${t('gamepad.wizard.ui.excellent')})` : `(${t('gamepad.wizard.ui.moderateDrift')})`}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">سنسور ژیروسکوپ و تعادل ۳بعدی (Gyroscope & IMU)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.gyroSensor')}</span>
                 <span className="flex items-center gap-1 font-bold text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" />
-                  {gyroPassed ? 'کالیبره و فعال در ۳ محور' : 'تایید عملکرد'}
+                  {gyroPassed ? t('gamepad.wizard.ui.gyroCalibrated') : t('gamepad.wizard.ui.gyroPerformanceVerified')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">موتورهای هپتیک و لرزش (Dual Rumble)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.hapticMotors')}</span>
                 <span className="flex items-center gap-1 font-bold text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" />
-                  پاسخ‌دهی صحیح لرزش
+                  {t('gamepad.wizard.ui.rumbleAccurate')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5">
-                <span className="font-medium text-slate-300">میکروفون داخلی و ورودی صدا (Microphone)</span>
+                <span className="font-medium text-slate-300">{t('gamepad.wizard.ui.internalMic')}</span>
                 {micPassed ? (
                   <span className="flex items-center gap-1 font-bold text-emerald-400">
                     <CheckCircle2 className="h-4 w-4" />
-                    سیگنال صوتی شفاف و سالم
+                    {t('gamepad.wizard.ui.micClean')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 font-medium text-slate-400">
-                    رد شده / بدون میکروفون
+                    {t('gamepad.wizard.ui.micSkipped')}
                   </span>
                 )}
               </div>
@@ -1826,7 +1828,7 @@ export default function GamepadStepWizard({
               className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2.5 text-xs font-bold text-slate-300 transition-all cursor-pointer"
             >
               <RotateCcw className="h-4 w-4" />
-              <span>تست مجدد از ابتدا</span>
+              <span>{t('gamepad.wizard.ui.btnTestAgain')}</span>
             </button>
 
             <div className="flex items-center gap-2">
@@ -1837,7 +1839,7 @@ export default function GamepadStepWizard({
                   onClick={onSwitchToDashboard}
                   className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-2.5 text-xs font-black text-white shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all cursor-pointer"
                 >
-                  <span>ورود به داشبورد آزاد</span>
+                  <span>{t('gamepad.wizard.ui.btnOpenDashboard')}</span>
                   <ArrowLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-180" />
                 </button>
               )}

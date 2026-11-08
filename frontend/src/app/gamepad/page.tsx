@@ -219,10 +219,10 @@ export default function GamepadPage() {
                   ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
                   : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:text-slate-200'
               }`}
-              title="اتصال سنسور ژیروسکوپ سخت‌افزاری WebHID"
+              title={t('gamepad.wizard.ui.gyroTooltip')}
             >
               <Zap className="h-3.5 w-3.5 text-cyan-400" />
-              <span>{isWebHIDConnected ? 'ژیروسکوپ فعال' : 'اتصال سنسور ژیرو'}</span>
+              <span>{isWebHIDConnected ? t('gamepad.wizard.ui.gyroActive') : t('gamepad.wizard.ui.connectGyro')}</span>
             </button>
           )}
 
