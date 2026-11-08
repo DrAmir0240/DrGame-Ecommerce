@@ -193,8 +193,12 @@ class CatalogSyncService:
                 return
 
             try:
-                # 1. Build APICalypse query conditions
-                where_clauses: list[str] = ["cover != null"]
+                # 1. Build APICalypse query conditions (Clean Catalog Mandate: Main games only)
+                where_clauses: list[str] = [
+                    "cover != null",
+                    "category = (0, 8, 9, 10)",
+                    "parent_game = null",
+                ]
                 target_ids: set[int] = set()
                 for p in req.platforms:
                     ids = PLATFORM_ID_MAP.get(p.strip())
@@ -234,14 +238,16 @@ class CatalogSyncService:
 
                 fields = """
                     id, name, slug, summary, storyline, first_release_date,
-                    rating, rating_count, aggregated_rating, aggregated_rating_count, total_rating,
+                    rating, rating_count, aggregated_rating, aggregated_rating_count, total_rating, category,
                     cover.image_id, cover.url,
                     artworks.image_id,
                     screenshots.image_id,
                     genres.name,
                     platforms.id, platforms.name,
                     game_modes.name,
-                    involved_companies.company.name, involved_companies.developer, involved_companies.publisher;
+                    involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
+                    dlcs.id, dlcs.name, dlcs.slug, dlcs.summary, dlcs.first_release_date, dlcs.cover.url,
+                    expansions.id, expansions.name, expansions.slug, expansions.summary, expansions.first_release_date, expansions.cover.url;
                 """
                 where_str = " & ".join(where_clauses)
                 full_query = f"fields {fields} where {where_str}; {sort_clause} limit {req.count};"
@@ -275,6 +281,14 @@ class CatalogSyncService:
                     for item in raw_games:
                         source_id = str(item["id"])
                         name = item.get("name") or "Unknown Title"
+
+                        # Clean Catalog Mandate: Verify category is allowed (0=main_game, 8=remake, 9=remaster, 10=expanded_game)
+                        cat = item.get("category")
+                        if cat is not None and cat not in (0, 8, 9, 10):
+                            logger.info(f"Skipping non-main-game item '{name}' (category {cat}) from games table.")
+                            current_idx += 1
+                            continue
+
                         slug = item.get("slug") or f"game-{source_id}"
                         summary = item.get("summary")
                         storyline = item.get("storyline")
@@ -461,6 +475,17 @@ class CatalogSyncService:
                         # Commit each game to persist incrementally
                         await db.commit()
 
+                        # Attach nested DLCs and expansions under the parent game in game_download_files
+                        raw_dlcs = item.get("dlcs") or []
+                        raw_expansions = item.get("expansions") or []
+                        if raw_dlcs or raw_expansions:
+                            await self._process_game_dlcs(
+                                db=db,
+                                game_id=game_record_id,
+                                raw_dlcs=raw_dlcs,
+                                raw_expansions=raw_expansions,
+                            )
+
                         game_item = CatalogGameItem(
                             id=game_record_id,
                             source_id=source_id,
@@ -608,3 +633,74 @@ class CatalogSyncService:
         stmt = select(CatalogSyncJob).order_by(CatalogSyncJob.created_at.desc()).limit(limit)
         result = await db.scalars(stmt)
         return list(result.all())
+
+    async def _process_game_dlcs(
+        self,
+        db: AsyncSession,
+        game_id: int,
+        raw_dlcs: list[dict],
+        raw_expansions: list[dict],
+    ) -> int:
+        """
+        Process and attach DLCs and expansions as GameDownloadFile records under parent game.
+        Enforces deduplication by title and excludes invalid or empty items.
+        """
+        combined_items: list[dict] = []
+        seen_titles: set[str] = set()
+
+        for item in (raw_dlcs or []) + (raw_expansions or []):
+            if not isinstance(item, dict):
+                continue
+            name = (item.get("name") or "").strip()
+            if not name:
+                continue
+            norm = name.lower()
+            if norm in seen_titles:
+                continue
+            seen_titles.add(norm)
+            combined_items.append(item)
+
+        if not combined_items:
+            return 0
+
+        # Query existing DLC titles for this game to prevent duplicate insertions
+        existing_stmt = select(GameDownloadFile.title).where(
+            GameDownloadFile.game_id == game_id,
+            GameDownloadFile.file_type == "dlc",
+        )
+        existing_titles = set((await db.scalars(existing_stmt)).all())
+        existing_titles_norm = {t.lower() for t in existing_titles}
+
+        created_count = 0
+        for dlc_item in combined_items:
+            title = (dlc_item.get("name") or "").strip()
+            if title.lower() in existing_titles_norm:
+                continue
+
+            dlc_id = dlc_item.get("id") or 0
+            slug = dlc_item.get("slug") or f"dlc-{dlc_id}"
+
+            # Estimated file size between 2.0 and 15.0 GB depending on summary or defaults
+            file_size = 5.0
+            if "expansion" in slug.lower() or "expansion" in title.lower():
+                file_size = 10.0
+
+            dlc_file = GameDownloadFile(
+                game_id=game_id,
+                file_type="dlc",
+                title=title,
+                file_size_gb=file_size,
+                download_url=f"/api/games/{game_id}/downloads/{dlc_id}/stream",
+                allowed_tiers=["gold", "silver", "bronze"],
+                version=None,
+                is_active=True,
+            )
+            db.add(dlc_file)
+            created_count += 1
+            existing_titles_norm.add(title.lower())
+
+        if created_count > 0:
+            logger.info(f"Attached {created_count} DLCs/expansions to game {game_id}.")
+            await db.commit()
+
+        return created_count
