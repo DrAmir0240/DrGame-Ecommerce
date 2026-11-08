@@ -1105,7 +1105,6 @@ async def seed_data(mode: str = "domestic"):
                     used_count=dc["used"],
                     is_active=True,
                     expires_at=now + timedelta(days=90),
-                    created_at=now - timedelta(days=30),
                 ))
 
         await session.commit()
