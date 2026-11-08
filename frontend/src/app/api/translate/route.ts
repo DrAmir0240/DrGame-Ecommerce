@@ -7,7 +7,8 @@ let proxyDispatcher: any = null;
 const proxyUrl = process.env.HTTP_PROXY || process.env.HTTPS_PROXY || (process.env.NODE_ENV === 'production' ? 'http://proxy:10809' : '');
 if (proxyUrl) {
   try {
-    const dynamicRequire = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : eval('require');
+    const getDynamicRequire = new Function('return typeof __non_webpack_require__ !== "undefined" ? __non_webpack_require__ : require');
+    const dynamicRequire = getDynamicRequire();
     const { ProxyAgent } = dynamicRequire('undici');
     proxyDispatcher = new ProxyAgent(proxyUrl);
   } catch {}
