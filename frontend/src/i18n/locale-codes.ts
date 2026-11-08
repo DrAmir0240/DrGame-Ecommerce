@@ -27,8 +27,10 @@ export const LOCALE_CODES = [
 
 export type SupportedLocale = (typeof LOCALE_CODES)[number];
 
-/** Source language: the content is authored in Persian. */
-export const DEFAULT_LOCALE: SupportedLocale = 'fa';
+export const IS_INTERNATIONAL = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
+
+/** Source language: English for international deployment, Persian for domestic. */
+export const DEFAULT_LOCALE: SupportedLocale = IS_INTERNATIONAL ? 'en' : 'fa';
 
 /** Right-to-left locales. Add a code here and the layout follows automatically. */
 export const RTL_LOCALES: readonly SupportedLocale[] = ['fa', 'ar'];

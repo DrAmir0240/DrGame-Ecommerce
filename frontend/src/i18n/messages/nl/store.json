@@ -15,10 +15,10 @@
     "nextPage": "Next page",
     "lastPage": "Last page",
     "filters": "Filters",
-    "emptyBody": "Geen games gevonden die voldoen aan de geselecteerde filters. Reset de filters of probeer een andere zoekopdracht.",
-    "resetFilters": "Filters resetten",
-    "paginationShowing": "Weergave van {{from}} tot {{to}} van {{total}} games",
-    "viewResults": "Resultaten bekijken"
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -193,26 +193,26 @@
     }
   },
   "faqPage": {
-    "backToHome": "Terug naar startpagina",
-    "badge": "Helpcentrum & Veelgestelde vragen",
-    "title": "Veelgestelde vragen (FAQ)",
-    "subtitle": "Antwoorden op de meest voorkomende vragen over gamedownloads, jailbreak, abonnementen en ondersteuning",
-    "searchPlaceholder": "Zoek in veelgestelde vragen...",
-    "noResults": "Geen resultaten gevonden voor uw zoekopdracht.",
-    "notFoundQuestion": "Heeft u het antwoord op uw vraag niet gevonden?",
-    "supportDescription": "De technische specialisten van DrGame staan 24/7 voor u klaar in de ticketsectie.",
-    "sendTicket": "Stuur een supportticket",
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
     "defaultFaqs": {
-      "q1": "Hoe installeer ik gamedata op mijn console?",
-      "a1": "Na het downloaden van de bestanden van DrGame-servers installeert u de game eenvoudig via Package Sender (lokaal netwerk) of een exFAT externe schijf.",
-      "q2": "Hoe wordt downloadverkeer berekend?",
-      "a2": "Alle DrGame-servers draaien op een geoptimaliseerde infrastructuur met lage latentie en dedicated CDN.",
-      "q3": "Hebben DrGame-abonnementen een vervaldatum?",
-      "a3": "Nee! Een van de grootste voordelen van DrGame is dat uw quotum onbeperkt geldig blijft en nooit verloopt.",
-      "q4": "Zijn er extra kosten voor het downloaden van cheats, ondertitels en patches?",
-      "a4": "Nee, alle cheatpakketten, trainers en patches zijn gratis inbegrepen bij elk actief abonnement.",
-      "q5": "Hoe werkt het referral- en verdienprogramma?",
-      "a5": "Door vrienden uit te nodigen met uw referralcode ontvangt u 15% commissie over hun eerste aankopen direct in uw wallet."
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

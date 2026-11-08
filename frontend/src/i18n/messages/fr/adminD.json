@@ -1,165 +1,165 @@
 {
   "admin": {
     "finance": {
-      "title": "Dual-Currency Financial Monitoring (Rial / FX)",
-      "subtitle": "Read-only report of all domestic and international gateway transactions, both Shetab and crypto",
-      "auditLocked": "Audit-Locked (Read-Only)",
+      "title": "Surveillance financière en double devise (Rial / FX)",
+      "subtitle": "Rapport en lecture seule de toutes les transactions de passerelle nationales et internationales, Shetab et crypto",
+      "auditLocked": "Audit verrouillé (lecture seule)",
       "kpis": {
         "domestic": {
-          "label": "Rial Turnover (Shaparak / Shetab)",
-          "hint": "Domestic bank payment gateways"
+          "label": "Chiffre d'affaires du Rial (Shaparak / Shetab)",
+          "hint": "Passerelles de paiement bancaire nationales"
         },
         "crypto": {
-          "label": "International Transactions (USDT)",
-          "hint": "Tether TRC20 / crypto network",
-          "value": "{{count}} orders"
+          "label": "Transactions internationales (USDT)",
+          "hint": "Tether TRC20 / réseau crypto",
+          "value": "{{count}} commandes"
         },
         "orders": {
-          "label": "Total Paid Orders",
-          "hint": "Aggregate successful platform orders",
+          "label": "Total des commandes payées",
+          "hint": "Agréger les commandes de plateforme réussies",
           "value": "{{count}} transactions"
         }
       },
       "transactions": {
-        "title": "Recent System Transactions",
-        "latest": "Latest {{count}} records",
-        "empty": "No transactions found.",
-        "userRef": "User #{{id}}",
-        "paymentBank": "Bank transfer (Shetab)",
+        "title": "Transactions système récentes",
+        "latest": "Derniers {{count}} enregistrements",
+        "empty": "Aucune transaction trouvée.",
+        "userRef": "Utilisateur #{{id}}",
+        "paymentBank": "Virement bancaire (Shetab)",
         "table": {
-          "orderCode": "Order code",
-          "userId": "User ID",
-          "plan": "Purchased plan",
-          "amount": "Amount",
-          "paymentMethod": "Payment method",
-          "reference": "Tracking code / hash",
-          "status": "Status"
+          "orderCode": "Code de commande",
+          "userId": "Identifiant utilisateur",
+          "plan": "Forfait acheté",
+          "amount": "Montant",
+          "paymentMethod": "Mode de paiement",
+          "reference": "Code de suivi/hachage",
+          "status": "Statut"
         },
         "status": {
-          "paid": "Paid",
-          "pending": "Awaiting payment",
+          "paid": "Payé",
+          "pending": "En attente paiement",
           "failed": "Failed"
         }
       }
     },
     "payouts": {
-      "title": "Referral Commission Payout Desk",
-      "subtitle": "Review and approve withdrawal requests, record tracking codes, and refund automatically when a request is rejected",
+      "title": "Bureau de paiement des commissions de référencement",
+      "subtitle": "Examinez et approuvez les demandes de retrait, enregistrez les codes de suivi et remboursez automatiquement lorsqu'une demande est rejetée.",
       "filters": {
-        "all": "All",
-        "pending": "Pending review",
-        "approved": "Paid out",
-        "rejected": "Rejected"
+        "all": "TOUT",
+        "pending": "En attente d'examen",
+        "approved": "Payé",
+        "rejected": "Rejeté"
       },
-      "loading": "Loading payout desk...",
-      "empty": "No payout requests found.",
-      "defaultUser": "User",
-      "shebaLabel": "IBAN:",
-      "cardLabel": "Card number:",
-      "cryptoLabel": "USDT {{network}}:",
+      "loading": "Chargement du bureau de paiement...",
+      "empty": "Aucune demande de paiement trouvée.",
+      "defaultUser": "Utilisateur",
+      "shebaLabel": "IBAN :",
+      "cardLabel": "Numéro de la carte:",
+      "cryptoLabel": "USDT {{réseau}} :",
       "status": {
-        "pending": "Awaiting action",
-        "approved": "Paid out",
-        "rejected": "Rejected (refunded)"
+        "pending": "Action en attente",
+        "approved": "Payé",
+        "rejected": "Rejeté (remboursé)"
       },
       "actions": {
-        "approve": "Approve payout",
-        "reject": "Reject request",
-        "processed": "Processed"
+        "approve": "Approuver le versement",
+        "reject": "Rejeter la demande",
+        "processed": "Traité"
       },
       "table": {
-        "id": "ID",
-        "user": "User",
-        "amount": "Requested amount",
-        "destination": "Destination account",
-        "date": "Request date",
-        "status": "Status",
-        "actions": "Admin action"
+        "id": "pièce d'identité",
+        "user": "Utilisateur",
+        "amount": "Montant demandé",
+        "destination": "Compte de destination",
+        "date": "Date de la demande",
+        "status": "Statut",
+        "actions": "Action de l'administrateur"
       },
       "modal": {
-        "approveTitle": "Approve settlement payout",
-        "rejectTitle": "Reject settlement request",
-        "userLabel": "User:",
-        "amountLabel": "Payout amount:",
-        "rejectWarning": "Note: rejecting this request refunds the amount to the user's wallet immediately.",
-        "receiptLabel": "Receipt image URL or link",
-        "notesLabel": "Admin note",
-        "cancel": "Cancel",
-        "submitting": "Submitting...",
-        "submitApprove": "Confirm payout",
-        "submitReject": "Submit rejection"
+        "approveTitle": "Approuver le versement du règlement",
+        "rejectTitle": "Rejeter la demande de règlement",
+        "userLabel": "Utilisateur :",
+        "amountLabel": "Montant du paiement :",
+        "rejectWarning": "Remarque : le rejet de cette demande rembourse immédiatement le montant sur le portefeuille de l'utilisateur.",
+        "receiptLabel": "URL ou lien de l’image du reçu",
+        "notesLabel": "Commentaire administrateur",
+        "cancel": "Annuler",
+        "submitting": "Envoi...",
+        "submitApprove": "Confirmer le versement",
+        "submitReject": "Soumettre le refus"
       },
       "defaultNotes": {
-        "approved": "Settlement transferred successfully",
-        "rejected": "Account details are invalid"
+        "approved": "Règlement transféré avec succès",
+        "rejected": "Les détails du compte ne sont pas valides"
       },
       "messages": {
-        "approved": "Request approved successfully.",
-        "rejected": "Request rejected and the amount was refunded to the user's wallet."
+        "approved": "Demande approuvée avec succès.",
+        "rejected": "Demande rejetée et le montant a été remboursé sur le portefeuille de l'utilisateur."
       }
     },
     "referrals": {
       "title": "Full Referral Network & Commission Monitoring",
-      "subtitle": "Track five financial and performance indicators of the marketing network, manage referrers, and control the Hide/Unhide switch",
+      "subtitle": "Suivez cinq indicateurs financiers et de performance du réseau marketing, gérez les référents et contrôlez le commutateur Masquer/Afficher",
       "kpis": {
         "users": {
-          "label": "Total network members",
-          "hint": "Across all 3 tiers",
-          "unit": "users"
+          "label": "Nombre total de membres du réseau",
+          "hint": "Sur les 3 niveaux",
+          "unit": "utilisateurs"
         },
         "commissions": {
-          "label": "Total commissions earned",
-          "hint": "Calculated across the entire chain"
+          "label": "Commissions totales gagnées",
+          "hint": "Calculé sur toute la chaîne"
         },
         "pending": {
-          "label": "Pending settlement (balance)",
-          "hint": "Active wallet balance"
+          "label": "Règlement en attente (solde)",
+          "hint": "Solde du portefeuille actif"
         },
         "activeReferrers": {
-          "label": "Active tier-1 marketers",
-          "hint": "With at least one downline",
-          "unit": "users"
+          "label": "Marketeurs actifs de niveau 1",
+          "hint": "Avec au moins un downline",
+          "unit": "utilisateurs"
         },
         "treasury": {
-          "label": "Platform treasury balance",
-          "hint": "Surplus deposits from tiers without a referrer"
+          "label": "Solde de trésorerie de la plateforme",
+          "hint": "Dépôts excédentaires des niveaux sans référent"
         }
       },
-      "searchPlaceholder": "Search name, phone or referral code...",
-      "visibilityLabel": "Visibility:",
+      "searchPlaceholder": "Rechercher un nom, un téléphone ou un code de référence...",
+      "visibilityLabel": "Visibilité :",
       "visibility": {
-        "all": "All users",
-        "visible": "Visible only (normal)",
+        "all": "Tous les utilisateurs/utilisatrices",
+        "visible": "Visible uniquement (normal)",
         "hidden": "Hidden only"
       },
-      "loading": "Loading referral network data...",
-      "empty": "No users found in the network.",
-      "noCode": "None",
+      "loading": "Chargement des données du réseau de référence...",
+      "empty": "Aucun utilisateur trouvé sur le réseau.",
+      "noCode": "Aucun",
       "status": {
         "hidden": "Hidden from ranking",
-        "active": "Active in leaderboard"
+        "active": "Actif dans le classement"
       },
       "table": {
-        "referrer": "Referrer",
-        "code": "Referral code",
-        "layer1": "Tier 1",
-        "layer2": "Tier 2",
-        "layer3": "Tier 3",
-        "totalNetwork": "Total network",
-        "totalEarned": "Total earnings (Toman)",
-        "balance": "Wallet balance",
-        "status": "Referral status",
+        "referrer": "Référent",
+        "code": "Code de référence",
+        "layer1": "Niveau 1",
+        "layer2": "Niveau 2",
+        "layer3": "Niveau 3",
+        "totalNetwork": "Réseau total",
+        "totalEarned": "Gains totaux (Toman)",
+        "balance": "Solde du portefeuille",
+        "status": "Statut de référence",
         "actions": "Hide action"
       },
       "actions": {
-        "show": "Show",
+        "show": "Afficher",
         "hide": "Hide",
-        "showTitle": "Show this user again in public statistics",
+        "showTitle": "Afficher à nouveau cet utilisateur dans les statistiques publiques",
         "hideTitle": "Hide this user without affecting network relations or earnings"
       },
       "feedback": {
-        "hidden": "User «{{name}}» was hidden without removing network links.",
-        "visible": "User «{{name}}» is no longer hidden."
+        "hidden": "L'utilisateur « {{name}} » a été masqué sans supprimer les liens réseau.",
+        "visible": "L'utilisateur « {{name}} » n'est plus masqué."
       },
       "errors": {
         "load": "Failed to load referral monitoring data from the server.",
@@ -167,25 +167,25 @@
       }
     },
     "bankAccounts": {
-      "title": "IBAN, Bank Card & Crypto Wallet Verification Desk",
-      "subtitle": "Validate banking details and Tether wallet addresses to prevent referral commission payout errors",
-      "loading": "Loading settlement accounts...",
-      "empty": "No settlement accounts to display.",
-      "userRef": "User #{{id}}",
-      "verified": "Verified",
-      "pending": "Pending verification",
-      "defaultBankName": "Banking system",
+      "title": "Bureau de vérification des IBAN, des cartes bancaires et des portefeuilles cryptographiques",
+      "subtitle": "Validez les coordonnées bancaires et les adresses du portefeuille Tether pour éviter les erreurs de paiement des commissions de parrainage",
+      "loading": "Chargement des comptes de règlement...",
+      "empty": "Aucun compte de règlement à afficher.",
+      "userRef": "Utilisateur #{{id}}",
+      "verified": "Vérifié",
+      "pending": "En attente de vérification",
+      "defaultBankName": "Système bancaire",
       "actions": {
-        "revoke": "Revoke verification",
-        "verify": "Verify account"
+        "revoke": "Révoquer la vérification",
+        "verify": "Vérifier le compte"
       },
       "table": {
-        "id": "ID",
-        "user": "User",
-        "accountType": "Account type",
-        "accountValue": "Account number / wallet address",
-        "verifyStatus": "Verification status",
-        "toggle": "Change status"
+        "id": "pièce d'identité",
+        "user": "Utilisateur",
+        "accountType": "Type de compte",
+        "accountValue": "Numéro de compte/adresse du portefeuille",
+        "verifyStatus": "Statut de vérification",
+        "toggle": "Modifier l’état"
       }
     }
   }

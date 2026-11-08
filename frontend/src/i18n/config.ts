@@ -13,6 +13,7 @@
 import { MESSAGES } from './messages';
 import {
   LOCALE_CODES,
+  IS_INTERNATIONAL,
   DEFAULT_LOCALE,
   RTL_LOCALES,
   isRtlLocale,
@@ -21,7 +22,7 @@ import {
 } from './locale-codes';
 
 export type { SupportedLocale };
-export { DEFAULT_LOCALE, RTL_LOCALES, isRtlLocale, isSupportedLocale };
+export { IS_INTERNATIONAL, DEFAULT_LOCALE, RTL_LOCALES, isRtlLocale, isSupportedLocale };
 
 export interface LocaleMeta {
   code: SupportedLocale;

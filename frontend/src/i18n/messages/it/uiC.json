@@ -4,11 +4,11 @@
     "subtitle": "DrGame specialists will answer your questions and resolve your issues as quickly as possible.",
     "subjectLabel": "Ticket subject:",
     "subjectPlaceholder": "e.g. Help moving my PS5 data",
-    "departmentLabel": "Department:",
+    "departmentLabel": "Dipartimento:",
     "department": {
       "technical": "Technical support & connectivity",
-      "downloads": "Console downloads & data transfer",
-      "financial": "Billing, subscriptions & commissions",
+      "downloads": "Download della console e trasferimento dati",
+      "financial": "Fatturazione, abbonamenti e commissioni",
       "general": "General questions & suggestions"
     },
     "priorityLabel": "Priority:",
@@ -18,18 +18,18 @@
       "high": "Urgent & critical"
     },
     "messageLabel": "Message & full details:",
-    "messagePlaceholder": "Describe your issue or question in detail...",
-    "cancel": "Cancel",
+    "messagePlaceholder": "Descrivi il tuo problema o la tua domanda in dettaglio...",
+    "cancel": "Annulla",
     "submit": "Send ticket",
     "errorRequired": "Please enter a subject and a message for your ticket.",
-    "errorSubmit": "Could not submit your support ticket.",
-    "errorLoad": "Could not load the ticket details.",
-    "errorSend": "Could not send your message.",
+    "errorSubmit": "Impossibile inviare il ticket di supporto.",
+    "errorLoad": "Impossibile caricare i dettagli del biglietto.",
+    "errorSend": "Impossibile inviare il tuo messaggio.",
     "status": {
-      "answered": "Answered",
+      "answered": "Risposto",
       "inProgress": "Under review",
-      "closed": "Closed",
-      "awaiting": "Awaiting reply"
+      "closed": "Chiuso",
+      "awaiting": "In attesa di risposta"
     },
     "loadingTicket": "Loading ticket details...",
     "loadingHistory": "Loading message history...",
@@ -42,15 +42,15 @@
   },
   "gamepad": {
     "page": {
-      "title": "Controller health test",
-      "connected": "Connected",
+      "title": "Test di integrità del controller",
+      "connected": "Connesso",
       "waiting": "Waiting for connection",
       "enterFullscreen": "Fullscreen",
       "exitFullscreen": "Exit fullscreen"
     },
     "connection": {
-      "titleConnected": "Controller connected",
-      "titleDisconnected": "Connect your controller",
+      "titleConnected": "Controller collegato",
+      "titleDisconnected": "Collega il tuo controller",
       "hintPressButton": "Press any button on the controller",
       "wireless": "Wireless / Bluetooth",
       "wired": "Wired / USB",
@@ -58,27 +58,27 @@
       "rumbleBusy": "Sending…",
       "driftMeasure": "Measure drift",
       "driftBusy": "Measuring…",
-      "help": "Connect the controller over USB or Bluetooth, then press any button so the browser can detect it. On Windows, prefer Chrome or Edge for DualSense controllers."
+      "help": "Collega il controller tramite USB o Bluetooth, quindi premi un pulsante qualsiasi in modo che il browser possa rilevarlo. Su Windows, preferisci Chrome o Edge per i controller DualSense."
     },
     "viewer": {
-      "title": "Controller layout",
+      "title": "Disposizione del controllore",
       "badgeUnknown": "Unknown model",
       "badgeNone": "No controller",
       "view3d": "3D",
       "viewMap": "Map",
-      "view3dHint": "A 3D model is only available for the DualSense",
+      "view3dHint": "Un modello 3D è disponibile solo per DualSense",
       "emptyTitle": "The controller layout appears once it is connected",
-      "emptyHint": "Connect the controller over USB or Bluetooth and press any button so the browser can detect it.",
+      "emptyHint": "Collega il controller tramite USB o Bluetooth e premi un pulsante qualsiasi in modo che il browser possa rilevarlo.",
       "waiting": "Waiting for a controller…",
       "noButtons": "No buttons pressed"
     },
     "map": {
-      "ariaLabel": "Controller button map"
+      "ariaLabel": "Mappa dei pulsanti del controller"
     },
     "model3d": {
       "loading": "Loading 3D model",
       "loadError": "The 3D model could not be loaded.",
-      "unsupported": "3D view is not supported in this browser."
+      "unsupported": "La visualizzazione 3D non è supportata in questo browser."
     },
     "triggers": {
       "pressed": "PRESS",
@@ -101,15 +101,15 @@
       "deviceLabel": "Input device",
       "defaultDevice": "System default microphone",
       "deviceFallback": "Microphone {{index}}",
-      "average": "Average",
+      "average": "Nella media",
       "peak": "Peak",
       "loopback": "Play audio back (listen on speakers)",
       "volume": "Volume",
       "howlingWarning": "Do not do this with a headset; acoustic feedback (howling) can damage the speaker.",
       "start": "Start test",
       "stop": "Stop test",
-      "starting": "Connecting…",
-      "error": "Could not access the microphone. Check the browser permission and the controller connection.",
+      "starting": "Connessione…",
+      "error": "Impossibile accedere al microfono. Controlla l'autorizzazione del browser e la connessione del controller.",
       "health": {
         "idle": {
           "label": "Ready",
@@ -132,20 +132,20 @@
           "advice": "The signal is too loud and may distort. Move further away."
         },
         "clipping": {
-          "label": "Clipping",
+          "label": "Ritaglio",
           "advice": "The signal is clipping. Lower the input level to remove the distortion."
         }
       }
     },
     "log": {
       "title": "System log",
-      "clear": "Clear",
+      "clear": "Chiaro",
       "waiting": "Waiting for activity…"
     },
     "events": {
-      "connected": "Controller connected — {{id}}",
-      "disconnected": "Controller disconnected — {{id}}",
-      "deviceId": "Device ID: {{id}}",
+      "connected": "Controller connesso — {{id}}",
+      "disconnected": "Controller disconnesso — {{id}}",
+      "deviceId": "ID dispositivo: {{id}}",
       "unknown": "unknown",
       "rumbleUnsupported": "The controller rejected the rumble report. Try a USB connection.",
       "rumbleSent": "Test rumble sent",
@@ -154,7 +154,7 @@
       "driftSlight": "Slight drift — {{percent}}%",
       "driftHealthy": "Sticks healthy — drift {{percent}}%",
       "micStart": "Microphone test started — speak at a normal volume",
-      "micActive": "Active microphone: {{label}}",
+      "micActive": "Microfono attivo: {{label}}",
       "micDenied": "Microphone access denied",
       "micHealthy": "Microphone signal level is healthy",
       "micWeak": "Microphone level is low",
@@ -165,19 +165,19 @@
   },
   "avatar": {
     "title": "Official Sony console avatars",
-    "subtitle": "Designed after profile pattern {{count}}",
+    "subtitle": "Progettato secondo il modello del profilo {{count}}",
     "preset": {
       "kratos": "Kratos (God of War)",
       "spidey": "Spider-Man (Marvel)",
-      "aloy": "Aloy (Horizon Forbidden West)",
+      "aloy": "Aloy (Orizzonte Proibito Ovest)",
       "jin": "Jin Sakai (Ghost of Tsushima)",
       "joel": "Joel (The Last of Us)",
-      "astro": "Astro Bot"
+      "astro": "Astrobot"
     },
     "upload": {
       "title": "Upload Image",
       "uploading": "Uploading...",
-      "custom": "Custom Avatar",
+      "custom": "Avatar personalizzato",
       "invalidType": "Only image files (JPEG, PNG, WebP) are allowed.",
       "tooLarge": "File size must not exceed 5 MB.",
       "error": "Failed to upload image. Please try again."
@@ -205,8 +205,8 @@
   },
   "quotaPill": {
     "title": "Download quota status",
-    "currentPlan": "Current plan:",
-    "statusActive": "Active",
+    "currentPlan": "Piano attuale:",
+    "statusActive": "Attivo",
     "statusLow": "Running low",
     "remaining": "Remaining quota:",
     "total": "Total quota:",
@@ -223,7 +223,7 @@
       "views": "Most viewed"
     },
     "categoriesTitle": "Topic categories",
-    "allPosts": "All articles",
+    "allPosts": "Tutti gli articoli",
     "readingTime_one": "{{count}} min read",
     "readingTime_other": "{{count}} min read"
   },
@@ -239,16 +239,16 @@
     "mobileNav": "Mobile quick access bar",
     "scrollRight": "Scroll right",
     "scrollLeft": "Scroll left",
-    "tvBarRegion": "Controller guide and TV mode bar",
-    "tvBarGames": "Browse the games catalog (Triangle / Y)",
+    "tvBarRegion": "Guida al controller e barra della modalità TV",
+    "tvBarGames": "Sfoglia il catalogo dei giochi (Triangolo/Y)",
     "tvBarPlans": "Quota subscription plans (Square / X)",
     "geoTitle": "Select Region & Language",
     "geoWelcome": "Welcome to DrGame",
     "geoSubtitle": "Please choose your interface language and preferred payment method:",
     "geoConfig": "Selected configuration:",
     "geoLater": "Remind me later",
-    "geoConfirm": "Confirm and continue",
-    "geoClose": "Close",
+    "geoConfirm": "Conferma e continua",
+    "geoClose": "Chiudi",
     "bannerAria": "Featured banners for DrGame games and services",
     "prevSlide": "Previous slide",
     "nextSlide": "Next slide",
@@ -258,7 +258,7 @@
   "auth": {
     "errors": {
       "phoneRequired": "Please enter your phone number or email address.",
-      "otpSend": "Could not send the verification code.",
+      "otpSend": "Impossibile inviare il codice di verifica.",
       "requiredFields": "Please fill in all required fields.",
       "register": "Registration with the verification code failed.",
       "credentials": "Please enter your username and password.",
@@ -272,12 +272,12 @@
     "title": "Quick actions",
     "subtitle": "Instant experience settings",
     "open": "Open quick actions",
-    "close": "Close quick actions",
-    "consoleTitle": "Console mode",
-    "consoleDesc": "10-foot UI for TV & gamepad",
+    "close": "Chiudi le azioni rapide",
+    "consoleTitle": "Modalità console",
+    "consoleDesc": "Interfaccia utente da 10 piedi per TV e gamepad",
     "paymentTitle": "Payment method",
     "paymentDesc": "Domestic gateway or crypto",
     "domestic": "Shaparak / IRT",
-    "international": "Crypto / Global"
+    "international": "Cripto/Globale"
   }
 }

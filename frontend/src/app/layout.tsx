@@ -40,7 +40,7 @@ export default function RootLayout({
         {/* Apply the stored locale before first paint so lang/dir never flash or drift from the UI copy */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=document.cookie.match(/(?:^|;\\s*)drgame_lang=([a-z]{2})/);var l=localStorage.getItem('drgame_lang')||(m&&m[1])||'fa';if(['fa','en','ar'].indexOf(l)<0){l='fa';}var d=(l==='fa'||l==='ar')?'rtl':'ltr';document.documentElement.lang=l;document.documentElement.dir=d;var r=new URLSearchParams(window.location.search).get('ref');if(r){localStorage.setItem('drgame_referral_code',r);document.cookie='drgame_ref='+encodeURIComponent(r)+';path=/;max-age=2592000;SameSite=Lax';}}catch(e){}})();`,
+            __html: `(function(){try{var isIntl=${process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international' ? 'true' : 'false'};var def=isIntl?'en':'fa';var m=document.cookie.match(/(?:^|;\\s*)drgame_lang=([a-z]{2})/);var l=localStorage.getItem('drgame_lang')||(m&&m[1])||def;var valid=['fa','en','ar','de','es','fr','ru','zh','ja','ko','tr','it','pt','hi','nl'];if(valid.indexOf(l)<0){l=def;}var d=(l==='fa'||l==='ar')?'rtl':'ltr';document.documentElement.lang=l;document.documentElement.dir=d;var r=new URLSearchParams(window.location.search).get('ref');if(r){localStorage.setItem('drgame_referral_code',r);document.cookie='drgame_ref='+encodeURIComponent(r)+';path=/;max-age=2592000;SameSite=Lax';}}catch(e){}})();`,
           }}
         />
       </head>

@@ -8,41 +8,41 @@
         "terabyte": "TB"
       },
       "messages": {
-        "saved": "All prices, nine-tier quotas and download permissions were saved and updated in the database successfully.",
+        "saved": "Tutti i prezzi, le quote a nove livelli e le autorizzazioni di download sono stati salvati e aggiornati correttamente nel database.",
         "saveError": "Failed to save changes"
       },
       "pricing": {
         "title": "Plan Pricing & Quota Configuration (1, 3 and 6 Month Terms)",
-        "subtitle": "Adjust the Toman price and gigabyte quota for each billing term",
-        "period1": "1 Month (Base)",
-        "period3": "3 Months",
-        "period6": "6 Months",
+        "subtitle": "Modifica il prezzo Toman e la quota gigabyte per ciascun termine di fatturazione",
+        "period1": "1 mese (base)",
+        "period3": "3 mesi",
+        "period6": "6 mesi",
         "periodBadge": "{{months}}-month term",
         "priceLabel": "Price for this term (Toman):",
         "quotaLabel": "Download quota (GB):"
       },
       "tiers": {
         "free": "Free Plan",
-        "bronze": "Bronze Plan",
+        "bronze": "Piano Bronzo",
         "silver": "Silver Plan",
         "gold": "Gold VIP Plan"
       },
       "features": {
         "title": "Download Features by Game Content Type (Three Subscription Tiers)",
-        "subtitle": "Choose whether each plan may download game data, cheats, DLC, Persian subtitles and exclusive dubbing",
+        "subtitle": "Scegli se ciascun piano può scaricare dati di gioco, trucchi, DLC, sottotitoli persiani e doppiaggio esclusivo",
         "badge": "Download permissions",
-        "bronze": "Bronze Subscription",
+        "bronze": "Abbonamento Bronzo",
         "silver": "Silver Subscription",
         "gold": "Gold VIP Subscription",
         "saving": "Saving to database...",
         "save": "Save all prices, quotas and subscription features",
         "items": {
           "data": {
-            "label": "Base game data",
+            "label": "Dati di gioco base",
             "desc": "Download the core data parts"
           },
           "cheat": {
-            "label": "Cheats & trainers",
+            "label": "Trucchi e formatori",
             "desc": "Save games and exclusive trainers"
           },
           "dlc": {
@@ -60,15 +60,15 @@
         }
       },
       "free": {
-        "title": "Configure the 5 Allowed Games on the Free Plan",
+        "title": "Configura i 5 giochi consentiti nel piano gratuito",
         "subtitle": "Free plan users may only download the data of these selected titles.",
         "selected": "{{count}} / 5 games selected",
         "selectPlaceholder": "Pick a game from the catalog...",
-        "add": "Add to free plan",
+        "add": "Aggiungi al piano gratuito",
         "remove": "Remove from free",
         "empty": "No title has been selected for the free plan yet.",
         "noImage": "No image",
-        "maxAlert": "A maximum of 5 games can be registered on the free plan.",
+        "maxAlert": "Sul piano gratuito è possibile registrare un massimo di 5 giochi.",
         "duplicateAlert": "This game is already on the allowed list.",
         "saved": "The free plan's allowed games list was saved successfully.",
         "saveError": "Failed to update the free plan games"
@@ -84,7 +84,7 @@
         "status": "Status",
         "empty": "No subscriptions found.",
         "defaultUser": "User",
-        "active": "Active",
+        "active": "Attivo",
         "expired": "Expired"
       }
     },
@@ -98,21 +98,21 @@
       "loading": "Loading user list...",
       "empty": "No user matched the search criteria.",
       "status": {
-        "active": "Active",
-        "blocked": "Blocked"
+        "active": "Attivo",
+        "blocked": "Bloccato"
       },
       "table": {
         "user": "User",
-        "contact": "Contact",
+        "contact": "Contatto",
         "referralCode": "Referral code",
         "totalQuota": "Total quota",
         "usedQuota": "Used",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "actions": {
         "quota": "Quota",
-        "quotaTitle": "Adjust quota manually",
+        "quotaTitle": "Modifica la quota manualmente",
         "dossier": "Dossier",
         "dossierTitle": "View user dossier"
       },
@@ -124,20 +124,20 @@
       },
       "quotaModal": {
         "title": "Edit user quota: {{name}}",
-        "current": "Current quota:",
+        "current": "Quota attuale:",
         "amountLabel": "Quota change amount (GB)",
         "amountPlaceholder": "e.g. 10 or -5",
         "hint": "Use negative values (such as -5) to deduct quota.",
         "reasonLabel": "Reason for the audit log",
         "defaultReason": "Manual top-up by head office",
-        "cancel": "Cancel",
+        "cancel": "Annulla",
         "submitting": "Saving...",
-        "submit": "Apply quota change",
+        "submit": "Applicare la modifica della quota",
         "success": "New user quota recorded: {{quota}}.",
         "error": "Failed to reach the server"
       },
       "dossier": {
-        "title": "Digital dossier: {{name}}",
+        "title": "Dossier digitale: {{name}}",
         "loading": "Retrieving user dossier...",
         "userId": "User ID",
         "referralCode": "Referral code",
@@ -147,44 +147,44 @@
         "recentPurchases": "Recent purchase history",
         "noPurchases": "No purchase has been recorded for this user.",
         "plan": "Plan: {{plan}}",
-        "amount": "Amount: {{amount}}"
+        "amount": "Importo: {{importo}}"
       }
     },
     "discounts": {
       "title": "Discount Code & Promo Coupon Management",
-      "subtitle": "Create percentage and fixed-amount discount campaigns with spending caps and usage limits",
-      "create": "Create new discount code",
+      "subtitle": "Crea campagne di sconti a percentuale e a importo fisso con limiti di spesa e di utilizzo",
+      "create": "Crea un nuovo codice sconto",
       "loading": "Loading discount codes...",
       "empty": "No discount code has been created yet.",
       "unlimited": "Unlimited",
-      "deleteTitle": "Delete discount code",
-      "confirmDelete": "Are you sure you want to delete this discount code?",
+      "deleteTitle": "Elimina il codice sconto",
+      "confirmDelete": "Sei sicuro di voler eliminare questo codice sconto?",
       "codeRequired": "Please enter a discount code name.",
       "created": "Discount code created successfully.",
       "createError": "Failed to create the discount code",
       "status": {
-        "active": "Active",
+        "active": "Attivo",
         "inactive": "Inactive"
       },
       "table": {
         "id": "ID",
         "code": "Discount code",
-        "percent": "Discount %",
+        "percent": "Sconto %",
         "maxDiscount": "Discount cap",
-        "usage": "Allowed / used",
+        "usage": "Consentito/utilizzato",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "modal": {
-        "title": "Create a new discount coupon",
+        "title": "Crea un nuovo buono sconto",
         "codeLabel": "Discount code name",
         "codePlaceholder": "e.g. DRGAME20",
         "percentLabel": "Discount percentage",
         "maxDiscountLabel": "Discount cap (Toman)",
         "usageLabel": "Maximum number of uses",
-        "cancel": "Cancel",
+        "cancel": "Annulla",
         "submitting": "Saving...",
-        "submit": "Create discount code"
+        "submit": "Crea codice sconto"
       }
     },
     "tickets": {
@@ -195,25 +195,25 @@
       "defaultUser": "User",
       "openAndReply": "View & reply",
       "filters": {
-        "all": "All tickets",
-        "open": "Awaiting reply",
-        "answered": "Answered",
-        "closed": "Closed"
+        "all": "Tutti i biglietti",
+        "open": "In attesa di risposta",
+        "answered": "Risposto",
+        "closed": "Chiuso"
       },
       "status": {
-        "open": "Awaiting reply",
+        "open": "In attesa di risposta",
         "inProgress": "Under review",
-        "answered": "Answered",
-        "closed": "Closed"
+        "answered": "Risposto",
+        "closed": "Chiuso"
       },
       "table": {
         "trackingCode": "Tracking code",
         "user": "User",
         "subject": "Ticket subject",
-        "department": "Department",
-        "date": "Date",
+        "department": "Dipartimento",
+        "date": "Data",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "errors": {
         "load": "Failed to load the ticket list from the server.",
@@ -223,7 +223,7 @@
       },
       "modal": {
         "sentBy": "Sent by {{name}} ({{phone}})",
-        "closeTicket": "Close ticket",
+        "closeTicket": "Chiudi biglietto",
         "loadingMessages": "Loading messages...",
         "noMessages": "There are no messages in this ticket.",
         "adminReply": "DrGame Support Reply",

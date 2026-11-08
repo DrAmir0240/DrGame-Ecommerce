@@ -1,11 +1,11 @@
 {
   "admin": {
     "layout": {
-      "brand": "Admin Control Panel",
+      "brand": "Pannello di controllo amministratore",
       "toggleSidebar": "Toggle sidebar size",
       "verifyingSession": "Verifying admin credentials...",
       "viewStore": "View DrGame Store",
-      "sessionActive": "Admin session active",
+      "sessionActive": "Sessione di amministrazione attiva",
       "defaultAdminName": "Head Admin",
       "logout": "Sign out of admin account",
       "logoutShort": "Sign out",
@@ -19,17 +19,17 @@
         "referrals": "Referral Chain Monitoring",
         "finance": "Financial Monitoring (IRR / FX)",
         "payouts": "Referral Payout Desk",
-        "bankAccounts": "Bank Account Approvals",
+        "bankAccounts": "Approvazioni del conto bancario",
         "tickets": "Support Tickets",
         "discounts": "Discount Codes",
-        "blog": "Blog & News Management",
+        "blog": "Gestione blog e notizie",
         "settings": "Site Global Settings"
       }
     },
     "login": {
       "title": "Sign In to Admin Portal",
-      "subtitle": "Access is restricted to verified DrGame administrators",
-      "usernameLabel": "Admin username or email",
+      "subtitle": "L'accesso è limitato agli amministratori DrGame verificati",
+      "usernameLabel": "Nome utente o e-mail dell'amministratore",
       "passwordLabel": "Security password",
       "submit": "Enter Command Center",
       "errors": {
@@ -42,13 +42,13 @@
     "dashboard": {
       "title": "Platform Monitoring & Administration Center",
       "subtitle": "Summary of performance metrics, revenue and live operations across DrGame",
-      "coreStatus": "Core status: operational",
+      "coreStatus": "Stato principale: operativo",
       "errors": {
         "loadFailed": "Failed to load dashboard statistics"
       },
       "cards": {
         "users": "Registered Users",
-        "activeSubscriptions": "Active Subscriptions",
+        "activeSubscriptions": "Abbonamenti attivi",
         "games": "Game Titles",
         "pendingPayouts": "Payout Requests",
         "totalRevenue": "Total Revenue"
@@ -61,11 +61,11 @@
         },
         "payouts": {
           "title": "Referral Payout Desk",
-          "description": "Approve SHEBA bank transfers and USDT wallet payouts"
+          "description": "Approva i bonifici bancari SHEBA e i pagamenti del portafoglio USDT"
         },
         "games": {
           "title": "Manage Game Catalog",
-          "description": "Add titles, download links and edit tags"
+          "description": "Aggiungi titoli, scarica collegamenti e modifica tag"
         },
         "freeGames": {
           "title": "Free Tier Games",
@@ -74,16 +74,16 @@
       },
       "security": {
         "title": "Security & Infrastructure",
-        "authLevel": "Authentication Level",
+        "authLevel": "Livello di autenticazione",
         "quotaCache": "Quota Query Cache",
-        "database": "Database Model",
-        "commissionEngine": "Commission Engine"
+        "database": "Modello di banca dati",
+        "commissionEngine": "Motore della Commissione"
       }
     },
     "banners": {
       "title": "Homepage Dual Hero Banner Management",
-      "subtitle": "Configure the first banner (featured games) and the second banner (platform services and plans), synced with the database",
-      "addSlide": "Add New Slide",
+      "subtitle": "Configura il primo banner (giochi in evidenza) e il secondo banner (servizi e piani della piattaforma), sincronizzati con il database",
+      "addSlide": "Aggiungi nuova diapositiva",
       "loading": "Loading banners...",
       "empty": "There are no slides in this section.",
       "defaults": {
@@ -91,31 +91,31 @@
         "badgeGame": "Featured Game",
         "badgeService": "Golden Service",
         "ctaGame": "View & Download",
-        "ctaSubscription": "Buy Subscription"
+        "ctaSubscription": "Acquista l'abbonamento"
       },
       "tabs": {
-        "games": "Banner 1: Featured AAA Games ({{count}})",
-        "services": "Banner 2: Services & Subscription Deals ({{count}})"
+        "games": "Banner 1: giochi AAA in primo piano ({{count}})",
+        "services": "Banner 2: Servizi e offerte di abbonamento ({{count}})"
       },
       "table": {
         "priority": "Order",
         "preview": "Image Preview",
         "title": "Slide Title",
-        "badge": "Badge / Tag",
+        "badge": "Distintivo/etichetta",
         "link": "Target Link",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "status": {
-        "active": "Active",
+        "active": "Attivo",
         "inactive": "Inactive"
       },
       "actions": {
         "edit": "Edit",
-        "delete": "Delete"
+        "delete": "Elimina"
       },
       "confirm": {
-        "delete": "Are you sure you want to delete this slide?"
+        "delete": "Sei sicuro di voler eliminare questa diapositiva?"
       },
       "feedback": {
         "deleted": "Slide deleted successfully.",
@@ -131,26 +131,26 @@
       },
       "modal": {
         "editTitle": "Edit Banner Slide",
-        "addTitle": "Add New Slide",
-        "cancel": "Cancel",
+        "addTitle": "Aggiungi nuova diapositiva",
+        "cancel": "Annulla",
         "save": "Save Slide"
       },
       "form": {
         "titleFa": "Persian slide title:",
         "titleEn": "English title (optional):",
-        "badge": "Badge / small tag:",
+        "badge": "Badge/piccola targhetta:",
         "displayOrder": "Display priority (order):",
-        "backdropUrl": "Background image URL:",
+        "backdropUrl": "URL dell'immagine di sfondo:",
         "description": "Short slide description:",
         "platforms": "Platforms (comma separated):",
-        "ctaText": "Button text (CTA):",
-        "linkHref": "Button link (Href):"
+        "ctaText": "Testo del pulsante (CTA):",
+        "linkHref": "Collegamento pulsante (Href):"
       },
       "placeholders": {
         "titleFa": "e.g. God of War Ragnarok",
         "badge": "Game of the Month",
         "backdropUrl": "https://... or /uploads/...",
-        "description": "A short engaging line...",
+        "description": "Una frase breve e coinvolgente...",
         "ctaText": "View details & download"
       }
     }

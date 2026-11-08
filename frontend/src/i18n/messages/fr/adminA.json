@@ -1,157 +1,157 @@
 {
   "admin": {
     "layout": {
-      "brand": "Admin Control Panel",
-      "toggleSidebar": "Toggle sidebar size",
-      "verifyingSession": "Verifying admin credentials...",
-      "viewStore": "View DrGame Store",
-      "sessionActive": "Admin session active",
+      "brand": "Panneau de contrôle administrateur (Façade)",
+      "toggleSidebar": "Changer la taille de la barre latérale",
+      "verifyingSession": "Vérification des informations d'identification de l'administrateur...",
+      "viewStore": "Voir la boutique DrGame",
+      "sessionActive": "Session d'administration active",
       "defaultAdminName": "Head Admin",
-      "logout": "Sign out of admin account",
-      "logoutShort": "Sign out",
+      "logout": "Se déconnecter du compte administrateur",
+      "logoutShort": "Se déconnecter",
       "nav": {
         "dashboard": "Executive Dashboard",
-        "banners": "Main Banner Management",
-        "users": "Users & Quota Management",
+        "banners": "Gestion des bannières principales",
+        "users": "Gestion des utilisateurs et des quotas",
         "games": "Game Catalog",
         "genres": "Game Genre Management",
-        "subscriptions": "Plans & Free Games",
-        "referrals": "Referral Chain Monitoring",
+        "subscriptions": "Forfaits et jeux gratuits",
+        "referrals": "Surveillance de la chaîne de référencement",
         "finance": "Financial Monitoring (IRR / FX)",
-        "payouts": "Referral Payout Desk",
-        "bankAccounts": "Bank Account Approvals",
-        "tickets": "Support Tickets",
-        "discounts": "Discount Codes",
-        "blog": "Blog & News Management",
-        "settings": "Site Global Settings"
+        "payouts": "Bureau de paiement des références",
+        "bankAccounts": "Approbations de compte bancaire",
+        "tickets": "Billets d'assistance",
+        "discounts": "Codes rabais",
+        "blog": "Gestion des blogs et des actualités",
+        "settings": "Paramètres globaux du site"
       }
     },
     "login": {
-      "title": "Sign In to Admin Portal",
-      "subtitle": "Access is restricted to verified DrGame administrators",
-      "usernameLabel": "Admin username or email",
-      "passwordLabel": "Security password",
-      "submit": "Enter Command Center",
+      "title": "Connectez-vous au portail d'administration",
+      "subtitle": "L'accès est limité aux administrateurs DrGame vérifiés",
+      "usernameLabel": "Nom d'utilisateur ou e-mail de l'administrateur",
+      "passwordLabel": "Mot de passe de sécurité",
+      "submit": "Entrer dans le centre de commande",
       "errors": {
-        "required": "Please enter your username and password.",
-        "invalidCredentials": "Incorrect admin username or password.",
-        "noToken": "No valid token was received from the server.",
+        "required": "Veuillez entrer votre nom d'utilisateur et votre mot de passe.",
+        "invalidCredentials": "Nom d'utilisateur ou mot de passe administrateur incorrect.",
+        "noToken": "Aucun jeton valide n'a été reçu du serveur.",
         "network": "Failed to connect to the server."
       }
     },
     "dashboard": {
-      "title": "Platform Monitoring & Administration Center",
-      "subtitle": "Summary of performance metrics, revenue and live operations across DrGame",
-      "coreStatus": "Core status: operational",
+      "title": "Centre de surveillance et d'administration de la plateforme",
+      "subtitle": "Résumé des mesures de performances, des revenus et des opérations en direct sur DrGame",
+      "coreStatus": "Statut de base : opérationnel",
       "errors": {
         "loadFailed": "Failed to load dashboard statistics"
       },
       "cards": {
-        "users": "Registered Users",
-        "activeSubscriptions": "Active Subscriptions",
+        "users": "Utilisateurs enregistrés",
+        "activeSubscriptions": "Abonnements actifs",
         "games": "Game Titles",
-        "pendingPayouts": "Payout Requests",
-        "totalRevenue": "Total Revenue"
+        "pendingPayouts": "Demandes de paiement",
+        "totalRevenue": "Revenu total"
       },
       "quickActions": {
-        "title": "Key Operations & Quick Actions",
+        "title": "Opérations clés et actions rapides",
         "users": {
-          "title": "Top Up User Quota",
-          "description": "Manually increase or decrease user download allowance"
+          "title": "Recharger le quota d'utilisateur",
+          "description": "Augmenter ou diminuer manuellement l'autorisation de téléchargement de l'utilisateur"
         },
         "payouts": {
-          "title": "Referral Payout Desk",
-          "description": "Approve SHEBA bank transfers and USDT wallet payouts"
+          "title": "Bureau de paiement des références",
+          "description": "Approuver les virements bancaires SHEBA et les paiements par portefeuille USDT"
         },
         "games": {
-          "title": "Manage Game Catalog",
-          "description": "Add titles, download links and edit tags"
+          "title": "Gérer le catalogue de jeux",
+          "description": "Ajouter des titres, télécharger des liens et modifier des tags"
         },
         "freeGames": {
           "title": "Free Tier Games",
-          "description": "Dynamically select {{count}} eligible games for the free plan"
+          "description": "Sélectionnez dynamiquement {{count}} jeux éligibles pour le forfait gratuit"
         }
       },
       "security": {
-        "title": "Security & Infrastructure",
-        "authLevel": "Authentication Level",
-        "quotaCache": "Quota Query Cache",
-        "database": "Database Model",
-        "commissionEngine": "Commission Engine"
+        "title": "Sécurité et infrastructures",
+        "authLevel": "Niveau d'authentification",
+        "quotaCache": "Cache de requête de quota",
+        "database": "modèle de base de données.",
+        "commissionEngine": "Moteur de commission"
       }
     },
     "banners": {
-      "title": "Homepage Dual Hero Banner Management",
-      "subtitle": "Configure the first banner (featured games) and the second banner (platform services and plans), synced with the database",
-      "addSlide": "Add New Slide",
-      "loading": "Loading banners...",
-      "empty": "There are no slides in this section.",
+      "title": "Gestion des bannières Dual Hero",
+      "subtitle": "Configurez la première bannière (jeux en vedette) et la deuxième bannière (services et forfaits de la plateforme), synchronisées avec la base de données",
+      "addSlide": "Ajouter une nouvelle diapositive",
+      "loading": "Chargement des bannières...",
+      "empty": "Il n'y a pas de diapositives dans cette section.",
       "defaults": {
-        "ctaText": "View & Act",
+        "ctaText": "Voir et agir",
         "badgeGame": "Featured Game",
         "badgeService": "Golden Service",
-        "ctaGame": "View & Download",
-        "ctaSubscription": "Buy Subscription"
+        "ctaGame": "Afficher et télécharger",
+        "ctaSubscription": "Acheter l’Abonnement"
       },
       "tabs": {
-        "games": "Banner 1: Featured AAA Games ({{count}})",
-        "services": "Banner 2: Services & Subscription Deals ({{count}})"
+        "games": "Bannière 1 : Jeux AAA en vedette ({{count}})",
+        "services": "Bannière 2 : Services et offres d'abonnement ({{count}})"
       },
       "table": {
-        "priority": "Order",
-        "preview": "Image Preview",
-        "title": "Slide Title",
-        "badge": "Badge / Tag",
-        "link": "Target Link",
-        "status": "Status",
-        "actions": "Actions"
+        "priority": "Commande",
+        "preview": "Aperçu de l'image",
+        "title": "Titre de la diapositive",
+        "badge": "Badge / Étiquette",
+        "link": "Lien cible",
+        "status": "Statut",
+        "actions": "Interventions"
       },
       "status": {
-        "active": "Active",
-        "inactive": "Inactive"
+        "active": "Actif",
+        "inactive": "Inactif"
       },
       "actions": {
-        "edit": "Edit",
-        "delete": "Delete"
+        "edit": "editer",
+        "delete": "Effacer"
       },
       "confirm": {
-        "delete": "Are you sure you want to delete this slide?"
+        "delete": "Confirmez-vous la suppression de cette lame&#xA0;?"
       },
       "feedback": {
-        "deleted": "Slide deleted successfully.",
-        "updated": "Slide updated successfully.",
-        "created": "New slide added successfully."
+        "deleted": "Diapositive supprimée avec succès.",
+        "updated": "Diapositive mise à jour avec succès.",
+        "created": "Nouvelle diapositive ajoutée avec succès."
       },
       "errors": {
         "fetchFailed": "Failed to load banners from the server.",
         "deleteFailed": "Failed to delete the slide.",
         "toggleFailed": "Failed to change the slide status.",
-        "requiredFields": "Please enter a title and image URL.",
+        "requiredFields": "Veuillez saisir un titre et une URL d'image.",
         "saveFailed": "Failed to save the slide."
       },
       "modal": {
-        "editTitle": "Edit Banner Slide",
-        "addTitle": "Add New Slide",
-        "cancel": "Cancel",
-        "save": "Save Slide"
+        "editTitle": "Modifier la diapositive de la bannière",
+        "addTitle": "Ajouter une nouvelle diapositive",
+        "cancel": "Annuler",
+        "save": "Enregistrer la diapositive"
       },
       "form": {
-        "titleFa": "Persian slide title:",
-        "titleEn": "English title (optional):",
-        "badge": "Badge / small tag:",
-        "displayOrder": "Display priority (order):",
-        "backdropUrl": "Background image URL:",
-        "description": "Short slide description:",
-        "platforms": "Platforms (comma separated):",
-        "ctaText": "Button text (CTA):",
-        "linkHref": "Button link (Href):"
+        "titleFa": "Titre de la diapositive en persan :",
+        "titleEn": "Titre anglais (facultatif) :",
+        "badge": "Badge / petite étiquette :",
+        "displayOrder": "Afficher la priorité (ordre) :",
+        "backdropUrl": "Entrez le lien image de fond.",
+        "description": "Brève description de la diapositive :",
+        "platforms": "Plateformes (séparées par des virgules) :",
+        "ctaText": "Texte du bouton (CTA) :",
+        "linkHref": "Lien du bouton (Href) :"
       },
       "placeholders": {
-        "titleFa": "e.g. God of War Ragnarok",
+        "titleFa": "par ex. Dieu de la guerre Ragnarok",
         "badge": "Game of the Month",
-        "backdropUrl": "https://... or /uploads/...",
-        "description": "A short engaging line...",
-        "ctaText": "View details & download"
+        "backdropUrl": "https://... ou /uploads/...",
+        "description": "Une courte ligne engageante...",
+        "ctaText": "Afficher les détails et télécharger"
       }
     }
   }

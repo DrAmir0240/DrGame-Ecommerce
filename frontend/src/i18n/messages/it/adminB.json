@@ -4,15 +4,15 @@
       "title": "Full Game Catalog Management",
       "subtitle": "Edit every part of a game (cover, banner, story, awards, studio, critic scores, platforms, and download links)",
       "searchPlaceholder": "Search game titles...",
-      "addGame": "Add New Game",
+      "addGame": "Aggiungi nuovo gioco",
       "table": {
         "title": "Game Title",
         "studio": "Studio & Publisher",
-        "size": "Data Size",
+        "size": "Dimensione dei dati",
         "rating": "Rating & Metacritic",
         "platforms": "Platforms",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "platforms": {
         "ps5": "PS5",
@@ -30,7 +30,7 @@
       "actions": {
         "editFull": "Full Edit",
         "editTitle": "Edit all game details",
-        "delete": "Delete game"
+        "delete": "Elimina gioco"
       },
       "pagination": {
         "showing": "Showing {{shown}} of {{total}} games in the system",
@@ -38,7 +38,7 @@
         "next": "Next page",
         "pageOf": "Page {{page}} of {{pages}}"
       },
-      "confirmDelete": "Are you sure you want to delete this game from the catalog?",
+      "confirmDelete": "Sei sicuro di voler eliminare questo gioco dal catalogo?",
       "errors": {
         "fetch": "Failed to load the catalog",
         "uploadImage": "Failed to upload the image",
@@ -53,23 +53,23 @@
       "messages": {
         "coverUploaded": "Game cover saved to the DrGame server.",
         "bannerUploaded": "Hero banner saved to the DrGame server.",
-        "coverCached": "Cover saved to local hosting.",
-        "bannerCached": "Banner saved to local hosting.",
+        "coverCached": "Copertina salvata sull'hosting locale.",
+        "bannerCached": "Banner salvato sull'hosting locale.",
         "saved": "Game information was saved and updated successfully."
       },
       "defaults": {
-        "genres": "Action, Adventure",
+        "genres": "Azione, Avventura",
         "partName": "Part {{number}}"
       },
       "modal": {
         "titleEdit": "Edit All Game Details",
-        "titleAdd": "Create New Game Entry",
+        "titleAdd": "Crea una nuova voce di gioco",
         "subtitle": "Unified management of banners, reviews, studio details, awards, and game download files",
         "loading": "Loading game details from the database...",
         "idLabel": "ID: {{id}}",
         "tabs": {
-          "basic": "Basic Info",
-          "media": "Artwork & Hero Banner",
+          "basic": "Informazioni di base",
+          "media": "Grafica e stendardo dell'eroe",
           "studio": "Studio & Awards",
           "story": "Story & Heart of the Game",
           "features": "Platforms & Features",
@@ -84,7 +84,7 @@
           "rating": "User rating (out of 5)",
           "metacritic": "Metacritic score (out of 100)",
           "status": "Game release status",
-          "activeLabel": "Active and published in the store",
+          "activeLabel": "Attivo e pubblicato nello store",
           "placeholders": {
             "titleFa": "e.g. The Last of Us Remastered",
             "titleEn": "e.g. The Last of Us Remastered",
@@ -97,24 +97,24 @@
           "coverHint": "Standard 3:4 or 4:5 ratio",
           "coverPlaceholder": "https://... or /media/games/cover_...",
           "coverCacheTitle": "Download and store the image on the DrGame server",
-          "caching": "Caching...",
+          "caching": "Memorizzazione nella cache...",
           "cacheToServer": "Save to server",
           "coverUploading": "Uploading cover...",
           "coverUpload": "Upload cover from device",
-          "coverUploaded": "Cover uploaded",
-          "coverPreviewAlt": "Cover preview",
-          "bannerLabel": "Cinematic hero backdrop banner",
+          "coverUploaded": "Copertina caricata",
+          "coverPreviewAlt": "Anteprima della copertina",
+          "bannerLabel": "Banner sullo sfondo dell'eroe cinematografico",
           "bannerHint": "Wide background image at the top of the page (16:9)",
           "bannerPlaceholder": "https://... or /media/games/banner_...",
           "bannerCacheTitle": "Download and store the banner on the DrGame server",
           "bannerUploading": "Uploading banner...",
           "bannerUpload": "Upload hero banner from device",
-          "bannerUploaded": "Banner uploaded",
-          "bannerPreviewAlt": "Banner preview",
+          "bannerUploaded": "Banner caricato",
+          "bannerPreviewAlt": "Anteprima del banner",
           "screenshotsLabel": "Game screenshot gallery (one link per line)"
         },
         "studio": {
-          "developerLabel": "Developer studio",
+          "developerLabel": "Studio di sviluppo",
           "developerPlaceholder": "e.g. Naughty Dog or Santa Monica Studio",
           "publisherLabel": "Publisher",
           "publisherPlaceholder": "e.g. Sony Interactive Entertainment",
@@ -125,29 +125,29 @@
         "story": {
           "storylineLabel": "Story & heart of the game (Storyline FA)",
           "storylineHint": "Text of the third card, \"Heart of the Game\", on the game detail page",
-          "storylinePlaceholder": "A compelling story summary, the world of the game, and the narrative atmosphere shown in the dedicated Heart of the Game box...",
+          "storylinePlaceholder": "Un riassunto avvincente della storia, il mondo del gioco e l'atmosfera narrativa mostrati nella scatola dedicata Heart of the Game...",
           "descriptionFaLabel": "Full Persian description & review (Full Description FA)",
-          "descriptionFaPlaceholder": "A complete review of the gameplay, graphics, and technical details of the game in Persian...",
+          "descriptionFaPlaceholder": "Una revisione completa del gameplay, della grafica e dei dettagli tecnici del gioco in persiano...",
           "descriptionEnLabel": "English description",
           "descriptionEnPlaceholder": "Original English description of the game..."
         },
         "features": {
           "platformsLabel": "Supported platforms",
           "genresLabel": "Game genres (separate with commas)",
-          "genresPlaceholder": "Action, Adventure, RPG, Survival",
+          "genresPlaceholder": "Azione, Avventura, GDR, Sopravvivenza",
           "title": "Special features & capabilities",
           "coopLabel": "Two-player / multiplayer support (Co-op)",
           "coopHint": "Offline or online multiplayer gameplay",
           "vrLabel": "Virtual reality support (PS VR / PS VR2)",
-          "vrHint": "Adds a dedicated VR badge to the game details"
+          "vrHint": "Aggiunge un badge VR dedicato ai dettagli del gioco"
         },
         "downloads": {
           "title": "Parts, packs, and 5 downloadable file types",
-          "subtitle": "Define game data, cheats, DLC, subtitles, and dubbing along with the required subscription tier",
+          "subtitle": "Definisci dati di gioco, trucchi, DLC, sottotitoli e doppiaggio insieme al livello di abbonamento richiesto",
           "empty": "No files have been added for this game yet. Use the buttons above to add the file type you need.",
           "quickAdd": {
             "data": "Official data",
-            "cheat": "Cheats & trainers",
+            "cheat": "Trucchi e formatori",
             "dlc": "Expansion (DLC)",
             "subtitle": "Subtitles",
             "dubbing": "Persian dubbing"
@@ -157,20 +157,20 @@
           "partNamePlaceholder": "Part name",
           "sizeLabel": "Size (GB):",
           "sizePlaceholder": "Size in GB",
-          "tierLabel": "Allowed subscription:",
+          "tierLabel": "Abbonamento consentito:",
           "urlLabel": "Download link URL:",
-          "activeLabel": "Active",
+          "activeLabel": "Attivo",
           "removeTitle": "Remove this section",
           "fileTypes": {
             "data": "Official data",
-            "cheat": "Cheats & trainers",
+            "cheat": "Trucchi e formatori",
             "dlc": "Expansion (DLC)",
             "subtitle": "Persian subtitles",
             "dubbing": "Exclusive dubbing"
           },
           "tiers": {
             "free": "Free",
-            "bronze": "Bronze and above",
+            "bronze": "Bronzo e superiori",
             "silver": "Silver and above",
             "gold": "Gold"
           },
@@ -184,8 +184,8 @@
           }
         },
         "footer": {
-          "note": "All changes take effect in the store immediately after saving.",
-          "cancel": "Cancel",
+          "note": "Tutte le modifiche diventano effettive nel negozio immediatamente dopo il salvataggio.",
+          "cancel": "Annulla",
           "saving": "Saving...",
           "save": "Save all game information"
         }
@@ -193,8 +193,8 @@
     },
     "genres": {
       "title": "Game Categories & Genres Management",
-      "subtitle": "Define genres, reorder them, and feature the Top 8 genres on the homepage — fully database-driven",
-      "add": "Add New Genre",
+      "subtitle": "Definisci i generi, riordinali e presenta i primi 8 generi sulla home page, completamente basato su database",
+      "add": "Aggiungi nuovo genere",
       "loading": "Loading genres...",
       "empty": "No genres have been defined yet.",
       "table": {
@@ -204,28 +204,28 @@
         "slug": "Slug",
         "top8": "Top 8 genres",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Azioni"
       },
       "top8Active": "Top 8 active",
       "normal": "Standard",
-      "active": "Active",
+      "active": "Attivo",
       "inactive": "Inactive",
       "edit": "Edit",
-      "delete": "Delete",
-      "confirmDelete": "Are you sure you want to delete this genre?",
+      "delete": "Elimina",
+      "confirmDelete": "Sei sicuro di voler eliminare questo genere?",
       "modal": {
-        "addTitle": "Add New Genre",
+        "addTitle": "Aggiungi nuovo genere",
         "editTitle": "Edit Genre",
         "nameFaLabel": "Persian genre name:",
         "nameFaPlaceholder": "e.g. Action Adventure",
         "nameEnLabel": "English genre name:",
-        "nameEnPlaceholder": "Action-Adventure",
+        "nameEnPlaceholder": "Azione-Avventura",
         "slugLabel": "URL slug:",
         "orderLabel": "Display order:",
         "iconLabel": "Lucide icon name (optional):",
         "top8Label": "Show in the Top 8 genres",
-        "activeLabel": "Active on the site",
-        "cancel": "Cancel",
+        "activeLabel": "Attivo sul sito",
+        "cancel": "Annulla",
         "save": "Save Genre"
       },
       "feedback": {

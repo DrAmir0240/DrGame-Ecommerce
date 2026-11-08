@@ -14,11 +14,11 @@
     "prevPage": "Previous page",
     "nextPage": "Next page",
     "lastPage": "Last page",
-    "filters": "필터",
-    "emptyBody": "선택한 필터와 일치하는 게임이 없습니다. 필터를 재설정하거나 다른 검색어를 입력해 보세요.",
-    "resetFilters": "필터 초기화",
-    "paginationShowing": "총 {{total}}개 중 {{from}} - {{to}}개 표시",
-    "viewResults": "결과 보기"
+    "filters": "Filters",
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -193,26 +193,26 @@
     }
   },
   "faqPage": {
-    "backToHome": "홈으로 돌아가기",
-    "badge": "도움말 센터 & 자주 묻는 질문",
-    "title": "자주 묻는 질문 (FAQ)",
-    "subtitle": "게임 데이터 다운로드, 탈옥, 구독 및 지원에 대한 가장 일반적인 질문에 대한 답변",
-    "searchPlaceholder": "자주 묻는 질문 검색...",
-    "noResults": "검색 결과가 없습니다.",
-    "notFoundQuestion": "원하는 답변을 찾지 못하셨나요?",
-    "supportDescription": "DrGame 기술 전문가가 티켓 섹션에서 24시간 연중무휴로 답변해 드립니다.",
-    "sendTicket": "지원 티켓 제출",
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
     "defaultFaqs": {
-      "q1": "콘솔에 게임 데이터를 어떻게 설치하나요?",
-      "a1": "DrGame 서버에서 분할 파일을 다운로드한 후, 로컬 네트워크의 Package Sender 또는 exFAT 외장 드라이브를 통해 쉽게 설치할 수 있습니다.",
-      "q2": "다운로드 트래픽은 어떻게 계산되나요?",
-      "a2": "모든 DrGame 서버는 초고속 전용 CDN 인프라를 통해 최적화된 다운로드 속도를 제공합니다.",
-      "q3": "DrGame 구독 용량에 유효기간이 있나요?",
-      "a3": "아닙니다! DrGame의 가장 큰 장점은 무기한 데이터 용량입니다. 구매한 데이터는 모두 소진될 때까지 만료되지 않습니다.",
-      "q4": "치트, 자막, 패치 다운로드에 추가 비용이 드나요?",
-      "a4": "아닙니다. 활성 구독이 있으면 모든 치트 패키지, 트레이너, 자막 및 패치를 무료로 다운로드할 수 있습니다.",
-      "q5": "추천인 시스템은 어떻게 작동하나요?",
-      "a5": "친구에게 추천 코드를 공유하면 첫 결제 금액의 15%가 지갑으로 즉시 적립됩니다."
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

@@ -247,6 +247,9 @@ services:
       - NEXT_PUBLIC_STORAGE_URL=${NEXT_PUBLIC_STORAGE_URL:-https://storage.gamedr.ir}
       - NEXT_PUBLIC_DEPLOYMENT_MODE=${NEXT_PUBLIC_DEPLOYMENT_MODE:-domestic}
       - NEXT_PUBLIC_DEFAULT_CURRENCY=${NEXT_PUBLIC_DEFAULT_CURRENCY:-IRT}
+      - HTTP_PROXY=${HTTP_PROXY:-http://proxy:10809}
+      - HTTPS_PROXY=${HTTPS_PROXY:-http://proxy:10809}
+      - NO_PROXY=localhost,127.0.0.1,backend,db,cache,admin-panel
       - PORT=3000
       - HOSTNAME=0.0.0.0
     ports:
@@ -254,11 +257,14 @@ services:
     extra_hosts:
       - "images.igdb.com:13.33.235.9"
       - "images.igdb.com:13.33.235.53"
+      - "api.mymemory.translated.net:63.186.89.50"
+      - "api.mymemory.translated.net:63.186.207.253"
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - app
+      - internal
     deploy:
       resources:
         limits:

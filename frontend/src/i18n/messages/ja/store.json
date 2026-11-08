@@ -14,11 +14,11 @@
     "prevPage": "Previous page",
     "nextPage": "Next page",
     "lastPage": "Last page",
-    "filters": "フィルター",
-    "emptyBody": "選択したフィルターに一致するゲームが見つかりませんでした。フィルターをリセットするか、別のキーワードで検索してください。",
-    "resetFilters": "フィルターをリセット",
-    "paginationShowing": "全 {{total}} 件中 {{from}} 〜 {{to}} 件を表示",
-    "viewResults": "結果を見る"
+    "filters": "Filters",
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -193,26 +193,26 @@
     }
   },
   "faqPage": {
-    "backToHome": "ホームに戻る",
-    "badge": "ヘルプセンター＆よくある質問",
-    "title": "よくある質問 (FAQ)",
-    "subtitle": "ゲームデータのダウンロード、脱獄、サブスクリプション、サポートに関するよくあるご質問への回答",
-    "searchPlaceholder": "よくある質問を検索...",
-    "noResults": "一致する結果が見つかりませんでした。",
-    "notFoundQuestion": "お探しの答えが見つかりませんか？",
-    "supportDescription": "DrGameのテクニカルスペシャリストがチケットにて24時間いつでも対応いたします。",
-    "sendTicket": "サポートチケットを送信",
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
     "defaultFaqs": {
-      "q1": "コンソールにゲームデータをインストールするにはどうすればよいですか？",
-      "a1": "DrGameサーバーからファイルをダウンロード後、ローカルネットワーク上のPackage SenderまたはexFAT外付けドライブを使用して簡単にインストールできます。",
-      "q2": "ダウンロードトラフィックはどのように計算されますか？",
-      "a2": "すべてのDrGameサーバーは、低遅延と専用CDNを備えた最適化された高速インフラストラクチャで稼働しています。",
-      "q3": "DrGameのサブスクリプション容量には有効期限がありますか？",
-      "a3": "いいえ！DrGameの最大の利点は無期限のデータ容量です。購入したデータ量は使い切るまで永久に保持されます。",
-      "q4": "チート、字幕、パッチのダウンロードには追加料金がかかりますか？",
-      "a4": "いいえ、すべてのチートパッケージ、トレーナー、字幕、パッチは有効なサブスクリプションで無料ダウンロードできます。",
-      "q5": "友達紹介プログラムはどのように機能しますか？",
-      "a5": "専用の紹介コードで友達を紹介すると、初回購入額の15％がウォレットに直接還元されます。"
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

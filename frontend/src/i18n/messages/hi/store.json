@@ -14,11 +14,11 @@
     "prevPage": "Previous page",
     "nextPage": "Next page",
     "lastPage": "Last page",
-    "filters": "फ़िल्टर",
-    "emptyBody": "चयनित फ़िल्टर से मेल खाने वाला कोई गेम नहीं मिला। कृपया फ़िल्टर रीसेट करें या कोई अन्य खोज आज़माएं।",
-    "resetFilters": "फ़िल्टर रीसेट करें",
-    "paginationShowing": "कुल {{total}} गेम में से {{from}} से {{to}} दिखाया जा रहा है",
-    "viewResults": "परिणाम देखें"
+    "filters": "Filters",
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -193,26 +193,26 @@
     }
   },
   "faqPage": {
-    "backToHome": "मुख्य पृष्ठ पर वापस जाएं",
-    "badge": "सहायता केंद्र और सामान्य प्रश्न",
-    "title": "अक्सर पूछे जाने वाले प्रश्न (FAQ)",
-    "subtitle": "गेम डेटा डाउनलोड, जेलब्रेक, सब्सक्रिप्शन और सपोर्ट से जुड़े सबसे आम सवालों के जवाब",
-    "searchPlaceholder": "अक्सर पूछे जाने वाले प्रश्नों में खोजें...",
-    "noResults": "आपकी खोज से मेल खाता कोई परिणाम नहीं मिला।",
-    "notFoundQuestion": "क्या आपको अपना उत्तर नहीं मिला?",
-    "supportDescription": "DrGame के तकनीकी विशेषज्ञ टिकट अनुभाग में 24/7 सहायता के लिए उपलब्ध हैं।",
-    "sendTicket": "सपोर्ट टिकट भेजें",
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
     "defaultFaqs": {
-      "q1": "मैं अपने कंसोल पर गेम डेटा कैसे इंस्टॉल करूं?",
-      "a1": "DrGame सर्वर से फ़ाइलें डाउनलोड करने के बाद, आप पैकेज सेंडर (लोकल नेटवर्क) या exFAT एक्सटर्नल ड्राइव के माध्यम से गेम आसानी से इंस्टॉल कर सकते हैं।",
-      "q2": "डाउनलोड ट्रैफ़िक की गणना कैसे की जाती है?",
-      "a2": "सभी DrGame सर्वर समर्पित सीडीएन और कम विलंबता के साथ हाई-स्पीड इंफ्रास्ट्रक्चर पर काम करते हैं।",
-      "q3": "क्या DrGame सब्सक्रिप्शन डेटा की कोई समय सीमा होती है?",
-      "a3": "नहीं! DrGame का सबसे बड़ा लाभ असीमित समय का डेटा कोटा है, जो कभी समाप्त नहीं होता।",
-      "q4": "क्या चीट्स, सबटाइटल और पैच डाउनलोड करने के लिए अतिरिक्त शुल्क है?",
-      "a4": "नहीं, सभी चीट पैकेज, ट्रेनर और पैच किसी भी सक्रिय सदस्यता के साथ मुफ्त डाउनलोड किए जा सकते हैं।",
-      "q5": "रेफरल और कमाई प्रणाली कैसे काम करती है?",
-      "a5": "अपने दोस्तों को अपने रेफरल कोड से आमंत्रित करने पर उनकी पहली खरीद पर 15% कमीशन आपके वॉलेट में मिलता है।"
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

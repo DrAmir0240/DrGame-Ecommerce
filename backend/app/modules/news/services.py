@@ -116,7 +116,6 @@ class NewsService:
             except Exception:
                 pass
 
-        await cls.seed_blog_data(db)
         stmt = select(BlogCategory).order_by(BlogCategory.id)
         categories = list((await db.execute(stmt)).scalars().all())
 
@@ -144,8 +143,6 @@ class NewsService:
         page_size: int = 12,
     ) -> dict:
         """Fetch paginated blog posts with category and search filters."""
-        await cls.seed_blog_data(db)
-
         stmt = select(BlogPost, BlogCategory.name_fa, BlogCategory.slug).join(
             BlogCategory, BlogPost.category_id == BlogCategory.id
         ).where(BlogPost.is_published == True)
@@ -215,7 +212,6 @@ class NewsService:
         redis: aioredis.Redis | None = None,
     ) -> dict:
         """Fetch article detail by id or slug, increment view counter, and check user interaction."""
-        await cls.seed_blog_data(db)
         stmt = select(BlogPost, BlogCategory.name_fa, BlogCategory.slug).join(
             BlogCategory, BlogPost.category_id == BlogCategory.id
         )

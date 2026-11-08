@@ -7,6 +7,7 @@ from app.core.exceptions import BadRequestError, NotFoundError
 
 @pytest.mark.asyncio
 async def test_subscription_tiers_seeding(test_db):
+    await SubscriptionService.seed_tiers(test_db)
     tiers = await SubscriptionService.get_all_tiers(test_db)
     assert len(tiers) == 4
     tier_codes = [t.code for t in tiers]
@@ -43,6 +44,7 @@ async def test_discount_code_validation(test_db):
 
 @pytest.mark.asyncio
 async def test_process_checkout_flow(test_db, fake_redis):
+    await SubscriptionService.seed_tiers(test_db)
     # Process checkout for Silver Tier (1000 GB)
     res = await SubscriptionService.process_checkout(
         db=test_db,

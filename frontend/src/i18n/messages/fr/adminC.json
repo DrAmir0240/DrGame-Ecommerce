@@ -1,219 +1,219 @@
 {
   "admin": {
     "subscriptions": {
-      "title": "Plan Pricing, Nine-Tier Quotas & Download Access Settings",
-      "subtitle": "Dynamically set the price and download quota of every plan for 1, 3 and 6 month terms, and grant download permissions for each game content type",
+      "title": "Tarification du forfait, quotas à neuf niveaux et paramètres d'accès au téléchargement",
+      "subtitle": "Définir dynamiquement le prix et le quota de téléchargement de chaque forfait pour des durées de 1, 3 et 6 mois, et accorder des autorisations de téléchargement pour chaque type de contenu de jeu",
       "units": {
         "gigabyte": "GB",
-        "terabyte": "TB"
+        "terabyte": "tuberculose"
       },
       "messages": {
-        "saved": "All prices, nine-tier quotas and download permissions were saved and updated in the database successfully.",
+        "saved": "Tous les prix, les quotas à neuf niveaux et les autorisations de téléchargement ont été enregistrés et mis à jour dans la base de données avec succès.",
         "saveError": "Failed to save changes"
       },
       "pricing": {
-        "title": "Plan Pricing & Quota Configuration (1, 3 and 6 Month Terms)",
-        "subtitle": "Adjust the Toman price and gigabyte quota for each billing term",
-        "period1": "1 Month (Base)",
-        "period3": "3 Months",
-        "period6": "6 Months",
-        "periodBadge": "{{months}}-month term",
-        "priceLabel": "Price for this term (Toman):",
-        "quotaLabel": "Download quota (GB):"
+        "title": "Tarification du forfait et configuration des quotas (conditions de 1, 3 et 6 mois)",
+        "subtitle": "Ajuster le prix Toman et le quota de gigaoctets pour chaque terme de facturation",
+        "period1": "1 période",
+        "period3": "3 mois",
+        "period6": "6 mois",
+        "periodBadge": "Durée de {{months}} mois",
+        "priceLabel": "Prix pour ce terme (Toman) :",
+        "quotaLabel": "Quota de téléchargement (Go) :"
       },
       "tiers": {
         "free": "Free Plan",
-        "bronze": "Bronze Plan",
-        "silver": "Silver Plan",
+        "bronze": "Plan Bronze",
+        "silver": "Plan Argent",
         "gold": "Gold VIP Plan"
       },
       "features": {
-        "title": "Download Features by Game Content Type (Three Subscription Tiers)",
-        "subtitle": "Choose whether each plan may download game data, cheats, DLC, Persian subtitles and exclusive dubbing",
-        "badge": "Download permissions",
-        "bronze": "Bronze Subscription",
-        "silver": "Silver Subscription",
+        "title": "Télécharger les fonctionnalités par type de contenu de jeu (trois niveaux d'abonnement)",
+        "subtitle": "Choisissez si chaque forfait peut télécharger des données de jeu, des tricheurs, des DLC, des sous-titres persans et des doublages exclusifs",
+        "badge": "Autorisations de téléchargement",
+        "bronze": "Abonnement Bronze",
+        "silver": "Abonnement Argent",
         "gold": "Gold VIP Subscription",
-        "saving": "Saving to database...",
-        "save": "Save all prices, quotas and subscription features",
+        "saving": "Enregistrement dans la base de données...",
+        "save": "Enregistrez tous les prix, quotas et fonctionnalités d’abonnement",
         "items": {
           "data": {
-            "label": "Base game data",
-            "desc": "Download the core data parts"
+            "label": "Données du jeu de base",
+            "desc": "Télécharger les parties de données de base"
           },
           "cheat": {
-            "label": "Cheats & trainers",
-            "desc": "Save games and exclusive trainers"
+            "label": "Triche et baskets",
+            "desc": "Sauvegarder des jeux et des entraîneurs exclusifs"
           },
           "dlc": {
-            "label": "Downloadable content (DLC)",
+            "label": "Contenu téléchargeable (DLC)",
             "desc": "Expansions and extra downloadable content"
           },
           "subtitles": {
-            "label": "Persian game subtitles",
+            "label": "Sous-titres du jeu persan",
             "desc": "Exclusive menu and subtitle translation"
           },
           "dubbing": {
-            "label": "Persian game dubbing",
-            "desc": "Voice-over by Persian dub artists"
+            "label": "Doublage de jeu persan",
+            "desc": "Voix off d'artistes dub persans"
           }
         }
       },
       "free": {
-        "title": "Configure the 5 Allowed Games on the Free Plan",
+        "title": "Configurez les 5 jeux autorisés sur le plan gratuit",
         "subtitle": "Free plan users may only download the data of these selected titles.",
-        "selected": "{{count}} / 5 games selected",
-        "selectPlaceholder": "Pick a game from the catalog...",
-        "add": "Add to free plan",
-        "remove": "Remove from free",
-        "empty": "No title has been selected for the free plan yet.",
-        "noImage": "No image",
-        "maxAlert": "A maximum of 5 games can be registered on the free plan.",
-        "duplicateAlert": "This game is already on the allowed list.",
-        "saved": "The free plan's allowed games list was saved successfully.",
+        "selected": "{{count}} / 5 jeux sélectionnés",
+        "selectPlaceholder": "Choisissez un jeu dans le catalogue...",
+        "add": "Ajouter au forfait gratuit",
+        "remove": "Supprimer gratuitement",
+        "empty": "Aucun titre n'a encore été sélectionné pour le plan gratuit.",
+        "noImage": "Aucune image",
+        "maxAlert": "Un maximum de 5 jeux peuvent être enregistrés sur le plan gratuit.",
+        "duplicateAlert": "Ce jeu est déjà sur la liste autorisée.",
+        "saved": "La liste des jeux autorisés du forfait gratuit a été enregistrée avec succès.",
         "saveError": "Failed to update the free plan games"
       },
       "table": {
-        "title": "Issued User Subscriptions",
-        "recent": "Latest transactions",
-        "id": "ID",
-        "user": "User",
-        "plan": "Plan",
-        "startsAt": "Start date",
+        "title": "Abonnements utilisateur émis",
+        "recent": "Dernières transactions",
+        "id": "pièce d'identité",
+        "user": "Utilisateur",
+        "plan": "Planifier",
+        "startsAt": "Date de début",
         "expiresAt": "Expiry date",
-        "status": "Status",
-        "empty": "No subscriptions found.",
-        "defaultUser": "User",
-        "active": "Active",
+        "status": "Statut",
+        "empty": "Aucun abonnement trouvé.",
+        "defaultUser": "Utilisateur",
+        "active": "Actif",
         "expired": "Expired"
       }
     },
     "users": {
-      "title": "User & Download Quota Management",
-      "subtitle": "Review full dossiers and transactions, and adjust users' download quotas manually",
-      "searchPlaceholder": "Search name, mobile, email...",
+      "title": "Gestion des quotas d'utilisateurs et de téléchargement",
+      "subtitle": "Examinez les dossiers et les transactions complets et ajustez manuellement les quotas de téléchargement des utilisateurs.",
+      "searchPlaceholder": "Rechercher par nom, mobile, email...",
       "units": {
         "gigabyte": "GB"
       },
-      "loading": "Loading user list...",
-      "empty": "No user matched the search criteria.",
+      "loading": "Chargement de la liste des utilisateurs...",
+      "empty": "Aucun utilisateur ne correspond aux critères de recherche.",
       "status": {
-        "active": "Active",
-        "blocked": "Blocked"
+        "active": "Actif",
+        "blocked": "Bloqué"
       },
       "table": {
-        "user": "User",
+        "user": "Utilisateur",
         "contact": "Contact",
-        "referralCode": "Referral code",
-        "totalQuota": "Total quota",
-        "usedQuota": "Used",
-        "status": "Status",
-        "actions": "Actions"
+        "referralCode": "Code de référence",
+        "totalQuota": "Quota totale",
+        "usedQuota": "Utilisé",
+        "status": "Statut",
+        "actions": "Interventions"
       },
       "actions": {
         "quota": "Quota",
-        "quotaTitle": "Adjust quota manually",
+        "quotaTitle": "Ajuster le quota manuellement",
         "dossier": "Dossier",
-        "dossierTitle": "View user dossier"
+        "dossierTitle": "Voir le dossier utilisateur"
       },
       "pagination": {
-        "showing": "Showing {{shown}} of {{total}} users",
-        "prev": "Previous page",
-        "next": "Next page",
+        "showing": "Affichage de {{shown}} utilisateurs sur {{total}}",
+        "prev": "Page précédente",
+        "next": "Page suivante",
         "page": "Page {{page}}"
       },
       "quotaModal": {
-        "title": "Edit user quota: {{name}}",
-        "current": "Current quota:",
-        "amountLabel": "Quota change amount (GB)",
-        "amountPlaceholder": "e.g. 10 or -5",
-        "hint": "Use negative values (such as -5) to deduct quota.",
-        "reasonLabel": "Reason for the audit log",
-        "defaultReason": "Manual top-up by head office",
-        "cancel": "Cancel",
-        "submitting": "Saving...",
-        "submit": "Apply quota change",
-        "success": "New user quota recorded: {{quota}}.",
+        "title": "Modifier le quota d'utilisateurs : {{name}}",
+        "current": "Contingent actuel",
+        "amountLabel": "Montant de la modification du quota (Go)",
+        "amountPlaceholder": "par ex. 10 ou -5",
+        "hint": "Utilisez des valeurs négatives (telles que -5) pour déduire le quota.",
+        "reasonLabel": "Raison du journal d'audit",
+        "defaultReason": "Recharge manuelle par le siège social",
+        "cancel": "Annuler",
+        "submitting": "Sauvegarde...",
+        "submit": "Appliquer le changement de quota",
+        "success": "Nouveau quota d'utilisateurs enregistré : {{quota}}.",
         "error": "Failed to reach the server"
       },
       "dossier": {
-        "title": "Digital dossier: {{name}}",
-        "loading": "Retrieving user dossier...",
-        "userId": "User ID",
-        "referralCode": "Referral code",
-        "referralBalance": "Referral balance",
-        "totalCommission": "Total commission",
-        "quotaStatus": "Download traffic quota status",
-        "recentPurchases": "Recent purchase history",
-        "noPurchases": "No purchase has been recorded for this user.",
-        "plan": "Plan: {{plan}}",
-        "amount": "Amount: {{amount}}"
+        "title": "Dossier numérique : {{name}}",
+        "loading": "Récupération du dossier utilisateur...",
+        "userId": "Identifiant utilisateur",
+        "referralCode": "Code de référence",
+        "referralBalance": "Solde de parrainage",
+        "totalCommission": "Commission totale",
+        "quotaStatus": "Télécharger le statut du quota de trafic",
+        "recentPurchases": "Historique des achats récents",
+        "noPurchases": "Aucun achat n'a été enregistré pour cet utilisateur.",
+        "plan": "Forfait : {{plan}}",
+        "amount": "Montant {{amount}}"
       }
     },
     "discounts": {
-      "title": "Discount Code & Promo Coupon Management",
-      "subtitle": "Create percentage and fixed-amount discount campaigns with spending caps and usage limits",
-      "create": "Create new discount code",
-      "loading": "Loading discount codes...",
-      "empty": "No discount code has been created yet.",
-      "unlimited": "Unlimited",
-      "deleteTitle": "Delete discount code",
-      "confirmDelete": "Are you sure you want to delete this discount code?",
-      "codeRequired": "Please enter a discount code name.",
-      "created": "Discount code created successfully.",
+      "title": "Gestion des codes de réduction et des coupons promotionnels",
+      "subtitle": "Créez des campagnes de réduction en pourcentage et en montant fixe avec des plafonds de dépenses et des limites d'utilisation",
+      "create": "Créer un code de réduction",
+      "loading": "Chargement des codes de réduction...",
+      "empty": "Aucun code de réduction n'a encore été créé.",
+      "unlimited": "Illimité",
+      "deleteTitle": "Supprimer le code rabais",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette promotion?",
+      "codeRequired": "Veuillez saisir un nom de code de réduction.",
+      "created": "Promotion créé avec succès.",
       "createError": "Failed to create the discount code",
       "status": {
-        "active": "Active",
-        "inactive": "Inactive"
+        "active": "Actif",
+        "inactive": "Inactif"
       },
       "table": {
-        "id": "ID",
-        "code": "Discount code",
-        "percent": "Discount %",
-        "maxDiscount": "Discount cap",
-        "usage": "Allowed / used",
-        "status": "Status",
-        "actions": "Actions"
+        "id": "pièce d'identité",
+        "code": "Code de réduction",
+        "percent": "Remise",
+        "maxDiscount": "Plafond de remise",
+        "usage": "Autorisé / utilisé",
+        "status": "Statut",
+        "actions": "Interventions"
       },
       "modal": {
-        "title": "Create a new discount coupon",
-        "codeLabel": "Discount code name",
-        "codePlaceholder": "e.g. DRGAME20",
-        "percentLabel": "Discount percentage",
-        "maxDiscountLabel": "Discount cap (Toman)",
-        "usageLabel": "Maximum number of uses",
-        "cancel": "Cancel",
-        "submitting": "Saving...",
-        "submit": "Create discount code"
+        "title": "Créer une nouvelle réduction",
+        "codeLabel": "Code Réduction",
+        "codePlaceholder": "par ex. DRAGAME20",
+        "percentLabel": "Pourcentage de réduction",
+        "maxDiscountLabel": "Plafond de remise (Toman)",
+        "usageLabel": "Nombre maximum d'utilisations",
+        "cancel": "Annuler",
+        "submitting": "Sauvegarde...",
+        "submit": "Créer un code de réduction"
       }
     },
     "tickets": {
-      "title": "Support Ticket Management & Response Desk",
-      "subtitle": "Review technical and billing questions and follow up with users in a live two-way chat connected to the database",
-      "loading": "Loading tickets...",
-      "empty": "No tickets found in this section.",
-      "defaultUser": "User",
-      "openAndReply": "View & reply",
+      "title": "Gestion des tickets d’assistance et bureau de réponse",
+      "subtitle": "Examiner les questions techniques et de facturation et assurer le suivi auprès des utilisateurs dans un chat bidirectionnel en direct connecté à la base de données",
+      "loading": "Chargement des billets...",
+      "empty": "Aucun billet trouvé dans cette section.",
+      "defaultUser": "Utilisateur",
+      "openAndReply": "Afficher et répondre",
       "filters": {
-        "all": "All tickets",
-        "open": "Awaiting reply",
-        "answered": "Answered",
-        "closed": "Closed"
+        "all": "Tous les tickets",
+        "open": "En attente de réponse",
+        "answered": "Répondu",
+        "closed": "Fermé"
       },
       "status": {
-        "open": "Awaiting reply",
-        "inProgress": "Under review",
-        "answered": "Answered",
-        "closed": "Closed"
+        "open": "En attente de réponse",
+        "inProgress": "En cours de révision",
+        "answered": "Répondu",
+        "closed": "Fermé"
       },
       "table": {
-        "trackingCode": "Tracking code",
-        "user": "User",
-        "subject": "Ticket subject",
-        "department": "Department",
+        "trackingCode": "Code de suivi",
+        "user": "Utilisateur",
+        "subject": "Objet du billet",
+        "department": "Département",
         "date": "Date",
-        "status": "Status",
-        "actions": "Actions"
+        "status": "Statut",
+        "actions": "Interventions"
       },
       "errors": {
         "load": "Failed to load the ticket list from the server.",
@@ -222,14 +222,14 @@
         "close": "Failed to close the ticket."
       },
       "modal": {
-        "sentBy": "Sent by {{name}} ({{phone}})",
-        "closeTicket": "Close ticket",
-        "loadingMessages": "Loading messages...",
-        "noMessages": "There are no messages in this ticket.",
-        "adminReply": "DrGame Support Reply",
-        "replyPlaceholder": "Write the official reply to the user...",
-        "send": "Send reply",
-        "closedNotice": "This ticket is closed and no new replies can be sent."
+        "sentBy": "Envoyé par {{name}} ({{phone}})",
+        "closeTicket": "Fermer le billet",
+        "loadingMessages": "Chargement des messages...",
+        "noMessages": "Il n'y a aucun message dans ce ticket.",
+        "adminReply": "Réponse de l'assistance DrGame",
+        "replyPlaceholder": "Écrivez la réponse officielle à l'utilisateur...",
+        "send": "Envoyer la réponse",
+        "closedNotice": "Ce ticket est fermé et aucune nouvelle réponse ne peut être envoyée."
       }
     }
   }

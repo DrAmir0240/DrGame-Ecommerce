@@ -159,7 +159,6 @@ class SubscriptionService:
         """Fetch all active tiers with 1, 3, and 6 month pricing duration breakdowns from DB.
         If user_id is provided and user has an active UserDiscount, inject discounted prices and promo badge.
         """
-        await SubscriptionService.seed_tiers(db)
         stmt = select(SubscriptionTier).where(SubscriptionTier.is_active == True).order_by(SubscriptionTier.price_toman.asc())
         result = await db.execute(stmt)
         tiers = list(result.scalars().all())
@@ -210,11 +209,6 @@ class SubscriptionService:
         tier = await db.scalar(
             select(SubscriptionTier).where(SubscriptionTier.code == tier_code)
         )
-        if not tier:
-            await SubscriptionService.seed_tiers(db)
-            tier = await db.scalar(
-                select(SubscriptionTier).where(SubscriptionTier.code == tier_code)
-            )
         if not tier:
             raise NotFoundError(f"پلن اشتراک {tier_code} یافت نشد.")
 
@@ -322,12 +316,6 @@ class SubscriptionService:
         tier = await db.scalar(
             select(SubscriptionTier).where(SubscriptionTier.code == tier_code, SubscriptionTier.is_active == True)
         )
-        if not tier:
-            await SubscriptionService.seed_tiers(db)
-            tier = await db.scalar(
-                select(SubscriptionTier).where(SubscriptionTier.code == tier_code, SubscriptionTier.is_active == True)
-            )
-
         if not tier:
             raise NotFoundError("پلن اشتراک انتخابی معتبر نیست.")
 

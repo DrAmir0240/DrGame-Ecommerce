@@ -35,6 +35,9 @@ async def test_bulk_user_discounts_and_checkout(test_db: AsyncSession, fake_redi
     assert active_d1.discount_percent == 20
     assert active_d1.is_used is False
 
+    # Seed tiers explicitly
+    await SubscriptionService.seed_tiers(test_db)
+
     # 4. Check tiers display for user 1 (strikethrough pricing)
     tiers = await SubscriptionService.get_all_tiers(test_db, user_id=u1.id)
     silver = next(t for t in tiers if t.code == "silver")

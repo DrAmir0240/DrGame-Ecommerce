@@ -1,157 +1,157 @@
 {
   "admin": {
     "layout": {
-      "brand": "Admin Control Panel",
-      "toggleSidebar": "Toggle sidebar size",
-      "verifyingSession": "Verifying admin credentials...",
-      "viewStore": "View DrGame Store",
-      "sessionActive": "Admin session active",
-      "defaultAdminName": "Head Admin",
-      "logout": "Sign out of admin account",
-      "logoutShort": "Sign out",
+      "brand": "Yönetici Kontrol Paneli",
+      "toggleSidebar": "Kenar çubuğu boyutunu değiştir",
+      "verifyingSession": "Yönetici kimlik bilgileri doğrulanıyor...",
+      "viewStore": "DrGame Mağazasını Görüntüle",
+      "sessionActive": "Yönetici oturumu etkin",
+      "defaultAdminName": "Baş Yönetici",
+      "logout": "Yönetici hesabından çıkış yapın",
+      "logoutShort": "Oturumu kapat",
       "nav": {
-        "dashboard": "Executive Dashboard",
-        "banners": "Main Banner Management",
-        "users": "Users & Quota Management",
-        "games": "Game Catalog",
-        "genres": "Game Genre Management",
-        "subscriptions": "Plans & Free Games",
-        "referrals": "Referral Chain Monitoring",
-        "finance": "Financial Monitoring (IRR / FX)",
-        "payouts": "Referral Payout Desk",
-        "bankAccounts": "Bank Account Approvals",
-        "tickets": "Support Tickets",
-        "discounts": "Discount Codes",
-        "blog": "Blog & News Management",
-        "settings": "Site Global Settings"
+        "dashboard": "Yönetici Kontrol Paneli",
+        "banners": "Ana Banner Yönetimi",
+        "users": "Kullanıcılar ve Kota Yönetimi",
+        "games": "Oyun Kataloğu",
+        "genres": "Oyun Türü Yönetimi",
+        "subscriptions": "Planlar ve Ücretsiz Oyunlar",
+        "referrals": "Yönlendirme Zinciri İzleme",
+        "finance": "Finansal İzleme (IRR/FX)",
+        "payouts": "Referans Ödeme Masası",
+        "bankAccounts": "Banka Hesabı Onayları",
+        "tickets": "Destek Biletleri",
+        "discounts": "İndirim Kodları",
+        "blog": "Blog ve Haber Yönetimi",
+        "settings": "Site Genel Ayarları"
       }
     },
     "login": {
-      "title": "Sign In to Admin Portal",
-      "subtitle": "Access is restricted to verified DrGame administrators",
-      "usernameLabel": "Admin username or email",
-      "passwordLabel": "Security password",
-      "submit": "Enter Command Center",
+      "title": "Yönetici Portalında Oturum Açın",
+      "subtitle": "Erişim, doğrulanmış DrGame yöneticileriyle sınırlıdır",
+      "usernameLabel": "Yönetici kullanıcı adı veya e-postası",
+      "passwordLabel": "Güvenlik şifresi",
+      "submit": "Komuta Merkezine Girin",
       "errors": {
-        "required": "Please enter your username and password.",
-        "invalidCredentials": "Incorrect admin username or password.",
-        "noToken": "No valid token was received from the server.",
-        "network": "Failed to connect to the server."
+        "required": "Lütfen kullanıcı adınızı ve şifrenizi giriniz.",
+        "invalidCredentials": "Yanlış yönetici kullanıcı adı veya şifresi.",
+        "noToken": "Sunucudan geçerli bir jeton alınmadı.",
+        "network": "Sunucuya bağlanılamadı."
       }
     },
     "dashboard": {
-      "title": "Platform Monitoring & Administration Center",
-      "subtitle": "Summary of performance metrics, revenue and live operations across DrGame",
-      "coreStatus": "Core status: operational",
+      "title": "Platform İzleme ve Yönetim Merkezi",
+      "subtitle": "DrGame genelinde performans ölçümlerinin, gelirlerin ve canlı operasyonların özeti",
+      "coreStatus": "Çekirdek durumu: operasyonel",
       "errors": {
-        "loadFailed": "Failed to load dashboard statistics"
+        "loadFailed": "Kontrol paneli istatistikleri yüklenemedi"
       },
       "cards": {
-        "users": "Registered Users",
-        "activeSubscriptions": "Active Subscriptions",
-        "games": "Game Titles",
-        "pendingPayouts": "Payout Requests",
-        "totalRevenue": "Total Revenue"
+        "users": "Kayıtlı Kullanıcılar",
+        "activeSubscriptions": "Aktif Abonelikler",
+        "games": "Oyun Başlıkları",
+        "pendingPayouts": "Ödeme Talepleri",
+        "totalRevenue": "Toplam Gelir"
       },
       "quickActions": {
-        "title": "Key Operations & Quick Actions",
+        "title": "Tuş İşlemleri ve Hızlı Eylemler",
         "users": {
-          "title": "Top Up User Quota",
-          "description": "Manually increase or decrease user download allowance"
+          "title": "Kullanıcı Kotasını Tamamlayın",
+          "description": "Kullanıcı indirme iznini manuel olarak artırın veya azaltın"
         },
         "payouts": {
-          "title": "Referral Payout Desk",
-          "description": "Approve SHEBA bank transfers and USDT wallet payouts"
+          "title": "Referans Ödeme Masası",
+          "description": "SHEBA banka transferlerini ve USDT cüzdan ödemelerini onaylayın"
         },
         "games": {
-          "title": "Manage Game Catalog",
-          "description": "Add titles, download links and edit tags"
+          "title": "Oyun Kataloğunu Yönet",
+          "description": "Başlık ekleyin, bağlantıları indirin ve etiketleri düzenleyin"
         },
         "freeGames": {
-          "title": "Free Tier Games",
-          "description": "Dynamically select {{count}} eligible games for the free plan"
+          "title": "Ücretsiz Seviye Oyunları",
+          "description": "Ücretsiz plan için uygun {{count}} oyunu dinamik olarak seçin"
         }
       },
       "security": {
-        "title": "Security & Infrastructure",
-        "authLevel": "Authentication Level",
-        "quotaCache": "Quota Query Cache",
-        "database": "Database Model",
-        "commissionEngine": "Commission Engine"
+        "title": "Güvenlik ve Altyapı",
+        "authLevel": "Kimlik Doğrulama Düzeyi",
+        "quotaCache": "Kota Sorgu Önbelleği",
+        "database": "Veritabanı Modeli",
+        "commissionEngine": "Komisyon Motoru"
       }
     },
     "banners": {
-      "title": "Homepage Dual Hero Banner Management",
-      "subtitle": "Configure the first banner (featured games) and the second banner (platform services and plans), synced with the database",
-      "addSlide": "Add New Slide",
-      "loading": "Loading banners...",
-      "empty": "There are no slides in this section.",
+      "title": "Ana Sayfa İkili Kahraman Banner Yönetimi",
+      "subtitle": "Veritabanıyla senkronize edilmiş ilk banner'ı (öne çıkan oyunlar) ve ikinci banner'ı (platform hizmetleri ve planları) yapılandırın",
+      "addSlide": "Yeni Slayt Ekle",
+      "loading": "Banner'lar yükleniyor...",
+      "empty": "Bu bölümde slayt bulunmamaktadır.",
       "defaults": {
-        "ctaText": "View & Act",
-        "badgeGame": "Featured Game",
-        "badgeService": "Golden Service",
-        "ctaGame": "View & Download",
-        "ctaSubscription": "Buy Subscription"
+        "ctaText": "Görüntüle ve Harekete Geç",
+        "badgeGame": "Öne Çıkan Oyun",
+        "badgeService": "Altın Hizmet",
+        "ctaGame": "Görüntüle ve İndir",
+        "ctaSubscription": "Abonelik Satın Al"
       },
       "tabs": {
-        "games": "Banner 1: Featured AAA Games ({{count}})",
-        "services": "Banner 2: Services & Subscription Deals ({{count}})"
+        "games": "Banner 1: Öne Çıkan AAA Oyunları ({{count}})",
+        "services": "Banner 2: Hizmetler ve Abonelik Fırsatları ({{count}})"
       },
       "table": {
-        "priority": "Order",
-        "preview": "Image Preview",
-        "title": "Slide Title",
-        "badge": "Badge / Tag",
-        "link": "Target Link",
-        "status": "Status",
-        "actions": "Actions"
+        "priority": "Sipariş",
+        "preview": "Resim Önizleme",
+        "title": "Slayt Başlığı",
+        "badge": "Rozet / Etiket",
+        "link": "Hedef Bağlantı",
+        "status": "Durum",
+        "actions": "Eylemler"
       },
       "status": {
-        "active": "Active",
-        "inactive": "Inactive"
+        "active": "Aktif",
+        "inactive": "Etkin değil"
       },
       "actions": {
-        "edit": "Edit",
-        "delete": "Delete"
+        "edit": "Düzenle",
+        "delete": "Sil"
       },
       "confirm": {
-        "delete": "Are you sure you want to delete this slide?"
+        "delete": "Bu slaydı silmek istediğinizden emin misiniz?"
       },
       "feedback": {
-        "deleted": "Slide deleted successfully.",
-        "updated": "Slide updated successfully.",
-        "created": "New slide added successfully."
+        "deleted": "Slayt başarıyla silindi.",
+        "updated": "Slayt başarıyla güncellendi.",
+        "created": "Yeni slayt başarıyla eklendi."
       },
       "errors": {
-        "fetchFailed": "Failed to load banners from the server.",
-        "deleteFailed": "Failed to delete the slide.",
-        "toggleFailed": "Failed to change the slide status.",
-        "requiredFields": "Please enter a title and image URL.",
-        "saveFailed": "Failed to save the slide."
+        "fetchFailed": "Banner'lar sunucudan yüklenemedi.",
+        "deleteFailed": "Slayt silinemedi.",
+        "toggleFailed": "Slayt durumu değiştirilemedi.",
+        "requiredFields": "Lütfen bir başlık ve resim URL'si girin.",
+        "saveFailed": "Slayt kaydedilemedi."
       },
       "modal": {
-        "editTitle": "Edit Banner Slide",
-        "addTitle": "Add New Slide",
-        "cancel": "Cancel",
-        "save": "Save Slide"
+        "editTitle": "Banner Slaydını Düzenle",
+        "addTitle": "Yeni Slayt Ekle",
+        "cancel": "İptal",
+        "save": "Slaytı Kaydet"
       },
       "form": {
-        "titleFa": "Persian slide title:",
-        "titleEn": "English title (optional):",
-        "badge": "Badge / small tag:",
-        "displayOrder": "Display priority (order):",
-        "backdropUrl": "Background image URL:",
-        "description": "Short slide description:",
-        "platforms": "Platforms (comma separated):",
-        "ctaText": "Button text (CTA):",
-        "linkHref": "Button link (Href):"
+        "titleFa": "Farsça slayt başlığı:",
+        "titleEn": "İngilizce başlık (isteğe bağlı):",
+        "badge": "Rozet / küçük etiket:",
+        "displayOrder": "Görüntüleme önceliği (sıra):",
+        "backdropUrl": "Arka plan resminin URL'si:",
+        "description": "Kısa slayt açıklaması:",
+        "platforms": "Platformlar (virgülle ayrılmış):",
+        "ctaText": "Düğme metni (CTA):",
+        "linkHref": "Düğme bağlantısı (Href):"
       },
       "placeholders": {
-        "titleFa": "e.g. God of War Ragnarok",
-        "badge": "Game of the Month",
-        "backdropUrl": "https://... or /uploads/...",
-        "description": "A short engaging line...",
-        "ctaText": "View details & download"
+        "titleFa": "örneğin Savaş Tanrısı Ragnarok",
+        "badge": "Ayın Oyunu",
+        "backdropUrl": "https://... veya /uploads/...",
+        "description": "Kısa ve ilgi çekici bir satır...",
+        "ctaText": "Ayrıntıları görüntüle ve indir"
       }
     }
   }

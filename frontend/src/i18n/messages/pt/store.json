@@ -14,11 +14,11 @@
     "prevPage": "Previous page",
     "nextPage": "Next page",
     "lastPage": "Last page",
-    "filters": "Filtros",
-    "emptyBody": "Nenhum jogo corresponde aos filtros selecionados. Redefina os filtros ou tente outra busca.",
-    "resetFilters": "Redefinir filtros",
-    "paginationShowing": "Mostrando {{from}} a {{to}} de {{total}} jogos",
-    "viewResults": "Ver resultados"
+    "filters": "Filters",
+    "emptyBody": "No games match the selected filters. Reset the filters or try a different search.",
+    "resetFilters": "Reset Filters",
+    "paginationShowing": "Showing {{from}} to {{to}} of {{total}} games",
+    "viewResults": "View Results"
   },
   "gameDetail": {
     "loading": "Loading cinematic game details…",
@@ -193,26 +193,26 @@
     }
   },
   "faqPage": {
-    "backToHome": "Voltar ao início",
-    "badge": "Central de Ajuda e Dúvidas",
-    "title": "Perguntas frequentes (FAQ)",
-    "subtitle": "Respostas para as dúvidas mais comuns sobre download de dados, jailbreak, assinaturas e suporte",
-    "searchPlaceholder": "Pesquisar perguntas frequentes...",
-    "noResults": "Nenhum resultado corresponde à sua pesquisa.",
-    "notFoundQuestion": "Não encontrou a resposta que procurava?",
-    "supportDescription": "Os especialistas técnicos da DrGame estão disponíveis 24/7 na seção de tickets.",
-    "sendTicket": "Enviar ticket de suporte",
+    "backToHome": "Back to Home",
+    "badge": "Help Center & Common Questions",
+    "title": "Frequently Asked Questions (FAQ)",
+    "subtitle": "Answers to the most common gamer questions about data downloads, jailbreak, subscriptions, and support",
+    "searchPlaceholder": "Search frequently asked questions...",
+    "noResults": "No results matched your search.",
+    "notFoundQuestion": "Didn't find the answer you were looking for?",
+    "supportDescription": "DrGame technical specialists are available 24/7 in the tickets section.",
+    "sendTicket": "Submit Support Ticket",
     "defaultFaqs": {
-      "q1": "Como instalo dados de jogos no meu console?",
-      "a1": "Após baixar as partes dos servidores da DrGame, você pode instalar facilmente no console usando o Package Sender (via rede local) ou HD externo exFAT.",
-      "q2": "Como é calculado o tráfego de download?",
-      "a2": "Todos os servidores DrGame operam em infraestrutura de alta velocidade com CDN dedicada e baixa latência.",
-      "q3": "As cotas de assinatura da DrGame têm data de expiração?",
-      "a3": "Não! Uma das maiores vantagens da DrGame é a cota sem prazo de validade: seus gigas nunca expiram.",
-      "q4": "Há taxa extra para baixar cheats, legendas e patches?",
-      "a4": "Não, todos os pacotes de cheats, trainers e patches são gratuitos para download com qualquer assinatura ativa.",
-      "q5": "Como funciona o sistema de indicações e ganhos?",
-      "a5": "Ao convidar amigos com seu código de indicação, você ganha 15% de comissão sobre a primeira compra deles diretamente em sua carteira."
+      "q1": "How do I install game data on my console?",
+      "a1": "After downloading the parts from DrGame servers, you can easily install the game on your console using Package Sender software (over local network) or by copying files to an exFAT formatted external drive.",
+      "q2": "How is download traffic calculated?",
+      "a2": "All DrGame download servers operate on optimized high-speed infrastructure with low latency and dedicated CDN distribution.",
+      "q3": "Do DrGame subscription quotas have an expiration date?",
+      "a3": "No! One of DrGame's best advantages is unlimited time quota. Your purchased quota remains valid until fully consumed and never expires.",
+      "q4": "Is there an extra fee for downloading cheats, subtitles, and patches?",
+      "a4": "No, all cheat packages, trainers, localized subtitles, and exclusive patches are completely free to download with any active subscription.",
+      "q5": "How does the referral and earn system work?",
+      "a5": "By introducing your friends via your personal referral code, 15% of all their first purchases will be credited directly to your wallet for withdrawal."
     }
   }
 }

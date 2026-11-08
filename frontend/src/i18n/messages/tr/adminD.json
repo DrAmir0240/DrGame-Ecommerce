@@ -1,191 +1,191 @@
 {
   "admin": {
     "finance": {
-      "title": "Dual-Currency Financial Monitoring (Rial / FX)",
-      "subtitle": "Read-only report of all domestic and international gateway transactions, both Shetab and crypto",
-      "auditLocked": "Audit-Locked (Read-Only)",
+      "title": "Çift Para Birimli Finansal İzleme (Rial / FX)",
+      "subtitle": "Hem Shetab hem de kripto olmak üzere tüm yurt içi ve uluslararası ağ geçidi işlemlerinin salt okunur raporu",
+      "auditLocked": "Denetim Kilitli (Salt Okunur)",
       "kpis": {
         "domestic": {
-          "label": "Rial Turnover (Shaparak / Shetab)",
-          "hint": "Domestic bank payment gateways"
+          "label": "Rial Ciro (Şaparak / Şetab)",
+          "hint": "Yurt içi banka ödeme ağ geçitleri"
         },
         "crypto": {
-          "label": "International Transactions (USDT)",
-          "hint": "Tether TRC20 / crypto network",
-          "value": "{{count}} orders"
+          "label": "Uluslararası İşlemler (USDT)",
+          "hint": "Tether TRC20 / kripto ağı",
+          "value": "{{count}} sipariş"
         },
         "orders": {
-          "label": "Total Paid Orders",
-          "hint": "Aggregate successful platform orders",
-          "value": "{{count}} transactions"
+          "label": "Toplam Ödenen Siparişler",
+          "hint": "Başarılı platform siparişlerini toplayın",
+          "value": "{{count}} işlem"
         }
       },
       "transactions": {
-        "title": "Recent System Transactions",
-        "latest": "Latest {{count}} records",
-        "empty": "No transactions found.",
-        "userRef": "User #{{id}}",
-        "paymentBank": "Bank transfer (Shetab)",
+        "title": "Son Sistem İşlemleri",
+        "latest": "En son {{count}} kayıt",
+        "empty": "Hiçbir işlem bulunamadı.",
+        "userRef": "Kullanıcı #{{id}}",
+        "paymentBank": "Banka havalesi (Shetab)",
         "table": {
-          "orderCode": "Order code",
-          "userId": "User ID",
-          "plan": "Purchased plan",
-          "amount": "Amount",
-          "paymentMethod": "Payment method",
-          "reference": "Tracking code / hash",
-          "status": "Status"
+          "orderCode": "Sipariş kodu",
+          "userId": "Kullanıcı Kimliği",
+          "plan": "Satın alınan plan",
+          "amount": "Tutar",
+          "paymentMethod": "Ödeme yöntemi",
+          "reference": "İzleme kodu / karma",
+          "status": "Durum"
         },
         "status": {
-          "paid": "Paid",
-          "pending": "Awaiting payment",
-          "failed": "Failed"
+          "paid": "Ücretli",
+          "pending": "Ödeme bekleniyor",
+          "failed": "Başarısız"
         }
       }
     },
     "payouts": {
-      "title": "Referral Commission Payout Desk",
-      "subtitle": "Review and approve withdrawal requests, record tracking codes, and refund automatically when a request is rejected",
+      "title": "Yönlendirme Komisyonu Ödeme Masası",
+      "subtitle": "Para çekme isteklerini inceleyip onaylayın, takip kodlarını kaydedin ve istek reddedildiğinde otomatik olarak geri ödeme yapın",
       "filters": {
-        "all": "All",
-        "pending": "Pending review",
-        "approved": "Paid out",
-        "rejected": "Rejected"
+        "all": "Hepsi",
+        "pending": "İnceleme bekleniyor",
+        "approved": "Ödendi",
+        "rejected": "Reddedildi"
       },
-      "loading": "Loading payout desk...",
-      "empty": "No payout requests found.",
-      "defaultUser": "User",
+      "loading": "Ödeme masası yükleniyor...",
+      "empty": "Ödeme isteği bulunamadı.",
+      "defaultUser": "Kullanıcı",
       "shebaLabel": "IBAN:",
-      "cardLabel": "Card number:",
-      "cryptoLabel": "USDT {{network}}:",
+      "cardLabel": "Kart numarası:",
+      "cryptoLabel": "USDT {{ağ}}:",
       "status": {
-        "pending": "Awaiting action",
-        "approved": "Paid out",
-        "rejected": "Rejected (refunded)"
+        "pending": "Eylem bekleniyor",
+        "approved": "Ödendi",
+        "rejected": "Reddedildi (geri ödeme yapıldı)"
       },
       "actions": {
-        "approve": "Approve payout",
-        "reject": "Reject request",
-        "processed": "Processed"
+        "approve": "Ödemeyi onayla",
+        "reject": "İsteği reddet",
+        "processed": "İşlendi"
       },
       "table": {
-        "id": "ID",
-        "user": "User",
-        "amount": "Requested amount",
-        "destination": "Destination account",
-        "date": "Request date",
-        "status": "Status",
-        "actions": "Admin action"
+        "id": "Kimlik",
+        "user": "Kullanıcı",
+        "amount": "Talep edilen miktar",
+        "destination": "Hedef hesap",
+        "date": "Talep tarihi",
+        "status": "Durum",
+        "actions": "Yönetici eylemi"
       },
       "modal": {
-        "approveTitle": "Approve settlement payout",
-        "rejectTitle": "Reject settlement request",
-        "userLabel": "User:",
-        "amountLabel": "Payout amount:",
-        "rejectWarning": "Note: rejecting this request refunds the amount to the user's wallet immediately.",
-        "receiptLabel": "Receipt image URL or link",
-        "notesLabel": "Admin note",
-        "cancel": "Cancel",
-        "submitting": "Submitting...",
-        "submitApprove": "Confirm payout",
-        "submitReject": "Submit rejection"
+        "approveTitle": "Ödeme ödemesini onayla",
+        "rejectTitle": "Anlaşma talebini reddet",
+        "userLabel": "Kullanıcı:",
+        "amountLabel": "Ödeme tutarı:",
+        "rejectWarning": "Not: Bu isteğin reddedilmesi, tutarın kullanıcının cüzdanına anında iade edilmesini sağlar.",
+        "receiptLabel": "Makbuz resminin URL'si veya bağlantısı",
+        "notesLabel": "Yönetici notu",
+        "cancel": "İptal",
+        "submitting": "Gönderiliyor...",
+        "submitApprove": "Ödemeyi onayla",
+        "submitReject": "Reddetmeyi gönder"
       },
       "defaultNotes": {
-        "approved": "Settlement transferred successfully",
-        "rejected": "Account details are invalid"
+        "approved": "Yerleşim başarıyla aktarıldı",
+        "rejected": "Hesap ayrıntıları geçersiz"
       },
       "messages": {
-        "approved": "Request approved successfully.",
-        "rejected": "Request rejected and the amount was refunded to the user's wallet."
+        "approved": "İstek başarıyla onaylandı.",
+        "rejected": "İstek reddedildi ve tutar kullanıcının cüzdanına iade edildi."
       }
     },
     "referrals": {
-      "title": "Full Referral Network & Commission Monitoring",
-      "subtitle": "Track five financial and performance indicators of the marketing network, manage referrers, and control the Hide/Unhide switch",
+      "title": "Tam Yönlendirme Ağı ve Komisyon İzleme",
+      "subtitle": "Pazarlama ağının beş finansal ve performans göstergesini izleyin, yönlendirenleri yönetin ve Gizle/Göster anahtarını kontrol edin",
       "kpis": {
         "users": {
-          "label": "Total network members",
-          "hint": "Across all 3 tiers",
-          "unit": "users"
+          "label": "Toplam ağ üyeleri",
+          "hint": "3 katmanın tamamında",
+          "unit": "kullanıcılar"
         },
         "commissions": {
-          "label": "Total commissions earned",
-          "hint": "Calculated across the entire chain"
+          "label": "Kazanılan toplam komisyon",
+          "hint": "Tüm zincir boyunca hesaplanır"
         },
         "pending": {
-          "label": "Pending settlement (balance)",
-          "hint": "Active wallet balance"
+          "label": "Bekleyen ödeme (bakiye)",
+          "hint": "Aktif cüzdan bakiyesi"
         },
         "activeReferrers": {
-          "label": "Active tier-1 marketers",
-          "hint": "With at least one downline",
-          "unit": "users"
+          "label": "Aktif 1. kademe pazarlamacılar",
+          "hint": "En az bir alt ekibiyle",
+          "unit": "kullanıcılar"
         },
         "treasury": {
-          "label": "Platform treasury balance",
-          "hint": "Surplus deposits from tiers without a referrer"
+          "label": "Platform hazine bakiyesi",
+          "hint": "Yönlendiren olmadan katmanlardan fazla mevduat"
         }
       },
-      "searchPlaceholder": "Search name, phone or referral code...",
-      "visibilityLabel": "Visibility:",
+      "searchPlaceholder": "Ad, telefon veya referans kodunu arayın...",
+      "visibilityLabel": "Görünürlük:",
       "visibility": {
-        "all": "All users",
-        "visible": "Visible only (normal)",
-        "hidden": "Hidden only"
+        "all": "Tüm kullanıcılar",
+        "visible": "Yalnızca görünür (normal)",
+        "hidden": "Yalnızca gizli"
       },
-      "loading": "Loading referral network data...",
-      "empty": "No users found in the network.",
-      "noCode": "None",
+      "loading": "Yönlendirme ağı verileri yükleniyor...",
+      "empty": "Ağda kullanıcı bulunamadı.",
+      "noCode": "Yok",
       "status": {
-        "hidden": "Hidden from ranking",
-        "active": "Active in leaderboard"
+        "hidden": "Sıralamada gizlendi",
+        "active": "Skor tablosunda aktif"
       },
       "table": {
-        "referrer": "Referrer",
-        "code": "Referral code",
-        "layer1": "Tier 1",
-        "layer2": "Tier 2",
-        "layer3": "Tier 3",
-        "totalNetwork": "Total network",
-        "totalEarned": "Total earnings (Toman)",
-        "balance": "Wallet balance",
-        "status": "Referral status",
-        "actions": "Hide action"
+        "referrer": "Yönlendiren",
+        "code": "Yönlendirme kodu",
+        "layer1": "1. Kademe",
+        "layer2": "2. Kademe",
+        "layer3": "3. Kademe",
+        "totalNetwork": "Toplam ağ",
+        "totalEarned": "Toplam kazanç (Tümen)",
+        "balance": "Cüzdan bakiyesi",
+        "status": "Yönlendirme durumu",
+        "actions": "Eylemi gizle"
       },
       "actions": {
-        "show": "Show",
-        "hide": "Hide",
-        "showTitle": "Show this user again in public statistics",
-        "hideTitle": "Hide this user without affecting network relations or earnings"
+        "show": "Göster",
+        "hide": "Gizle",
+        "showTitle": "Bu kullanıcıyı genel istatistiklerde tekrar göster",
+        "hideTitle": "Ağ ilişkilerini veya kazancı etkilemeden bu kullanıcıyı gizleyin"
       },
       "feedback": {
-        "hidden": "User «{{name}}» was hidden without removing network links.",
-        "visible": "User «{{name}}» is no longer hidden."
+        "hidden": "«{{name}}» kullanıcısı, ağ bağlantıları kaldırılmadan gizlendi.",
+        "visible": "«{{name}}» kullanıcısı artık gizli değil."
       },
       "errors": {
-        "load": "Failed to load referral monitoring data from the server.",
-        "toggle": "Failed to change the user's hidden status."
+        "load": "Sunucudan yönlendirme izleme verileri yüklenemedi.",
+        "toggle": "Kullanıcının gizli durumu değiştirilemedi."
       }
     },
     "bankAccounts": {
-      "title": "IBAN, Bank Card & Crypto Wallet Verification Desk",
-      "subtitle": "Validate banking details and Tether wallet addresses to prevent referral commission payout errors",
-      "loading": "Loading settlement accounts...",
-      "empty": "No settlement accounts to display.",
-      "userRef": "User #{{id}}",
-      "verified": "Verified",
-      "pending": "Pending verification",
-      "defaultBankName": "Banking system",
+      "title": "IBAN, Banka Kartı ve Kripto Cüzdan Doğrulama Masası",
+      "subtitle": "Yönlendirme komisyonu ödeme hatalarını önlemek için banka ayrıntılarını ve Tether cüzdan adreslerini doğrulayın",
+      "loading": "Mutabakat hesapları yükleniyor...",
+      "empty": "Görüntülenecek kapatma hesabı yok.",
+      "userRef": "Kullanıcı #{{id}}",
+      "verified": "Doğrulandı",
+      "pending": "Doğrulama bekleniyor",
+      "defaultBankName": "Bankacılık sistemi",
       "actions": {
-        "revoke": "Revoke verification",
-        "verify": "Verify account"
+        "revoke": "Doğrulamayı iptal et",
+        "verify": "Hesabı doğrula"
       },
       "table": {
-        "id": "ID",
-        "user": "User",
-        "accountType": "Account type",
-        "accountValue": "Account number / wallet address",
-        "verifyStatus": "Verification status",
-        "toggle": "Change status"
+        "id": "Kimlik",
+        "user": "Kullanıcı",
+        "accountType": "Hesap türü",
+        "accountValue": "Hesap numarası / cüzdan adresi",
+        "verifyStatus": "Doğrulama durumu",
+        "toggle": "Durumu değiştir"
       }
     }
   }

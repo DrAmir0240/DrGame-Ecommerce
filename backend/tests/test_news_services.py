@@ -9,7 +9,7 @@ from app.modules.news.services import NewsService
 
 @pytest.mark.asyncio
 async def test_news_seeding_and_list_posts(test_db: AsyncSession):
-    # Seeding triggers automatically on list_posts
+    await NewsService.seed_blog_data(test_db)
     result = await NewsService.list_posts(test_db, category_slug="tutorials")
     assert result["total"] >= 3
     assert len(result["items"]) >= 3
@@ -18,6 +18,7 @@ async def test_news_seeding_and_list_posts(test_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_news_detail_and_view_increment(test_db: AsyncSession):
+    await NewsService.seed_blog_data(test_db)
     detail = await NewsService.get_post_detail(test_db, "ps5-data-transfer-direct-lan")
     assert detail["title_fa"] is not None
     initial_views = detail["views_count"]
@@ -29,6 +30,7 @@ async def test_news_detail_and_view_increment(test_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_news_like_dislike_toggle(test_db: AsyncSession):
+    await NewsService.seed_blog_data(test_db)
     # Create test user
     user = User(
         full_name="Gamer One",

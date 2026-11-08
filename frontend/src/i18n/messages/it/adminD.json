@@ -3,7 +3,7 @@
     "finance": {
       "title": "Dual-Currency Financial Monitoring (Rial / FX)",
       "subtitle": "Read-only report of all domestic and international gateway transactions, both Shetab and crypto",
-      "auditLocked": "Audit-Locked (Read-Only)",
+      "auditLocked": "Bloccato dal controllo (sola lettura)",
       "kpis": {
         "domestic": {
           "label": "Rial Turnover (Shaparak / Shetab)",
@@ -16,7 +16,7 @@
         },
         "orders": {
           "label": "Total Paid Orders",
-          "hint": "Aggregate successful platform orders",
+          "hint": "Aggrega gli ordini di piattaforma riusciti",
           "value": "{{count}} transactions"
         }
       },
@@ -25,19 +25,19 @@
         "latest": "Latest {{count}} records",
         "empty": "No transactions found.",
         "userRef": "User #{{id}}",
-        "paymentBank": "Bank transfer (Shetab)",
+        "paymentBank": "Bonifico bancario (Shetab)",
         "table": {
           "orderCode": "Order code",
           "userId": "User ID",
           "plan": "Purchased plan",
-          "amount": "Amount",
+          "amount": "Importo",
           "paymentMethod": "Payment method",
           "reference": "Tracking code / hash",
           "status": "Status"
         },
         "status": {
           "paid": "Paid",
-          "pending": "Awaiting payment",
+          "pending": "In attesa di pagamento",
           "failed": "Failed"
         }
       }
@@ -46,7 +46,7 @@
       "title": "Referral Commission Payout Desk",
       "subtitle": "Review and approve withdrawal requests, record tracking codes, and refund automatically when a request is rejected",
       "filters": {
-        "all": "All",
+        "all": "Tutto",
         "pending": "Pending review",
         "approved": "Paid out",
         "rejected": "Rejected"
@@ -55,15 +55,15 @@
       "empty": "No payout requests found.",
       "defaultUser": "User",
       "shebaLabel": "IBAN:",
-      "cardLabel": "Card number:",
+      "cardLabel": "Numero della carta:",
       "cryptoLabel": "USDT {{network}}:",
       "status": {
-        "pending": "Awaiting action",
+        "pending": "In attesa di azione",
         "approved": "Paid out",
         "rejected": "Rejected (refunded)"
       },
       "actions": {
-        "approve": "Approve payout",
+        "approve": "Approva il pagamento",
         "reject": "Reject request",
         "processed": "Processed"
       },
@@ -71,27 +71,27 @@
         "id": "ID",
         "user": "User",
         "amount": "Requested amount",
-        "destination": "Destination account",
+        "destination": "Conto di destinazione",
         "date": "Request date",
         "status": "Status",
-        "actions": "Admin action"
+        "actions": "Azione amministrativa"
       },
       "modal": {
-        "approveTitle": "Approve settlement payout",
+        "approveTitle": "Approvare il pagamento della transazione",
         "rejectTitle": "Reject settlement request",
         "userLabel": "User:",
         "amountLabel": "Payout amount:",
         "rejectWarning": "Note: rejecting this request refunds the amount to the user's wallet immediately.",
         "receiptLabel": "Receipt image URL or link",
-        "notesLabel": "Admin note",
-        "cancel": "Cancel",
+        "notesLabel": "Nota dell'amministratore",
+        "cancel": "Annulla",
         "submitting": "Submitting...",
-        "submitApprove": "Confirm payout",
+        "submitApprove": "Conferma il pagamento",
         "submitReject": "Submit rejection"
       },
       "defaultNotes": {
         "approved": "Settlement transferred successfully",
-        "rejected": "Account details are invalid"
+        "rejected": "I dettagli dell'account non sono validi"
       },
       "messages": {
         "approved": "Request approved successfully.",
@@ -104,19 +104,19 @@
       "kpis": {
         "users": {
           "label": "Total network members",
-          "hint": "Across all 3 tiers",
+          "hint": "Su tutti e 3 i livelli",
           "unit": "users"
         },
         "commissions": {
           "label": "Total commissions earned",
-          "hint": "Calculated across the entire chain"
+          "hint": "Calcolato su tutta la catena"
         },
         "pending": {
           "label": "Pending settlement (balance)",
-          "hint": "Active wallet balance"
+          "hint": "Saldo attivo del portafoglio"
         },
         "activeReferrers": {
-          "label": "Active tier-1 marketers",
+          "label": "Operatori di marketing di livello 1 attivi",
           "hint": "With at least one downline",
           "unit": "users"
         },
@@ -128,7 +128,7 @@
       "searchPlaceholder": "Search name, phone or referral code...",
       "visibilityLabel": "Visibility:",
       "visibility": {
-        "all": "All users",
+        "all": "Tutti gli utenti",
         "visible": "Visible only (normal)",
         "hidden": "Hidden only"
       },
@@ -137,7 +137,7 @@
       "noCode": "None",
       "status": {
         "hidden": "Hidden from ranking",
-        "active": "Active in leaderboard"
+        "active": "Attivo in classifica"
       },
       "table": {
         "referrer": "Referrer",
@@ -174,7 +174,7 @@
       "userRef": "User #{{id}}",
       "verified": "Verified",
       "pending": "Pending verification",
-      "defaultBankName": "Banking system",
+      "defaultBankName": "Sistema bancario",
       "actions": {
         "revoke": "Revoke verification",
         "verify": "Verify account"
@@ -182,10 +182,10 @@
       "table": {
         "id": "ID",
         "user": "User",
-        "accountType": "Account type",
-        "accountValue": "Account number / wallet address",
+        "accountType": "Tipo di conto",
+        "accountValue": "Numero di conto/indirizzo del portafoglio",
         "verifyStatus": "Verification status",
-        "toggle": "Change status"
+        "toggle": "Cambia stato"
       }
     }
   }

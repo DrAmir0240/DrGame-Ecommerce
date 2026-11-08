@@ -5,10 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password, create_access_token
 from app.modules.users.models import User
+from app.modules.news.services import NewsService
 
 
 @pytest.mark.asyncio
 async def test_news_router_endpoints(client: AsyncClient, test_db: AsyncSession):
+    # Explicitly seed news categories & articles for isolated test run
+    await NewsService.seed_blog_data(test_db)
+
     # 1. GET /api/blog/categories
     cat_res = await client.get("/api/blog/categories")
     assert cat_res.status_code == 200

@@ -238,7 +238,13 @@ export default function GameDetailPage() {
               {/* Game Main Titles */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                  {locale !== 'fa' && game.title_en ? game.title_en : <DynamicText text={game.title_fa || game.title_en} />}
+                  {locale === 'en' && game.title_en ? (
+                    game.title_en
+                  ) : locale !== 'fa' && game.title_en ? (
+                    <DynamicText text={game.title_en} />
+                  ) : (
+                    <DynamicText text={game.title_fa || game.title_en} />
+                  )}
                 </h1>
                 <p className="text-base sm:text-lg text-slate-400 font-roboto font-medium tracking-wide" dir="ltr">
                   {game.title_en}

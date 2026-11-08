@@ -1,235 +1,235 @@
 {
   "admin": {
     "subscriptions": {
-      "title": "Plan Pricing, Nine-Tier Quotas & Download Access Settings",
-      "subtitle": "Dynamically set the price and download quota of every plan for 1, 3 and 6 month terms, and grant download permissions for each game content type",
+      "title": "Plan Fiyatlandırması, Dokuz Kademeli Kotalar ve İndirme Erişimi Ayarları",
+      "subtitle": "1, 3 ve 6 aylık dönemler için her planın fiyatını ve indirme kotasını dinamik olarak belirleyin ve her oyun içeriği türü için indirme izinleri verin",
       "units": {
-        "gigabyte": "GB",
-        "terabyte": "TB"
+        "gigabyte": "Büyük Britanya",
+        "terabyte": "verem"
       },
       "messages": {
-        "saved": "All prices, nine-tier quotas and download permissions were saved and updated in the database successfully.",
-        "saveError": "Failed to save changes"
+        "saved": "Tüm fiyatlar, dokuz katmanlı kotalar ve indirme izinleri veritabanına başarıyla kaydedildi ve güncellendi.",
+        "saveError": "Değişiklikler kaydedilemedi"
       },
       "pricing": {
-        "title": "Plan Pricing & Quota Configuration (1, 3 and 6 Month Terms)",
-        "subtitle": "Adjust the Toman price and gigabyte quota for each billing term",
-        "period1": "1 Month (Base)",
-        "period3": "3 Months",
-        "period6": "6 Months",
-        "periodBadge": "{{months}}-month term",
-        "priceLabel": "Price for this term (Toman):",
-        "quotaLabel": "Download quota (GB):"
+        "title": "Plan Fiyatlandırması ve Kota Yapılandırması (1, 3 ve 6 Aylık Vadeler)",
+        "subtitle": "Her fatura dönemi için Tümen fiyatını ve gigabayt kotasını ayarlayın",
+        "period1": "1 Ay (Temel)",
+        "period3": "3 Ay",
+        "period6": "6 Ay",
+        "periodBadge": "{{months}} aylık vade",
+        "priceLabel": "Bu dönem fiyatı (Toman):",
+        "quotaLabel": "İndirme kotası (GB):"
       },
       "tiers": {
-        "free": "Free Plan",
-        "bronze": "Bronze Plan",
-        "silver": "Silver Plan",
-        "gold": "Gold VIP Plan"
+        "free": "Ücretsiz Plan",
+        "bronze": "Bronz Plan",
+        "silver": "Gümüş Planı",
+        "gold": "Altın VIP Planı"
       },
       "features": {
-        "title": "Download Features by Game Content Type (Three Subscription Tiers)",
-        "subtitle": "Choose whether each plan may download game data, cheats, DLC, Persian subtitles and exclusive dubbing",
-        "badge": "Download permissions",
-        "bronze": "Bronze Subscription",
-        "silver": "Silver Subscription",
-        "gold": "Gold VIP Subscription",
-        "saving": "Saving to database...",
-        "save": "Save all prices, quotas and subscription features",
+        "title": "Oyun İçeriği Türüne Göre İndirme Özellikleri (Üç Abonelik Katmanı)",
+        "subtitle": "Her planın oyun verilerini, hileleri, DLC'yi, Farsça altyazıları ve özel dublajı indirip indiremeyeceğini seçin",
+        "badge": "İzinleri indirme",
+        "bronze": "Bronz Abonelik",
+        "silver": "Gümüş Abonelik",
+        "gold": "Altın VIP Aboneliği",
+        "saving": "Veritabanına kaydediliyor...",
+        "save": "Tüm fiyatları, kotaları ve abonelik özelliklerini kaydedin",
         "items": {
           "data": {
-            "label": "Base game data",
-            "desc": "Download the core data parts"
+            "label": "Temel oyun verileri",
+            "desc": "Temel veri bölümlerini indirin"
           },
           "cheat": {
-            "label": "Cheats & trainers",
-            "desc": "Save games and exclusive trainers"
+            "label": "Hileler ve eğitmenler",
+            "desc": "Oyunları ve özel eğitmenleri kaydedin"
           },
           "dlc": {
-            "label": "Downloadable content (DLC)",
-            "desc": "Expansions and extra downloadable content"
+            "label": "İndirilebilir içerik (DLC)",
+            "desc": "Genişletmeler ve ekstra indirilebilir içerik"
           },
           "subtitles": {
-            "label": "Persian game subtitles",
-            "desc": "Exclusive menu and subtitle translation"
+            "label": "Farsça oyun altyazıları",
+            "desc": "Özel menü ve altyazı çevirisi"
           },
           "dubbing": {
-            "label": "Persian game dubbing",
-            "desc": "Voice-over by Persian dub artists"
+            "label": "Farsça oyun dublajı",
+            "desc": "Farsça dub sanatçılarının seslendirmesi"
           }
         }
       },
       "free": {
-        "title": "Configure the 5 Allowed Games on the Free Plan",
-        "subtitle": "Free plan users may only download the data of these selected titles.",
-        "selected": "{{count}} / 5 games selected",
-        "selectPlaceholder": "Pick a game from the catalog...",
-        "add": "Add to free plan",
-        "remove": "Remove from free",
-        "empty": "No title has been selected for the free plan yet.",
-        "noImage": "No image",
-        "maxAlert": "A maximum of 5 games can be registered on the free plan.",
-        "duplicateAlert": "This game is already on the allowed list.",
-        "saved": "The free plan's allowed games list was saved successfully.",
-        "saveError": "Failed to update the free plan games"
+        "title": "Ücretsiz Planda İzin Verilen 5 Oyunu Yapılandırma",
+        "subtitle": "Ücretsiz plan kullanıcıları yalnızca seçilen bu başlıkların verilerini indirebilir.",
+        "selected": "{{count}} / 5 oyun seçildi",
+        "selectPlaceholder": "Katalogdan bir oyun seçin...",
+        "add": "Ücretsiz plana ekle",
+        "remove": "Ücretsizden kaldır",
+        "empty": "Ücretsiz plan için henüz başlık seçilmedi.",
+        "noImage": "Resim yok",
+        "maxAlert": "Ücretsiz plana en fazla 5 oyun kaydedilebilir.",
+        "duplicateAlert": "Bu oyun zaten izin verilenler listesinde.",
+        "saved": "Ücretsiz planın izin verilen oyunlar listesi başarıyla kaydedildi.",
+        "saveError": "Ücretsiz plandaki oyunlar güncellenemedi"
       },
       "table": {
-        "title": "Issued User Subscriptions",
-        "recent": "Latest transactions",
-        "id": "ID",
-        "user": "User",
-        "plan": "Plan",
-        "startsAt": "Start date",
-        "expiresAt": "Expiry date",
-        "status": "Status",
-        "empty": "No subscriptions found.",
-        "defaultUser": "User",
-        "active": "Active",
-        "expired": "Expired"
+        "title": "Verilen Kullanıcı Abonelikleri",
+        "recent": "Son işlemler",
+        "id": "Kimlik",
+        "user": "Kullanıcı",
+        "plan": "Planı",
+        "startsAt": "Başlangıç tarihi",
+        "expiresAt": "Son kullanma tarihi",
+        "status": "Durum",
+        "empty": "Hiçbir abonelik bulunamadı.",
+        "defaultUser": "Kullanıcı",
+        "active": "Aktif",
+        "expired": "Süresi dolmuş"
       }
     },
     "users": {
-      "title": "User & Download Quota Management",
-      "subtitle": "Review full dossiers and transactions, and adjust users' download quotas manually",
-      "searchPlaceholder": "Search name, mobile, email...",
+      "title": "Kullanıcı ve İndirme Kota Yönetimi",
+      "subtitle": "Tüm dosyaları ve işlemleri inceleyin ve kullanıcıların indirme kotalarını manuel olarak ayarlayın",
+      "searchPlaceholder": "Ad, cep telefonu, e-posta arayın...",
       "units": {
-        "gigabyte": "GB"
+        "gigabyte": "Büyük Britanya"
       },
-      "loading": "Loading user list...",
-      "empty": "No user matched the search criteria.",
+      "loading": "Kullanıcı listesi yükleniyor...",
+      "empty": "Hiçbir kullanıcı arama kriterleriyle eşleşmedi.",
       "status": {
-        "active": "Active",
-        "blocked": "Blocked"
+        "active": "Aktif",
+        "blocked": "Engellendi"
       },
       "table": {
-        "user": "User",
-        "contact": "Contact",
-        "referralCode": "Referral code",
-        "totalQuota": "Total quota",
-        "usedQuota": "Used",
-        "status": "Status",
-        "actions": "Actions"
+        "user": "Kullanıcı",
+        "contact": "İletişim",
+        "referralCode": "Yönlendirme kodu",
+        "totalQuota": "Toplam kota",
+        "usedQuota": "Kullanılmış",
+        "status": "Durum",
+        "actions": "Eylemler"
       },
       "actions": {
-        "quota": "Quota",
-        "quotaTitle": "Adjust quota manually",
-        "dossier": "Dossier",
-        "dossierTitle": "View user dossier"
+        "quota": "Kota",
+        "quotaTitle": "Kotayı manuel olarak ayarlayın",
+        "dossier": "Dosya",
+        "dossierTitle": "Kullanıcı dosyasını görüntüle"
       },
       "pagination": {
-        "showing": "Showing {{shown}} of {{total}} users",
-        "prev": "Previous page",
-        "next": "Next page",
-        "page": "Page {{page}}"
+        "showing": "{{total}} kullanıcıdan {{gösterilmektedir}} tanesi gösteriliyor",
+        "prev": "Önceki sayfa",
+        "next": "Sonraki sayfa",
+        "page": "Sayfa {{sayfa}}"
       },
       "quotaModal": {
-        "title": "Edit user quota: {{name}}",
-        "current": "Current quota:",
-        "amountLabel": "Quota change amount (GB)",
-        "amountPlaceholder": "e.g. 10 or -5",
-        "hint": "Use negative values (such as -5) to deduct quota.",
-        "reasonLabel": "Reason for the audit log",
-        "defaultReason": "Manual top-up by head office",
-        "cancel": "Cancel",
-        "submitting": "Saving...",
-        "submit": "Apply quota change",
-        "success": "New user quota recorded: {{quota}}.",
-        "error": "Failed to reach the server"
+        "title": "Kullanıcı kotasını düzenleyin: {{name}}",
+        "current": "Mevcut kota:",
+        "amountLabel": "Kota değişiklik tutarı (GB)",
+        "amountPlaceholder": "örneğin 10 veya -5",
+        "hint": "Kotayı düşürmek için negatif değerler (-5 gibi) kullanın.",
+        "reasonLabel": "Denetim günlüğünün nedeni",
+        "defaultReason": "Merkez ofisi tarafından manuel yükleme",
+        "cancel": "İptal",
+        "submitting": "Kaydediliyor...",
+        "submit": "Kota değişikliğini uygula",
+        "success": "Yeni kullanıcı kotası kaydedildi: {{quota}}.",
+        "error": "Sunucuya ulaşılamadı"
       },
       "dossier": {
-        "title": "Digital dossier: {{name}}",
-        "loading": "Retrieving user dossier...",
-        "userId": "User ID",
-        "referralCode": "Referral code",
-        "referralBalance": "Referral balance",
-        "totalCommission": "Total commission",
-        "quotaStatus": "Download traffic quota status",
-        "recentPurchases": "Recent purchase history",
-        "noPurchases": "No purchase has been recorded for this user.",
+        "title": "Dijital dosya: {{name}}",
+        "loading": "Kullanıcı dosyası alınıyor...",
+        "userId": "Kullanıcı Kimliği",
+        "referralCode": "Yönlendirme kodu",
+        "referralBalance": "Yönlendirme bakiyesi",
+        "totalCommission": "Toplam komisyon",
+        "quotaStatus": "Trafik kotası durumunu indir",
+        "recentPurchases": "Son satın alma geçmişi",
+        "noPurchases": "Bu kullanıcı için herhangi bir satın alma işlemi kaydedilmedi.",
         "plan": "Plan: {{plan}}",
-        "amount": "Amount: {{amount}}"
+        "amount": "Tutar: {{miktar}}"
       }
     },
     "discounts": {
-      "title": "Discount Code & Promo Coupon Management",
-      "subtitle": "Create percentage and fixed-amount discount campaigns with spending caps and usage limits",
-      "create": "Create new discount code",
-      "loading": "Loading discount codes...",
-      "empty": "No discount code has been created yet.",
-      "unlimited": "Unlimited",
-      "deleteTitle": "Delete discount code",
-      "confirmDelete": "Are you sure you want to delete this discount code?",
-      "codeRequired": "Please enter a discount code name.",
-      "created": "Discount code created successfully.",
-      "createError": "Failed to create the discount code",
+      "title": "İndirim Kodu ve Promosyon Kupon Yönetimi",
+      "subtitle": "Harcama üst sınırları ve kullanım sınırlarıyla yüzde ve sabit tutarda indirim kampanyaları oluşturun",
+      "create": "Yeni indirim kodu oluştur",
+      "loading": "İndirim kodları yükleniyor...",
+      "empty": "Henüz indirim kodu oluşturulmadı.",
+      "unlimited": "Sınırsız",
+      "deleteTitle": "İndirim kodunu sil",
+      "confirmDelete": "Bu indirim kodunu silmek istediğinizden emin misiniz?",
+      "codeRequired": "Lütfen bir indirim kodu adı girin.",
+      "created": "İndirim kodu başarıyla oluşturuldu.",
+      "createError": "İndirim kodu oluşturulamadı",
       "status": {
-        "active": "Active",
-        "inactive": "Inactive"
+        "active": "Aktif",
+        "inactive": "Etkin değil"
       },
       "table": {
-        "id": "ID",
-        "code": "Discount code",
-        "percent": "Discount %",
-        "maxDiscount": "Discount cap",
-        "usage": "Allowed / used",
-        "status": "Status",
-        "actions": "Actions"
+        "id": "Kimlik",
+        "code": "İndirim kodu",
+        "percent": "İndirim %'si",
+        "maxDiscount": "İndirim sınırı",
+        "usage": "İzin verildi / kullanıldı",
+        "status": "Durum",
+        "actions": "Eylemler"
       },
       "modal": {
-        "title": "Create a new discount coupon",
-        "codeLabel": "Discount code name",
-        "codePlaceholder": "e.g. DRGAME20",
-        "percentLabel": "Discount percentage",
-        "maxDiscountLabel": "Discount cap (Toman)",
-        "usageLabel": "Maximum number of uses",
-        "cancel": "Cancel",
-        "submitting": "Saving...",
-        "submit": "Create discount code"
+        "title": "Yeni bir indirim kuponu oluştur",
+        "codeLabel": "İndirim kodu adı",
+        "codePlaceholder": "örneğin DRGAME20",
+        "percentLabel": "İndirim yüzdesi",
+        "maxDiscountLabel": "İndirim sınırı (Tümen)",
+        "usageLabel": "Maksimum kullanım sayısı",
+        "cancel": "İptal",
+        "submitting": "Kaydediliyor...",
+        "submit": "İndirim kodu oluştur"
       }
     },
     "tickets": {
-      "title": "Support Ticket Management & Response Desk",
-      "subtitle": "Review technical and billing questions and follow up with users in a live two-way chat connected to the database",
-      "loading": "Loading tickets...",
-      "empty": "No tickets found in this section.",
-      "defaultUser": "User",
-      "openAndReply": "View & reply",
+      "title": "Destek Bilet Yönetimi ve Yanıt Masası",
+      "subtitle": "Teknik soruları ve faturalandırmayla ilgili soruları gözden geçirin ve veritabanına bağlı iki yönlü canlı bir sohbette kullanıcılarla takip edin",
+      "loading": "Biletler yükleniyor...",
+      "empty": "Bu bölümde bilet bulunamadı.",
+      "defaultUser": "Kullanıcı",
+      "openAndReply": "Görüntüle ve yanıtla",
       "filters": {
-        "all": "All tickets",
-        "open": "Awaiting reply",
-        "answered": "Answered",
-        "closed": "Closed"
+        "all": "Tüm biletler",
+        "open": "Cevap bekleniyor",
+        "answered": "Yanıtlandı",
+        "closed": "Kapalı"
       },
       "status": {
-        "open": "Awaiting reply",
-        "inProgress": "Under review",
-        "answered": "Answered",
-        "closed": "Closed"
+        "open": "Cevap bekleniyor",
+        "inProgress": "İnceleniyor",
+        "answered": "Yanıtlandı",
+        "closed": "Kapalı"
       },
       "table": {
-        "trackingCode": "Tracking code",
-        "user": "User",
-        "subject": "Ticket subject",
-        "department": "Department",
-        "date": "Date",
-        "status": "Status",
-        "actions": "Actions"
+        "trackingCode": "İzleme kodu",
+        "user": "Kullanıcı",
+        "subject": "Bilet konusu",
+        "department": "Departman",
+        "date": "Tarih",
+        "status": "Durum",
+        "actions": "Eylemler"
       },
       "errors": {
-        "load": "Failed to load the ticket list from the server.",
-        "loadMessages": "Failed to load the ticket messages.",
-        "send": "Failed to send the reply.",
-        "close": "Failed to close the ticket."
+        "load": "Bilet listesi sunucudan yüklenemedi.",
+        "loadMessages": "Bilet mesajları yüklenemedi.",
+        "send": "Yanıt gönderilemedi.",
+        "close": "Bilet kapatılamadı."
       },
       "modal": {
-        "sentBy": "Sent by {{name}} ({{phone}})",
-        "closeTicket": "Close ticket",
-        "loadingMessages": "Loading messages...",
-        "noMessages": "There are no messages in this ticket.",
-        "adminReply": "DrGame Support Reply",
-        "replyPlaceholder": "Write the official reply to the user...",
-        "send": "Send reply",
-        "closedNotice": "This ticket is closed and no new replies can be sent."
+        "sentBy": "{{name}} ({{phone}}) tarafından gönderildi",
+        "closeTicket": "Bileti kapat",
+        "loadingMessages": "Mesajlar yükleniyor...",
+        "noMessages": "Bu bilette mesaj yok.",
+        "adminReply": "DrGame Destek Yanıtı",
+        "replyPlaceholder": "Kullanıcıya resmi yanıtı yazın...",
+        "send": "Yanıt gönder",
+        "closedNotice": "Bu bilet kapatılmıştır ve yeni yanıt gönderilemez."
       }
     }
   }

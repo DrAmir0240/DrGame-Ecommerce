@@ -56,7 +56,12 @@ export function getInitialLocale(): SupportedLocale {
     return cookieLocale;
   }
 
-  // 3. Check browser language
+  // 3. For domestic mode, strictly default to Persian
+  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'domestic') {
+    return 'fa';
+  }
+
+  // 4. Check browser language
   if (typeof navigator !== 'undefined' && navigator.language) {
     const nav = navigator.language.slice(0, 2).toLowerCase();
     if (SUPPORTED_LOCALES[nav as SupportedLocale]) return nav as SupportedLocale;

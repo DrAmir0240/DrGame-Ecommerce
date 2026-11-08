@@ -3,9 +3,11 @@ import pytest
 from httpx import AsyncClient
 from app.core.security import create_access_token
 from app.modules.users.models import User
+from app.modules.subscriptions.services import SubscriptionService
 
 @pytest.mark.asyncio
 async def test_subscriptions_router(client: AsyncClient, test_db):
+    await SubscriptionService.seed_tiers(test_db)
     user = User(
         full_name="Subscriber Test",
         username="subscriber1",
