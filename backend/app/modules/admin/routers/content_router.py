@@ -424,8 +424,8 @@ async def upload_game_media(
 
 @router.get("/genres")
 async def list_genres(db: AsyncSession = Depends(get_db), _: ContentAdmin = Depends(require_content_admin())):
-    from app.modules.games.services import GameService
-    return await GameService.get_genres(db)
+    from app.modules.games.services import GamesService
+    return await GamesService.list_all_genres(db)
 
 
 @router.post("/genres", status_code=status.HTTP_201_CREATED)
@@ -435,8 +435,8 @@ async def create_genre(
     db: AsyncSession = Depends(get_db),
     current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    from app.modules.games.services import GameService
-    genre = await GameService.create_genre(db, payload)
+    from app.modules.games.services import GamesService
+    genre = await GamesService.admin_create_genre(db, payload.model_dump())
     await log_admin_action(
         db=db,
         department="content",
@@ -448,6 +448,50 @@ async def create_genre(
         request=request,
     )
     return genre
+
+
+@router.put("/genres/{genre_id}")
+async def update_genre(
+    genre_id: int,
+    payload: GenreUpdate,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    from app.modules.games.services import GamesService
+    genre = await GamesService.admin_update_genre(db, genre_id, payload.model_dump(exclude_unset=True))
+    await log_admin_action(
+        db=db,
+        department="content",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="UPDATE_GENRE",
+        target_entity=f"Genre:{genre.id}",
+        details={"name_en": genre.name_en},
+        request=request,
+    )
+    return genre
+
+
+@router.delete("/genres/{genre_id}")
+async def delete_genre(
+    genre_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
+):
+    from app.modules.games.services import GamesService
+    res = await GamesService.admin_delete_genre(db, genre_id)
+    await log_admin_action(
+        db=db,
+        department="content",
+        admin_id=current_admin.id,
+        admin_username=current_admin.username,
+        action="DELETE_GENRE",
+        target_entity=f"Genre:{genre_id}",
+        request=request,
+    )
+    return res
 
 
 # --- Blogs & News Management ---
@@ -531,10 +575,13 @@ async def delete_blog_post(
 # --- Banners Management ---
 
 @router.get("/banners")
-async def list_banners(db: AsyncSession = Depends(get_db), _: ContentAdmin = Depends(require_content_admin())):
-    from app.modules.home.banner_models import HomeBanner
-    stmt = select(HomeBanner).order_by(HomeBanner.order_priority.asc())
-    return (await db.execute(stmt)).scalars().all()
+async def list_banners(
+    position: Optional[int] = Query(None, description="Position 1 (AAA Games) or 2 (Services)"),
+    db: AsyncSession = Depends(get_db),
+    _: ContentAdmin = Depends(require_content_admin()),
+):
+    from app.modules.home.services import HomeBannerService
+    return await HomeBannerService.admin_list_banners(db, position=position)
 
 
 @router.post("/banners", status_code=status.HTTP_201_CREATED)
@@ -544,11 +591,8 @@ async def create_banner(
     db: AsyncSession = Depends(get_db),
     current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    from app.modules.home.banner_models import HomeBanner
-    banner = HomeBanner(**payload)
-    db.add(banner)
-    await db.commit()
-    await db.refresh(banner)
+    from app.modules.home.services import HomeBannerService
+    banner = await HomeBannerService.admin_create_banner(db, payload)
     await log_admin_action(
         db=db,
         department="content",
@@ -568,12 +612,8 @@ async def delete_banner(
     db: AsyncSession = Depends(get_db),
     current_admin: ContentAdmin = Depends(require_content_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    from app.modules.home.banner_models import HomeBanner
-    banner = await db.get(HomeBanner, banner_id)
-    if not banner:
-        raise HTTPException(status_code=404, detail="بنر یافت نشد.")
-    await db.delete(banner)
-    await db.commit()
+    from app.modules.home.services import HomeBannerService
+    res = await HomeBannerService.admin_delete_banner(db, banner_id=banner_id)
     await log_admin_action(
         db=db,
         department="content",
@@ -583,4 +623,4 @@ async def delete_banner(
         target_entity=f"Banner:{banner_id}",
         request=request,
     )
-    return {"status": "success", "message": "بنر حذف شد."}
+    return res

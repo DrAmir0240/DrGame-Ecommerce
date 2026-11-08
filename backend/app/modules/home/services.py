@@ -106,19 +106,31 @@ class HomeBannerService:
 
     @staticmethod
     async def admin_create_banner(db: AsyncSession, data: dict) -> HomeBanner:
-        """Admin create a new home banner."""
+        """Admin create a new home banner with flexible field fallbacks."""
+        title_fa = data.get("title_fa") or data.get("title") or "بنر ویژه دکتر گیم"
+        title_en = data.get("title_en") or data.get("title") or "Featured Banner"
+        badge = data.get("badge") or "ویژه"
+        description = data.get("description") or f"معرفی و دانلود {title_fa}"
+        backdrop_url = data.get("backdrop_url") or data.get("image_url") or ""
+        link_href = data.get("link_href") or data.get("link_url") or "/games"
+        cta_text = data.get("cta_text") or "مشاهده بازی"
+        platforms = data.get("platforms") or ["PS5", "PS4"]
+        position = int(data.get("position") or 1)
+        display_order = int(data.get("display_order") or 1)
+        is_active = bool(data.get("is_active", True))
+
         banner = HomeBanner(
-            position=data.get("position", 1),
-            badge=data["badge"],
-            title_fa=data["title_fa"],
-            title_en=data.get("title_en"),
-            description=data["description"],
-            backdrop_url=data["backdrop_url"],
-            link_href=data["link_href"],
-            cta_text=data.get("cta_text", "مشاهده و دانلود"),
-            platforms=data.get("platforms", []),
-            display_order=data.get("display_order", 1),
-            is_active=data.get("is_active", True),
+            position=position,
+            badge=badge,
+            title_fa=title_fa,
+            title_en=title_en,
+            description=description,
+            backdrop_url=backdrop_url,
+            link_href=link_href,
+            cta_text=cta_text,
+            platforms=platforms,
+            display_order=display_order,
+            is_active=is_active,
         )
         db.add(banner)
         await db.commit()

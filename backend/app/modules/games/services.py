@@ -1189,3 +1189,7 @@ class GamesService:
         }
 
 
+# Backward-compatibility alias
+GameService = GamesService
+
+

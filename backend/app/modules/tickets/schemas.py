@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class TicketCreate(BaseModel):
     subject: str = Field(..., min_length=3, max_length=255)
     department: str = Field("technical", pattern="^(technical|financial|downloads|general)$")
-    priority: str = Field("normal", pattern="^(normal|urgent)$")
+    priority: str = Field("normal", pattern="^(normal|urgent|low|medium|high)$")
     message: str = Field(..., min_length=2)
 
 

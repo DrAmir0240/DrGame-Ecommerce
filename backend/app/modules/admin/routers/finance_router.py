@@ -315,12 +315,14 @@ async def update_subscription_plan(
 @router.get("/transactions")
 async def list_transactions(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: Optional[int] = Query(None, ge=1, le=100),
+    limit: Optional[int] = Query(None, ge=1, le=100),
     status_filter: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
     _: FinanceAdmin = Depends(require_finance_admin()),
 ):
-    from app.modules.wallet.models import OrderPayment
+    from app.modules.subscriptions.models import OrderPayment
+    effective_limit = limit or page_size or 20
     query = select(OrderPayment)
     if status_filter:
         query = query.where(OrderPayment.status == status_filter)
@@ -328,12 +330,16 @@ async def list_transactions(
     count_res = await db.execute(select(func.count()).select_from(query.subquery()))
     total = count_res.scalar() or 0
 
-    items_res = await db.execute(query.order_by(OrderPayment.created_at.desc()).offset((page - 1) * page_size).limit(page_size))
+    items_res = await db.execute(
+        query.order_by(OrderPayment.created_at.desc())
+        .offset((page - 1) * effective_limit)
+        .limit(effective_limit)
+    )
     return {
         "items": items_res.scalars().all(),
         "total": total,
         "page": page,
-        "page_size": page_size,
+        "page_size": effective_limit,
     }
 
 
@@ -349,7 +355,7 @@ async def get_finance_overview(
 
 @router.get("/discounts")
 async def list_discounts(db: AsyncSession = Depends(get_db), _: FinanceAdmin = Depends(require_finance_admin())):
-    return await AdminService.list_discounts(db)
+    return await AdminService.list_discount_codes(db)
 
 
 @router.post("/discounts", status_code=status.HTTP_201_CREATED)
@@ -359,7 +365,7 @@ async def create_discount(
     db: AsyncSession = Depends(get_db),
     current_admin: FinanceAdmin = Depends(require_finance_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    res = await AdminService.create_discount(db, payload)
+    res = await AdminService.create_discount_code(db, payload.model_dump())
     await log_admin_action(
         db=db,
         department="finance",
@@ -380,7 +386,7 @@ async def update_discount(
     db: AsyncSession = Depends(get_db),
     current_admin: FinanceAdmin = Depends(require_finance_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    res = await AdminService.update_discount(db, discount_id, payload)
+    res = await AdminService.update_discount_code(db, discount_id, payload.model_dump(exclude_unset=True))
     await log_admin_action(
         db=db,
         department="finance",
@@ -400,7 +406,7 @@ async def delete_discount(
     db: AsyncSession = Depends(get_db),
     current_admin: FinanceAdmin = Depends(require_finance_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    res = await AdminService.delete_discount(db, discount_id)
+    res = await AdminService.delete_discount_code(db, discount_id)
     await log_admin_action(
         db=db,
         department="finance",

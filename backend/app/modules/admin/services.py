@@ -22,34 +22,30 @@ class AdminService:
     @staticmethod
     async def list_users(
         db: AsyncSession,
-        search: str | None = None,
         page: int = 1,
         page_size: int = 20,
+        search: Optional[str] = None,
+        is_active: Optional[bool] = None,
     ) -> dict:
         """Retrieve paginated user list with quotas."""
         stmt = select(User)
-        if search and search.strip():
-            term = f"%{search.strip()}%"
-            stmt = stmt.where(
-                or_(
-                    User.full_name.ilike(term),
-                    User.username.ilike(term),
-                    User.phone.ilike(term),
-                    User.email.ilike(term),
-                )
-            )
-
         count_stmt = select(func.count(User.id))
+
         if search and search.strip():
             term = f"%{search.strip()}%"
-            count_stmt = count_stmt.where(
-                or_(
-                    User.full_name.ilike(term),
-                    User.username.ilike(term),
-                    User.phone.ilike(term),
-                    User.email.ilike(term),
-                )
+            search_cond = or_(
+                User.full_name.ilike(term),
+                User.username.ilike(term),
+                User.phone.ilike(term),
+                User.email.ilike(term),
             )
+            stmt = stmt.where(search_cond)
+            count_stmt = count_stmt.where(search_cond)
+
+        if is_active is not None:
+            stmt = stmt.where(User.is_active == is_active)
+            count_stmt = count_stmt.where(User.is_active == is_active)
+
         total = (await db.execute(count_stmt)).scalar() or 0
 
         stmt = stmt.order_by(desc(User.created_at)).offset((page - 1) * page_size).limit(page_size)
@@ -884,11 +880,28 @@ class AdminService:
         if not disc:
             raise NotFoundException("کد تخفیف مورد نظر یافت نشد.")
 
-        update_dict = data.model_dump(exclude_unset=True)
+        if hasattr(data, "model_dump"):
+            update_dict = data.model_dump(exclude_unset=True)
+        elif isinstance(data, dict):
+            update_dict = data
+        else:
+            update_dict = dict(data)
+
         for k, v in update_dict.items():
             if v is not None and hasattr(disc, k):
                 setattr(disc, k, v)
 
         await db.commit()
         return {"status": "success", "message": "کد تخفیف با موفقیت به‌روزرسانی شد."}
+
+    @staticmethod
+    async def update_user_status(db: AsyncSession, user_id: int, is_active: bool) -> dict:
+        """Update user active/blocked status."""
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+        user.is_active = is_active
+        await db.commit()
+        await db.refresh(user)
+        return {"status": "success", "user_id": user.id, "is_active": user.is_active}
 

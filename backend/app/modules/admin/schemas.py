@@ -44,8 +44,17 @@ class UserListResponse(BaseModel):
 
 
 class AdjustQuotaRequest(BaseModel):
-    added_gb: float = Field(..., description="میزان حجم افزایشی یا کاهشی به گیگابایت")
+    added_gb: Optional[float] = Field(None, description="میزان حجم افزایشی یا کاهشی به گیگابایت")
+    additional_gb: Optional[float] = Field(None, description="نام فیلد ارسالی از فرانت‌اند برای حجم افزایشی")
     reason: Optional[str] = Field("شارژ دستی توسط مدیریت کلان", description="دلیل تغییر سهمیه")
+
+    @property
+    def effective_added_gb(self) -> float:
+        if self.additional_gb is not None:
+            return float(self.additional_gb)
+        if self.added_gb is not None:
+            return float(self.added_gb)
+        return 0.0
 
 
 class AdjustQuotaResponse(BaseModel):

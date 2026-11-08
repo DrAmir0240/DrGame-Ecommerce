@@ -156,3 +156,38 @@ async def test_ticket_api_flow(test_db: AsyncSession, client: AsyncClient):
     close_res = await client.patch(f"/api/tickets/me/{ticket_id}/close", headers=headers)
     assert close_res.status_code == 200
     assert close_res.json()["status"] == "closed"
+
+
+@pytest.mark.asyncio
+async def test_ticket_priority_validation_variants(client: AsyncClient, test_db: AsyncSession):
+    """Test creating tickets with low, medium, and high priorities without 422 errors."""
+    from app.core.security import create_access_token
+
+    user = User(
+        username="priority_tester",
+        email="priority@example.com",
+        phone="09121112233",
+        full_name="تستر اولویت",
+        password_hash="hash",
+        console_auth_code="7779991",
+        referral_code="PRIORITY01",
+    )
+    test_db.add(user)
+    await test_db.flush()
+
+    token_str, _, _ = create_access_token(subject=user.id, claims={"username": user.username})
+    headers = {"Authorization": f"Bearer {token_str}"}
+
+    for p in ["low", "medium", "high", "normal", "urgent"]:
+        res = await client.post(
+            "/api/tickets",
+            headers=headers,
+            json={
+                "subject": f"تست اولویت {p}",
+                "department": "technical",
+                "priority": p,
+                "message": f"پیام با اولویت {p}",
+            },
+        )
+        assert res.status_code == 201, f"Failed for priority {p}: {res.text}"
+        assert res.json()["priority"] == p

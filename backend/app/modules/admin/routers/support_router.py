@@ -6,8 +6,10 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as aioredis
 
 from app.core.database import get_db
+from app.core.redis_client import get_redis
 from app.core.security import verify_password, hash_password
 from app.core.admin_dependencies import (
     create_department_admin_token,
@@ -393,13 +395,21 @@ async def change_ticket_status(
 @router.get("/users")
 async def list_users(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: Optional[int] = Query(None, ge=1, le=100),
+    limit: Optional[int] = Query(None, ge=1, le=100),
     search: Optional[str] = None,
     is_active: Optional[bool] = None,
     db: AsyncSession = Depends(get_db),
     _: SupportAdmin = Depends(require_support_admin()),
 ):
-    return await AdminService.list_users(db, page, page_size, search, is_active)
+    effective_limit = limit or page_size or 20
+    return await AdminService.list_users(
+        db=db,
+        page=page,
+        page_size=effective_limit,
+        search=search,
+        is_active=is_active,
+    )
 
 
 @router.get("/users/{user_id}/dossier")
@@ -412,14 +422,24 @@ async def get_user_dossier(
 
 
 @router.post("/users/{user_id}/adjust-quota")
+@router.put("/users/{user_id}/adjust-quota")
 async def adjust_user_quota(
     user_id: int,
     payload: AdjustQuotaRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
+    redis: aioredis.Redis = Depends(get_redis),
     current_admin: SupportAdmin = Depends(require_support_admin(level=AdminAccessLevel.FULL_CRUD)),
 ):
-    res = await AdminService.adjust_user_quota(db, user_id, payload)
+    added_gb = payload.effective_added_gb
+    reason = payload.reason or "شارژ دستی توسط مدیریت کلان"
+    res = await AdminService.adjust_user_quota(
+        db=db,
+        redis=redis,
+        user_id=user_id,
+        added_gb=added_gb,
+        reason=reason,
+    )
     await log_admin_action(
         db=db,
         department="support",
@@ -427,7 +447,7 @@ async def adjust_user_quota(
         admin_username=current_admin.username,
         action="ADJUST_QUOTA",
         target_entity=f"User:{user_id}",
-        details={"added_gb": payload.added_gb, "reason": payload.reason},
+        details={"added_gb": added_gb, "reason": reason},
         request=request,
     )
     return res

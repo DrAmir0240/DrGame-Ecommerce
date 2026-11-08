@@ -52,6 +52,7 @@ async def get_my_ticket_stats(
     return await TicketService.get_user_stats(db=db, user_id=current_user.id)
 
 
+@user_tickets_router.post("", response_model=TicketOut, status_code=status.HTTP_201_CREATED)
 @user_tickets_router.post("/me", response_model=TicketOut, status_code=status.HTTP_201_CREATED)
 async def create_new_ticket(
     payload: TicketCreate,
