@@ -55,7 +55,7 @@ export type { PriceCurrency } from './format';
 export { localize, localizedField, isFallbackTranslation, localizeList, fallbackChain } from './dynamic';
 export type { Localizable, LocalizedDict } from './dynamic';
 export { useDynamicTranslation } from '@/hooks/useDynamicTranslation';
-export { translateDynamicText, getInstantDynamicTranslation } from '@/lib/dynamicTranslator';
+export { translateDynamicText, getInstantDynamicTranslation, seedDynamicTranslations } from '@/lib/dynamicTranslator';
 export { default as DynamicText } from '@/components/common/DynamicText';
 
 export type { SupportedLocale };

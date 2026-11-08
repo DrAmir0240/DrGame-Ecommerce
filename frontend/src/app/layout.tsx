@@ -7,13 +7,23 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export const metadata: Metadata = {
-  title: 'دکتر گیم | پلتفرم تخصصی بازی‌های پلی‌استیشن',
-  description: 'پلتفرم پیشرفته دانلود دیتای بازی‌های کنسول، پلن‌های اشتراکی حجمی، همگام‌سازی RAWG و تجربه استاندارد کنسولی',
-  icons: {
-    icon: '/logo.png',
-  },
-};
+const isIntl = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
+
+export const metadata: Metadata = isIntl
+  ? {
+      title: 'DrGame | Specialized PlayStation & Console Gaming Platform',
+      description: 'Advanced PlayStation & Console game data download platform, high-speed storage sync, and premium console gaming experience',
+      icons: {
+        icon: '/logo.png',
+      },
+    }
+  : {
+      title: 'دکتر گیم | پلتفرم تخصصی بازی‌های پلی‌استیشن',
+      description: 'پلتفرم پیشرفته دانلود دیتای بازی‌های کنسول، پلن‌های اشتراکی حجمی، همگام‌سازی RAWG و تجربه استاندارد کنسولی',
+      icons: {
+        icon: '/logo.png',
+      },
+    };
 
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';

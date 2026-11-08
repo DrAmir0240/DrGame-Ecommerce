@@ -171,6 +171,28 @@ export function translateDynamicText(
 }
 
 /**
+ * Synchronously seeds external translations into the memory and localStorage cache.
+ */
+export function seedDynamicTranslations(
+  translations: Record<string, string>,
+  targetLang: string
+) {
+  if (!translations || typeof translations !== 'object') return;
+  for (const [orig, trans] of Object.entries(translations)) {
+    if (!orig || !trans || orig === trans) continue;
+    const trimmed = orig.trim();
+    const cacheKey = `${targetLang}:${trimmed}`;
+    MEMORY_CACHE.set(cacheKey, trans);
+    if (typeof window !== 'undefined') {
+      try {
+        const hash = hashString(trimmed);
+        localStorage.setItem(getLocalStorageKey(targetLang, hash), trans);
+      } catch {}
+    }
+  }
+}
+
+/**
  * Synchronous check: returns the translated string immediately if cached or found in lexicon,
  * or null if an async network translation is required.
  */
