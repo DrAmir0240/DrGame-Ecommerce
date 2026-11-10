@@ -31,7 +31,7 @@ class ConsoleLoginRequest(BaseModel):
     console_code: str = Field(..., min_length=6, max_length=10, description="7-digit alphanumeric console code")
 
 class RefreshTokenRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str | None = None
 
 class TokenResponse(BaseModel):
     access_token: str

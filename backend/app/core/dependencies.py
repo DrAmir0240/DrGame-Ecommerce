@@ -1,6 +1,6 @@
 """FastAPI authentication dependencies and guards."""
 from typing import Annotated
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,15 +15,21 @@ from app.modules.users.models import User
 bearer_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
+    request: Request,
     auth: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ) -> User:
-    """Validate Bearer JWT token, verify against Redis blacklist, and return User model."""
-    if not auth or not auth.credentials:
+    """Validate JWT token from Authorization header or Cookie, verify against Redis blacklist, and return User."""
+    token = None
+    if auth and auth.credentials:
+        token = auth.credentials
+    elif request.cookies.get("access_token"):
+        token = request.cookies.get("access_token")
+
+    if not token:
         raise AuthenticationError("توکن احراز هویت ارسال نشده است.")
 
-    token = auth.credentials
     payload = decode_token(token)
 
     if payload.get("type") != "access":
@@ -58,16 +64,22 @@ async def get_current_user(
     return user
 
 async def get_optional_current_user(
+    request: Request,
     auth: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
     redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ) -> User | None:
-    """Return User if valid token is provided, otherwise return None without raising error."""
-    if not auth or not auth.credentials:
+    """Return User if valid token is provided in Cookie or Bearer header, otherwise return None."""
+    token = None
+    if auth and auth.credentials:
+        token = auth.credentials
+    elif request.cookies.get("access_token"):
+        token = request.cookies.get("access_token")
+
+    if not token:
         return None
 
     try:
-        token = auth.credentials
         payload = decode_token(token)
         if payload.get("type") != "access":
             return None

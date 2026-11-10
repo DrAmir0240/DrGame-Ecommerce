@@ -27,6 +27,7 @@ import { useTranslation } from '@/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import NotificationDropdown from './NotificationDropdown';
 import SubscriptionBadge from './SubscriptionBadge';
+import { getValidAvatarUrl } from '@/lib/avatar';
 
 export default function Header() {
   const pathname = usePathname();
@@ -283,7 +284,7 @@ export default function Header() {
                   <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg overflow-hidden bg-cosmic-purple/20 flex items-center justify-center shrink-0">
                     {user.avatar_url ? (
                       <img
-                        src={user.avatar_url}
+                        src={getValidAvatarUrl(user.avatar_url)}
                         alt={user.full_name || 'User Avatar'}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                       />
@@ -346,7 +347,7 @@ export default function Header() {
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl overflow-hidden border border-purple-500/40 bg-black/40">
                       <img
-                        src={user.avatar_url || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'}
+                        src={getValidAvatarUrl(user.avatar_url)}
                         alt="Profile"
                         className="w-full h-full object-cover"
                       />

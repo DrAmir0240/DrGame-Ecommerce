@@ -1,18 +1,17 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Check, Sparkles, Upload, Loader2 } from 'lucide-react';
+import { Check, Sparkles, Upload, Loader2, Gamepad2 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { apiRequest } from '@/lib/apiClient';
+import {
+  SONY_PRESET_AVATARS,
+  DEFAULT_PSN_AVATAR,
+  getValidAvatarUrl,
+  PsnPresetAvatar,
+} from '@/lib/avatar';
 
-export const SONY_PRESET_AVATARS = [
-  { id: 'kratos', nameKey: 'avatar.preset.kratos', url: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80' },
-  { id: 'spidey', nameKey: 'avatar.preset.spidey', url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80' },
-  { id: 'aloy', nameKey: 'avatar.preset.aloy', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
-  { id: 'jin', nameKey: 'avatar.preset.jin', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
-  { id: 'joel', nameKey: 'avatar.preset.joel', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
-  { id: 'astro', nameKey: 'avatar.preset.astro', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80' },
-];
+export { SONY_PRESET_AVATARS, DEFAULT_PSN_AVATAR };
 
 interface AvatarPickerProps {
   currentAvatarUrl?: string | null;
@@ -20,8 +19,10 @@ interface AvatarPickerProps {
 }
 
 export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPickerProps) {
-  const { t, n } = useTranslation();
-  const [selected, setSelected] = useState<string>(currentAvatarUrl || SONY_PRESET_AVATARS[0].url);
+  const { t, locale, n } = useTranslation();
+  const [selected, setSelected] = useState<string>(
+    getValidAvatarUrl(currentAvatarUrl) || SONY_PRESET_AVATARS[0].url
+  );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +62,6 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
         {
           method: 'POST',
           body: formData,
-          // Do NOT set Content-Type — browser adds boundary automatically
         }
       );
 
@@ -73,7 +73,6 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
       setUploadError(err.message || t('avatar.upload.error'));
     } finally {
       setUploading(false);
-      // Reset input so same file can be selected again
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -84,10 +83,12 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Sparkles className="w-4 h-4 text-nebula-violet" />
-          <span>{t('avatar.title')}</span>
+          <Gamepad2 className="w-4 h-4 text-nebula-violet" />
+          <span>{t('avatar.title') || 'آواتارهای رسمی کنسولی سونی (PlayStation)'}</span>
         </div>
-        <span className="text-xs text-text-muted">{t('avatar.subtitle', { count: n(121) })}</span>
+        <span className="text-xs text-text-muted">
+          {locale === 'fa' ? `${n(SONY_PRESET_AVATARS.length)} کاراکتر اختصاصی` : `${SONY_PRESET_AVATARS.length} Iconic Characters`}
+        </span>
       </div>
 
       {uploadError && (
@@ -96,25 +97,26 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
         </div>
       )}
 
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-        {/* Upload slot */}
+      {/* Grid: 21 slots = 1 upload + 20 PlayStation character avatars */}
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+        {/* Slot 0: Custom Image Upload */}
         <button
           type="button"
           onClick={handleUploadClick}
           disabled={uploading}
-          className={`relative group rounded-2xl overflow-hidden aspect-square border-2 transition-all duration-300 p-1 flex flex-col items-center justify-center gap-2 ${
+          className={`relative group rounded-2xl overflow-hidden aspect-square border-2 transition-all duration-300 p-1 flex flex-col items-center justify-center gap-1.5 cursor-pointer ${
             isCustomAvatar
-              ? 'border-nebula-violet shadow-neon-purple scale-105 bg-cosmic-purple/20'
-              : 'border-dashed border-white/20 hover:border-white/40 bg-surface-card'
+              ? 'border-nebula-violet shadow-neon-purple scale-105 bg-cosmic-purple/25'
+              : 'border-dashed border-white/20 hover:border-white/40 bg-surface-card hover:bg-white/5'
           }`}
           title={t('avatar.upload.title')}
         >
           {uploading ? (
-            <Loader2 className="w-6 h-6 text-cosmic-purple animate-spin" />
+            <Loader2 className="w-5 h-5 text-cosmic-purple animate-spin" />
           ) : (
-            <Upload className="w-6 h-6 text-text-muted group-hover:text-white transition-colors" />
+            <Upload className="w-5 h-5 text-text-muted group-hover:text-white transition-colors" />
           )}
-          <span className="text-[10px] text-text-muted group-hover:text-white transition-colors">
+          <span className="text-[9px] text-text-muted group-hover:text-white transition-colors text-center font-medium px-1 line-clamp-1">
             {uploading ? t('avatar.upload.uploading') : t('avatar.upload.title')}
           </span>
 
@@ -127,7 +129,7 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
               />
               <div className="absolute inset-0 bg-cosmic-purple/40 backdrop-blur-[1px] flex items-center justify-center">
                 <div className="p-1 rounded-full bg-nebula-violet text-white shadow-md">
-                  <Check className="w-4 h-4 stroke-[3]" />
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
               </div>
             </>
@@ -142,34 +144,38 @@ export default function AvatarPicker({ currentAvatarUrl, onSelect }: AvatarPicke
           onChange={handleFileChange}
         />
 
-        {/* Preset avatars */}
+        {/* 20 Official PlayStation Character Avatars */}
         {SONY_PRESET_AVATARS.map((avatar) => {
           const isSelected = selected === avatar.url;
-          const label = t(avatar.nameKey);
+          const charName = locale === 'fa' ? avatar.name_fa : avatar.name_en;
+          const gameTitle = locale === 'fa' ? avatar.game_fa : avatar.game_en;
+          const fullLabel = `${charName} · ${gameTitle}`;
+
           return (
             <button
               key={avatar.id}
               type="button"
               onClick={() => handleSelect(avatar.url)}
-              className={`relative group rounded-2xl overflow-hidden aspect-square border-2 transition-all duration-300 p-1 ${
+              className={`relative group rounded-2xl overflow-hidden aspect-square border-2 transition-all duration-300 p-1 cursor-pointer ${
                 isSelected
                   ? 'border-nebula-violet shadow-neon-purple scale-105 bg-cosmic-purple/20'
-                  : 'border-white/10 hover:border-white/30 bg-surface-card'
+                  : 'border-white/10 hover:border-white/30 bg-surface-card hover:scale-102'
               }`}
-              title={label}
+              title={fullLabel}
             >
-              <div className="relative w-full h-full rounded-xl overflow-hidden">
+              <div className="relative w-full h-full rounded-xl overflow-hidden bg-black/40">
                 <img
                   src={avatar.url}
-                  alt={label}
+                  alt={fullLabel}
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
 
               {isSelected && (
-                <div className="absolute inset-0 bg-cosmic-purple/40 backdrop-blur-[1px] flex items-center justify-center">
+                <div className="absolute inset-0 bg-cosmic-purple/30 backdrop-blur-[1px] flex items-center justify-center">
                   <div className="p-1 rounded-full bg-nebula-violet text-white shadow-md">
-                    <Check className="w-4 h-4 stroke-[3]" />
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 </div>
               )}

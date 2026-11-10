@@ -453,6 +453,7 @@ async def adjust_user_quota(
     return res
 
 
+@router.patch("/users/{user_id}/status")
 @router.put("/users/{user_id}/status")
 async def set_user_status(
     user_id: int,

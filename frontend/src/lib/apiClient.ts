@@ -104,6 +104,7 @@ export async function apiRequest<T = any>(
   try {
     response = await fetch(url, {
       ...options,
+      credentials: options.credentials || 'include',
       headers: requestHeaders,
     });
   } catch (netErr: any) {

@@ -377,6 +377,7 @@ async def stream_direct_game_download(
     }
     if range_header:
         headers["Content-Range"] = f"bytes {start}-{end}/{total_size}"
+        headers["Content-Length"] = str(content_length)
         return StreamingResponse(sample_stream(), status_code=status.HTTP_206_PARTIAL_CONTENT, headers=headers)
 
     return StreamingResponse(sample_stream(), status_code=status.HTTP_200_OK, headers=headers)

@@ -63,7 +63,7 @@ async def test_process_game_dlcs_attaches_and_deduplicates(test_db: AsyncSession
     # Verify Blood and Wine expansion estimated size is 10.0 GB
     bw_file = next(f for f in files if f.title == "Blood and Wine")
     assert bw_file.file_size_gb == 10.0
-    assert bw_file.download_url == f"/api/games/{parent_game.id}/downloads/1002/stream"
+    assert bw_file.download_url == f"/api/games/{parent_game.id}/downloads/{bw_file.id}/stream"
 
     # Second run with same DLCs: should be deduplicated (0 new files)
     second_run = await service._process_game_dlcs(

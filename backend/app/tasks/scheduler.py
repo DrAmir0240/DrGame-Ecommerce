@@ -7,28 +7,30 @@ logger = logging.getLogger("drgame.scheduler")
 scheduler = AsyncIOScheduler()
 
 
-async def daily_rawg_sync_task():
-    """Daily cron job: fetch fresh PlayStation releases from RAWG without artificial mockup titles."""
-    logger.info("Executing daily RAWG games sync task...")
+async def weekly_referral_settlement_task():
+    """Weekly Friday cron job: settle pending referral commissions and credit withdrawable balances."""
+    logger.info("Executing weekly referral commission settlement task...")
     try:
         from app.core.database import AsyncSessionLocal
-        from app.modules.rawg_sync.services import RAWGSyncService
+        from app.modules.wallet.settlement_service import WeeklySettlementService
         async with AsyncSessionLocal() as db:
-            # Sync top latest 20 releases
-            synced = await RAWGSyncService.sync_top_games(db, page_size=20)
-            logger.info(f"Daily RAWG sync task completed successfully: {synced} games synced.")
+            result = await WeeklySettlementService.execute_weekly_settlement(
+                db, executed_by_type="cron"
+            )
+            logger.info(f"Weekly settlement completed: {result.get('total_transactions', 0)} transactions settled.")
     except Exception as e:
-        logger.warning(f"Daily RAWG sync task error: {e}")
+        logger.warning(f"Weekly referral settlement task error: {e}")
 
 
 def start_scheduler():
     """Start background scheduler if not already running."""
     if not scheduler.running:
-        # Run daily at 03:00 AM UTC
+        # Run weekly on Friday at 00:00 UTC
         scheduler.add_job(
-            daily_rawg_sync_task,
-            trigger=CronTrigger(hour=3, minute=0),
-            id="daily_rawg_sync",
+            weekly_referral_settlement_task,
+            trigger=CronTrigger(day_of_week="fri", hour=0, minute=0),
+            id="weekly_referral_settlement",
+            name="Weekly Referral Settlement",
             replace_existing=True,
         )
         scheduler.start()

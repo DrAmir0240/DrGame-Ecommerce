@@ -25,6 +25,7 @@ import { useQuotaStore } from '@/stores/useQuotaStore';
 import { useTranslation } from '@/i18n';
 import { useConsoleDevice } from '@/hooks/useConsoleDevice';
 import PlatformIcon from '@/components/games/PlatformIcons';
+import { getValidAvatarUrl } from '@/lib/avatar';
 
 interface ConsoleTvModeProps {
   isOpen: boolean;
@@ -378,7 +379,7 @@ export default function ConsoleTvMode({ isOpen, onClose }: ConsoleTvModeProps) {
 
           <div className="w-9 h-9 rounded-2xl overflow-hidden bg-gradient-to-tr from-purple-700 to-pink-600 border border-white/20 p-0.5 flex items-center justify-center font-bold text-white text-xs shadow-md">
             {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-xl" />
+              <img src={getValidAvatarUrl(user.avatar_url)} alt="Profile" className="w-full h-full object-cover rounded-xl" />
             ) : (
               <span>{user?.username ? user.username.slice(0, 2).toUpperCase() : 'DG'}</span>
             )}

@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import { getValidAvatarUrl } from '@/lib/avatar';
 
 function ProfileContent() {
   const searchParams = useSearchParams();
@@ -146,7 +147,7 @@ function ProfileContent() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-nebula-violet shadow-neon-purple shrink-0">
             <img
-              src={user?.avatar_url || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'}
+              src={getValidAvatarUrl(user?.avatar_url)}
               alt={user?.full_name || t('profile.avatarAlt')}
               className="w-full h-full object-cover"
             />

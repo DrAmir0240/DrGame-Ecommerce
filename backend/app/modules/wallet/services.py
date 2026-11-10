@@ -133,6 +133,8 @@ class WalletService:
             tier_level=0,
             amount_toman=amount_toman,
             description=f"پاداش ویژه از صندوق پلتفرم: {description or 'جایزه ادمین'}",
+            settlement_status="settled",
+            settled_at=datetime.now(timezone.utc),
         )
         db.add(ledger)
 
