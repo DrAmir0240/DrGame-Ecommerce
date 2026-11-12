@@ -5,10 +5,12 @@ import { apiRequest } from '@/lib/apiClient';
 import { GameCardItem, GameListResponse } from '@/types/game';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslation } from '@/i18n';
-import ReferralSummaryBanner from '@/components/home/ReferralSummaryBanner';
+import dynamic from 'next/dynamic';
 import DoubleHeroBanners from '@/components/home/DoubleHeroBanners';
 import GameCarousel from '@/components/home/GameCarousel';
-import TutorialBlogsSection from '@/components/home/TutorialBlogsSection';
+
+const ReferralSummaryBanner = dynamic(() => import('@/components/home/ReferralSummaryBanner'), { ssr: false });
+const TutorialBlogsSection = dynamic(() => import('@/components/home/TutorialBlogsSection'), { ssr: false });
 import {
   Sparkles,
   Flame,

@@ -27,12 +27,16 @@ export const metadata: Metadata = isIntl
 
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import AuthModal from '@/components/auth/AuthModal';
-import GamepadNavigationListener from '@/components/layout/GamepadNavigationListener';
-import GeoLanguageModal from '@/components/layout/GeoLanguageModal';
-import FloatingQuickActions from '@/components/layout/FloatingQuickActions';
-import TvModeHost from '@/components/layout/TvModeHost';
-import Ps5HandoffListener from '@/components/layout/Ps5HandoffListener';
+import dynamic from 'next/dynamic';
+
+// Optimize client bundle size by code-splitting modals and secondary widgets
+const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: false });
+const GamepadNavigationListener = dynamic(() => import('@/components/layout/GamepadNavigationListener'), { ssr: false });
+const GeoLanguageModal = dynamic(() => import('@/components/layout/GeoLanguageModal'), { ssr: false });
+const FloatingQuickActions = dynamic(() => import('@/components/layout/FloatingQuickActions'), { ssr: false });
+const TvModeHost = dynamic(() => import('@/components/layout/TvModeHost'), { ssr: false });
+const Ps5HandoffListener = dynamic(() => import('@/components/layout/Ps5HandoffListener'), { ssr: false });
+
 import { I18nProvider } from '@/i18n';
 import { cookies } from 'next/headers';
 import { isSupportedLocale, isRtlLocale, type SupportedLocale } from '@/i18n/locale-codes';

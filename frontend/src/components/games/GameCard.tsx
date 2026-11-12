@@ -50,6 +50,7 @@ export default function GameCard({ game }: GameCardProps) {
             alt={game.title_en || game.title_fa}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">

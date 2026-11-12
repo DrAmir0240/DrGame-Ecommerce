@@ -1,21 +1,61 @@
+import withBundleAnalyzerFactory from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = withBundleAnalyzerFactory({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://api.gamedr.ir/api",
+  poweredByHeader: false,
+  compress: true,
+  swcMinify: true,
+
+  // Prevent build hang-ups trying to scrape remote Google Fonts in restricted networks
+  optimizeFonts: false,
+
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn'] }
+        : false,
   },
+
+  experimental: {
+    // Tree-shake large packages automatically to produce ultra-lean client chunks
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'three',
+      'clsx',
+      'tailwind-merge',
+      'zustand',
+      'i18next',
+      'react-i18next',
+    ],
+  },
+
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.gamedr.ir/api',
+  },
+
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "**",
+        protocol: 'https',
+        hostname: '**',
       },
       {
-        protocol: "http",
-        hostname: "**",
+        protocol: 'http',
+        hostname: '**',
       },
     ],
   },
+
   async redirects() {
     return [
       {
@@ -36,14 +76,27 @@ const nextConfig = {
     ];
   },
 
-  // The DualSense glb is ~12 MB — cache it hard so the tester loads instantly
-  // on repeat visits.
   async headers() {
     return [
+      // DualSense and 3D models (~12 MB) cached permanently
       {
         source: '/models/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      // Static assets long-lived cache
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      // SVGs, public icons and media
+      {
+        source: '/(bg-pattern-dark.svg|logo.png|favicon.ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
     ];
@@ -61,4 +114,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
