@@ -42,6 +42,7 @@ export async function apiRequest<T = any>(
   // Public authentication endpoints should never send an Authorization header
   const isPublicAuthEndpoint =
     cleanEndpoint === '/auth/login' ||
+    cleanEndpoint === '/auth/login/otp' ||
     cleanEndpoint === '/auth/register' ||
     cleanEndpoint === '/auth/otp/send' ||
     cleanEndpoint === '/auth/login/console' ||
@@ -103,6 +104,7 @@ export async function apiRequest<T = any>(
   try {
     response = await fetch(url, {
       ...options,
+      credentials: options.credentials || 'include',
       headers: requestHeaders,
     });
   } catch (netErr: any) {

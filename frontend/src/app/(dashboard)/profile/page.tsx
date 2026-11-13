@@ -41,6 +41,7 @@ import {
   Tv,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import { getValidAvatarUrl } from '@/lib/avatar';
 
 type ProfileTab = 'overview' | 'info' | 'console' | 'wishlist' | 'security' | 'referral';
 
@@ -261,20 +262,17 @@ function ProfileContent() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 text-start font-vazir">
       {/* ───────────────────────────────────────────────────────────────── */}
-      {/* AAA Gamer Hero Banner Header                                      */}
+      {/* 1. AAA Gamer Hero Banner Header (Solid Dark Background, No Glass)  */}
       {/* ───────────────────────────────────────────────────────────────── */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#121829] via-[#0d1220] to-[#070a13] border border-white/10 overflow-hidden shadow-2xl">
-        {/* Ambient Cosmic Purple & Cyan Halos */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-cosmic-purple/25 blur-3xl -z-0 rounded-full pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-cyan-500/15 blur-3xl -z-0 rounded-full pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
-          {/* Avatar and Basic User Meta */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 text-center sm:text-start">
+      <div className="rounded-3xl p-6 sm:p-8 bg-[#0c101c] border border-slate-800 shadow-2xl space-y-6 relative overflow-hidden">
+        {/* Main Identity & Quota Split */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* Gamer Avatar + Personal Meta */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-start flex-1">
             <div className="relative group shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-nebula-violet/80 p-0.5 bg-black/50 shadow-neon-purple">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-nebula-violet p-1 bg-[#101626] shadow-[0_0_20px_rgba(168,85,247,0.35)]">
                 <img
-                  src={user?.avatar_url || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'}
+                  src={getValidAvatarUrl(user?.avatar_url)}
                   alt={user?.full_name || t('profile.avatarAlt')}
                   className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
                 />
@@ -282,50 +280,52 @@ function ProfileContent() {
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className="absolute -bottom-2 -left-2 p-1.5 rounded-xl bg-cosmic-purple text-white shadow-lg hover:bg-nebula-violet transition-colors cursor-pointer border border-white/20"
-                title="تغییر آواتار سونی"
+                className="absolute -bottom-2 -left-2 p-2 rounded-xl bg-cosmic-purple text-white shadow-lg hover:bg-nebula-violet transition-colors cursor-pointer border border-white/20"
+                title="تغییر آواتار و اطلاعات"
               >
                 <Sparkles className="w-3.5 h-3.5" />
               </button>
             </div>
 
             <div className="space-y-2">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  {user?.full_name || 'کاربر گرامی'}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                <h1 className="text-xl sm:text-2xl font-black text-white">
+                  {user?.full_name || user?.username || 'گیمر دکتر گیم'}
                 </h1>
-                {user?.is_verified && (
-                  <span
-                    className="flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                    title="حساب تایید شده دکتر گیم"
-                  >
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>تایید هویت</span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>تایید هویت گیمر</span>
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 text-xs font-mono">
+                {user?.username && (
+                  <span className="px-2.5 py-1 rounded-lg bg-[#111728] border border-slate-800 text-slate-300">
+                    @{user.username}
+                  </span>
+                )}
+                {user?.phone && (
+                  <span className="px-2.5 py-1 rounded-lg bg-[#111728] border border-slate-800 text-slate-300" dir="ltr">
+                    {user.phone}
+                  </span>
+                )}
+                {user?.email && (
+                  <span className="px-2.5 py-1 rounded-lg bg-[#111728] border border-slate-800 text-slate-400" dir="ltr">
+                    {user.email}
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-roboto">
-                <span className="text-nebula-violet font-semibold">@{user?.username}</span>
-                {user?.phone && (
-                  <>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-slate-400">{user.phone}</span>
-                  </>
-                )}
-              </div>
-
-              <p className="text-xs text-text-muted flex items-center justify-center sm:justify-start gap-1.5 pt-1">
-                <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                <span>{t('profile.memberSince', { date: user?.created_at ? d(user.created_at) : '—' })}</span>
+              <p className="text-xs text-slate-400">
+                {t('profile.memberSince', { date: user?.created_at ? d(user.created_at) : '—' })}
               </p>
             </div>
           </div>
 
-          {/* Quick Subscription / Quota Highlight Card */}
-          <div className="w-full md:w-auto shrink-0 flex flex-col sm:flex-row md:flex-col gap-3 min-w-[240px]">
+          {/* Subscription / Quota Highlight Card (Solid, High-Contrast) */}
+          <div className="w-full lg:w-auto shrink-0 min-w-[280px]">
             {subStatus?.has_active_subscription ? (
-              <div className="p-4 rounded-2xl bg-black/40 border border-emerald-500/30 backdrop-blur-md space-y-2 shadow-lg">
+              <div className="p-4 rounded-2xl bg-[#111728] border border-emerald-500/30 space-y-2.5 shadow-lg">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
                     <Crown className="w-4 h-4 text-amber-400" />
@@ -337,11 +337,11 @@ function ProfileContent() {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                    <span>ترافیک باقی‌مانده:</span>
-                    <span className="text-white font-bold">{size(remainingQuota)}</span>
+                  <div className="flex justify-between text-[11px] text-slate-300 font-mono">
+                    <span>سهمیه باقی‌مانده:</span>
+                    <span className="text-emerald-400 font-bold">{size(remainingQuota)}</span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-[#1b2438] rounded-full h-2 overflow-hidden">
                     <div
                       className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500"
                       style={{ width: `${Math.max(quotaPercent, 4)}%` }}
@@ -350,22 +350,22 @@ function ProfileContent() {
                 </div>
 
                 {subStatus.end_date && (
-                  <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-white/5">
-                    <span>انقضا:</span>
+                  <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-800">
+                    <span>تاریخ انقضا:</span>
                     <span className="font-mono text-slate-300">{d(subStatus.end_date)}</span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="p-4 rounded-2xl bg-black/40 border border-cosmic-purple/30 backdrop-blur-md space-y-2.5 shadow-lg text-center sm:text-start">
+              <div className="p-4 rounded-2xl bg-[#111728] border border-cosmic-purple/30 space-y-2.5 shadow-lg text-center sm:text-start">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
                     <Gamepad2 className="w-4 h-4 text-cosmic-purple" />
                     <span>کاربر عادی (بدون اشتراک)</span>
                   </span>
                 </div>
-                <p className="text-[11px] text-text-muted leading-relaxed">
-                  با تهیه اشتراک حجمی، ترافیک پرسرعت نیم‌بهاء برای دانلود دیتای کنسول دریافت کنید.
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  ترافیک پرسرعت نیم‌بهاء برای دانلود دیتای بازی‌های کنسول
                 </p>
                 <Link
                   href="/subscriptions"
@@ -378,9 +378,9 @@ function ProfileContent() {
           </div>
         </div>
 
-        {/* Quick Stats Pill Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 pt-6 mt-6 border-t border-white/10 text-xs">
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5">
+        {/* Quick Stats Row (4 Solid Cards, No Glass) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 border-t border-slate-800 text-xs">
+          <div className="p-3 rounded-xl bg-[#111728] border border-slate-800 flex items-center gap-2.5">
             <Bookmark className="w-4 h-4 text-pink-400 shrink-0" />
             <div className="overflow-hidden">
               <span className="text-slate-400 block text-[10px]">علاقه‌مندی‌ها</span>
@@ -388,7 +388,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5">
+          <div className="p-3 rounded-xl bg-[#111728] border border-slate-800 flex items-center gap-2.5">
             <HardDrive className="w-4 h-4 text-cyan-400 shrink-0" />
             <div className="overflow-hidden">
               <span className="text-slate-400 block text-[10px]">سهمیه ترافیک</span>
@@ -398,7 +398,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5">
+          <div className="p-3 rounded-xl bg-[#111728] border border-slate-800 flex items-center gap-2.5">
             <Share2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="overflow-hidden">
               <span className="text-slate-400 block text-[10px]">کد معرف شما</span>
@@ -408,7 +408,7 @@ function ProfileContent() {
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5">
+          <div className="p-3 rounded-xl bg-[#111728] border border-slate-800 flex items-center gap-2.5">
             <Tv className="w-4 h-4 text-purple-400 shrink-0" />
             <div className="overflow-hidden">
               <span className="text-slate-400 block text-[10px]">ورود به کنسول</span>
@@ -421,16 +421,16 @@ function ProfileContent() {
       </div>
 
       {/* ───────────────────────────────────────────────────────────────── */}
-      {/* Modern Segmented Navigation Tabs                                  */}
+      {/* 2. Modern Segmented Navigation Tabs (Solid Dark)                   */}
       {/* ───────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0d1220] border border-white/10 overflow-x-auto scrollbar-none shadow-lg">
+      <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0c101c] border border-slate-800 overflow-x-auto scrollbar-none shadow-lg">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'overview'
-              ? 'bg-gradient-to-r from-cosmic-purple to-nebula-violet text-white shadow-neon-purple'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-cosmic-purple to-nebula-violet text-white shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <HardDrive className="w-4 h-4" />
@@ -442,8 +442,8 @@ function ProfileContent() {
           onClick={() => setActiveTab('info')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'info'
-              ? 'bg-gradient-to-r from-cosmic-purple to-nebula-violet text-white shadow-neon-purple'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-cosmic-purple to-nebula-violet text-white shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <User className="w-4 h-4" />
@@ -455,8 +455,8 @@ function ProfileContent() {
           onClick={() => setActiveTab('wishlist')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'wishlist'
-              ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/25'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <Bookmark className="w-4 h-4" />
@@ -473,8 +473,8 @@ function ProfileContent() {
           onClick={() => setActiveTab('console')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'console'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black shadow-lg shadow-cyan-500/25'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <Gamepad2 className="w-4 h-4" />
@@ -486,8 +486,8 @@ function ProfileContent() {
           onClick={() => setActiveTab('security')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'security'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 font-black shadow-lg shadow-amber-500/25'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 font-black shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
@@ -499,8 +499,8 @@ function ProfileContent() {
           onClick={() => setActiveTab('referral')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'referral'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-lg shadow-emerald-500/25'
-              : 'text-text-muted hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-[#141b2b]'
           }`}
         >
           <Share2 className="w-4 h-4" />
@@ -512,16 +512,16 @@ function ProfileContent() {
       {/* Tab 1: Overview & Subscription Quota Dashboard                     */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'overview' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6">
           {/* Main Quota & Traffic Consumption Card */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-white/10 space-y-6 shadow-xl relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-slate-800 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <HardDrive className="w-5 h-5 text-cyan-400" />
                   <span>وضعیت سهمیه ترافیک و اشتراک کنسول</span>
                 </h2>
-                <p className="text-xs text-text-muted mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   میزان ترافیک پرسرعت مصرف‌شده و حجم آزاد اکانت شما برای دانلود فایل‌های بازی
                 </p>
               </div>
@@ -541,27 +541,27 @@ function ProfileContent() {
                 <span className="text-slate-300 font-semibold">درصد ترافیک مصرف شده</span>
                 <span className="font-mono font-black text-cyan-400 text-sm">{quotaPercent}%</span>
               </div>
-              <div className="w-full bg-black/60 border border-white/10 rounded-full h-4 overflow-hidden p-0.5">
+              <div className="w-full bg-[#101626] border border-slate-800 rounded-full h-4 overflow-hidden p-0.5">
                 <div
                   className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${Math.max(quotaPercent, 2)}%` }}
                 />
               </div>
               <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2">
-                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#111728] border border-slate-800 space-y-1">
                   <span className="text-[10px] text-slate-400 block">حجم کل اشتراک</span>
                   <span className="font-mono font-bold text-white text-sm">
                     {totalQuota > 0 ? size(totalQuota) : '۰ GB'}
                   </span>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#111728] border border-slate-800 space-y-1">
                   <span className="text-[10px] text-slate-400 block">ترافیک مصرف‌شده</span>
                   <span className="font-mono font-bold text-amber-400 text-sm">
                     {size(usedQuota)}
                   </span>
                 </div>
-                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                  <span className="text-[10px] text-emerald-300 block">سهمیه باقیمانده</span>
+                <div className="p-3 rounded-2xl bg-[#111728] border border-emerald-500/30 space-y-1">
+                  <span className="text-[10px] text-emerald-400 block">سهمیه باقیمانده</span>
                   <span className="font-mono font-extrabold text-emerald-400 text-sm">
                     {size(remainingQuota)}
                   </span>
@@ -574,22 +574,22 @@ function ProfileContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/dashboard/downloads"
-              className="p-5 rounded-2xl bg-[#0f1423] border border-white/10 hover:border-cyan-500/40 transition-all hover:-translate-y-1 flex flex-col justify-between group shadow-lg"
+              className="p-5 rounded-2xl bg-[#0c101c] border border-slate-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between group shadow-lg"
             >
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
                   <HardDrive className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">
                     دانلودهای من
                   </h3>
-                  <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                     مشاهده لیست فایل‌ها، لینک‌های مستقیم و سابقه دریافت دیتا
                   </p>
                 </div>
               </div>
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-semibold mt-4">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-cyan-400 font-semibold mt-4">
                 <span>مشاهده آرشیو</span>
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
               </div>
@@ -597,22 +597,22 @@ function ProfileContent() {
 
             <Link
               href="/gamepad"
-              className="p-5 rounded-2xl bg-[#0f1423] border border-white/10 hover:border-purple-500/40 transition-all hover:-translate-y-1 flex flex-col justify-between group shadow-lg"
+              className="p-5 rounded-2xl bg-[#0c101c] border border-slate-800 hover:border-purple-500/50 transition-all flex flex-col justify-between group shadow-lg"
             >
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center">
                   <Gamepad2 className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">
                     تست دسته DualSense
                   </h3>
-                  <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                     بررسی لرزش هپتیک، دریفت آنالوگ، ژیروسکوپ و میکروفون با مدل سه‌بعدی
                   </p>
                 </div>
               </div>
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-purple-400 font-semibold mt-4">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-purple-400 font-semibold mt-4">
                 <span>اجرای تست دسته</span>
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
               </div>
@@ -620,22 +620,22 @@ function ProfileContent() {
 
             <Link
               href="/tools/jailbreak"
-              className="p-5 rounded-2xl bg-[#0f1423] border border-white/10 hover:border-amber-500/40 transition-all hover:-translate-y-1 flex flex-col justify-between group shadow-lg"
+              className="p-5 rounded-2xl bg-[#0c101c] border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
             >
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
                     ابزارهای جیلبریک
                   </h3>
-                  <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                     سرور DNS اختصاصی، پیلودهای GoldHEN و راهنمای فریمورها
                   </p>
                 </div>
               </div>
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-amber-400 font-semibold mt-4">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-amber-400 font-semibold mt-4">
                 <span>مشاهده ابزارها</span>
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
               </div>
@@ -643,22 +643,22 @@ function ProfileContent() {
 
             <Link
               href="/dashboard/tickets"
-              className="p-5 rounded-2xl bg-[#0f1423] border border-white/10 hover:border-emerald-500/40 transition-all hover:-translate-y-1 flex flex-col justify-between group shadow-lg"
+              className="p-5 rounded-2xl bg-[#0c101c] border border-slate-800 hover:border-emerald-500/50 transition-all flex flex-col justify-between group shadow-lg"
             >
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
                   <Info className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
                     پشتیبانی و تیکت‌ها
                   </h3>
-                  <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                     پاسخگویی فنی ۲۴ ساعته در ۷ روز هفته برای حل مشکلات دانلود
                   </p>
                 </div>
               </div>
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-emerald-400 font-semibold mt-4">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-emerald-400 font-semibold mt-4">
                 <span>ارسال تیکت</span>
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
               </div>
@@ -671,9 +671,13 @@ function ProfileContent() {
       {/* Tab 2: Personal Info & Sony Avatars                                */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'info' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6">
           {/* Sony Console Avatar Picker */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-white/10 space-y-6 shadow-xl">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-slate-800 space-y-4 shadow-xl">
+            <h3 className="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+              <Sparkles className="w-4 h-4 text-nebula-violet" />
+              <span>انتخاب آواتار رسمی سونی یا آپلود تصویر</span>
+            </h3>
             <AvatarPicker
               currentAvatarUrl={user?.avatar_url}
               onSelect={(url) => handleUpdateProfile(url)}
@@ -681,13 +685,13 @@ function ProfileContent() {
           </div>
 
           {/* Profile Details Form */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-white/10 space-y-6 shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-slate-800 space-y-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <User className="w-5 h-5 text-nebula-violet" />
                 <span>اطلاعات فردی و تماس</span>
               </h3>
-              <span className="text-xs text-text-muted font-mono">شناسه کاربر: #{user?.id}</span>
+              <span className="text-xs text-slate-400 font-mono">شناسه کاربر: #{user?.id}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -700,7 +704,7 @@ function ProfileContent() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="نام کامل خود را وارد کنید"
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-nebula-violet transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#111728] border border-slate-700 text-white text-sm focus:outline-none focus:border-nebula-violet transition-colors"
                 />
               </div>
 
@@ -713,7 +717,7 @@ function ProfileContent() {
                     type="text"
                     value={user?.username || ''}
                     disabled
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/5 text-slate-400 text-sm cursor-not-allowed font-roboto"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#111728]/70 border border-slate-800 text-slate-400 text-sm cursor-not-allowed font-roboto"
                   />
                   <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 </div>
@@ -727,7 +731,7 @@ function ProfileContent() {
                   type="text"
                   value={user?.phone || 'ثبت نشده'}
                   disabled
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/5 text-slate-400 text-sm cursor-not-allowed font-roboto"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#111728]/70 border border-slate-800 text-slate-400 text-sm cursor-not-allowed font-roboto"
                 />
               </div>
 
@@ -739,7 +743,7 @@ function ProfileContent() {
                   type="text"
                   value={user?.email || 'ثبت نشده'}
                   disabled
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/5 text-slate-400 text-sm cursor-not-allowed font-roboto"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#111728]/70 border border-slate-800 text-slate-400 text-sm cursor-not-allowed font-roboto"
                 />
               </div>
             </div>
@@ -779,29 +783,26 @@ function ProfileContent() {
       {/* Tab 3: Console Sync & PlayStation Pairing                          */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'console' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          {/* PlayStation Console Pair Live Widget */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-cyan-500/30 space-y-6 shadow-xl relative overflow-hidden">
-            <div className="border-b border-white/10 pb-4">
+        <div className="space-y-6">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-cyan-500/30 space-y-6 shadow-xl relative overflow-hidden">
+            <div className="border-b border-slate-800 pb-4">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <Gamepad2 className="w-5 h-5 text-cyan-400" />
                 <span>اتصال کنسول و همگام‌سازی لحظه‌ای (Console Pairing)</span>
               </h2>
-              <p className="text-xs text-text-muted mt-1 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 با اتصال کنسول به حساب کاربری، دیتای بازی‌ها و سوابق شما با مرورگر اختصاصی کنسول سوییچ و پلی‌استیشن هماهنگ می‌شود.
               </p>
             </div>
 
-            {/* Embedded Live Console Pairing Widget */}
             <div className="max-w-md mx-auto">
               <ConsolePairWidget />
             </div>
 
-            {/* Step-by-Step Instructions */}
-            <div className="pt-6 border-t border-white/10 space-y-4">
+            <div className="pt-6 border-t border-slate-800 space-y-4">
               <h4 className="text-xs font-bold text-slate-300">راهنمای اتصال ۳ مرحله‌ای در کنسول:</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#111728] border border-slate-800 space-y-1.5">
                   <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold font-mono">
                     ۱
                   </span>
@@ -811,7 +812,7 @@ function ProfileContent() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#111728] border border-slate-800 space-y-1.5">
                   <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold font-mono">
                     ۲
                   </span>
@@ -821,7 +822,7 @@ function ProfileContent() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#111728] border border-slate-800 space-y-1.5">
                   <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold font-mono">
                     ۳
                   </span>
@@ -840,19 +841,18 @@ function ProfileContent() {
       {/* Tab 4: Wishlist (Games Saved for Later)                            */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'wishlist' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <Bookmark className="w-5 h-5 text-pink-400" />
                 <span>بازی‌های نشان‌شده در علاقه‌مندی‌ها ({n(wishlistGames.length)} مورد)</span>
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 عناوینی که برای دانلود بعدی یا بررسی ذخیره کرده‌اید
               </p>
             </div>
 
-            {/* Quick search inside wishlist */}
             {wishlistGames.length > 0 && (
               <div className="relative w-full sm:w-64">
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-2.5" />
@@ -861,7 +861,7 @@ function ProfileContent() {
                   value={wishlistSearch}
                   onChange={(e) => setWishlistSearch(e.target.value)}
                   placeholder="جستجو در علاقه‌مندی‌ها..."
-                  className="w-full pr-9 pl-3 py-2 rounded-xl bg-black/40 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full pr-9 pl-3 py-2 rounded-xl bg-[#111728] border border-slate-700 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-500 transition-colors"
                 />
               </div>
             )}
@@ -873,13 +873,13 @@ function ProfileContent() {
               <span className="text-xs text-slate-400 block">در حال بارگذاری لیست علاقه‌مندی‌ها...</span>
             </div>
           ) : wishlistGames.length === 0 ? (
-            <div className="py-16 text-center rounded-3xl bg-[#0f1423] border border-white/5 space-y-4">
+            <div className="py-16 text-center rounded-3xl bg-[#0c101c] border border-slate-800 space-y-4">
               <div className="w-16 h-16 rounded-3xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center mx-auto">
                 <Bookmark className="w-8 h-8 opacity-60" />
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-white">لیست علاقه‌مندی‌های شما خالی است</h3>
-                <p className="text-xs text-text-muted max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                   می‌توانید با کلیک روی آیکون بوکمارک در کارت هر بازی، آن را به لیست علاقه‌مندی‌های خود اضافه کنید.
                 </p>
               </div>
@@ -892,7 +892,7 @@ function ProfileContent() {
               </Link>
             </div>
           ) : filteredWishlist.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div className="py-12 text-center text-xs text-slate-400 rounded-2xl bg-[#0c101c] border border-slate-800">
               موردی مطابق با جستجوی «{wishlistSearch}» در علاقه‌مندی‌ها یافت نشد.
             </div>
           ) : (
@@ -927,10 +927,9 @@ function ProfileContent() {
       {/* Tab 5: Security, Password & Active Sessions                        */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'security' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Active Sessions Overview Card */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-white/10 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="space-y-6">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-slate-800 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 <Laptop className="w-5 h-5 text-amber-400" />
                 <span>امنیت حساب و نشست‌های فعال</span>
@@ -940,16 +939,16 @@ function ProfileContent() {
               </span>
             </div>
 
-            <p className="text-xs text-text-secondary leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed">
               کنترل نشست‌های همزمان روی مرورگر، موبایل و کنسول‌های PS4/PS5 و لغو دسترسی‌های مشکوک.
             </p>
 
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-[#111728] border border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <div>
                   <span className="text-xs font-bold text-white block">نشست جاری: دستگاه تایید شده</span>
-                  <span className="text-[11px] text-text-muted">آخرین فعالیت همین لحظه</span>
+                  <span className="text-[11px] text-slate-400">آخرین فعالیت همین لحظه</span>
                 </div>
               </div>
               <Link
@@ -962,14 +961,13 @@ function ProfileContent() {
             </div>
           </div>
 
-          {/* Change Password Form */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#0f1423] border border-white/10 space-y-6 shadow-xl">
-            <div className="border-b border-white/10 pb-4">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#0c101c] border border-slate-800 space-y-6 shadow-xl">
+            <div className="border-b border-slate-800 pb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Lock className="w-5 h-5 text-amber-400" />
                 <span>{t('profile.password.title')}</span>
               </h3>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 برای حفظ امنیت حساب، کلمه عبوری با ترکیب حروف بزرگ، کوچک، اعداد و نمادها انتخاب کنید.
               </p>
             </div>
@@ -989,7 +987,6 @@ function ProfileContent() {
             )}
 
             <form onSubmit={handleChangePassword} className="space-y-4">
-              {/* Current Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   {t('profile.password.current')}
@@ -1000,7 +997,7 @@ function ProfileContent() {
                     value={currentPw}
                     onChange={(e) => setCurrentPw(e.target.value)}
                     required
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#111728] border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
                   />
                   <button
                     type="button"
@@ -1012,7 +1009,6 @@ function ProfileContent() {
                 </div>
               </div>
 
-              {/* New Password & Confirm Password */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -1024,7 +1020,7 @@ function ProfileContent() {
                       value={newPw}
                       onChange={(e) => setNewPw(e.target.value)}
                       required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#111728] border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
                     />
                     <button
                       type="button"
@@ -1045,12 +1041,11 @@ function ProfileContent() {
                     value={confirmPw}
                     onChange={(e) => setConfirmPw(e.target.value)}
                     required
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#111728] border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500 font-mono transition-colors"
                   />
                 </div>
               </div>
 
-              {/* Password Strength Indicator */}
               {newPw && (
                 <div className="space-y-1.5 pt-1">
                   <div className="flex justify-between items-center text-[11px]">
@@ -1059,7 +1054,7 @@ function ProfileContent() {
                       {pwStrength.label}
                     </span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-[#1b2438] rounded-full h-1.5 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${pwStrength.color.split(' ')[0]}`}
                       style={{ width: `${pwStrength.percent}%` }}
@@ -1096,8 +1091,8 @@ function ProfileContent() {
       {/* Tab 6: Referral, Commission & Earnings Dashboard                   */}
       {/* ───────────────────────────────────────────────────────────────── */}
       {activeTab === 'referral' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-[#0c1f1a] to-[#091512] border border-emerald-500/30 space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="space-y-6">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#091514] border border-emerald-500/30 space-y-6 shadow-2xl relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-500/20 pb-4">
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -1114,7 +1109,7 @@ function ProfileContent() {
             </div>
 
             {/* Referral Code Big Box */}
-            <div className="p-4 rounded-2xl bg-black/60 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-[#0e211e] border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-start space-y-0.5">
                 <span className="text-[11px] text-slate-400 block">کد اختصاصی معرفی شما:</span>
                 <span className="text-2xl sm:text-3xl font-mono font-black tracking-widest text-emerald-400 select-all" dir="ltr">
@@ -1152,25 +1147,25 @@ function ProfileContent() {
             <div className="space-y-3 pt-2">
               <h4 className="text-xs font-bold text-slate-300">پلن کمیسیون چندسطحی هوشمند:</h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-emerald-500/20 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#0f2420] border border-emerald-500/20 space-y-1">
                   <span className="text-[10px] text-slate-400 block">سطح ۱ (مستقیم)</span>
                   <span className="text-base font-black text-emerald-400 font-mono">۱۰٪</span>
-                  <span className="text-[9px] text-slate-500 block">از تمام خریدها</span>
+                  <span className="text-[9px] text-slate-400 block">از تمام خریدها</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-emerald-500/20 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#0f2420] border border-emerald-500/20 space-y-1">
                   <span className="text-[10px] text-slate-400 block">سطح ۲</span>
                   <span className="text-base font-black text-emerald-400 font-mono">۵٪</span>
-                  <span className="text-[9px] text-slate-500 block">معرف‌های رده دوم</span>
+                  <span className="text-[9px] text-slate-400 block">معرف‌های رده دوم</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-emerald-500/20 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#0f2420] border border-emerald-500/20 space-y-1">
                   <span className="text-[10px] text-slate-400 block">سطح ۳</span>
                   <span className="text-base font-black text-emerald-400 font-mono">۲.۵٪</span>
-                  <span className="text-[9px] text-slate-500 block">معرف‌های رده سوم</span>
+                  <span className="text-[9px] text-slate-400 block">معرف‌های رده سوم</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-emerald-500/20 space-y-1">
+                <div className="p-3 rounded-2xl bg-[#0f2420] border border-emerald-500/20 space-y-1">
                   <span className="text-[10px] text-slate-400 block">سطح ۴</span>
                   <span className="text-base font-black text-emerald-400 font-mono">۱٪</span>
-                  <span className="text-[9px] text-slate-500 block">شبکه معرف‌ها</span>
+                  <span className="text-[9px] text-slate-400 block">شبکه معرف‌ها</span>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import { useQuotaStore } from '@/stores/useQuotaStore';
 import { useTranslation } from '@/i18n';
 import { getAccessToken } from '@/lib/authTokens';
 import ConsolePairWidget from '@/components/profile/ConsolePairWidget';
+import { getValidAvatarUrl } from '@/lib/avatar';
 import {
   User as UserIcon,
   Share2,
@@ -147,10 +148,7 @@ export default function UserDashboardLayout({
         <div className="relative mb-2">
           <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-cosmic-purple/60 shadow-neon-purple p-0.5 bg-black/40">
             <img
-              src={
-                user?.avatar_url ||
-                'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'
-              }
+              src={getValidAvatarUrl(user?.avatar_url)}
               alt={user?.full_name || t('dashboard.userAlt')}
               className="w-full h-full object-cover rounded-xl"
             />
@@ -262,10 +260,7 @@ export default function UserDashboardLayout({
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-cosmic-purple/60 p-0.5 bg-black/40 shrink-0">
             <img
-              src={
-                user?.avatar_url ||
-                'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80'
-              }
+              src={getValidAvatarUrl(user?.avatar_url)}
               alt={user?.full_name || t('dashboard.userAlt')}
               className="w-full h-full object-cover rounded-lg"
             />

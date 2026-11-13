@@ -736,12 +736,14 @@ class CatalogSyncService:
                 file_type="dlc",
                 title=title,
                 file_size_gb=file_size,
-                download_url=f"/api/games/{game_id}/downloads/{dlc_id}/stream",
+                download_url="",
                 allowed_tiers=["gold", "silver", "bronze"],
                 version=None,
                 is_active=True,
             )
             db.add(dlc_file)
+            await db.flush()
+            dlc_file.download_url = f"/api/games/{game_id}/downloads/{dlc_file.id}/stream"
             created_count += 1
             existing_titles_norm.add(title.lower())
 

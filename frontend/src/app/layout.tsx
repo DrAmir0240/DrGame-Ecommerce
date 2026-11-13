@@ -38,20 +38,15 @@ const TvModeHost = dynamic(() => import('@/components/layout/TvModeHost'), { ssr
 const Ps5HandoffListener = dynamic(() => import('@/components/layout/Ps5HandoffListener'), { ssr: false });
 
 import { I18nProvider } from '@/i18n';
-import { cookies } from 'next/headers';
-import { isSupportedLocale, isRtlLocale, type SupportedLocale } from '@/i18n/locale-codes';
+import { isRtlLocale, type SupportedLocale } from '@/i18n/locale-codes';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = cookies();
   const isIntl = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === 'international';
-  const defaultLocale: SupportedLocale = isIntl ? 'en' : 'fa';
-  const cookieLang = cookieStore.get('drgame_lang')?.value;
-  const initialLocale: SupportedLocale =
-    cookieLang && isSupportedLocale(cookieLang) ? (cookieLang as SupportedLocale) : defaultLocale;
+  const initialLocale: SupportedLocale = isIntl ? 'en' : 'fa';
   const initialDir = isRtlLocale(initialLocale) ? 'rtl' : 'ltr';
 
   return (

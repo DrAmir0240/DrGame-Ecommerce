@@ -30,6 +30,26 @@ interface OtpSendResponse {
   is_registered?: boolean;
 }
 
+const toEnglishDigits = (str: string): string => {
+  if (!str) return '';
+  return str
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776))
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632));
+};
+
+const normalizeTarget = (val: string, domestic: boolean): string => {
+  let clean = toEnglishDigits(val).trim();
+  if (domestic) {
+    clean = clean.replace(/[\s-]/g, '');
+    if (clean.startsWith('+98')) {
+      clean = '0' + clean.slice(3);
+    } else if (clean.startsWith('0098')) {
+      clean = '0' + clean.slice(4);
+    }
+  }
+  return clean;
+};
+
 export default function AuthModal() {
   const { t, dir } = useTranslation();
   const { isAuthModalOpen, setAuthModalOpen, authModalInitialTab, setAuth } = useAuthStore();
@@ -109,7 +129,7 @@ export default function AuthModal() {
 
   // Real-time target validator
   const validateTarget = (val: string) => {
-    const clean = val.trim();
+    const clean = normalizeTarget(val, isDomestic);
     if (!clean) return { valid: false, message: null, type: 'empty' };
 
     if (isDomestic) {
@@ -157,7 +177,7 @@ export default function AuthModal() {
   // Step 1: Send OTP and automatically check if account exists
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanTarget = otpTarget.trim();
+    const cleanTarget = normalizeTarget(otpTarget, isDomestic);
     const validation = validateTarget(cleanTarget);
     if (!validation.valid) {
       setError(validation.message || t('auth.modal.validation.enterValidInput'));
@@ -191,8 +211,8 @@ export default function AuthModal() {
   // Step 2A: Verify OTP for existing account (Login)
   const handleOtpLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanCode = otpCode.trim();
-    const cleanTarget = otpTarget.trim();
+    const cleanCode = toEnglishDigits(otpCode).trim();
+    const cleanTarget = normalizeTarget(otpTarget, isDomestic);
     if (!cleanCode) {
       setError(t('auth.modal.validation.enter6DigitCode'));
       return;
@@ -228,12 +248,12 @@ export default function AuthModal() {
   // Step 2B: Verify OTP and Register new account
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanTarget = otpTarget.trim();
-    const cleanCode = otpCode.trim();
+    const cleanTarget = normalizeTarget(otpTarget, isDomestic);
+    const cleanCode = toEnglishDigits(otpCode).trim();
     const cleanFullName = regFullName.trim();
-    const cleanUsername = regUsername.trim();
+    const cleanUsername = toEnglishDigits(regUsername).trim();
     const cleanPassword = regPassword.trim();
-    const cleanReferral = regReferralCode.trim() || undefined;
+    const cleanReferral = toEnglishDigits(regReferralCode).trim() || undefined;
 
     if (!cleanCode) {
       setError(t('auth.modal.validation.enter6DigitCode'));
@@ -281,7 +301,7 @@ export default function AuthModal() {
   // Password Login
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanLogin = loginIdentifier.trim();
+    const cleanLogin = toEnglishDigits(loginIdentifier).trim();
     const cleanPass = loginPassword.trim();
     if (!cleanLogin || !cleanPass) {
       setError(t('auth.modal.validation.credentialsRequired'));
@@ -310,7 +330,7 @@ export default function AuthModal() {
   // Console Login (PS4 / PS5)
   const handleConsoleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanConsoleCode = consoleCode.toUpperCase().trim();
+    const cleanConsoleCode = toEnglishDigits(consoleCode).toUpperCase().trim();
     if (!cleanConsoleCode) {
       setError(t('auth.modal.validation.consoleCodeRequired'));
       return;
@@ -462,7 +482,7 @@ export default function AuthModal() {
                         dir="ltr"
                         style={{ colorScheme: 'dark' }}
                         value={otpTarget}
-                        onChange={(e) => setOtpTarget(e.target.value)}
+                        onChange={(e) => setOtpTarget(toEnglishDigits(e.target.value))}
                         placeholder={isDomestic ? t('auth.modal.phonePlaceholder') : t('auth.modal.emailPlaceholder')}
                         className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
                         required
@@ -542,7 +562,7 @@ export default function AuthModal() {
                       maxLength={6}
                       style={{ colorScheme: 'dark' }}
                       value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) => setOtpCode(toEnglishDigits(e.target.value).replace(/\D/g, ''))}
                       placeholder="123456"
                       className="w-full text-center tracking-widest text-2xl font-bold px-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-emerald-400 focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet caret-purple-400 selection:bg-purple-600"
                       required
@@ -603,7 +623,7 @@ export default function AuthModal() {
                       maxLength={6}
                       style={{ colorScheme: 'dark' }}
                       value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) => setOtpCode(toEnglishDigits(e.target.value).replace(/\D/g, ''))}
                       placeholder="123456"
                       className="w-full text-center tracking-widest text-xl font-bold px-4 py-2.5 rounded-xl bg-[#0d121f] border border-white/15 text-emerald-400 focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet caret-purple-400"
                       required
@@ -721,7 +741,7 @@ export default function AuthModal() {
                     dir="ltr"
                     style={{ colorScheme: 'dark' }}
                     value={loginIdentifier}
-                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                    onChange={(e) => setLoginIdentifier(toEnglishDigits(e.target.value))}
                     placeholder="gamer2026 / 0912... / user@domain.com"
                     className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#0d121f] border border-white/15 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet transition-colors text-left caret-purple-400 selection:bg-purple-600 selection:text-white"
                     required
@@ -798,7 +818,7 @@ export default function AuthModal() {
                     maxLength={10}
                     style={{ colorScheme: 'dark' }}
                     value={consoleCode}
-                    onChange={(e) => setConsoleCode(e.target.value.toUpperCase())}
+                    onChange={(e) => setConsoleCode(toEnglishDigits(e.target.value).toUpperCase())}
                     placeholder="7X9K2P"
                     className="w-full text-center uppercase tracking-widest text-2xl font-mono font-bold px-11 py-3.5 rounded-xl bg-[#0d121f] border border-cosmic-purple/40 text-emerald-400 focus:outline-none focus:border-nebula-violet focus:ring-1 focus:ring-nebula-violet caret-purple-400"
                     required
