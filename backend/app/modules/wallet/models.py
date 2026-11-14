@@ -121,3 +121,34 @@ class WithdrawalRequest(Base):
         nullable=False,
     )
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ReferralBlacklist(Base):
+    """Audit and enforcement table for users blocked/ghosted from referral commissions or subscriptions."""
+
+    __tablename__ = "referral_blacklist"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    admin_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    # Checkbox 1: Ghost user in referral waterfall and divert tier commission to treasury pool
+    block_referral: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # Checkbox 2: Cancel active subscriptions immediately and ban user from future purchases
+    block_subscription: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    # Normalized identity metadata preserved to block bank accounts under blacklisted names/IDs
+    blocked_full_name: Mapped[str | None] = mapped_column(String(150), nullable=True, index=True)
+    blocked_national_code: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    unblocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    unblocked_by_admin_id: Mapped[int | None] = mapped_column(Integer, nullable=True)

@@ -90,26 +90,52 @@ class FinanceOverviewResponse(BaseModel):
 class PayoutRequestItem(BaseModel):
     id: int
     user_id: int
+    user_username: Optional[str] = None
     user_name: Optional[str] = None
     user_phone: Optional[str] = None
     amount_toman: int
     status: str
     account_type: str
+    account_holder: Optional[str] = None
+    bank_name: Optional[str] = None
     sheba_number: Optional[str] = None
     card_number: Optional[str] = None
     crypto_wallet_address: Optional[str] = None
     crypto_network: Optional[str] = None
+    admin_receipt_url: Optional[str] = None
+    admin_notes: Optional[str] = None
     created_at: datetime
+    processed_at: Optional[datetime] = None
 
 
 class ProcessPayoutRequest(BaseModel):
-    new_status: str = Field(..., pattern="^(approved|rejected)$", description="وضعیت جدید درخواست: approved یا rejected")
+    new_status: Optional[str] = Field(None, description="وضعیت جدید درخواست: approved یا rejected")
+    status: Optional[str] = Field(None, description="نام جایگزین سازگار برای وضعیت")
     admin_receipt_url: Optional[str] = Field(None, description="لینک یا آدرس فیش بانکی/تراکنش")
+    transaction_reference: Optional[str] = Field(None, description="نام جایگزین سازگار برای کد پیگیری")
     admin_notes: Optional[str] = Field(None, description="یادداشت مدیر")
+
+    @model_validator(mode="after")
+    def normalize_payout_payload(self):
+        raw_status = (self.new_status or self.status or "").strip().lower()
+        if raw_status in ("approved", "completed", "paid"):
+            self.new_status = "approved"
+        elif raw_status in ("rejected", "declined"):
+            self.new_status = "rejected"
+        else:
+            raise ValueError("وضعیت جدید باید یکی از مقادیر approved یا rejected باشد.")
+
+        if not self.admin_receipt_url and self.transaction_reference:
+            self.admin_receipt_url = self.transaction_reference.strip()
+        return self
 
 
 class VerifyAccountRequest(BaseModel):
     is_verified: bool = Field(..., description="تایید یا رد حساب تسویه")
+
+
+class ReleaseSelectedCommissionsRequest(BaseModel):
+    user_ids: list[int] = Field(..., min_length=1, description="شناسه کاربران منتخب برای آزادسازی گروهی")
 
 
 class DownloadLinkPayload(BaseModel):

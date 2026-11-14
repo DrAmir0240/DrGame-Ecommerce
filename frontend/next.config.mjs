@@ -83,6 +83,7 @@ const nextConfig = {
   },
 
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production';
     return [
       // DualSense and 3D models (~12 MB) cached permanently
       {
@@ -91,11 +92,17 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
-      // Static assets long-lived cache
+      // Static assets: long-lived immutable cache ONLY in production (hashed filenames);
+      // in dev unhashed chunks (e.g. layout.js / page.js) must never be pinned as immutable.
       {
         source: '/_next/static/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          {
+            key: 'Cache-Control',
+            value: isProd
+              ? 'public, max-age=31536000, immutable'
+              : 'no-store, must-revalidate',
+          },
         ],
       },
       // SVGs, public icons and media

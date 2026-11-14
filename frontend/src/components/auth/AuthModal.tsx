@@ -127,6 +127,16 @@ export default function AuthModal() {
     setConsoleCode('');
   };
 
+  const completeAuthSession = (res: TokenResponse, clearStoredReferral: boolean) => {
+    setAuth(res);
+    if (clearStoredReferral && typeof window !== 'undefined') {
+      localStorage.removeItem('drgame_referral_code');
+      document.cookie = 'drgame_ref=; path=/; max-age=0; SameSite=Lax';
+    }
+    setAuthModalOpen(false);
+    resetForms();
+  };
+
   // Real-time target validator
   const validateTarget = (val: string) => {
     const clean = normalizeTarget(val, isDomestic);
@@ -235,9 +245,7 @@ export default function AuthModal() {
           referral_code: savedRef ? savedRef.trim().toUpperCase() : undefined,
         }),
       });
-      setAuth(res);
-      setAuthModalOpen(false);
-      resetForms();
+      completeAuthSession(res, true);
     } catch (err: any) {
       setError(err.message || t('auth.modal.validation.otpVerifyFailed'));
     } finally {
@@ -288,9 +296,7 @@ export default function AuthModal() {
           referral_code: cleanReferral,
         }),
       });
-      setAuth(res);
-      setAuthModalOpen(false);
-      resetForms();
+      completeAuthSession(res, true);
     } catch (err: any) {
       setError(err.message || t('auth.modal.validation.registerFailed'));
     } finally {
@@ -317,9 +323,7 @@ export default function AuthModal() {
           password: cleanPass,
         }),
       });
-      setAuth(res);
-      setAuthModalOpen(false);
-      resetForms();
+      completeAuthSession(res, false);
     } catch (err: any) {
       setError(err.message || t('auth.modal.validation.loginFailed'));
     } finally {
@@ -344,9 +348,7 @@ export default function AuthModal() {
           console_code: cleanConsoleCode,
         }),
       });
-      setAuth(res);
-      setAuthModalOpen(false);
-      resetForms();
+      completeAuthSession(res, false);
     } catch (err: any) {
       setError(err.message || t('auth.modal.validation.consoleCodeInvalid'));
     } finally {

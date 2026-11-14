@@ -1,6 +1,7 @@
 """Wallet and referral waterfall commission services."""
+import re
 from datetime import datetime, timezone
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import (
@@ -14,10 +15,27 @@ from app.modules.wallet.models import (
     CommissionLedger,
     SettlementAccount,
     WithdrawalRequest,
+    ReferralBlacklist,
 )
 from app.modules.wallet.treasury_models import ReferralTreasuryPool, TreasuryLog
 from app.modules.subscriptions.models import UserSubscription, OrderPayment
 from app.modules.users.models import User
+
+
+def _normalize_identity_name(value: str | None) -> str:
+    """Normalize Persian/Arabic letters and whitespace for blacklist matching."""
+    if not value:
+        return ""
+    cleaned = value.replace("\u200c", " ").replace("ي", "ی").replace("ك", "ک")
+    return re.sub(r"\s+", " ", cleaned).strip().lower()
+
+
+def _normalize_national_code(value: str | None) -> str:
+    """Normalize Persian/Arabic numerals to ASCII digits for national code checks."""
+    if not value:
+        return ""
+    trans = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+    return value.translate(trans).strip()
 
 
 class WalletService:
@@ -250,8 +268,19 @@ class WalletService:
         distributed_sum = 0
         current_fraction_pool = total_commission_budget
 
-        # Fetch visible upline chain with pass-through bypass for hidden referrers
+        # Fetch visible upline chain with pass-through bypass for hidden referrers.
+        # Ghosted/blocked referrers stay in the chain so higher tiers keep their normal level,
+        # while the blocked user's share goes directly to ReferralTreasuryPool.
         uplines = await cls.get_upline_chain(db, buyer_id, max_levels=50, include_hidden=False)
+
+        blocked_map: dict[int, bool] = {}
+        if uplines:
+            blocked_rows = (
+                await db.execute(
+                    select(User.id, User.is_referral_blocked).where(User.id.in_(uplines))
+                )
+            ).all()
+            blocked_map = {row.id: bool(row.is_referral_blocked) for row in blocked_rows}
 
         for level, upline_id in enumerate(uplines, start=1):
             share = current_fraction_pool // 2
@@ -259,6 +288,30 @@ class WalletService:
                 break
 
             current_fraction_pool -= share
+
+            # Ghosting check: blocked referrer receives 0 and tier share diverts to Treasury
+            if blocked_map.get(upline_id, False):
+                distributed_sum += share
+                await cls.credit_treasury_pool(
+                    db,
+                    amount_toman=share,
+                    action_type="ghosted_referral_divert",
+                    order_id=order_payment_id,
+                    description=f"واریز سهم لایه {level} کاربر مسدودشده #{upline_id} به صندوق کل پلتفرم",
+                )
+                db.add(
+                    CommissionLedger(
+                        order_payment_id=order_payment_id or 0,
+                        beneficiary_type="treasury",
+                        user_id=upline_id,
+                        tier_level=level,
+                        amount_toman=share,
+                        settlement_status="settled",
+                        settled_at=datetime.now(timezone.utc),
+                        description=f"پورسانت لایه {level} به دلیل مسدودیت کاربر #{upline_id} به صندوق کل پلتفرم منتقل شد",
+                    )
+                )
+                continue
 
             # Check subscription if required
             has_sub = True
@@ -405,7 +458,10 @@ class WalletService:
         offset = (page - 1) * page_size
         stmt = (
             select(CommissionLedger)
-            .where(CommissionLedger.user_id == user_id)
+            .where(
+                CommissionLedger.user_id == user_id,
+                CommissionLedger.beneficiary_type == "user",
+            )
             .order_by(desc(CommissionLedger.created_at))
             .offset(offset)
             .limit(page_size)
@@ -413,7 +469,8 @@ class WalletService:
         items = (await db.execute(stmt)).scalars().all()
 
         count_stmt = select(func.count(CommissionLedger.id)).where(
-            CommissionLedger.user_id == user_id
+            CommissionLedger.user_id == user_id,
+            CommissionLedger.beneficiary_type == "user",
         )
         total = (await db.execute(count_stmt)).scalar() or 0
 
@@ -441,6 +498,13 @@ class WalletService:
     ) -> SettlementAccount:
         """Register a new domestic bank account or international crypto wallet with identity verification."""
         from app.modules.auth.identity_service import IdentityService
+
+        await WalletService._ensure_not_blacklisted_for_account(
+            db=db,
+            user_id=user_id,
+            account_holder=account_holder,
+            national_code=national_code,
+        )
 
         is_verified = False
 
@@ -664,4 +728,272 @@ class WalletService:
                 "created_at": acc.created_at,
             })
         return results
+
+    @staticmethod
+    async def _ensure_not_blacklisted_for_account(
+        db: AsyncSession,
+        user_id: int,
+        account_holder: str | None = None,
+        national_code: str | None = None,
+    ) -> None:
+        """Prevent blacklisted users or anyone using a blacklisted holder name/national code from adding payout accounts."""
+        norm_holder = _normalize_identity_name(account_holder)
+        norm_nc = _normalize_national_code(national_code)
+
+        active_entries = (
+            await db.execute(
+                select(ReferralBlacklist).where(ReferralBlacklist.is_active == True)
+            )
+        ).scalars().all()
+
+        for entry in active_entries:
+            if entry.user_id == user_id:
+                raise BadRequestException(
+                    "امکان ثبت حساب تسویه وجود ندارد؛ حساب کاربری شما در لیست سیاه سامانه قرار دارد."
+                )
+            if norm_holder and entry.blocked_full_name:
+                if _normalize_identity_name(entry.blocked_full_name) == norm_holder:
+                    raise BadRequestException(
+                        "امکان ثبت این حساب بانکی وجود ندارد؛ نام صاحب حساب یا کد ملی در لیست سیاه سامانه قرار دارد."
+                    )
+            if norm_nc and entry.blocked_national_code:
+                if _normalize_national_code(entry.blocked_national_code) == norm_nc:
+                    raise BadRequestException(
+                        "امکان ثبت این حساب بانکی وجود ندارد؛ نام صاحب حساب یا کد ملی در لیست سیاه سامانه قرار دارد."
+                    )
+
+    @staticmethod
+    async def block_user_in_referral(
+        db: AsyncSession,
+        admin_id: int,
+        user_id: int,
+        block_referral: bool = True,
+        block_subscription: bool = False,
+        reason: str = "",
+        redis=None,
+    ) -> dict:
+        """Atomically blacklist/ghost a user in referrals and optionally cancel/ban their subscriptions."""
+        if not block_referral and not block_subscription:
+            raise BadRequestException("حداقل یکی از گزینه‌های مسدودسازی باید انتخاب شود.")
+
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+
+        # Collect full name and national code (falling back to latest bank settlement account if present)
+        latest_acc = (
+            await db.execute(
+                select(SettlementAccount)
+                .where(SettlementAccount.user_id == user_id, SettlementAccount.account_type == "bank_iran")
+                .order_by(desc(SettlementAccount.created_at))
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+
+        blocked_full_name = (
+            user.full_name.strip()
+            if user.full_name and user.full_name.strip()
+            else (latest_acc.account_holder.strip() if latest_acc and latest_acc.account_holder else None)
+        )
+        blocked_national_code = (
+            _normalize_national_code(latest_acc.national_code)
+            if latest_acc and latest_acc.national_code
+            else None
+        ) or None
+
+        existing = (
+            await db.execute(
+                select(ReferralBlacklist)
+                .where(ReferralBlacklist.user_id == user_id, ReferralBlacklist.is_active == True)
+                .order_by(desc(ReferralBlacklist.created_at))
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+
+        clean_reason = reason.strip() if reason else None
+        if existing:
+            existing.admin_id = admin_id
+            existing.block_referral = bool(existing.block_referral or block_referral)
+            existing.block_subscription = bool(existing.block_subscription or block_subscription)
+            if clean_reason:
+                existing.reason = clean_reason
+            existing.blocked_full_name = blocked_full_name or existing.blocked_full_name
+            existing.blocked_national_code = blocked_national_code or existing.blocked_national_code
+            blacklist_entry = existing
+        else:
+            blacklist_entry = ReferralBlacklist(
+                user_id=user_id,
+                admin_id=admin_id,
+                block_referral=block_referral,
+                block_subscription=block_subscription,
+                reason=clean_reason,
+                blocked_full_name=blocked_full_name,
+                blocked_national_code=blocked_national_code,
+                is_active=True,
+            )
+            db.add(blacklist_entry)
+
+        if blacklist_entry.block_referral:
+            user.is_referral_blocked = True
+
+        cancelled_subs_count = 0
+        if blacklist_entry.block_subscription:
+            user.is_subscription_banned = True
+            now = datetime.now(timezone.utc)
+            cancel_stmt = (
+                update(UserSubscription)
+                .where(UserSubscription.user_id == user_id, UserSubscription.status == "active")
+                .values(status="cancelled", end_date=now)
+            )
+            cancel_res = await db.execute(cancel_stmt)
+            cancelled_subs_count = int(getattr(cancel_res, "rowcount", 0) or 0)
+
+        await db.commit()
+        await db.refresh(blacklist_entry)
+
+        if blacklist_entry.block_subscription and redis is not None:
+            try:
+                await redis.delete(f"drgame:user:{user_id}:quota")
+            except Exception:
+                pass
+
+        return {
+            "status": "success",
+            "message": "کاربر با موفقیت در سیستم مسدود شد.",
+            "blacklist_id": blacklist_entry.id,
+            "user_id": user_id,
+            "block_referral": blacklist_entry.block_referral,
+            "block_subscription": blacklist_entry.block_subscription,
+            "cancelled_subscriptions_count": cancelled_subs_count,
+        }
+
+    @staticmethod
+    async def unblock_user_in_referral(
+        db: AsyncSession,
+        admin_id: int,
+        user_id: int,
+        redis=None,
+    ) -> dict:
+        """Remove a user from active referral blacklist and restore normal referral/subscription flags."""
+        user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+        if not user:
+            raise NotFoundException("کاربر مورد نظر یافت نشد.")
+
+        active_records = (
+            await db.execute(
+                select(ReferralBlacklist).where(
+                    ReferralBlacklist.user_id == user_id,
+                    ReferralBlacklist.is_active == True,
+                )
+            )
+        ).scalars().all()
+
+        if not active_records and not user.is_referral_blocked and not user.is_subscription_banned:
+            raise NotFoundException("کاربر در لیست سیاه فعال یافت نشد.")
+
+        now = datetime.now(timezone.utc)
+        for rec in active_records:
+            rec.is_active = False
+            rec.unblocked_at = now
+            rec.unblocked_by_admin_id = admin_id
+
+        user.is_referral_blocked = False
+        user.is_subscription_banned = False
+        await db.commit()
+
+        if redis is not None:
+            try:
+                await redis.delete(f"drgame:user:{user_id}:quota")
+            except Exception:
+                pass
+
+        return {
+            "status": "success",
+            "message": "کاربر با موفقیت از لیست سیاه خارج و رفع مسدودیت شد.",
+            "user_id": user_id,
+        }
+
+    @staticmethod
+    async def list_referral_blacklist(
+        db: AsyncSession,
+        page: int = 1,
+        limit: int = 50,
+        active_only: bool = True,
+        search: str | None = None,
+    ) -> dict:
+        """List referral blacklist records with user and admin metadata."""
+        from app.modules.admin.models import ReferralAdmin
+
+        base_stmt = select(ReferralBlacklist).outerjoin(User, ReferralBlacklist.user_id == User.id)
+        if active_only:
+            base_stmt = base_stmt.where(ReferralBlacklist.is_active == True)
+
+        if search and search.strip():
+            q = search.strip()
+            term = f"%{q}%"
+            conditions = [
+                User.username.ilike(term),
+                User.full_name.ilike(term),
+                User.phone.ilike(term),
+                ReferralBlacklist.blocked_full_name.ilike(term),
+                ReferralBlacklist.blocked_national_code.ilike(term),
+                ReferralBlacklist.reason.ilike(term),
+            ]
+            if q.isdigit():
+                conditions.append(ReferralBlacklist.user_id == int(q))
+            base_stmt = base_stmt.where(or_(*conditions))
+
+        total = (await db.execute(select(func.count()).select_from(base_stmt.subquery()))).scalar() or 0
+
+        records = (
+            await db.execute(
+                base_stmt.order_by(desc(ReferralBlacklist.created_at))
+                .offset((page - 1) * limit)
+                .limit(limit)
+            )
+        ).scalars().all()
+
+        user_ids = list({r.user_id for r in records})
+        admin_ids = list({r.admin_id for r in records if r.admin_id is not None})
+
+        users_map: dict[int, User] = {}
+        if user_ids:
+            u_rows = (await db.execute(select(User).where(User.id.in_(user_ids)))).scalars().all()
+            users_map = {u.id: u for u in u_rows}
+
+        admins_map: dict[int, str] = {}
+        if admin_ids:
+            a_rows = (
+                await db.execute(select(ReferralAdmin.id, ReferralAdmin.username).where(ReferralAdmin.id.in_(admin_ids)))
+            ).all()
+            admins_map = {a.id: a.username for a in a_rows}
+
+        items = []
+        for r in records:
+            u = users_map.get(r.user_id)
+            items.append(
+                {
+                    "id": r.id,
+                    "user_id": r.user_id,
+                    "username": u.username if u else f"user_{r.user_id}",
+                    "full_name": (u.full_name if u and u.full_name else r.blocked_full_name) or "",
+                    "phone": u.phone if u else None,
+                    "blocked_national_code": r.blocked_national_code,
+                    "block_referral": r.block_referral,
+                    "block_subscription": r.block_subscription,
+                    "reason": r.reason,
+                    "is_active": r.is_active,
+                    "blocked_at": r.created_at.isoformat() if r.created_at else None,
+                    "unblocked_at": r.unblocked_at.isoformat() if r.unblocked_at else None,
+                    "admin_id": r.admin_id,
+                    "admin_username": admins_map.get(r.admin_id) if r.admin_id else None,
+                }
+            )
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "limit": limit,
+        }
 

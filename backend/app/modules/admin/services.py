@@ -190,37 +190,221 @@ class AdminService:
         }
 
     @staticmethod
+    def _serialize_payout_row(req: WithdrawalRequest, user: User | None, acc: SettlementAccount | None) -> dict:
+        return {
+            "id": req.id,
+            "user_id": req.user_id,
+            "user_username": user.username if user else f"user_{req.user_id}",
+            "user_name": user.full_name if user else "",
+            "user_phone": user.phone if user else None,
+            "amount_toman": req.amount_toman,
+            "status": req.status,
+            "account_type": acc.account_type if acc else "unknown",
+            "account_holder": acc.account_holder if acc else None,
+            "bank_name": acc.bank_name if acc else None,
+            "sheba_number": acc.sheba_number if acc else None,
+            "card_number": acc.card_number if acc else None,
+            "crypto_wallet_address": acc.crypto_wallet_address if acc else None,
+            "crypto_network": acc.crypto_network if acc else None,
+            "admin_receipt_url": req.admin_receipt_url,
+            "admin_notes": req.admin_notes,
+            "created_at": req.created_at,
+            "processed_at": req.processed_at,
+        }
+
+    @staticmethod
     async def list_payout_requests(db: AsyncSession, status: str | None = None) -> list[dict]:
         """List referral payout requests with user and settlement account details."""
-        stmt = select(WithdrawalRequest, User.full_name, User.phone, SettlementAccount).join(
-            User, WithdrawalRequest.user_id == User.id
-        ).join(
-            SettlementAccount, WithdrawalRequest.settlement_account_id == SettlementAccount.id
+        stmt = (
+            select(WithdrawalRequest, User, SettlementAccount)
+            .outerjoin(User, WithdrawalRequest.user_id == User.id)
+            .outerjoin(SettlementAccount, WithdrawalRequest.settlement_account_id == SettlementAccount.id)
         )
 
         if status:
-            stmt = stmt.where(WithdrawalRequest.status == status)
+            norm = status.strip().lower()
+            if norm in ("approved", "completed", "paid"):
+                norm = "approved"
+            stmt = stmt.where(WithdrawalRequest.status == norm)
 
         stmt = stmt.order_by(desc(WithdrawalRequest.created_at))
         rows = (await db.execute(stmt)).all()
+        return [AdminService._serialize_payout_row(req, user, acc) for req, user, acc in rows]
+
+    @staticmethod
+    async def list_payout_requests_paginated(
+        db: AsyncSession,
+        status_filter: str | None = None,
+        search: str | None = None,
+        page: int = 1,
+        limit: int = 25,
+    ) -> dict:
+        """Paginated payout requests with search, status filter, and operational summary counts."""
+        base_stmt = (
+            select(WithdrawalRequest, User, SettlementAccount)
+            .outerjoin(User, WithdrawalRequest.user_id == User.id)
+            .outerjoin(SettlementAccount, WithdrawalRequest.settlement_account_id == SettlementAccount.id)
+        )
+
+        if status_filter and status_filter.strip().lower() not in ("", "all"):
+            norm = status_filter.strip().lower()
+            if norm in ("completed", "paid"):
+                norm = "approved"
+            base_stmt = base_stmt.where(WithdrawalRequest.status == norm)
+
+        if search and search.strip():
+            q = search.strip()
+            term = f"%{q}%"
+            conditions = [
+                User.username.ilike(term),
+                User.full_name.ilike(term),
+                User.phone.ilike(term),
+                SettlementAccount.sheba_number.ilike(term),
+                SettlementAccount.card_number.ilike(term),
+                SettlementAccount.account_holder.ilike(term),
+                SettlementAccount.crypto_wallet_address.ilike(term),
+            ]
+            if q.isdigit():
+                num = int(q)
+                conditions.extend([WithdrawalRequest.id == num, WithdrawalRequest.user_id == num])
+            base_stmt = base_stmt.where(or_(*conditions))
+
+        total = (await db.execute(select(func.count()).select_from(base_stmt.subquery()))).scalar() or 0
+        rows = (
+            await db.execute(
+                base_stmt.order_by(desc(WithdrawalRequest.created_at))
+                .offset((page - 1) * limit)
+                .limit(limit)
+            )
+        ).all()
+
+        # Global summary counters across withdrawal statuses
+        summary_rows = (
+            await db.execute(
+                select(
+                    WithdrawalRequest.status,
+                    func.count(WithdrawalRequest.id),
+                    func.coalesce(func.sum(WithdrawalRequest.amount_toman), 0),
+                ).group_by(WithdrawalRequest.status)
+            )
+        ).all()
+        summary = {
+            "pending_count": 0,
+            "pending_amount_toman": 0,
+            "approved_count": 0,
+            "rejected_count": 0,
+        }
+        for st, cnt, amt in summary_rows:
+            if st == "pending":
+                summary["pending_count"] = int(cnt or 0)
+                summary["pending_amount_toman"] = int(amt or 0)
+            elif st == "approved":
+                summary["approved_count"] = int(cnt or 0)
+            elif st == "rejected":
+                summary["rejected_count"] = int(cnt or 0)
+
+        return {
+            "items": [AdminService._serialize_payout_row(req, user, acc) for req, user, acc in rows],
+            "total": total,
+            "page": page,
+            "page_size": limit,
+            "summary": summary,
+        }
+
+    @staticmethod
+    async def list_settlement_accounts_paginated(
+        db: AsyncSession,
+        page: int = 1,
+        limit: int = 25,
+        search: str | None = None,
+        verified_filter: str = "all",
+        account_type: str = "all",
+    ) -> dict:
+        """List user settlement accounts joined with user metadata, filtering, and pagination."""
+        base_stmt = select(SettlementAccount, User).outerjoin(User, SettlementAccount.user_id == User.id)
+
+        vf = (verified_filter or "all").strip().lower()
+        if vf == "verified":
+            base_stmt = base_stmt.where(SettlementAccount.is_verified == True)
+        elif vf == "pending":
+            base_stmt = base_stmt.where(SettlementAccount.is_verified == False)
+
+        at = (account_type or "all").strip().lower()
+        if at == "bank_iran":
+            base_stmt = base_stmt.where(SettlementAccount.account_type.in_(["bank_iran", "sheba"]))
+        elif at == "crypto":
+            base_stmt = base_stmt.where(SettlementAccount.account_type == "crypto")
+
+        if search and search.strip():
+            q = search.strip()
+            term = f"%{q}%"
+            conditions = [
+                User.username.ilike(term),
+                User.full_name.ilike(term),
+                User.phone.ilike(term),
+                SettlementAccount.account_holder.ilike(term),
+                SettlementAccount.national_code.ilike(term),
+                SettlementAccount.phone.ilike(term),
+                SettlementAccount.sheba_number.ilike(term),
+                SettlementAccount.card_number.ilike(term),
+                SettlementAccount.crypto_wallet_address.ilike(term),
+                SettlementAccount.bank_name.ilike(term),
+            ]
+            if q.isdigit():
+                num = int(q)
+                conditions.extend([SettlementAccount.id == num, SettlementAccount.user_id == num])
+            base_stmt = base_stmt.where(or_(*conditions))
+
+        total = (await db.execute(select(func.count()).select_from(base_stmt.subquery()))).scalar() or 0
+        rows = (
+            await db.execute(
+                base_stmt.order_by(SettlementAccount.is_verified.asc(), desc(SettlementAccount.created_at))
+                .offset((page - 1) * limit)
+                .limit(limit)
+            )
+        ).all()
+
+        total_accounts = (await db.execute(select(func.count(SettlementAccount.id)))).scalar() or 0
+        pending_accounts = (
+            await db.execute(select(func.count(SettlementAccount.id)).where(SettlementAccount.is_verified == False))
+        ).scalar() or 0
+        verified_accounts = max(0, total_accounts - pending_accounts)
 
         items = []
-        for req, full_name, phone, acc in rows:
-            items.append({
-                "id": req.id,
-                "user_id": req.user_id,
-                "user_name": full_name,
-                "user_phone": phone,
-                "amount_toman": req.amount_toman,
-                "status": req.status,
-                "account_type": acc.account_type,
-                "sheba_number": acc.sheba_number,
-                "card_number": acc.card_number,
-                "crypto_wallet_address": acc.crypto_wallet_address,
-                "crypto_network": acc.crypto_network,
-                "created_at": req.created_at,
-            })
-        return items
+        for acc, user in rows:
+            items.append(
+                {
+                    "id": acc.id,
+                    "user_id": acc.user_id,
+                    "username": user.username if user else f"user_{acc.user_id}",
+                    "user_full_name": user.full_name if user else "",
+                    "user_phone": user.phone if user else acc.phone,
+                    "account_type": acc.account_type,
+                    "sheba_number": acc.sheba_number,
+                    "card_number": acc.card_number,
+                    "account_holder": acc.account_holder,
+                    "bank_name": acc.bank_name,
+                    "national_code": acc.national_code,
+                    "phone": acc.phone or (user.phone if user else None),
+                    "crypto_wallet_address": acc.crypto_wallet_address,
+                    "crypto_network": acc.crypto_network,
+                    "is_verified": acc.is_verified,
+                    "is_active": acc.is_active,
+                    "created_at": acc.created_at,
+                }
+            )
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "page_size": limit,
+            "summary": {
+                "total_count": total_accounts,
+                "pending_count": pending_accounts,
+                "verified_count": verified_accounts,
+            },
+        }
 
     @staticmethod
     async def process_payout_request(

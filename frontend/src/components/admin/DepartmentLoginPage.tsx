@@ -7,12 +7,51 @@ import { Shield, Lock, User, AlertCircle, ArrowLeft, ChevronLeft } from "lucide-
 import { apiRequest, ApiError } from "@/lib/apiClient";
 import { setDepartmentAdminToken, DepartmentType } from "@/lib/authTokens";
 
+import { DepartmentAccentColor } from "./DepartmentLayout";
+
+const LOGIN_ACCENTS: Record<
+  DepartmentAccentColor,
+  { selection: string; glow: string; focusBorder: string }
+> = {
+  purple: {
+    selection: "selection:bg-purple-500 selection:text-white",
+    glow: "bg-purple-600/10",
+    focusBorder: "focus:border-purple-500",
+  },
+  rose: {
+    selection: "selection:bg-rose-500 selection:text-white",
+    glow: "bg-rose-600/10",
+    focusBorder: "focus:border-rose-500",
+  },
+  emerald: {
+    selection: "selection:bg-emerald-500 selection:text-white",
+    glow: "bg-emerald-600/10",
+    focusBorder: "focus:border-emerald-500",
+  },
+  blue: {
+    selection: "selection:bg-blue-500 selection:text-white",
+    glow: "bg-blue-600/10",
+    focusBorder: "focus:border-blue-500",
+  },
+  amber: {
+    selection: "selection:bg-amber-500 selection:text-white",
+    glow: "bg-amber-600/10",
+    focusBorder: "focus:border-amber-500",
+  },
+  cyan: {
+    selection: "selection:bg-cyan-500 selection:text-white",
+    glow: "bg-cyan-600/10",
+    focusBorder: "focus:border-cyan-500",
+  },
+};
+
 interface DepartmentLoginPageProps {
   department: DepartmentType;
   deptTitleFa: string;
   deptTitleEn: string;
   badgeColor: string;
   accentBtn: string;
+  accentColor?: DepartmentAccentColor;
   icon: React.ReactNode;
 }
 
@@ -22,8 +61,10 @@ export default function DepartmentLoginPage({
   deptTitleEn,
   badgeColor,
   accentBtn,
+  accentColor = "purple",
   icon,
 }: DepartmentLoginPageProps) {
+  const theme = LOGIN_ACCENTS[accentColor] || LOGIN_ACCENTS.purple;
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -69,10 +110,10 @@ export default function DepartmentLoginPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col justify-center items-center p-4 selection:bg-purple-500 selection:text-white" dir="rtl">
+    <div className={`min-h-screen bg-[#07090e] text-slate-100 flex flex-col justify-center items-center p-4 ${theme.selection}`} dir="rtl">
       {/* Background radial glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
+        <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 ${theme.glow} rounded-full blur-3xl`} />
       </div>
 
       <div className="w-full max-w-md relative z-10 space-y-6">
@@ -124,7 +165,7 @@ export default function DepartmentLoginPage({
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono text-left transition-colors pl-9"
+                  className={`w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none ${theme.focusBorder} font-mono text-left transition-colors pl-9`}
                   placeholder="admin_username"
                 />
                 <User className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
@@ -141,7 +182,7 @@ export default function DepartmentLoginPage({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono text-left transition-colors pl-9"
+                  className={`w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none ${theme.focusBorder} font-mono text-left transition-colors pl-9`}
                   placeholder="••••••••"
                 />
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />

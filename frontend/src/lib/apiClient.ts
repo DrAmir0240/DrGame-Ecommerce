@@ -8,6 +8,7 @@ import {
   getAdminToken,
   getDepartmentAdminToken,
   clearAdminTokens,
+  clearDepartmentAdminToken,
   getCookie,
   DepartmentType,
 } from './authTokens';
@@ -56,13 +57,10 @@ export async function apiRequest<T = any>(
 
   // Read appropriate token securely without touching customer localStorage
   let token: string | null = null;
-  if (!isPublicAuthEndpoint && typeof window !== 'undefined') {
+  let matchedDept: DepartmentType | null = null;
+  if (typeof window !== 'undefined') {
     const pathname = window.location.pathname;
-
-    // Check Department isolation first:
     const departments: DepartmentType[] = ['content', 'finance', 'support', 'report', 'referral'];
-    let matchedDept: DepartmentType | null = null;
-
     for (const d of departments) {
       if (cleanEndpoint.startsWith(`/admin-${d}`) || pathname.startsWith(`/admin/${d}`)) {
         matchedDept = d;
@@ -70,15 +68,16 @@ export async function apiRequest<T = any>(
       }
     }
 
-    if (matchedDept) {
-      token = getDepartmentAdminToken(matchedDept);
-    } else {
-      const isAdminPage = pathname.startsWith('/admin');
-
-      if (isAdminEndpoint || isAdminPage) {
-        token = getAdminToken();
+    if (!isPublicAuthEndpoint) {
+      if (matchedDept) {
+        token = getDepartmentAdminToken(matchedDept);
       } else {
-        token = getAccessToken();
+        const isAdminPage = pathname.startsWith('/admin');
+        if (isAdminEndpoint || isAdminPage) {
+          token = getAdminToken();
+        } else {
+          token = getAccessToken();
+        }
       }
     }
   }
@@ -119,12 +118,22 @@ export async function apiRequest<T = any>(
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    // If admin token is invalid/forbidden on admin pages, cleanly clear and redirect to /admin/login
-    if (typeof window !== 'undefined' && (response.status === 401 || response.status === 403)) {
-      const isAdminPage = window.location.pathname.startsWith('/admin');
-      if ((isAdminEndpoint || isAdminPage) && window.location.pathname !== '/admin/login' && !isPublicAuthEndpoint) {
-        clearAdminTokens();
-        window.location.href = '/admin/login';
+    // Only 401 Unauthorized means missing/expired credentials -> clear token and redirect to proper login page.
+    // Never clear tokens or redirect on 403 Forbidden (e.g., read_only staff blocked from a write action).
+    if (typeof window !== 'undefined' && response.status === 401 && !isPublicAuthEndpoint) {
+      const pathname = window.location.pathname;
+      if (matchedDept) {
+        const deptLoginPath = `/admin/${matchedDept}/login`;
+        if (pathname !== deptLoginPath) {
+          clearDepartmentAdminToken(matchedDept);
+          window.location.href = deptLoginPath;
+        }
+      } else {
+        const isAdminPage = pathname.startsWith('/admin');
+        if ((isAdminEndpoint || isAdminPage) && pathname !== '/admin/login') {
+          clearAdminTokens();
+          window.location.href = '/admin/login';
+        }
       }
     }
 

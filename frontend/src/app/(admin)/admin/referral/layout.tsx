@@ -1,27 +1,26 @@
-"use client";
+'use client';
 
-import React from "react";
-import DepartmentLayout, { DeptNavItem } from "@/components/admin/DepartmentLayout";
+import React from 'react';
+import DepartmentLayout, { DeptNavItem } from '@/components/admin/DepartmentLayout';
+import { AdminToastProvider } from '@/components/admin/referral/AdminToast';
 import {
   LayoutDashboard,
-  CreditCard,
-  Share2,
-  Landmark,
-  Users,
-  Clock,
   GitFork,
+  Clock,
+  CreditCard,
+  Landmark,
   Coins,
-} from "lucide-react";
+  Users,
+} from 'lucide-react';
 
 const referralNavItems: DeptNavItem[] = [
-  { label: "داشبورد رفرال", href: "/admin/referral", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: "مرکز تسویه هفتگی", href: "/admin/referral/settlement", icon: <Clock className="w-5 h-5" /> },
-  { label: "کاوشگر شجره‌نامه", href: "/admin/referral/tree", icon: <GitFork className="w-5 h-5" /> },
-  { label: "خزانه‌داری پلتفرم", href: "/admin/referral/treasury", icon: <Coins className="w-5 h-5" /> },
-  { label: "درخواست‌های تسویه", href: "/admin/referral/payouts", icon: <CreditCard className="w-5 h-5" /> },
-  { label: "زنجیره‌های دعوت", href: "/admin/referral/chains", icon: <Share2 className="w-5 h-5" /> },
-  { label: "حساب‌های بانکی و شبا", href: "/admin/referral/accounts", icon: <Landmark className="w-5 h-5" /> },
-  { label: "مدیریت پرسنل", href: "/admin/referral/staff", icon: <Users className="w-5 h-5" /> },
+  { label: 'نمای کلی و هشدارها', href: '/admin/referral', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: 'شبکه، شجره‌نامه و لیست سیاه', href: '/admin/referral/tree', icon: <GitFork className="w-5 h-5" /> },
+  { label: 'آزادسازی پورسانت‌های معوق', href: '/admin/referral/settlement', icon: <Clock className="w-5 h-5" /> },
+  { label: 'درخواست‌های واریز (شبا و تتر)', href: '/admin/referral/payouts', icon: <CreditCard className="w-5 h-5" /> },
+  { label: 'تایید حساب‌های بانکی و ولت', href: '/admin/referral/accounts', icon: <Landmark className="w-5 h-5" /> },
+  { label: 'خزانه‌داری و پاداش‌ها', href: '/admin/referral/treasury', icon: <Coins className="w-5 h-5" /> },
+  { label: 'مدیریت پرسنل دپارتمان', href: '/admin/referral/staff', icon: <Users className="w-5 h-5" /> },
 ];
 
 export default function ReferralDepartmentLayout({
@@ -34,15 +33,16 @@ export default function ReferralDepartmentLayout({
       department="referral"
       deptTitleFa="مدیریت بازاریابی و رفرال"
       deptTitleEn="Referral Department"
+      accentColor="rose"
       accent={{
-        color: "text-rose-400",
-        border: "border-rose-500/30",
-        badge: "bg-rose-500/10 text-rose-400 border border-rose-500/30",
-        bgActive: "bg-gradient-to-r from-rose-600 to-rose-700 shadow-rose-950/40",
+        color: 'text-rose-400',
+        border: 'border-rose-500/30',
+        badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/30',
+        bgActive: 'bg-gradient-to-r from-rose-600 to-rose-700 shadow-rose-950/40',
       }}
       navItems={referralNavItems}
     >
-      {children}
+      <AdminToastProvider>{children}</AdminToastProvider>
     </DepartmentLayout>
   );
 }

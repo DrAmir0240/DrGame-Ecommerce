@@ -81,17 +81,25 @@ export default function ReferralDashboardPage() {
         apiRequest<CommissionTransactionListResponse>(
           `/referral/transactions?page=${page}&page_size=15${layerParam}`
         ),
-        apiRequest<{ items: WithdrawalHistoryItem[]; total: number; page: number; page_size: number }>(
-          `/referral/withdrawals?page=${withdrawalsPage}&page_size=10`
-        ).catch(() => ({ items: [], total: 0, page: 1, page_size: 10 })),
+        apiRequest<
+          | WithdrawalHistoryItem[]
+          | { items: WithdrawalHistoryItem[]; total: number; page: number; page_size: number }
+        >(`/referral/withdrawals?page=${withdrawalsPage}&page_size=10`).catch(() => []),
       ]);
       setStats(statsData);
       setNetworkTree(treeData);
       setAccounts(accountsData || []);
       setTransactions(txData.items || []);
       setTotalTx(txData.total || 0);
-      setWithdrawals(withdrawalsData.items || []);
-      setWithdrawalsTotal(withdrawalsData.total || 0);
+      const withdrawalItems = Array.isArray(withdrawalsData)
+        ? withdrawalsData
+        : withdrawalsData?.items || [];
+      setWithdrawals(withdrawalItems);
+      setWithdrawalsTotal(
+        Array.isArray(withdrawalsData)
+          ? (withdrawalsPage - 1) * 10 + withdrawalItems.length
+          : withdrawalsData?.total || withdrawalItems.length
+      );
     } catch (err) {
       console.error('Failed to load referral data:', err);
     } finally {

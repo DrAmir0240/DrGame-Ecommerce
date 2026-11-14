@@ -5,13 +5,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as aioredis
 
-from app.core.exceptions import NotFoundError, BadRequestError
+from app.core.exceptions import NotFoundError, BadRequestError, ForbiddenException
 from app.modules.subscriptions.models import (
     SubscriptionTier,
     UserSubscription,
     DiscountCode,
     OrderPayment,
 )
+from app.modules.users.models import User
 from app.modules.quota.services import QuotaService
 
 DEFAULT_TIERS = [
@@ -308,6 +309,14 @@ class SubscriptionService:
         payment_method: str = "simulation"
     ) -> dict:
         """Process checkout for 1, 3, or 6 months subscription, register and charge quota."""
+        is_banned = await db.scalar(
+            select(User.is_subscription_banned).where(User.id == user_id)
+        )
+        if is_banned:
+            raise ForbiddenException(
+                "حساب کاربری شما به دلیل مسدودیت پلتفرم از خرید یا تمدید اشتراک محروم شده است."
+            )
+
         if duration_months not in (1, 3, 6):
             raise BadRequestError("دوره اشتراک انتخابی نامعتبر است (تنها ۱، ۳ یا ۶ ماهه مجاز می‌باشد).")
 

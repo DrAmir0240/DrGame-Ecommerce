@@ -8,6 +8,7 @@ export default function ReferralStaffPage() {
     <DepartmentStaffManager
       department="referral"
       departmentNameFa="دپارتمان بازاریابی و رفرال"
+      accentColor="rose"
     />
   );
 }

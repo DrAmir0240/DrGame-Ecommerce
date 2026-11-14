@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
@@ -39,10 +39,40 @@ export interface DepartmentAdminProfile {
   department: string;
 }
 
+export type DepartmentAccentColor = 'purple' | 'rose' | 'emerald' | 'blue' | 'amber' | 'cyan';
+
+const SPINNER_BY_ACCENT: Record<DepartmentAccentColor, string> = {
+  purple: 'border-purple-500',
+  rose: 'border-rose-500',
+  emerald: 'border-emerald-500',
+  blue: 'border-blue-500',
+  amber: 'border-amber-500',
+  cyan: 'border-cyan-500',
+};
+
+interface DepartmentProfileContextValue {
+  admin: DepartmentAdminProfile | null;
+  isReadOnly: boolean;
+  loading: boolean;
+  department: DepartmentType | null;
+}
+
+const DepartmentProfileContext = createContext<DepartmentProfileContextValue>({
+  admin: null,
+  isReadOnly: false,
+  loading: true,
+  department: null,
+});
+
+export function useDepartmentProfile() {
+  return useContext(DepartmentProfileContext);
+}
+
 interface DepartmentLayoutProps {
   department: DepartmentType;
   deptTitleFa: string;
   deptTitleEn: string;
+  accentColor?: DepartmentAccentColor;
   accent: {
     color: string;
     border: string;
@@ -57,6 +87,7 @@ export default function DepartmentLayout({
   department,
   deptTitleFa,
   deptTitleEn,
+  accentColor = 'purple',
   accent,
   navItems,
   children,
@@ -169,9 +200,9 @@ export default function DepartmentLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#07090e] flex items-center justify-center text-slate-400">
+      <div className="min-h-screen bg-[#07090e] flex items-center justify-center text-slate-400" dir="rtl">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <div className={`w-8 h-8 border-2 ${SPINNER_BY_ACCENT[accentColor]} border-t-transparent rounded-full animate-spin`} />
           <span className="text-sm">در حال احراز هویت دپارتمان {deptTitleFa}...</span>
         </div>
       </div>
@@ -460,7 +491,16 @@ export default function DepartmentLayout({
 
         {/* Page Content (Scrolls smoothly underneath the fixed header) */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 min-w-0 max-w-full overscroll-contain">
-          {children}
+          <DepartmentProfileContext.Provider
+            value={{
+              admin,
+              isReadOnly: admin?.access_level === 'read_only',
+              loading,
+              department,
+            }}
+          >
+            {children}
+          </DepartmentProfileContext.Provider>
         </main>
       </div>
     </div>
